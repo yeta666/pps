@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<!--配置反序列化-->
+
+<generatorConfiguration>
+    <context id="MysqlContext" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+
+        <plugin type="tk.mybatis.mapper.generator.MapperPlugin">
+            <property name="mappers" value="com.yeta.pps.util.CommonMapper"/>
+        </plugin>
+
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/pps"
+                        userId="root"
+                        password="root">
+        </jdbcConnection>
+
+        <!-- 对于生成的po所在包 -->
+        <javaModelGenerator targetPackage="com.yeta.pps.po" targetProject="src/main/java"/>
+
+        <!-- 对于生成的mapper所在目录 -->
+        <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources"/>
+
+        <!-- 配置mapper对应的java映射 -->
+        <javaClientGenerator targetPackage="com.yeta.pps.mapper" targetProject="src/main/java" type="XMLMAPPER"/>
+
+        <!-- 配置表信息 -->
+        <!--<table tableName="store" catalog="pps"></table>-->
+        <!--<table tableName="user" catalog="pps"></table>-->
+        <!--<table tableName="role" catalog="pps"></table>-->
+        <table tableName="user_role" catalog="pps"></table>
+        <!--<table tableName="function" catalog="pps"></table>-->
+        <table tableName="role_function" catalog="pps"></table>
+    </context>
+</generatorConfiguration>

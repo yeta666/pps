@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeta.pps.mapper.TableMapper" >
+
+    <insert id="addUser" parameterType="java.lang.Integer">
+        CREATE TABLE user_${storeId} (
+            id varchar(50) NOT NULL COMMENT '用户id',
+            name varchar(10) NOT NULL COMMENT '用户姓名',
+            username varchar(50) not null comment '用户名',
+            password varchar(50) not null comment '密码',
+            remark varchar(200) comment '备注',
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    </insert>
+
+    <delete id="deleteUser" parameterType="java.lang.Integer">
+        drop table if exists user_${storeId};
+    </delete>
+
+    <insert id="addRole" parameterType="java.lang.Integer">
+        CREATE TABLE role_${storeId} (
+            id int not null auto_increment comment '角色id',
+            name varchar(10) not null comment '角色名',
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    </insert>
+
+    <delete id="deleteRole" parameterType="java.lang.Integer">
+        drop table if exists role_${storeId};
+    </delete>
+
+    <insert id="addUserRole" parameterType="java.lang.Integer">
+        CREATE TABLE user_role_${storeId} (
+            id int not null auto_increment comment 'id',
+            user_id varchar(50) NOT NULL COMMENT '用户id',
+            role_id int not null comment '角色id',
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    </insert>
+
+    <delete id="deleteUserRole" parameterType="java.lang.Integer">
+        drop table if exists user_role_${storeId};
+    </delete>
+
+    <insert id="addRoleFunction" parameterType="java.lang.Integer">
+        CREATE TABLE role_function_${storeId} (
+            id int not null auto_increment comment 'id',
+            role_id int not null comment '角色id',
+            function_id int NOT NULL COMMENT '功能id',
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    </insert>
+
+    <delete id="deleteRoleFunction" parameterType="java.lang.Integer">
+        drop table if exists role_function_${storeId};
+    </delete>
+
+</mapper>

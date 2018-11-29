@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeta.pps.mapper.MyUserMapper">
+
+  <select id="findAll" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.po.User">
+    select id, name, username, password, remark from user_${storeId};
+  </select>
+
+  <select id="findById" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.po.User">
+    select id, name, username, password, remark from user_${storeId} where id = #{id};
+  </select>
+
+  <select id="findByUsernameAndPassword" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.po.User">
+    select id, name, username, password, remark from user_${storeId} where username = #{username} and password = ${password};
+  </select>
+
+  <insert id="add" parameterType="com.yeta.pps.vo.UserVo">
+    insert into user_${storeId} (id, name, username, password, remark) values (#{id}, #{name}, #{username}, #{password}, #{remark});
+  </insert>
+
+  <update id="update" parameterType="com.yeta.pps.vo.UserVo">
+    update user_${storeId} set name = #{user.name}, username = #{username}, password = #{password}, remark = #{remark} where id = #{id};
+  </update>
+
+  <delete id="deleteById" parameterType="com.yeta.pps.vo.UserVo">
+    delete from user_${storeId} where id = #{id};
+  </delete>
+
+  <!---->
+
+  <insert id="addUserRole" parameterType="com.yeta.pps.vo.UserRoleVo" useGeneratedKeys="true" keyProperty="id">
+    insert into user_role_${storeId} (user_id, role_id) values (#{userId}, #{roleId});
+  </insert>
+
+  <delete id="deleteUserRole" parameterType="com.yeta.pps.vo.UserRoleVo">
+    delete from user_role_${storeId} where id = #{id};
+  </delete>
+
+  <update id="updateUserRole" parameterType="com.yeta.pps.vo.UserRoleVo">
+    update user_role_${storeId} set role_id = #{roleId};
+  </update>
+
+  <select id="findUserRole" parameterType="com.yeta.pps.vo.UserRoleVo" resultType="com.yeta.pps.po.Role">
+    SELECT
+        r.id,
+        r.name
+    FROM
+        role_${storeId} AS r,
+        user_role_${storeId} AS ur
+    WHERE
+        r.id = ur.role_id
+    AND ur.user_id = #{userId};
+  </select>
+
+</mapper>
