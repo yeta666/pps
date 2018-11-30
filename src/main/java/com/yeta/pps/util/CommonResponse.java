@@ -17,6 +17,10 @@ public class CommonResponse {
     public static final Integer CODE8 = 1008;
     public static final Integer CODE9 = 1009;
     public static final Integer CODE10 = 1010;
+    public static final Integer CODE11 = 1011;
+    public static final Integer CODE12 = 1012;
+    public static final Integer CODE13 = 1013;
+    public static final Integer CODE14 = 1014;
     //...
 
     public static final String MESSAGE1 = "请求成功";
@@ -29,6 +33,10 @@ public class CommonResponse {
     public static final String MESSAGE8 = "删除数据失败";
     public static final String MESSAGE9 = "修改数据失败";
     public static final String MESSAGE10 = "查询数据失败";
+    public static final String MESSAGE11 = "重复登陆";
+    public static final String MESSAGE12 = "文件上传失败";
+    public static final String MESSAGE13 = "下载失败";
+    public static final String MESSAGE14 = "token错误";
 
     private Integer code;
 

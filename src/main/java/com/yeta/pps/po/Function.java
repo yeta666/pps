@@ -27,8 +27,6 @@ public class Function {
     @Column(name = "parnet_id")
     private Integer parnetId;
 
-    private List<Function> subFunctions;
-
     public Function() {
     }
 
@@ -111,14 +109,6 @@ public class Function {
         this.parnetId = parnetId;
     }
 
-    public List<Function> getSubFunctions() {
-        return subFunctions;
-    }
-
-    public void setSubFunctions(List<Function> subFunctions) {
-        this.subFunctions = subFunctions;
-    }
-
     @Override
     public String toString() {
         return "Function{" +
@@ -126,7 +116,6 @@ public class Function {
                 ", name='" + name + '\'' +
                 ", level=" + level +
                 ", parnetId=" + parnetId +
-                ", subFunctions=" + subFunctions +
                 '}';
     }
 }

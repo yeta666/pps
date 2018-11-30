@@ -3,23 +3,23 @@
 <mapper namespace="com.yeta.pps.mapper.MyUserMapper">
 
   <select id="findAll" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.po.User">
-    select id, name, username, password, remark from user_${storeId};
+    select id, name, username, password, remark, disabled from user_${storeId};
   </select>
 
   <select id="findById" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.po.User">
-    select id, name, username, password, remark from user_${storeId} where id = #{id};
+    select id, name, username, password, remark, disabled from user_${storeId} where id = #{id};
   </select>
 
   <select id="findByUsernameAndPassword" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.po.User">
-    select id, name, username, password, remark from user_${storeId} where username = #{username} and password = ${password};
+    select id, name, username, password, remark, disabled from user_${storeId} where username = #{username} and password = #{password};
   </select>
 
   <insert id="add" parameterType="com.yeta.pps.vo.UserVo">
-    insert into user_${storeId} (id, name, username, password, remark) values (#{id}, #{name}, #{username}, #{password}, #{remark});
+    insert into user_${storeId} (id, name, username, password, remark, disabled) values (#{id}, #{name}, #{username}, #{password}, #{remark}, #{disable});
   </insert>
 
   <update id="update" parameterType="com.yeta.pps.vo.UserVo">
-    update user_${storeId} set name = #{user.name}, username = #{username}, password = #{password}, remark = #{remark} where id = #{id};
+    update user_${storeId} set name = #{user.name}, username = #{username}, password = #{password}, remark = #{remark}, disabled = #{disabled} where id = #{id};
   </update>
 
   <delete id="deleteById" parameterType="com.yeta.pps.vo.UserVo">

@@ -13,6 +13,16 @@ public class UserVo {
     private Integer storeId;
 
     /**
+     * 验证码
+     */
+    private String identifyingCode;
+
+    /**
+     * 凭证
+     */
+    private String token;
+
+    /**
      * 用户id
      */
     private String id;
@@ -37,7 +47,16 @@ public class UserVo {
      */
     private String remark;
 
+    /**
+     * 是否禁用，0：不禁用，1：禁用
+     */
+    private Integer disabled;
+
     public UserVo() {
+    }
+
+    public UserVo(String id) {
+        this.id = id;
     }
 
     public Integer getStoreId() {
@@ -46,6 +65,22 @@ public class UserVo {
 
     public void setStoreId(Integer storeId) {
         this.storeId = storeId;
+    }
+
+    public String getIdentifyingCode() {
+        return identifyingCode;
+    }
+
+    public void setIdentifyingCode(String identifyingCode) {
+        this.identifyingCode = identifyingCode;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getId() {
@@ -88,15 +123,26 @@ public class UserVo {
         this.remark = remark;
     }
 
+    public Integer getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(Integer disabled) {
+        this.disabled = disabled;
+    }
+
     @Override
     public String toString() {
         return "UserVo{" +
                 "storeId=" + storeId +
+                ", identifyingCode='" + identifyingCode + '\'' +
+                ", token='" + token + '\'' +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", remark='" + remark + '\'' +
+                ", disabled=" + disabled +
                 '}';
     }
 }

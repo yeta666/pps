@@ -30,6 +30,11 @@ public class User {
      */
     private String remark;
 
+    /**
+     * 是否禁用，0：不禁用，1：禁用
+     */
+    private Integer disabled;
+
     public User() {
     }
 
@@ -128,6 +133,14 @@ public class User {
         this.remark = remark;
     }
 
+    public Integer getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(Integer disabled) {
+        this.disabled = disabled;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -136,6 +149,7 @@ public class User {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", remark='" + remark + '\'' +
+                ", disabled=" + disabled +
                 '}';
     }
 }

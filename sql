@@ -15,15 +15,16 @@ create table user_1(
   username varchar(50) not null comment '用户名',
   password varchar(50) not null comment '密码',
   remark varchar(200) comment '备注',
+  disabled tinyint not null comment '是否禁用，0：不禁用，1：禁用',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into user_1(id, name, username, password) values (uuid(), '总店老板', 'lb', 'lb');
-insert into user_1(id, name, username, password) values (uuid(), '总店销售经理', 'xsjl', 'xsjl');
-insert into user_1(id, name, username, password) values (uuid(), '总店销售', 'xs', 'xs');
-insert into user_1(id, name, username, password) values (uuid(), '总店采购', 'cg', 'cg');
-insert into user_1(id, name, username, password) values (uuid(), '总店库管', 'kg', 'kg');
-insert into user_1(id, name, username, password) values (uuid(), '总店财务', 'cw', 'cw');
+insert into user_1(id, name, username, password, disabled) values ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '总店老板', 'lb', 'lb', 0);
+insert into user_1(id, name, username, password, disabled) values ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '总店销售经理', 'xsjl', 'xsjl', 0);
+insert into user_1(id, name, username, password, disabled) values ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '总店销售', 'xs', 'xs', 0);
+insert into user_1(id, name, username, password, disabled) values ('dcc00d94-f384-11e8-b25b-54ee75c0f47a', '总店采购', 'cg', 'cg', 0);
+insert into user_1(id, name, username, password, disabled) values ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '总店库管', 'kg', 'kg', 0);
+insert into user_1(id, name, username, password, disabled) values ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '总店财务', 'cw', 'cw', 0);
 
 drop table role_1;
 create table role_2(

@@ -3,10 +3,10 @@ package com.yeta.pps.service;
 import com.yeta.pps.mapper.FunctionMapper;
 import com.yeta.pps.po.Function;
 import com.yeta.pps.util.CommonResponse;
+import com.yeta.pps.vo.FunctionMapVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,34 +21,25 @@ public class FunctionService {
     @Autowired
     private FunctionMapper functionMapper;
 
+    /**
+     * 获取所有功能
+     * @return
+     */
     public CommonResponse findAll() {
-        //最终结果
-        List<Function> result = new ArrayList<>();
         //查找所有功能
         List<Function> functions =  functionMapper.selectAll();
+        FunctionMapVo functionMapVo = new FunctionMapVo();
         //过滤一级功能
-        List<Function> levelOneFunctions = functions.stream()
-                .filter(function -> function.getLevel().toString().equals("1"))
-                .collect(Collectors.toList());
-        //遍历每个一级功能，找到每一个一级功能对应的二级功能
-        for (Function levelOneFunction : levelOneFunctions) {
-            List<Function> levelTwoFunctions = functions.stream()
-                    .filter(function -> function.getParnetId().toString().equals(levelOneFunction.getId().toString()))
-                    .collect(Collectors.toList());
-            levelOneFunction.setSubFunctions(levelTwoFunctions);
-            //遍历每个二级功能，找到每一个二级功能对应的三级功能
-            for (Function levelTwoFunction : levelTwoFunctions) {
-                List<Function> levelThreeFunctions = functions.stream()
-                        .filter(function -> function.getParnetId().toString().equals(levelTwoFunction.getId().toString()))
-                        .collect(Collectors.toList());
-                levelTwoFunction.setSubFunctions(levelThreeFunctions);
-            }
-            result.add(levelOneFunction);
-        }
-        if (result.size() == 0) {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
-        }
-        return new CommonResponse(CommonResponse.CODE1, result, CommonResponse.MESSAGE1);
+        List<Function> level1 = functions.stream().filter(function -> function.getLevel().toString().equals("1")).collect(Collectors.toList());
+        //过滤二级功能
+        List<Function> level2 = functions.stream().filter(function -> function.getLevel().toString().equals("2")).collect(Collectors.toList());
+        //过滤三级功能
+        List<Function> level3 = functions.stream().filter(function -> function.getLevel().toString().equals("3")).collect(Collectors.toList());
+        //封装返回结果
+        functionMapVo.setLevel1(level1);
+        functionMapVo.setLevel2(level2);
+        functionMapVo.setLevel3(level3);
+        return new CommonResponse(CommonResponse.CODE1, functionMapVo, CommonResponse.MESSAGE1);
     }
 }
 
