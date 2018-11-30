@@ -56,39 +56,4 @@ public class UserController {
                                  HttpServletRequest request) {
         return userService.logout(new UserVo(userId), request);
     }
-
-    //
-
-    /**
-     * 新增用户角色关系接口
-     * @param userRoleVo
-     * @return
-     */
-    @PostMapping(value = "/users/roles")
-    public CommonResponse addUserRole(@RequestBody @Valid UserRoleVo userRoleVo) {
-        return userService.addUserRole(userRoleVo);
-    }
-
-    /**
-     * 删除用户角色关系接口
-     * @param userRoleId
-     * @param storeId
-     * @return
-     */
-    @DeleteMapping(value = "/users/roles/{userRoleId}")
-    public CommonResponse deleteUserRole(@PathVariable(value = "userRoleId") Integer userRoleId,
-                                         @RequestParam(value = "storeId") Integer storeId) {
-        return userService.deleteUserRole(new UserRoleVo(storeId, userRoleId));
-    }
-
-    /**
-     * 修改用户角色关系接口
-     * @param userRoleVo
-     * @return
-     */
-    @PutMapping(value = "/users/roles")
-    public CommonResponse updateUserRole(@RequestBody @Valid UserRoleVo userRoleVo) {
-        return userService.updateUserRole(userRoleVo);
-    }
-
 }

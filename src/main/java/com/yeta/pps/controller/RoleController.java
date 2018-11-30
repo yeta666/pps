@@ -32,7 +32,7 @@ public class RoleController {
     }
 
     /**
-     * 删除角色
+     * 删除角色接口
      * @param storeId
      * @param roleId
      * @return
@@ -44,7 +44,7 @@ public class RoleController {
     }
 
     /**
-     * 修改角色
+     * 修改角色接口
      * @param roleVo
      * @return
      */
@@ -54,7 +54,7 @@ public class RoleController {
     }
 
     /**
-     * 查询所有角色
+     * 查询所有角色接口
      * @param storeId
      * @return
      */
@@ -66,7 +66,7 @@ public class RoleController {
     //
 
     /**
-     * 修改角色功能关系
+     * 修改角色功能关系接口
      * @param functionMapVo
      * @return
      */
@@ -76,7 +76,7 @@ public class RoleController {
     }
 
     /**
-     * 根据用户id查找功能
+     * 根据用户id查找功能接口
      * @param userId
      * @param storeId
      * @return
@@ -88,7 +88,7 @@ public class RoleController {
     }
 
     /**
-     * 根据角色id查找功能
+     * 根据角色id查找功能接口
      * @param roleId
      * @param storeId
      * @return

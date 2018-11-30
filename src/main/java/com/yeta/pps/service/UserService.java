@@ -1,23 +1,27 @@
 package com.yeta.pps.service;
 
+import com.yeta.pps.exception.CommonException;
+import com.yeta.pps.mapper.MyDepartmentMapper;
 import com.yeta.pps.mapper.MyRoleMapper;
 import com.yeta.pps.mapper.MyUserMapper;
+import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.User;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonUtil;
-import com.yeta.pps.vo.RoleVo;
-import com.yeta.pps.vo.UserRoleVo;
-import com.yeta.pps.vo.UserVo;
+import com.yeta.pps.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
@@ -35,6 +39,12 @@ public class UserService {
 
     @Autowired
     private MyRoleMapper myRoleMapper;
+
+    @Autowired
+    private MyDepartmentMapper myDepartmentMapper;
+
+    @Autowired
+    private MyWarehouseMapper myWarehouseMapper;
 
     /**
      * 获取验证码
@@ -122,68 +132,98 @@ public class UserService {
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
-    //
-
     /**
-     * 新增用户角色关系
-     * @param userRoleVo
+     * 新增用户
+     * @param userVo
      * @return
      */
-    public CommonResponse addUserRole(UserRoleVo userRoleVo) {
+    @Transactional
+    public CommonResponse add(UserVo userVo) {
         //判断参数
-        if (userRoleVo.getUserId() == null || userRoleVo.getRoleId() == null) {
+        if (userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null ||
+                userVo.getDepartmentId() == null || userVo.getWarehouseId() == null || userVo.getRoleId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
-        //判断用户是否已经有角色
-        if (myUserMapper.findUserRole(userRoleVo) != null) {
+        //判断部门id是否存在
+        DepartmentVo departmentVo = new DepartmentVo(userVo.getStoreId(), userVo.getDepartmentId());
+        if (myDepartmentMapper.findById(departmentVo) == null) {
+            LOG.info("部门id【{}】不存在，新增用户失败...", userVo.getDepartmentId());
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
-        //判断角色是否存在
-        if (myRoleMapper.findById(new RoleVo(userRoleVo.getStoreId(), userRoleVo.getId())) == null) {
+        //判断仓库id是否存在
+        WarehouseVo warehouseVo = new WarehouseVo(userVo.getStoreId(), userVo.getWarehouseId());
+        if (myWarehouseMapper.findById(warehouseVo) == null) {
+            LOG.info("仓库id【{}】不存在，新增用户失败...", userVo.getWarehouseId());
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
-        //新增
+        //判断角色id是否存在
+        RoleVo roleVo = new RoleVo(userVo.getStoreId(), userVo.getRoleId());
+        if (myRoleMapper.findById(roleVo) == null) {
+            LOG.info("角色id【{}】不存在，新增用户失败...", userVo.getRoleId());
+            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+        }
+        //新增用户
+        userVo.setId(UUID.randomUUID().toString());
+        userVo.setDisabled(0);
+        if (myUserMapper.add(userVo) != 1) {
+            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+        }
+        //新增部门用户关系
+        DepartmentUserVo departmentUserVo = new DepartmentUserVo(userVo.getStoreId(), userVo.getDepartmentId(), userVo.getId());
+        if (myDepartmentMapper.addDepartmentUser(departmentUserVo) != 1) {
+            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+        }
+        //新增仓库用户关系
+        WarehouseUserVo warehouseUserVo = new WarehouseUserVo(userVo.getStoreId(), userVo.getWarehouseId(), userVo.getId());
+        if (myWarehouseMapper.addWarehouseUser(warehouseUserVo) != 1) {
+            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+        }
+        //新增用户角色关系
+        UserRoleVo userRoleVo = new UserRoleVo(userVo.getStoreId(), userVo.getId(), userVo.getRoleId());
         if (myUserMapper.addUserRole(userRoleVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
     /**
-     * 删除用户角色关系
-     * @param userRoleVo
+     * 删除用户
+     * @param userVo
      * @return
      */
-    public CommonResponse deleteUserRole(UserRoleVo userRoleVo) {
+    public CommonResponse delete(UserVo userVo) {
         //判断参数
-        if (userRoleVo.getId() == null) {
+        if (userVo.getId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
-        //删除
+        //删除用户
+        if (myUserMapper.delete(userVo) != 1) {
+            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+        }
+        //删除用户部门关系
+        DepartmentUserVo departmentUserVo = new DepartmentUserVo(userVo.getStoreId(), userVo.getId());
+        if (myDepartmentMapper.deleteUserDepartment(departmentUserVo) != 1) {
+            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+        }
+        //删除用户仓库关系
+        WarehouseUserVo warehouseUserVo = new WarehouseUserVo(userVo.getStoreId(), userVo.getId());
+        if (myWarehouseMapper.deleteUserWarehouse(warehouseUserVo) != 1) {
+            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+        }
+        //删除用户角色关系
+        UserRoleVo userRoleVo = new UserRoleVo(userVo.getStoreId(), userVo.getId());
         if (myUserMapper.deleteUserRole(userRoleVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
+            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
     /**
-     * 修改用户角色关系
-     * @param userRoleVo
+     * 修改用户
+     * @param userVo
      * @return
      */
-    public CommonResponse updateUserRole(UserRoleVo userRoleVo) {
-        //判断参数
-        if (userRoleVo.getId() == null || userRoleVo.getRoleId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-        }
-        //判断角色是否存在
-        if (myRoleMapper.findById(new RoleVo(userRoleVo.getStoreId(), userRoleVo.getId())) == null) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
-        }
-        //修改
-        if (myUserMapper.updateUserRole(userRoleVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
-        }
+    public CommonResponse update(UserVo userVo) {
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 }

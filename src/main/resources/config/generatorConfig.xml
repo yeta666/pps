@@ -33,8 +33,12 @@
         <!--<table tableName="store" catalog="pps"></table>-->
         <!--<table tableName="user" catalog="pps"></table>-->
         <!--<table tableName="role" catalog="pps"></table>-->
-        <table tableName="user_role" catalog="pps"></table>
+        <!--<table tableName="user_role" catalog="pps"></table>-->
         <!--<table tableName="function" catalog="pps"></table>-->
-        <table tableName="role_function" catalog="pps"></table>
+        <!--<table tableName="role_function" catalog="pps"></table>-->
+        <!--<table tableName="department" catalog="pps"></table>-->
+        <!--<table tableName="warehouse" catalog="pps"></table>-->
+        <table tableName="department_user" catalog="pps"></table>
+        <table tableName="warehouse_user" catalog="pps"></table>
     </context>
 </generatorConfiguration>

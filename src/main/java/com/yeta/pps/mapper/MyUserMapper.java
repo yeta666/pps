@@ -9,23 +9,25 @@ import java.util.List;
 
 public interface MyUserMapper {
 
+    int add(UserVo userVo);
+
+    int delete(UserVo userVo);
+
+    int update(UserVo userVo);
+
     List<User> findAll(UserVo userVo);
 
     User findById(UserVo userVo);
 
     User findByUsernameAndPassword(UserVo userVo);
 
-    int add(UserVo userVo);
-
-    int update(UserVo userVo);
-
-    int deleteById(UserVo userVo);
-
     //
 
     int addUserRole(UserRoleVo userRoleVo);
 
     int deleteUserRole(UserRoleVo userRoleVo);
+
+    int deleteRoleUser(UserRoleVo userRoleVo);
 
     int updateUserRole(UserRoleVo userRoleVo);
 

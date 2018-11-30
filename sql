@@ -12,7 +12,7 @@ drop table user_1;
 create table user_1(
   id varchar(50) NOT NULL COMMENT '用户id',
   name varchar(10) NOT NULL COMMENT '用户姓名',
-  username varchar(50) not null comment '用户名',
+  username varchar(50) not null unique comment '用户名',
   password varchar(50) not null comment '密码',
   remark varchar(200) comment '备注',
   disabled tinyint not null comment '是否禁用，0：不禁用，1：禁用',
@@ -257,3 +257,37 @@ create table role_function(
   function_id int NOT NULL COMMENT '功能id',
   primary key (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+drop table department;
+create table department_1(
+  id int not null primary key auto_increment comment '部门id',
+  name varchar(20) not null unique comment '部门名',
+  contacts varchar(20) comment '联系人',
+  contact_number varchar(20) comment '联系电话',
+  remark varchar(200) comment '备注'
+) engine InnoDB default charset=utf8;
+
+drop table department_user;
+create table department_user_1(
+  id int not null primary key auto_increment comment '部门用户id',
+  department_id int not null comment '部门id',
+  user_id varchar(50) not null comment '用户id'
+) engine InnoDB default charset=utf8;
+
+drop table warehouse;
+create table warehouse_1(
+  id int not null primary key auto_increment comment '仓库id',
+  name varchar(20) not null null unique comment '仓库名',
+  contacts varchar(20) comment '联系人',
+  contact_number varchar(20) comment '联系电话',
+  address varchar(100) comment '地址',
+  postcode varchar(10) comment '邮编',
+  remark varchar(200) comment '备注'
+) engine InnoDB default charset=utf8;
+
+drop table warehouse_user;
+create table warehouse_user_1(
+  id int not null primary key auto_increment comment '仓库用户id',
+  warehouse_id int not null comment '仓库id',
+  user_id varchar(50) not null comment '用户id'
+) engine InnoDB default charset=utf8;

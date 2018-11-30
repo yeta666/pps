@@ -53,6 +53,7 @@ public class RoleService {
      * @param roleVo
      * @return
      */
+    @Transactional
     public CommonResponse delete(RoleVo roleVo) {
         //判断参数
         if (roleVo.getId() == null) {
@@ -60,8 +61,11 @@ public class RoleService {
         }
         //删除角色
         if (myRoleMapper.delete(roleVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
+            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
         }
+        //删除角色用户关系
+        UserRoleVo userRoleVo = new UserRoleVo(roleVo.getStoreId(), roleVo.getId());
+        myUserMapper.deleteRoleUser(userRoleVo);
         //删除角色功能关系
         RoleFunctionVo roleFunctionVo = new RoleFunctionVo(roleVo.getStoreId(), roleVo.getId());
         myRoleMapper.deleteRoleFunction(roleFunctionVo);

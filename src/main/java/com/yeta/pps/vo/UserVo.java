@@ -1,5 +1,6 @@
 package com.yeta.pps.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotNull;
@@ -15,12 +16,31 @@ public class UserVo {
     /**
      * 验证码
      */
+    @JsonIgnore
     private String identifyingCode;
 
     /**
      * 凭证
      */
     private String token;
+
+    /**
+     * 部门id
+     */
+    @JsonIgnore
+    private Integer departmentId;
+
+    /**
+     * 仓库id
+     */
+    @JsonIgnore
+    private Integer warehouseId;
+
+    /**
+     * 角色id
+     */
+    @JsonIgnore
+    private Integer roleId;
 
     /**
      * 用户id
@@ -35,21 +55,25 @@ public class UserVo {
     /**
      * 用户名
      */
+    @JsonIgnore
     private String username;
 
     /**
      * 密码
      */
+    @JsonIgnore
     private String password;
 
     /**
      * 备注
      */
+    @JsonIgnore
     private String remark;
 
     /**
      * 是否禁用，0：不禁用，1：禁用
      */
+    @JsonIgnore
     private Integer disabled;
 
     public UserVo() {
@@ -81,6 +105,30 @@ public class UserVo {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public Integer getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Integer departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    public Integer getWarehouseId() {
+        return warehouseId;
+    }
+
+    public void setWarehouseId(Integer warehouseId) {
+        this.warehouseId = warehouseId;
+    }
+
+    public Integer getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 
     public String getId() {
@@ -137,6 +185,9 @@ public class UserVo {
                 "storeId=" + storeId +
                 ", identifyingCode='" + identifyingCode + '\'' +
                 ", token='" + token + '\'' +
+                ", departmentId=" + departmentId +
+                ", warehouseId=" + warehouseId +
+                ", roleId=" + roleId +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", username='" + username + '\'' +

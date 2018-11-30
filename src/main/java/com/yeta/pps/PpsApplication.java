@@ -43,8 +43,8 @@ public class PpsApplication {
 
         @Override
         public void addInterceptors(InterceptorRegistry registry) {
-            registry.addInterceptor(commonInterceptor).addPathPatterns("/**");
-            super.addInterceptors(registry);
+            //registry.addInterceptor(commonInterceptor).addPathPatterns("/**");
+            //super.addInterceptors(registry);
         }
 
         @Override

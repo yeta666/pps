@@ -35,8 +35,8 @@
     <select id="findRoleFunction" parameterType="com.yeta.pps.vo.RoleFunctionVo" resultType="com.yeta.pps.po.Function">
         SELECT
             f.id,
-            f.`name`,
-            f.`level`,
+            f.name,
+            f.level,
             f.parnet_id
         FROM
             role_${storeId} AS r,

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeta.pps.mapper.MyWarehouseMapper" >
+
+    <insert id="add" parameterType="com.yeta.pps.vo.WarehouseVo" useGeneratedKeys="true" keyProperty="id">
+        insert into warehouse_${storeId} (name, contacts, contact_number, address, postcode, remark) values (#{name}, #{contacts}, #{contactNumber}, #{address}, #{postcode}, #{remark});
+    </insert>
+
+    <delete id="delete" parameterType="com.yeta.pps.vo.WarehouseVo">
+        delete from warehouse_${storeId} where id = #{id};
+    </delete>
+
+    <update id="update" parameterType="com.yeta.pps.vo.WarehouseVo">
+        update warehouse_${storeId} set name = #{name}, contacts = #{contacts}, contact_number = #{contactNumber}, address = #{address}, postcode = #{postcode}, remark = #{remark} where id = #{id};
+    </update>
+
+    <select id="findAll" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="com.yeta.pps.po.Warehouse">
+        select id, name, contacts, contact_number, address, postcode, remark from warehouse_${storeId};
+    </select>
+
+    <select id="findById" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="com.yeta.pps.po.Warehouse">
+        select id, name, contacts, contact_number, address, postcode, remark from warehouse_${storeId} where id = #{id};
+    </select>
+
+    <!---->
+
+    <insert id="addWarehouseUser" parameterType="com.yeta.pps.vo.WarehouseUserVo">
+        insert into warehouse_user_${storeId} (warehouse_id, user_id) values (#{warehouseId}, #{userId});
+    </insert>
+
+    <delete id="deleteWarehouseUser" parameterType="com.yeta.pps.vo.WarehouseUserVo">
+        delete from warehouse_user_${storeId} where warehouse_id = #{warehouseId};
+    </delete>
+
+    <delete id="deleteUserWarehouse" parameterType="com.yeta.pps.vo.WarehouseUserVo">
+        delete from warehouse_user_${storeId} where user_id = #{userId};
+    </delete>
+
+    <select id="findWarehouseUser" parameterType="com.yeta.pps.vo.WarehouseUserVo" resultType="com.yeta.pps.po.User">
+        SELECT
+            u.id,
+            u.name,
+            u.username,
+            u.password,
+            u.remark,
+            u.disabled
+        FROM
+            warehouse_${storeId} AS w,
+            user_${storeId} AS u,
+            warehouse_user_${storeId} AS wu
+        WHERE
+            w.id = wu.warehouseId
+        AND u.id = wu.user_id
+        AND w.id = #{warehouseId};
+    </select>
+    
+</mapper>

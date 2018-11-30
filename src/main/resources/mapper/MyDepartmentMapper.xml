@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeta.pps.mapper.MyDepartmentMapper" >
+
+    <insert id="add" parameterType="com.yeta.pps.vo.DepartmentVo" useGeneratedKeys="true" keyProperty="id">
+        insert into department_${storeId} (name, contacts, contact_number, remark) values (#{name}, #{contacts}, #{contactNumber}, #{remark});
+    </insert>
+
+    <delete id="delete" parameterType="com.yeta.pps.vo.DepartmentVo">
+        delete from department_${storeId} where id = #{id};
+    </delete>
+
+    <update id="update" parameterType="com.yeta.pps.vo.DepartmentVo">
+        update department_${storeId} set name = #{name}, contacts = #{contacts}, contact_number = #{contactNumber}, remark = #{remark} where id = #{id};
+    </update>
+
+    <select id="findAll" parameterType="com.yeta.pps.vo.DepartmentVo" resultType="com.yeta.pps.po.Department">
+        select id, name, contacts, contact_number, remark from department_${storeId};
+    </select>
+
+    <select id="findById" parameterType="com.yeta.pps.vo.DepartmentVo" resultType="com.yeta.pps.po.Department">
+        select id, name, contacts, contact_number, remark from department_${storeId} where id = #{id};
+    </select>
+
+    <!---->
+
+    <insert id="addDepartmentUser" parameterType="com.yeta.pps.vo.DepartmentUserVo">
+        insert into department_user_${storeId} (department_id, user_id) values (#{departmentId}, #{userId});
+    </insert>
+
+    <delete id="deleteDepartmentUser" parameterType="com.yeta.pps.vo.DepartmentUserVo">
+        delete from department_user_${storeId} where department_id = #{departmentId};
+    </delete>
+
+    <delete id="deleteUserDepartment" parameterType="com.yeta.pps.vo.DepartmentUserVo">
+        delete from department_user_${storeId} where user_id = #{userId};
+    </delete>
+
+    <select id="findDepartmentUser" parameterType="com.yeta.pps.vo.DepartmentUserVo" resultType="com.yeta.pps.po.User">
+        SELECT
+            u.id,
+            u.name,
+            u.username,
+            u.password,
+            u.remark,
+            u.disabled
+        FROM
+            department_${storeId} AS d,
+            user_${storeId} AS u,
+            department_user_${storeId} AS du
+        WHERE
+            d.id = du.department_id
+        AND u.id = du.user_id
+        AND d.id = #{departmentId};
+    </select>
+
+</mapper>

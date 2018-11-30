@@ -30,14 +30,14 @@ public class UserRoleVo {
     public UserRoleVo() {
     }
 
-    public UserRoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer id) {
-        this.storeId = storeId;
-        this.id = id;
-    }
-
     public UserRoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String userId) {
         this.storeId = storeId;
         this.userId = userId;
+    }
+
+    public UserRoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer id) {
+        this.storeId = storeId;
+        this.id = id;
     }
 
     public UserRoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String userId, Integer roleId) {
