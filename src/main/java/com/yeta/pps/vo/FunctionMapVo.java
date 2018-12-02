@@ -25,6 +25,11 @@ public class FunctionMapVo {
     private Integer roleId;
 
     /**
+     * 功能id
+     */
+    private List<Integer> ids;
+
+    /**
      * 一级功能
      */
     private List<Function> level1;
@@ -69,6 +74,14 @@ public class FunctionMapVo {
         this.roleId = roleId;
     }
 
+    public List<Integer> getIds() {
+        return ids;
+    }
+
+    public void setIds(List<Integer> ids) {
+        this.ids = ids;
+    }
+
     public List<Function> getLevel1() {
         return level1;
     }
@@ -97,7 +110,8 @@ public class FunctionMapVo {
     public String toString() {
         return "FunctionMapVo{" +
                 "storeId=" + storeId +
-                ", roleId='" + roleId + '\'' +
+                ", roleId=" + roleId +
+                ", ids=" + ids +
                 ", level1=" + level1 +
                 ", level2=" + level2 +
                 ", level3=" + level3 +

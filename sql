@@ -14,17 +14,18 @@ create table user_1(
   name varchar(10) NOT NULL COMMENT '用户姓名',
   username varchar(50) not null unique comment '用户名',
   password varchar(50) not null comment '密码',
+  phone varchar(20) not null comment '电话',
   remark varchar(200) comment '备注',
   disabled tinyint not null comment '是否禁用，0：不禁用，1：禁用',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into user_1(id, name, username, password, disabled) values ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '总店老板', 'lb', 'lb', 0);
-insert into user_1(id, name, username, password, disabled) values ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '总店销售经理', 'xsjl', 'xsjl', 0);
-insert into user_1(id, name, username, password, disabled) values ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '总店销售', 'xs', 'xs', 0);
-insert into user_1(id, name, username, password, disabled) values ('dcc00d94-f384-11e8-b25b-54ee75c0f47a', '总店采购', 'cg', 'cg', 0);
-insert into user_1(id, name, username, password, disabled) values ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '总店库管', 'kg', 'kg', 0);
-insert into user_1(id, name, username, password, disabled) values ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '总店财务', 'cw', 'cw', 0);
+insert into user_1(id, name, username, password, phone, disabled) values ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '总店老板', 'lb', 'lb', '17760041487', 0);
+insert into user_1(id, name, username, password, phone, disabled) values ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '总店销售经理', 'xsjl', 'xsjl', '17760041487', 0);
+insert into user_1(id, name, username, password, phone, disabled) values ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '总店销售', 'xs', 'xs', '17760041487', 0);
+insert into user_1(id, name, username, password, phone, disabled) values ('dcc00d94-f384-11e8-b25b-54ee75c0f47a', '总店采购', 'cg', 'cg', '17760041487', 0);
+insert into user_1(id, name, username, password, phone, disabled) values ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '总店库管', 'kg', 'kg', '17760041487', 0);
+insert into user_1(id, name, username, password, phone, disabled) values ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '总店财务', 'cw', 'cw', '17760041487', 0);
 
 drop table role_1;
 create table role_2(
@@ -267,12 +268,17 @@ create table department_1(
   remark varchar(200) comment '备注'
 ) engine InnoDB default charset=utf8;
 
+insert into department_1 (name) VALUES ('老板部门');
+
 drop table department_user;
 create table department_user_1(
   id int not null primary key auto_increment comment '部门用户id',
   department_id int not null comment '部门id',
   user_id varchar(50) not null comment '用户id'
 ) engine InnoDB default charset=utf8;
+
+insert into department_user_1 (department_id, user_id) VALUES (1, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a');
+insert into department_user_1 (department_id, user_id) VALUES (1, 'dcb9fa13-f384-11e8-b25b-54ee75c0f47a');
 
 drop table warehouse;
 create table warehouse_1(
@@ -285,9 +291,14 @@ create table warehouse_1(
   remark varchar(200) comment '备注'
 ) engine InnoDB default charset=utf8;
 
+insert into warehouse_1 (name) values ('第一个仓库');
+
 drop table warehouse_user;
 create table warehouse_user_1(
   id int not null primary key auto_increment comment '仓库用户id',
   warehouse_id int not null comment '仓库id',
   user_id varchar(50) not null comment '用户id'
 ) engine InnoDB default charset=utf8;
+
+insert into warehouse_user_1 (warehouse_id, user_id) VALUES (1, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a');
+insert into warehouse_user_1 (warehouse_id, user_id) VALUES (1, 'dcb9fa13-f384-11e8-b25b-54ee75c0f47a');

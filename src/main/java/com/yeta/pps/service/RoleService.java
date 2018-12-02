@@ -6,14 +6,14 @@ import com.yeta.pps.mapper.MyUserMapper;
 import com.yeta.pps.po.Function;
 import com.yeta.pps.po.Role;
 import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.vo.FunctionMapVo;
-import com.yeta.pps.vo.RoleFunctionVo;
-import com.yeta.pps.vo.RoleVo;
-import com.yeta.pps.vo.UserRoleVo;
+import com.yeta.pps.util.CommonResult;
+import com.yeta.pps.util.Title;
+import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -94,12 +94,15 @@ public class RoleService {
      * @param roleVo
      * @return
      */
-    public CommonResponse findAll(RoleVo roleVo) {
-        List<Role> roles = myRoleMapper.findAll(roleVo);
-        if (roles.size() == 0) {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
-        }
-        return new CommonResponse(CommonResponse.CODE1, roles, CommonResponse.MESSAGE1);
+    public CommonResponse findAll(RoleVo roleVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage(myRoleMapper.findCount(roleVo) / pageVo.getPageSize());
+        List<Role> roles = myRoleMapper.findAll(roleVo, pageVo);
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("岗位名", "name"));
+        CommonResult commonResult = new CommonResult(titles, roles, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
     }
 
     //
@@ -112,10 +115,9 @@ public class RoleService {
     @Transactional
     public CommonResponse updateRoleFunction(FunctionMapVo functionMapVo) {
         //删除该角色对应的功能
-        RoleFunctionVo roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId());
-        myRoleMapper.deleteRoleFunction(roleFunctionVo);
+        myRoleMapper.deleteRoleFunction(new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId()));
         //增加该角色对应的一级功能
-        if (functionMapVo.getLevel1() != null) {
+        /*if (functionMapVo.getLevel1() != null) {
             for (Function function : functionMapVo.getLevel1()) {
                 roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId(), function.getId());
                 if (myRoleMapper.addRoleFunction(roleFunctionVo) != 1) {
@@ -140,7 +142,14 @@ public class RoleService {
                     throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
                 }
             }
-        }
+        }*/
+        RoleFunctionVo roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId());
+        functionMapVo.getIds().stream().forEach(integer -> {
+            roleFunctionVo.setFunctionId(integer);
+            if (myRoleMapper.addRoleFunction(roleFunctionVo) != 1) {
+                throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+            }
+        });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -166,7 +175,7 @@ public class RoleService {
         //根据用户id查询所有功能
         RoleFunctionVo roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId());
         List<Function> functions = myRoleMapper.findRoleFunction(roleFunctionVo);
-        //过滤一级功能
+        /*//过滤一级功能
         List<Function> level1 = functions.stream().filter(function -> function.getLevel().toString().equals("1")).collect(Collectors.toList());
         //过滤二级功能
         List<Function> level2 = functions.stream().filter(function -> function.getLevel().toString().equals("2")).collect(Collectors.toList());
@@ -176,6 +185,9 @@ public class RoleService {
         functionMapVo.setLevel1(level1);
         functionMapVo.setLevel2(level2);
         functionMapVo.setLevel3(level3);
-        return new CommonResponse(CommonResponse.CODE1, functionMapVo, CommonResponse.MESSAGE1);
+        return new CommonResponse(CommonResponse.CODE1, functionMapVo, CommonResponse.MESSAGE1);*/
+        List<Integer> ids = new ArrayList<>();
+        functions.stream().forEach(function -> ids.add(function.getId()));
+        return new CommonResponse(CommonResponse.CODE1, ids, CommonResponse.MESSAGE1);
     }
 }

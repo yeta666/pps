@@ -2,7 +2,7 @@ package com.yeta.pps.controller;
 
 import com.yeta.pps.service.UserService;
 import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.vo.UserRoleVo;
+import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -55,5 +55,65 @@ public class UserController {
     public CommonResponse logout(@PathVariable(value = "userId") String userId,
                                  HttpServletRequest request) {
         return userService.logout(new UserVo(userId), request);
+    }
+
+    //
+
+    /**
+     * 增加用户接口
+     * @param userVo
+     * @return
+     */
+    @PostMapping(value = "/users")
+    public CommonResponse add(@RequestBody @Valid UserVo userVo) {
+        return userService.add(userVo);
+    }
+
+    /**
+     * 删除用户接口
+     * @param storeId
+     * @param userId
+     * @return
+     */
+    @DeleteMapping(value = "/users/{userId}")
+    public CommonResponse delete(@RequestParam(value = "storeId") Integer storeId,
+                                 @PathVariable(value = "userId") String userId) {
+        return userService.delete(new UserVo(storeId, userId));
+    }
+
+    /**
+     * 修改用户接口
+     * @param userVo
+     * @return
+     */
+    @PutMapping(value = "/users")
+    public CommonResponse update(@RequestBody @Valid UserVo userVo) {
+        return userService.update(userVo);
+    }
+
+    /**
+     * 查找所有用户接口
+     * @param storeId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @GetMapping(value = "/users")
+    public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId,
+                                  @RequestParam(value = "page") Integer page,
+                                  @RequestParam(value = "pageSize") Integer pageSize) {
+        return userService.findAll(new UserVo(storeId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据用户id查找用户接口
+     * @param storeId
+     * @param userId
+     * @return
+     */
+    @GetMapping(value = "/users/{userId}")
+    public CommonResponse findById(@RequestParam(value = "storeId") Integer storeId,
+                              @PathVariable(value = "userId") String userId) {
+        return userService.findById(new UserVo(storeId, userId));
     }
 }

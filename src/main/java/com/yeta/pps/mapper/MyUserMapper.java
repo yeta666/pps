@@ -2,8 +2,10 @@ package com.yeta.pps.mapper;
 
 import com.yeta.pps.po.Role;
 import com.yeta.pps.po.User;
+import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.UserRoleVo;
 import com.yeta.pps.vo.UserVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -15,9 +17,11 @@ public interface MyUserMapper {
 
     int update(UserVo userVo);
 
-    List<User> findAll(UserVo userVo);
+    int findCount(UserVo userVo);
 
-    User findById(UserVo userVo);
+    List<UserVo> findAll(@Param(value = "userVo") UserVo userVo, @Param(value = "pageVo") PageVo pageVo);
+
+    UserVo findById(UserVo userVo);
 
     User findByUsernameAndPassword(UserVo userVo);
 

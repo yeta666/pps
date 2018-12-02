@@ -3,6 +3,7 @@ package com.yeta.pps.controller;
 import com.yeta.pps.service.RoleService;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.vo.FunctionMapVo;
+import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.RoleVo;
 import com.yeta.pps.vo.UserRoleVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,11 +57,15 @@ public class RoleController {
     /**
      * 查询所有角色接口
      * @param storeId
+     * @param page
+     * @param pageSize
      * @return
      */
     @GetMapping(value = "/roles")
-    public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId) {
-        return roleService.findAll(new RoleVo(storeId));
+    public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId,
+                                  @RequestParam(value = "page") Integer page,
+                                  @RequestParam(value = "pageSize") Integer pageSize) {
+        return roleService.findAll(new RoleVo(storeId), new PageVo(page, pageSize));
     }
 
     //

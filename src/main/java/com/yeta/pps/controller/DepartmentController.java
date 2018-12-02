@@ -24,10 +24,10 @@ public class DepartmentController {
      * @param departmentVo
      * @return
      */
-    @PostMapping(value = "/departments")
+    /*@PostMapping(value = "/departments")
     public CommonResponse add(@RequestBody @Valid DepartmentVo departmentVo) {
         return departmentService.add(departmentVo);
-    }
+    }*/
 
     /**
      * 删除部门接口
@@ -35,40 +35,40 @@ public class DepartmentController {
      * @param departmentId
      * @return
      */
-    @DeleteMapping(value = "/departments/{departmentId}")
+    /*@DeleteMapping(value = "/departments/{departmentId}")
     public CommonResponse delete(@RequestParam(value = "storeId") Integer storeId,
                                  @PathVariable(value = "departmentId") Integer departmentId) {
         return departmentService.delete(new DepartmentVo(storeId, departmentId));
-    }
+    }*/
 
     /**
      * 修改部门接口
      * @param departmentVo
      * @return
      */
-    @PutMapping(value = "/departments")
+    /*@PutMapping(value = "/departments")
     public CommonResponse update(@RequestBody @Valid DepartmentVo departmentVo) {
         return departmentService.update(departmentVo);
-    }
+    }*/
 
     /**
      * 查询所有部门接口
      * @param storeId
      * @return
      */
-    @GetMapping(value = "/departments")
+    /*@GetMapping(value = "/departments")
     public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId) {
         return departmentService.findAll(new DepartmentVo(storeId));
-    }
+    }*/
 
     /**
      * 根据部门id查询部门接口
      * @param storeId
      * @return
      */
-    @GetMapping(value = "/departments/{departmentId}")
+    /*@GetMapping(value = "/departments/{departmentId}")
     public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId,
                                   @PathVariable(value = "departmentId") Integer departmentId) {
         return departmentService.findById(new DepartmentVo(storeId, departmentId));
-    }
+    }*/
 }

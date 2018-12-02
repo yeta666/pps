@@ -2,8 +2,10 @@ package com.yeta.pps.mapper;
 
 import com.yeta.pps.po.User;
 import com.yeta.pps.po.Warehouse;
+import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.WarehouseUserVo;
 import com.yeta.pps.vo.WarehouseVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -15,7 +17,9 @@ public interface MyWarehouseMapper {
 
     int update(WarehouseVo warehouseVo);
 
-    List<Warehouse> findAll(WarehouseVo warehouseVo);
+    int findCount(WarehouseVo warehouseVo);
+
+    List<Warehouse> findAll(@Param(value = "warehouseVo") WarehouseVo warehouseVo, @Param(value = "pageVo") PageVo pageVo);
 
     Warehouse findById(WarehouseVo warehouseVo);
 

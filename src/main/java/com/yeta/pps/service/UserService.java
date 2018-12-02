@@ -7,7 +7,9 @@ import com.yeta.pps.mapper.MyUserMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.User;
 import com.yeta.pps.util.CommonResponse;
+import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.CommonUtil;
+import com.yeta.pps.util.Title;
 import com.yeta.pps.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
@@ -140,16 +141,16 @@ public class UserService {
     @Transactional
     public CommonResponse add(UserVo userVo) {
         //判断参数
-        if (userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null ||
-                userVo.getDepartmentId() == null || userVo.getWarehouseId() == null || userVo.getRoleId() == null) {
+        if (userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null || userVo.getPhone() == null ||
+                /*userVo.getDepartmentId() == null ||*/ userVo.getWarehouseId() == null || userVo.getRoleId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //判断部门id是否存在
-        DepartmentVo departmentVo = new DepartmentVo(userVo.getStoreId(), userVo.getDepartmentId());
+        /*DepartmentVo departmentVo = new DepartmentVo(userVo.getStoreId(), userVo.getDepartmentId());
         if (myDepartmentMapper.findById(departmentVo) == null) {
             LOG.info("部门id【{}】不存在，新增用户失败...", userVo.getDepartmentId());
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
-        }
+        }*/
         //判断仓库id是否存在
         WarehouseVo warehouseVo = new WarehouseVo(userVo.getStoreId(), userVo.getWarehouseId());
         if (myWarehouseMapper.findById(warehouseVo) == null) {
@@ -169,10 +170,10 @@ public class UserService {
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
         }
         //新增部门用户关系
-        DepartmentUserVo departmentUserVo = new DepartmentUserVo(userVo.getStoreId(), userVo.getDepartmentId(), userVo.getId());
+        /*DepartmentUserVo departmentUserVo = new DepartmentUserVo(userVo.getStoreId(), userVo.getDepartmentId(), userVo.getId());
         if (myDepartmentMapper.addDepartmentUser(departmentUserVo) != 1) {
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-        }
+        }*/
         //新增仓库用户关系
         WarehouseUserVo warehouseUserVo = new WarehouseUserVo(userVo.getStoreId(), userVo.getWarehouseId(), userVo.getId());
         if (myWarehouseMapper.addWarehouseUser(warehouseUserVo) != 1) {
@@ -191,6 +192,7 @@ public class UserService {
      * @param userVo
      * @return
      */
+    @Transactional
     public CommonResponse delete(UserVo userVo) {
         //判断参数
         if (userVo.getId() == null) {
@@ -201,10 +203,10 @@ public class UserService {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
         }
         //删除用户部门关系
-        DepartmentUserVo departmentUserVo = new DepartmentUserVo(userVo.getStoreId(), userVo.getId());
+        /*DepartmentUserVo departmentUserVo = new DepartmentUserVo(userVo.getStoreId(), userVo.getId());
         if (myDepartmentMapper.deleteUserDepartment(departmentUserVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
-        }
+        }*/
         //删除用户仓库关系
         WarehouseUserVo warehouseUserVo = new WarehouseUserVo(userVo.getStoreId(), userVo.getId());
         if (myWarehouseMapper.deleteUserWarehouse(warehouseUserVo) != 1) {
@@ -224,6 +226,53 @@ public class UserService {
      * @return
      */
     public CommonResponse update(UserVo userVo) {
+        //判断参数
+        if (userVo.getId() == null || userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null || userVo.getPhone() == null || userVo.getDisabled() == null) {
+            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
+        //修改用户信息
+        if (myUserMapper.update(userVo) != 1) {
+            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+        }
+        //TODO
+        //不能修改用户部门关系、用户仓库关系、用户角色关系
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 查找所有用户
+     * @param userVo
+     * @return
+     */
+    public CommonResponse findAll(UserVo userVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage(myUserMapper.findCount(userVo) / pageVo.getPageSize());
+        //查询
+        List<UserVo> userVos = myUserMapper.findAll(userVo, pageVo);
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("姓名", "name"));
+        titles.add(new Title("用户名", "username"));
+        titles.add(new Title("电话", "phone"));
+        /*titles.add(new Title("部门", "departmentName"));*/
+        titles.add(new Title("岗位", "roleName"));
+        titles.add(new Title("仓库", "warehouseName"));
+        titles.add(new Title("是否禁用", "disabled"));
+        titles.add(new Title("备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, userVos, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 根据用户id查找用户
+     * @param userVo
+     * @return
+     */
+    public CommonResponse findById(UserVo userVo) {
+        userVo = myUserMapper.findById(userVo);
+        if (userVo == null) {
+            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+        }
+        return new CommonResponse(CommonResponse.CODE1, userVo, CommonResponse.MESSAGE1);
     }
 }

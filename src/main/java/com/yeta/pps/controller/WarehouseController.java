@@ -2,6 +2,7 @@ package com.yeta.pps.controller;
 
 import com.yeta.pps.service.WarehouseService;
 import com.yeta.pps.util.CommonResponse;
+import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.WarehouseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -54,11 +55,15 @@ public class WarehouseController {
     /**
      * 查询所有仓库接口
      * @param storeId
+     * @param page
+     * @param pageSize
      * @return
      */
     @GetMapping(value = "/warehouses")
-    public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId) {
-        return warehouseService.findAll(new WarehouseVo(storeId));
+    public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId,
+                                  @RequestParam(value = "page") Integer page,
+                                  @RequestParam(value = "pageSize") Integer pageSize) {
+        return warehouseService.findAll(new WarehouseVo(storeId), new PageVo(page, pageSize));
     }
 
     /**

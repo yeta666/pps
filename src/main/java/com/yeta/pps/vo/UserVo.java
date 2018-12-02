@@ -27,20 +27,32 @@ public class UserVo {
     /**
      * 部门id
      */
-    @JsonIgnore
-    private Integer departmentId;
+    //private Integer departmentId;
+
+    /**
+     * 部门名
+     */
+    //private String departmentName;
 
     /**
      * 仓库id
      */
-    @JsonIgnore
     private Integer warehouseId;
+
+    /**
+     * 仓库名
+     */
+    private String warehouseName;
 
     /**
      * 角色id
      */
-    @JsonIgnore
     private Integer roleId;
+
+    /**
+     * 角色名
+     */
+    private String roleName;
 
     /**
      * 用户id
@@ -55,31 +67,41 @@ public class UserVo {
     /**
      * 用户名
      */
-    @JsonIgnore
     private String username;
 
     /**
      * 密码
      */
-    @JsonIgnore
     private String password;
+
+    /**
+     * 电话
+     */
+    private String phone;
 
     /**
      * 备注
      */
-    @JsonIgnore
     private String remark;
 
     /**
      * 是否禁用，0：不禁用，1：禁用
      */
-    @JsonIgnore
     private Integer disabled;
 
     public UserVo() {
     }
 
+    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
+        this.storeId = storeId;
+    }
+
     public UserVo(String id) {
+        this.id = id;
+    }
+
+    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+        this.storeId = storeId;
         this.id = id;
     }
 
@@ -107,13 +129,21 @@ public class UserVo {
         this.token = token;
     }
 
-    public Integer getDepartmentId() {
+    /*public Integer getDepartmentId() {
         return departmentId;
     }
 
     public void setDepartmentId(Integer departmentId) {
         this.departmentId = departmentId;
     }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }*/
 
     public Integer getWarehouseId() {
         return warehouseId;
@@ -123,12 +153,28 @@ public class UserVo {
         this.warehouseId = warehouseId;
     }
 
+    public String getWarehouseName() {
+        return warehouseName;
+    }
+
+    public void setWarehouseName(String warehouseName) {
+        this.warehouseName = warehouseName;
+    }
+
     public Integer getRoleId() {
         return roleId;
     }
 
     public void setRoleId(Integer roleId) {
         this.roleId = roleId;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
     public String getId() {
@@ -163,6 +209,14 @@ public class UserVo {
         this.password = password;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getRemark() {
         return remark;
     }
@@ -185,13 +239,17 @@ public class UserVo {
                 "storeId=" + storeId +
                 ", identifyingCode='" + identifyingCode + '\'' +
                 ", token='" + token + '\'' +
-                ", departmentId=" + departmentId +
+                /*", departmentId=" + departmentId +
+                ", departmentName='" + departmentName + '\'' +*/
                 ", warehouseId=" + warehouseId +
+                ", warehouseName='" + warehouseName + '\'' +
                 ", roleId=" + roleId +
+                ", roleName='" + roleName + '\'' +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", phone='" + phone + '\'' +
                 ", remark='" + remark + '\'' +
                 ", disabled=" + disabled +
                 '}';

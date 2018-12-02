@@ -26,6 +26,11 @@ public class User {
     private String password;
 
     /**
+     * 电话
+     */
+    private String phone;
+
+    /**
      * 备注
      */
     private String remark;
@@ -115,6 +120,14 @@ public class User {
         this.password = password;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     /**
      * 获取备注
      *
@@ -148,6 +161,7 @@ public class User {
                 ", name='" + name + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", phone='" + phone + '\'' +
                 ", remark='" + remark + '\'' +
                 ", disabled=" + disabled +
                 '}';

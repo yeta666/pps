@@ -14,8 +14,12 @@
         update warehouse_${storeId} set name = #{name}, contacts = #{contacts}, contact_number = #{contactNumber}, address = #{address}, postcode = #{postcode}, remark = #{remark} where id = #{id};
     </update>
 
-    <select id="findAll" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="com.yeta.pps.po.Warehouse">
-        select id, name, contacts, contact_number, address, postcode, remark from warehouse_${storeId};
+    <select id="findCount" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="java.lang.Integer">
+        select COUNT(0) from warehouse_${storeId};
+    </select>
+
+    <select id="findAll" resultType="com.yeta.pps.po.Warehouse">
+        select id, name, contacts, contact_number, address, postcode, remark from warehouse_${warehouseVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="com.yeta.pps.po.Warehouse">

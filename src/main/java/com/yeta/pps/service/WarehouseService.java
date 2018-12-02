@@ -3,12 +3,16 @@ package com.yeta.pps.service;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.CommonResponse;
+import com.yeta.pps.util.CommonResult;
+import com.yeta.pps.util.Title;
+import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.WarehouseUserVo;
 import com.yeta.pps.vo.WarehouseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -82,12 +86,20 @@ public class WarehouseService {
      * @param warehouseVo
      * @return
      */
-    public CommonResponse findAll(WarehouseVo warehouseVo) {
-        List<Warehouse> departments = myWarehouseMapper.findAll(warehouseVo);
-        if (departments.size() == 0) {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
-        }
-        return new CommonResponse(CommonResponse.CODE1, departments, CommonResponse.MESSAGE1);
+    public CommonResponse findAll(WarehouseVo warehouseVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage(myWarehouseMapper.findCount(warehouseVo) / pageVo.getPageSize());
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(warehouseVo, pageVo);
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("仓库名", "name"));
+        titles.add(new Title("联系人", "contacts"));
+        titles.add(new Title("联系电话", "contactNumber"));
+        titles.add(new Title("地址", "address"));
+        titles.add(new Title("邮编", "postcode"));
+        titles.add(new Title("备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, warehouses, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
     }
 
     /**

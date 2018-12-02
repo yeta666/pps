@@ -14,8 +14,12 @@
         update role_${storeId} set name = #{name} where id = #{id};
     </update>
 
-    <select id="findAll" parameterType="com.yeta.pps.vo.RoleVo" resultType="com.yeta.pps.po.Role">
-        select id, name from role_${storeId};
+    <select id="findCount" parameterType="com.yeta.pps.vo.RoleVo" resultType="java.lang.Integer">
+        select COUNT(0) from role_${storeId};
+    </select>
+
+    <select id="findAll" resultType="com.yeta.pps.po.Role">
+        select id, name from role_${roleVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.RoleVo" resultType="com.yeta.pps.po.Role">
