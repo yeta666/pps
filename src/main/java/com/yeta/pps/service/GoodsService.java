@@ -1,7 +1,7 @@
 package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
-import com.yeta.pps.mapper.GoodsMapper;
+import com.yeta.pps.mapper.MyGoodsMapper;
 import com.yeta.pps.po.*;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
@@ -23,7 +23,7 @@ import java.util.UUID;
 public class GoodsService {
 
     @Autowired
-    private GoodsMapper goodsMapper;
+    private MyGoodsMapper myGoodsMapper;
 
     /**
      * 新增商品品牌
@@ -32,7 +32,7 @@ public class GoodsService {
      */
     public CommonResponse addBrand(GoodsBrandVo goodsBrandVo) {
         //新增
-        if (goodsMapper.addBrand(goodsBrandVo) != 1) {
+        if (myGoodsMapper.addBrand(goodsBrandVo) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -45,7 +45,7 @@ public class GoodsService {
      */
     public CommonResponse deleteBrand(GoodsBrandVo goodsBrandVo) {
         //删除商品品牌
-        if (goodsMapper.deleteBrand(goodsBrandVo) != 1) {
+        if (myGoodsMapper.deleteBrand(goodsBrandVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -62,7 +62,7 @@ public class GoodsService {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //修改
-        if (goodsMapper.updateBrand(goodsBrandVo) != 1) {
+        if (myGoodsMapper.updateBrand(goodsBrandVo) != 1) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -77,8 +77,8 @@ public class GoodsService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(goodsMapper.findCountBrand(goodsBrandVo) / pageVo.getPageSize());
-            List<GoodsBrand> goodsBrands = goodsMapper.findAllBrandPaged(goodsBrandVo, pageVo);
+            pageVo.setTotalPage(myGoodsMapper.findCountBrand(goodsBrandVo) / pageVo.getPageSize());
+            List<GoodsBrand> goodsBrands = myGoodsMapper.findAllBrandPaged(goodsBrandVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("品牌名", "name"));
@@ -86,7 +86,7 @@ public class GoodsService {
             return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
         }
         //不分页
-        List<GoodsBrand> goodsBrands = goodsMapper.findAllBrand(goodsBrandVo);
+        List<GoodsBrand> goodsBrands = myGoodsMapper.findAllBrand(goodsBrandVo);
         return new CommonResponse(CommonResponse.CODE1, goodsBrands, CommonResponse.MESSAGE1);
     }
 
@@ -96,7 +96,7 @@ public class GoodsService {
      * @return
      */
     public CommonResponse findBrandById(GoodsBrandVo goodsBrandVo) {
-        GoodsBrand goodsBrand = goodsMapper.findBrandById(goodsBrandVo);
+        GoodsBrand goodsBrand = myGoodsMapper.findBrandById(goodsBrandVo);
         if (goodsBrand == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
@@ -112,7 +112,7 @@ public class GoodsService {
      */
     public CommonResponse addLabel(GoodsLabelVo goodsLabelVo) {
         //新增
-        if (goodsMapper.addLabel(goodsLabelVo) != 1) {
+        if (myGoodsMapper.addLabel(goodsLabelVo) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -125,7 +125,7 @@ public class GoodsService {
      */
     public CommonResponse deleteLabel(GoodsLabelVo goodsLabelVo) {
         //删除商品标签
-        if (goodsMapper.deleteLabel(goodsLabelVo) != 1) {
+        if (myGoodsMapper.deleteLabel(goodsLabelVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -142,7 +142,7 @@ public class GoodsService {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //修改
-        if (goodsMapper.updateLabel(goodsLabelVo) != 1) {
+        if (myGoodsMapper.updateLabel(goodsLabelVo) != 1) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -157,8 +157,8 @@ public class GoodsService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(goodsMapper.findCountLabel(goodsLabelVo) / pageVo.getPageSize());
-            List<GoodsLabel> goodsLabels = goodsMapper.findAllLabelPaged(goodsLabelVo, pageVo);
+            pageVo.setTotalPage(myGoodsMapper.findCountLabel(goodsLabelVo) / pageVo.getPageSize());
+            List<GoodsLabel> goodsLabels = myGoodsMapper.findAllLabelPaged(goodsLabelVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("标签名", "name"));
@@ -166,7 +166,7 @@ public class GoodsService {
             return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
         }
         //不分页
-        List<GoodsLabel> goodsLabels = goodsMapper.findAllLabel(goodsLabelVo);
+        List<GoodsLabel> goodsLabels = myGoodsMapper.findAllLabel(goodsLabelVo);
         return new CommonResponse(CommonResponse.CODE1, goodsLabels, CommonResponse.MESSAGE1);
     }
 
@@ -176,7 +176,7 @@ public class GoodsService {
      * @return
      */
     public CommonResponse findLabelById(GoodsLabelVo goodsLabelVo) {
-        GoodsLabel goodsLabel = goodsMapper.findLabelById(goodsLabelVo);
+        GoodsLabel goodsLabel = myGoodsMapper.findLabelById(goodsLabelVo);
         if (goodsLabel == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
@@ -192,7 +192,7 @@ public class GoodsService {
      */
     public CommonResponse addType(GoodsTypeVo goodsTypeVo) {
         //新增
-        if (goodsMapper.addType(goodsTypeVo) != 1) {
+        if (myGoodsMapper.addType(goodsTypeVo) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -205,7 +205,7 @@ public class GoodsService {
      */
     public CommonResponse deleteType(GoodsTypeVo goodsTypeVo) {
         //删除商品类型
-        if (goodsMapper.deleteType(goodsTypeVo) != 1) {
+        if (myGoodsMapper.deleteType(goodsTypeVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -222,7 +222,7 @@ public class GoodsService {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //修改
-        if (goodsMapper.updateType(goodsTypeVo) != 1) {
+        if (myGoodsMapper.updateType(goodsTypeVo) != 1) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -237,8 +237,8 @@ public class GoodsService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(goodsMapper.findCountType(goodsTypeVo) / pageVo.getPageSize());
-            List<GoodsType> goodsTypes = goodsMapper.findAllTypePaged(goodsTypeVo, pageVo);
+            pageVo.setTotalPage(myGoodsMapper.findCountType(goodsTypeVo) / pageVo.getPageSize());
+            List<GoodsType> goodsTypes = myGoodsMapper.findAllTypePaged(goodsTypeVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("类型名", "name"));
@@ -246,7 +246,7 @@ public class GoodsService {
             return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
         }
         //不分页
-        List<GoodsType> goodsTypes = goodsMapper.findAllType(goodsTypeVo);
+        List<GoodsType> goodsTypes = myGoodsMapper.findAllType(goodsTypeVo);
         return new CommonResponse(CommonResponse.CODE1, goodsTypes, CommonResponse.MESSAGE1);
     }
 
@@ -256,7 +256,7 @@ public class GoodsService {
      * @return
      */
     public CommonResponse findTypeById(GoodsTypeVo goodsTypeVo) {
-        GoodsType goodsType = goodsMapper.findTypeById(goodsTypeVo);
+        GoodsType goodsType = myGoodsMapper.findTypeById(goodsTypeVo);
         if (goodsType == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
@@ -272,7 +272,7 @@ public class GoodsService {
      */
     public CommonResponse addUnit(GoodsUnitVo goodsUnitVo) {
         //新增
-        if (goodsMapper.addUnit(goodsUnitVo) != 1) {
+        if (myGoodsMapper.addUnit(goodsUnitVo) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -285,7 +285,7 @@ public class GoodsService {
      */
     public CommonResponse deleteUnit(GoodsUnitVo goodsUnitVo) {
         //删除商品单位
-        if (goodsMapper.deleteUnit(goodsUnitVo) != 1) {
+        if (myGoodsMapper.deleteUnit(goodsUnitVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -302,7 +302,7 @@ public class GoodsService {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //修改
-        if (goodsMapper.updateUnit(goodsUnitVo) != 1) {
+        if (myGoodsMapper.updateUnit(goodsUnitVo) != 1) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -317,8 +317,8 @@ public class GoodsService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(goodsMapper.findCountUnit(goodsUnitVo) / pageVo.getPageSize());
-            List<GoodsUnit> goodsUnits = goodsMapper.findAllUnitPaged(goodsUnitVo, pageVo);
+            pageVo.setTotalPage(myGoodsMapper.findCountUnit(goodsUnitVo) / pageVo.getPageSize());
+            List<GoodsUnit> goodsUnits = myGoodsMapper.findAllUnitPaged(goodsUnitVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("单位名", "name"));
@@ -326,7 +326,7 @@ public class GoodsService {
             return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
         }
         //不分页
-        List<GoodsUnit> goodsUnits = goodsMapper.findAllUnit(goodsUnitVo);
+        List<GoodsUnit> goodsUnits = myGoodsMapper.findAllUnit(goodsUnitVo);
         return new CommonResponse(CommonResponse.CODE1, goodsUnits, CommonResponse.MESSAGE1);
     }
 
@@ -336,7 +336,7 @@ public class GoodsService {
      * @return
      */
     public CommonResponse findUnitById(GoodsUnitVo goodsUnitVo) {
-        GoodsUnit goodsUnit = goodsMapper.findUnitById(goodsUnitVo);
+        GoodsUnit goodsUnit = myGoodsMapper.findUnitById(goodsUnitVo);
         if (goodsUnit == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
@@ -353,7 +353,7 @@ public class GoodsService {
     public CommonResponse add(GoodsVo goodsVo) {
         goodsVo.setId(UUID.randomUUID().toString());
         //新增
-        if (goodsMapper.add(goodsVo) != 1) {
+        if (myGoodsMapper.add(goodsVo) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -369,7 +369,7 @@ public class GoodsService {
      */
     public CommonResponse delete(GoodsVo goodsVo) {
         //删除商品
-        if (goodsMapper.delete(goodsVo) != 1) {
+        if (myGoodsMapper.delete(goodsVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -386,7 +386,7 @@ public class GoodsService {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //修改
-        if (goodsMapper.update(goodsVo) != 1) {
+        if (myGoodsMapper.update(goodsVo) != 1) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -399,8 +399,8 @@ public class GoodsService {
      */
     public CommonResponse findAll(GoodsVo goodsVo, PageVo pageVo) {
         //查询所有页数
-        pageVo.setTotalPage(goodsMapper.findCount(goodsVo) / pageVo.getPageSize());
-        List<Goods> goodsList = goodsMapper.findAll(goodsVo, pageVo);
+        pageVo.setTotalPage(myGoodsMapper.findCount(goodsVo) / pageVo.getPageSize());
+        List<Goods> goodsList = myGoodsMapper.findAll(goodsVo, pageVo);
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("商品名", "name"));
@@ -433,7 +433,7 @@ public class GoodsService {
      * @return
      */
     public CommonResponse findById(GoodsVo goodsVo) {
-        Goods good = goodsMapper.findById(goodsVo);
+        Goods good = myGoodsMapper.findById(goodsVo);
         if (good == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeta.pps.mapper.MyBankAccountMapper" >
+
+    <insert id="add" parameterType="com.yeta.pps.vo.BankAccountVo">
+        insert into bank_account_${storeId} (id, name, type, head, account, gathering, qrCode, procurement) values (#{id}, #{name}, #{type}, #{head}, #{account}, #{gathering}, #{qrcode}, #{procurement});
+    </insert>
+
+    <delete id="delete" parameterType="com.yeta.pps.vo.BankAccountVo">
+        delete from bank_account_${storeId} where id = #{id};
+    </delete>
+
+    <update id="update" parameterType="com.yeta.pps.vo.BankAccountVo">
+        update bank_account_${storeId} set name = #{name}, type = #{type}, head = #{head}, account = #{account}, gathering = #{gathering}, qrCode = #{qrcode}, procurement = #{procurement} where id = #{id};
+    </update>
+
+    <select id="findCount" parameterType="com.yeta.pps.vo.BankAccountVo" resultType="java.lang.Integer">
+        select COUNT(0) from bank_account_${storeId};
+    </select>
+
+    <select id="findAll" parameterType="com.yeta.pps.vo.BankAccountVo" resultType="com.yeta.pps.po.BankAccount">
+        select id, name, type, head, account, gathering, qrCode, procurement from bank_account_${storeId};
+    </select>
+
+    <select id="findAllPaged" resultType="com.yeta.pps.po.BankAccount">
+        select id, name, type, head, account, gathering, qrCode, procurement from bank_account_${bankAccountVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findById" parameterType="com.yeta.pps.vo.BankAccountVo" resultType="com.yeta.pps.po.BankAccount">
+        select id, name, type, head, account, gathering, qrCode, procurement from bank_account_${storeId} where id = #{id};
+    </select>
+
+</mapper>

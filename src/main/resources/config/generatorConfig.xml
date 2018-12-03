@@ -40,10 +40,12 @@
         <!--<table tableName="warehouse" catalog="pps"></table>-->
         <!--<table tableName="department_user" catalog="pps"></table>-->
         <!--<table tableName="warehouse_user" catalog="pps"></table>-->
-        <table tableName="goods" catalog="pps"></table>
-        <table tableName="goods_type" catalog="pps"></table>
-        <table tableName="goods_brand" catalog="pps"></table>
-        <table tableName="goods_unit" catalog="pps"></table>
-        <table tableName="goods_label" catalog="pps"></table>
+        <!--<table tableName="goods" catalog="pps"></table>-->
+        <!--<table tableName="goods_type" catalog="pps"></table>-->
+        <!--<table tableName="goods_brand" catalog="pps"></table>-->
+        <!--<table tableName="goods_unit" catalog="pps"></table>-->
+        <!--<table tableName="goods_label" catalog="pps"></table>-->
+        <!--<table tableName="bank_account" catalog="pps"></table>-->
+        <table tableName="income_expenses" catalog="pps"></table>
     </context>
 </generatorConfiguration>

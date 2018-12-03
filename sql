@@ -369,3 +369,79 @@ insert into goods_label_1 (name) values ('新品');
 insert into goods_label_1 (name) values ('推荐');
 insert into goods_label_1 (name) values ('促销');
 insert into goods_label_1 (name) values ('清仓');
+
+
+drop table bank_account_1;
+create table bank_account_1(
+  id varchar(20) not null primary key comment '科目编号',
+  name varchar(20) not null comment '科目名称',
+  type tinyint not null comment '账户类型，1：现金，2：银行卡，3：支付宝，4：微信',
+  head varchar(20) comment '户主名',
+  account varchar(50) comment '账户',
+  gathering tinyint default 0 comment '是否用于商城收款，0：否，1：是',
+  qrCode varchar(50) comment '收款码',
+  procurement tinyint default 0 comment '是否用于订货平台，0：否，1：是'
+) engine InnoDB default charset=utf8;
+
+insert into bank_account_1 (id, name, type) VALUES ('1001', '库存现金', 1);
+insert into bank_account_1 (id, name, type) VALUES ('1002', '银行存款', 2);
+insert into bank_account_1 (id, name, type) VALUES ('100201', '微信账户', 3);
+insert into bank_account_1 (id, name, type) VALUES ('100202', '支付宝账户', 4);
+insert into bank_account_1 (id, name, type) VALUES ('100203', '建设银行', 2);
+insert into bank_account_1 (id, name, type) VALUES ('100204', '招商银行', 2);
+insert into bank_account_1 (id, name, type) VALUES ('100205', '华夏银行', 2);
+
+drop table income_expenses_1;
+create table income_expenses_1(
+  id varchar(20) not null primary key comment '科目编号',
+  name varchar(20) not null comment '科目名称',
+  check_item tinyint comment '核算项，1：供应商，2：客户，3：往来单位，4：职员，5：部门',
+  debit_credit tinyint not null comment '借贷，1：贷，2：借',
+  type tinyint not null comment '收支，1：收入，2：支出'
+) engine InnoDB default charset=utf8;
+
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6403', '营业税金及附加', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6601', '销售费用', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660101', '优惠金额', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660102', '包装费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660103', '运输费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660104', '广告费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660105', '装卸费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660106', '保险费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660107', '展览费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660108', '租赁费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660109', '销售服务费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660110', '差旅费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660111', '办公费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660112', '折旧费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660113', '修理费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660114', '网店运费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, check_item, type) values ('660115', '快递费', 2, 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, check_item, type) values ('660116', '招待费', 2, 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660117', '水电气费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6602', '管理费用', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660202', '工会经费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660203', '职工教育经费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660204', '业务招待费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660205', '技术转让费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660206', '无形资产摊销', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660207', '咨询费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660208', '诉讼费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660209', '坏账损失', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, check_item, type) values ('660210', '工资', 2, 4, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660211', '房租', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660212', '水电气', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6603', '财务费用', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660302', '汇兑净损失', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('660303', '金融机构手续费', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6701', '资产减值损失', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6711', '营业外支出', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6801', '所得税费用', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6901', '以前年度损益调整', 2, 2);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6052', '其他收入', 1, 1);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('605201', '利息收入', 1, 1);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('605202', '损赠收入', 1, 1);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('605203', '租赁收入', 1, 1);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('605204', '罚没收入', 1, 1);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6111', '投资收益', 1, 1);
+insert into income_expenses_1 (id, name, debit_credit, type) values ('6301', '营业外收入', 1, 1);
