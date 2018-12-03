@@ -5,7 +5,7 @@ import com.yeta.pps.util.CommonResponse;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-public class RoleVo {
+public class GoodsTypeVo {
 
     /**
      * 店铺id
@@ -14,31 +14,26 @@ public class RoleVo {
     private Integer storeId;
 
     /**
-     * 角色id
+     * 商品分类id
      */
     private Integer id;
 
     /**
-     * 角色名
+     * 商品分类名
      */
     @NotBlank(message = CommonResponse.MESSAGE3)
     private String name;
 
-    public RoleVo() {
+    public GoodsTypeVo() {
     }
 
-    public RoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
+    public GoodsTypeVo(Integer storeId) {
         this.storeId = storeId;
     }
 
-    public RoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer id) {
+    public GoodsTypeVo(Integer storeId, Integer id) {
         this.storeId = storeId;
         this.id = id;
-    }
-
-    public RoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String name) {
-        this.storeId = storeId;
-        this.name = name;
     }
 
     public Integer getStoreId() {
@@ -67,7 +62,7 @@ public class RoleVo {
 
     @Override
     public String toString() {
-        return "RoleVo{" +
+        return "GoodsTypeVo{" +
                 "storeId=" + storeId +
                 ", id=" + id +
                 ", name='" + name + '\'' +

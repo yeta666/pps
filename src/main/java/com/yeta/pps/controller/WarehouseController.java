@@ -61,8 +61,8 @@ public class WarehouseController {
      */
     @GetMapping(value = "/warehouses")
     public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId,
-                                  @RequestParam(value = "page") Integer page,
-                                  @RequestParam(value = "pageSize") Integer pageSize) {
+                                  @RequestParam(value = "page", required = false) Integer page,
+                                  @RequestParam(value = "pageSize", required = false) Integer pageSize) {
         return warehouseService.findAll(new WarehouseVo(storeId), new PageVo(page, pageSize));
     }
 

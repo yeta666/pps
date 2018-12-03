@@ -1,7 +1,10 @@
 package com.yeta.pps.po;
 
+import com.yeta.pps.util.CommonResponse;
+
 import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
 
 public class Store {
 
@@ -14,6 +17,7 @@ public class Store {
     /**
      * 店铺名
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String name;
 
     /**

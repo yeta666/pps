@@ -45,10 +45,6 @@ public class StoreService {
      */
     @Transactional      //create语句不支持事务回滚，所有需要手动事务回滚
     public CommonResponse add(Store store) {
-        //判断参数
-        if (store.getName() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-        }
         //插入一条分店数据，还未插入店长id
         if (storeMapper.add(store) != 1) {
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
@@ -80,7 +76,7 @@ public class StoreService {
     @Transactional
     public CommonResponse initialize(UserVo userVo) {
         //判断参数
-        if (userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null) {
+        if (userVo.getName() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         Integer storeId = userVo.getStoreId();

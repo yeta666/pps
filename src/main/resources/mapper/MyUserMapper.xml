@@ -15,88 +15,94 @@
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.UserVo" resultType="java.lang.Integer">
-        SELECT
-            COUNT(0)
-        FROM
-            user_${storeId} AS u,
-            role_${storeId} AS r,
-            user_role_${storeId} AS ur,
-            department_${storeId} AS d,
-            department_user_${storeId} AS du,
-            warehouse_${storeId} AS w,
-            warehouse_user_${storeId} AS wu
-        WHERE
+        select
+            count(0)
+        from
+            user_${storeId} as u,
+            role_${storeId} as r,
+            user_role_${storeId} as ur,
+            department_${storeId} as d,
+            department_user_${storeId} as du,
+            warehouse_${storeId} as w,
+            warehouse_user_${storeId} as wu
+        where
             u.id = ur.user_id
-        AND r.id = ur.role_id
-        AND d.id = du.department_id
-        AND u.id = du.user_id
-        AND w.id = wu.warehouse_id
-        AND u.id = wu.user_id;
+        and r.id = ur.role_id
+        and d.id = du.department_id
+        and u.id = du.user_id
+        and w.id = wu.warehouse_id
+        and u.id = wu.user_id;
     </select>
 
     <select id="findAll" resultType="com.yeta.pps.vo.UserVo">
-        SELECT
-            u.id AS id,
-            u.name AS name,
-            u.username AS username,
-            u.password AS password,
-            u.phone AS phone,
-            u.remark AS remark,
-            u.disabled AS disabled,
-            r.id AS roleId,
-            r.name AS roleName,
-            d.id AS departmentId,
-            d.name AS departmentName,
-            w.id AS warehouseId,
-            w.name AS warehouseName
-        FROM
-            user_${userVo.storeId} AS u,
-            role_${userVo.storeId} AS r,
-            user_role_${userVo.storeId} AS ur,
-            department_${userVo.storeId} AS d,
-            department_user_${userVo.storeId} AS du,
-            warehouse_${userVo.storeId} AS w,
-            warehouse_user_${userVo.storeId} AS wu
-        WHERE
+        select
+            u.id as id,
+            u.name as name,
+            u.username as username,
+            u.password as password,
+            u.phone as phone,
+            u.remark as remark,
+            u.disabled as disabled,
+            r.id as roleId,
+            r.name as roleName,
+            d.id as departmentId,
+            d.name as departmentName,
+            w.id as warehouseId,
+            w.name as warehouseName
+        from 
+            user_${userVo.storeId} as u,
+            role_${userVo.storeId} as r,
+            user_role_${userVo.storeId} as ur,
+            department_${userVo.storeId} as d,
+            department_user_${userVo.storeId} as du,
+            warehouse_${userVo.storeId} as w,
+            warehouse_user_${userVo.storeId} as wu
+        where 
             u.id = ur.user_id
-        AND r.id = ur.role_id
-        AND d.id = du.department_id
-        AND u.id = du.user_id
-        AND w.id = wu.warehouse_id
-        AND u.id = wu.user_id
-        LIMIT #{pageVo.page}, #{pageVo.pageSize};
+        and r.id = ur.role_id
+        and d.id = du.department_id
+        and u.id = du.user_id
+        and w.id = wu.warehouse_id
+        and u.id = wu.user_id
+        <if test="userVo.roleId!=null">
+            and r.id = #{userVo.roleId}
+        </if>
+        <if test="userVo.name!=null">
+            and u.name = #{userVo.name}
+        </if>
+        limit #{pageVo.page}, #{pageVo.pageSize};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.vo.UserVo">
-        SELECT
-            u.id AS id,
-            u.name AS name,
-            u.username AS username,
-            u.password AS password,
-            u.phone AS phone,
-            u.remark AS remark,
-            u.disabled AS disabled,
-            r.id AS roleId,
-            r.name AS roleName,
-            d.id AS departmentId,
-            d.name AS departmentName,
-            w.id AS warehouseId,
-            w.name AS warehouseName
-        FROM
-            user_${storeId} AS u,
-            role_${storeId} AS r,
-            user_role_${storeId} AS ur,
-            department_${storeId} AS d,
-            department_user_${storeId} AS du,
-            warehouse_${storeId} AS w,
-            warehouse_user_${storeId} AS wu
-        WHERE
+        select
+            u.id as id,
+            u.name as name,
+            u.username as username,
+            u.password as password,
+            u.phone as phone,
+            u.remark as remark,
+            u.disabled as disabled,
+            r.id as roleId,
+            r.name as roleName,
+            d.id as departmentId,
+            d.name as departmentName,
+            w.id as warehouseId,
+            w.name as warehouseName
+        from
+            user_${storeId} as u,
+            role_${storeId} as r,
+            user_role_${storeId} as ur,
+            department_${storeId} as d,
+            department_user_${storeId} as du,
+            warehouse_${storeId} as w,
+            warehouse_user_${storeId} as wu
+        where
             u.id = ur.user_id
-        AND r.id = ur.role_id
-        AND d.id = du.department_id
-        AND u.id = du.user_id
-        AND w.id = wu.warehouse_id
-        AND u.id = wu.user_id
+        and r.id = ur.role_id
+        and d.id = du.department_id
+        and u.id = du.user_id
+        and w.id = wu.warehouse_id
+        and u.id = wu.user_id
         and u.id = #{id};
     </select>
 
@@ -123,15 +129,15 @@
     </update>
 
     <select id="findUserRole" parameterType="com.yeta.pps.vo.UserRoleVo" resultType="com.yeta.pps.po.Role">
-        SELECT
+        select
             r.id,
             r.name
-        FROM
-            role_${storeId} AS r,
-            user_role_${storeId} AS ur
-        WHERE
+        from
+            role_${storeId} as r,
+            user_role_${storeId} as ur
+        where
             r.id = ur.role_id
-        AND ur.user_id = #{userId};
+        and ur.user_id = #{userId};
     </select>
 
 </mapper>

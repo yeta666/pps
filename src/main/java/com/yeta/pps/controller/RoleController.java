@@ -63,9 +63,21 @@ public class RoleController {
      */
     @GetMapping(value = "/roles")
     public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId,
-                                  @RequestParam(value = "page") Integer page,
-                                  @RequestParam(value = "pageSize") Integer pageSize) {
+                                  @RequestParam(value = "page", required = false) Integer page,
+                                  @RequestParam(value = "pageSize", required = false) Integer pageSize) {
         return roleService.findAll(new RoleVo(storeId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据id查询角色接口
+     * @param storeId
+     * @param roleId
+     * @return
+     */
+    @GetMapping(value = "/roles/{roleId}")
+    public CommonResponse findById(@RequestParam(value = "storeId") Integer storeId,
+                                  @PathVariable(value = "roleId") Integer roleId) {
+        return roleService.findById(new RoleVo(storeId, roleId));
     }
 
     //

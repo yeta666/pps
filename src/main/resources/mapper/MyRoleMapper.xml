@@ -18,7 +18,11 @@
         select COUNT(0) from role_${storeId};
     </select>
 
-    <select id="findAll" resultType="com.yeta.pps.po.Role">
+    <select id="findAll" parameterType="com.yeta.pps.vo.RoleVo" resultType="com.yeta.pps.po.Role">
+        select id, name from role_${storeId};
+    </select>
+
+    <select id="findAllPaged" resultType="com.yeta.pps.po.Role">
         select id, name from role_${roleVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
     </select>
 
@@ -37,19 +41,19 @@
     </delete>
 
     <select id="findRoleFunction" parameterType="com.yeta.pps.vo.RoleFunctionVo" resultType="com.yeta.pps.po.Function">
-        SELECT
+        select
             f.id,
             f.name,
             f.level,
             f.parnet_id
-        FROM
-            role_${storeId} AS r,
-            function AS f,
-            role_function_${storeId} AS rf
-        WHERE
+        from
+            role_${storeId} as r,
+            function as f,
+            role_function_${storeId} as rf
+        where
             r.id = rf.role_id
-        AND f.id = rf.function_id
-        AND r.id = #{roleId};
+        and f.id = rf.function_id
+        and r.id = #{roleId};
     </select>
 
 </mapper>

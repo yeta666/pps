@@ -28,7 +28,7 @@ public class StoreController {
      * @return
      */
     @PostMapping(value = "/stores")
-    public CommonResponse add(@RequestBody Store store) {
+    public CommonResponse add(@RequestBody @Valid Store store) {
         return storeService.add(store);
     }
 

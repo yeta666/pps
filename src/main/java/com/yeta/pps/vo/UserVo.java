@@ -3,6 +3,7 @@ package com.yeta.pps.vo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.util.CommonResponse;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public class UserVo {
@@ -67,11 +68,13 @@ public class UserVo {
     /**
      * 用户名
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String username;
 
     /**
      * 密码
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String password;
 
     /**
@@ -92,8 +95,10 @@ public class UserVo {
     public UserVo() {
     }
 
-    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
+    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer roleId, String name) {
         this.storeId = storeId;
+        this.roleId = roleId;
+        this.name = name;
     }
 
     public UserVo(String id) {

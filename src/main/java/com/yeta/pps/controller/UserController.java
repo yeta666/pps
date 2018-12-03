@@ -94,15 +94,19 @@ public class UserController {
     /**
      * 查找所有用户接口
      * @param storeId
+     * @param roleId
+     * @param name
      * @param page
      * @param pageSize
      * @return
      */
     @GetMapping(value = "/users")
     public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId,
+                                  @RequestParam(value = "roleId", required = false) Integer roleId,
+                                  @RequestParam(value = "name", required = false) String name,
                                   @RequestParam(value = "page") Integer page,
                                   @RequestParam(value = "pageSize") Integer pageSize) {
-        return userService.findAll(new UserVo(storeId), new PageVo(page, pageSize));
+        return userService.findAll(new UserVo(storeId, roleId, name), new PageVo(page, pageSize));
     }
 
     /**
@@ -113,7 +117,7 @@ public class UserController {
      */
     @GetMapping(value = "/users/{userId}")
     public CommonResponse findById(@RequestParam(value = "storeId") Integer storeId,
-                              @PathVariable(value = "userId") String userId) {
+                                   @PathVariable(value = "userId") String userId) {
         return userService.findById(new UserVo(storeId, userId));
     }
 }

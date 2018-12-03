@@ -18,7 +18,11 @@
         select COUNT(0) from warehouse_${storeId};
     </select>
 
-    <select id="findAll" resultType="com.yeta.pps.po.Warehouse">
+    <select id="findAll" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="com.yeta.pps.po.Warehouse">
+        select id, name, contacts, contact_number, address, postcode, remark from warehouse_${storeId};
+    </select>
+
+    <select id="findAllPaged" resultType="com.yeta.pps.po.Warehouse">
         select id, name, contacts, contact_number, address, postcode, remark from warehouse_${warehouseVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
     </select>
 
@@ -41,21 +45,21 @@
     </delete>
 
     <select id="findWarehouseUser" parameterType="com.yeta.pps.vo.WarehouseUserVo" resultType="com.yeta.pps.po.User">
-        SELECT
+        select
             u.id,
             u.name,
             u.username,
             u.password,
             u.remark,
             u.disabled
-        FROM
-            warehouse_${storeId} AS w,
-            user_${storeId} AS u,
-            warehouse_user_${storeId} AS wu
-        WHERE
+        from
+            warehouse_${storeId} as w,
+            user_${storeId} as u,
+            warehouse_user_${storeId} as wu
+        where
             w.id = wu.warehouseId
-        AND u.id = wu.user_id
-        AND w.id = #{warehouseId};
+        and u.id = wu.user_id
+        and w.id = #{warehouseId};
     </select>
     
 </mapper>

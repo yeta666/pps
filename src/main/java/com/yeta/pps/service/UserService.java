@@ -74,7 +74,7 @@ public class UserService {
      */
     public CommonResponse login(UserVo userVo, HttpServletRequest request) {
         //判断参数
-        if (userVo.getIdentifyingCode() == null || userVo.getUsername() == null || userVo.getPassword() == null) {
+        if (userVo.getIdentifyingCode() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //判断验证码
@@ -141,7 +141,7 @@ public class UserService {
     @Transactional
     public CommonResponse add(UserVo userVo) {
         //判断参数
-        if (userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null || userVo.getPhone() == null ||
+        if (userVo.getName() == null || userVo.getPhone() == null ||
                 /*userVo.getDepartmentId() == null ||*/ userVo.getWarehouseId() == null || userVo.getRoleId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
@@ -194,10 +194,6 @@ public class UserService {
      */
     @Transactional
     public CommonResponse delete(UserVo userVo) {
-        //判断参数
-        if (userVo.getId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-        }
         //删除用户
         if (myUserMapper.delete(userVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
@@ -227,7 +223,7 @@ public class UserService {
      */
     public CommonResponse update(UserVo userVo) {
         //判断参数
-        if (userVo.getId() == null || userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null || userVo.getPhone() == null || userVo.getDisabled() == null) {
+        if (userVo.getId() == null || userVo.getName() == null || userVo.getPhone() == null || userVo.getDisabled() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //修改用户信息

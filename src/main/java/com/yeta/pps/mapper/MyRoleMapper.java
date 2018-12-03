@@ -19,7 +19,9 @@ public interface MyRoleMapper {
 
     int findCount(RoleVo roleVo);
 
-    List<Role> findAll(@Param(value = "roleVo") RoleVo roleVo, @Param(value = "pageVo") PageVo pageVo);
+    List<Role> findAll(RoleVo roleVo);
+
+    List<Role> findAllPaged(@Param(value = "roleVo") RoleVo roleVo, @Param(value = "pageVo") PageVo pageVo);
 
     Role findById(RoleVo roleVo);
 

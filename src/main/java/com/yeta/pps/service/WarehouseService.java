@@ -32,10 +32,6 @@ public class WarehouseService {
      * @return
      */
     public CommonResponse add(WarehouseVo warehouseVo) {
-        //判断参数
-        if (warehouseVo.getName() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-        }
         //新增
         if (myWarehouseMapper.add(warehouseVo) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
@@ -50,10 +46,6 @@ public class WarehouseService {
      */
     @Transactional
     public CommonResponse delete(WarehouseVo warehouseVo) {
-        //判断参数
-        if (warehouseVo.getId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-        }
         //删除仓库
         if (myWarehouseMapper.delete(warehouseVo) != 1) {
             return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
@@ -71,7 +63,7 @@ public class WarehouseService {
      */
     public CommonResponse update(WarehouseVo warehouseVo) {
         //判断参数
-        if (warehouseVo.getId() == null || warehouseVo.getName() == null) {
+        if (warehouseVo.getId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //修改
@@ -87,19 +79,25 @@ public class WarehouseService {
      * @return
      */
     public CommonResponse findAll(WarehouseVo warehouseVo, PageVo pageVo) {
-        //查询所有页数
-        pageVo.setTotalPage(myWarehouseMapper.findCount(warehouseVo) / pageVo.getPageSize());
-        List<Warehouse> warehouses = myWarehouseMapper.findAll(warehouseVo, pageVo);
-        //封装返回结果
-        List<Title> titles = new ArrayList<>();
-        titles.add(new Title("仓库名", "name"));
-        titles.add(new Title("联系人", "contacts"));
-        titles.add(new Title("联系电话", "contactNumber"));
-        titles.add(new Title("地址", "address"));
-        titles.add(new Title("邮编", "postcode"));
-        titles.add(new Title("备注", "remark"));
-        CommonResult commonResult = new CommonResult(titles, warehouses, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        //分页
+        if (pageVo.getPageSize() != null && pageVo.getPageSize() != null) {
+            //查询所有页数
+            pageVo.setTotalPage(myWarehouseMapper.findCount(warehouseVo) / pageVo.getPageSize());
+            List<Warehouse> warehouses = myWarehouseMapper.findAllPaged(warehouseVo, pageVo);
+            //封装返回结果
+            List<Title> titles = new ArrayList<>();
+            titles.add(new Title("仓库名", "name"));
+            titles.add(new Title("联系人", "contacts"));
+            titles.add(new Title("联系电话", "contactNumber"));
+            titles.add(new Title("地址", "address"));
+            titles.add(new Title("邮编", "postcode"));
+            titles.add(new Title("备注", "remark"));
+            CommonResult commonResult = new CommonResult(titles, warehouses, pageVo);
+            return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        }
+        //不分页
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(warehouseVo);
+        return new CommonResponse(CommonResponse.CODE1, warehouses, CommonResponse.MESSAGE1);
     }
 
     /**
@@ -108,10 +106,6 @@ public class WarehouseService {
      * @return
      */
     public CommonResponse findById(WarehouseVo warehouseVo) {
-        //判断参数
-        if (warehouseVo.getId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-        }
         //根据仓库id查询仓库
         Warehouse department = myWarehouseMapper.findById(warehouseVo);
         if (department == null) {

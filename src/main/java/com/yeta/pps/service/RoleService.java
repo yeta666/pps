@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 角色相关逻辑处理
@@ -55,10 +54,6 @@ public class RoleService {
      */
     @Transactional
     public CommonResponse delete(RoleVo roleVo) {
-        //判断参数
-        if (roleVo.getId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-        }
         //删除角色
         if (myRoleMapper.delete(roleVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
@@ -79,7 +74,7 @@ public class RoleService {
      */
     public CommonResponse update(RoleVo roleVo) {
         //判断参数
-        if (roleVo.getId() == null || roleVo.getName() == null) {
+        if (roleVo.getId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //修改
@@ -95,14 +90,33 @@ public class RoleService {
      * @return
      */
     public CommonResponse findAll(RoleVo roleVo, PageVo pageVo) {
-        //查询所有页数
-        pageVo.setTotalPage(myRoleMapper.findCount(roleVo) / pageVo.getPageSize());
-        List<Role> roles = myRoleMapper.findAll(roleVo, pageVo);
-        //封装返回结果
-        List<Title> titles = new ArrayList<>();
-        titles.add(new Title("岗位名", "name"));
-        CommonResult commonResult = new CommonResult(titles, roles, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        //分页
+        if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
+            //查询所有页数
+            pageVo.setTotalPage(myRoleMapper.findCount(roleVo) / pageVo.getPageSize());
+            List<Role> roles = myRoleMapper.findAllPaged(roleVo, pageVo);
+            //封装返回结果
+            List<Title> titles = new ArrayList<>();
+            titles.add(new Title("岗位名", "name"));
+            CommonResult commonResult = new CommonResult(titles, roles, pageVo);
+            return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        }
+        //不分页
+        List<Role> roles = myRoleMapper.findAll(roleVo);
+        return new CommonResponse(CommonResponse.CODE1, roles, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 根据id查询角色
+     * @param roleVo
+     * @return
+     */
+    public CommonResponse findById(RoleVo roleVo) {
+        Role role = myRoleMapper.findById(roleVo);
+        if (role == null) {
+            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+        }
+        return new CommonResponse(CommonResponse.CODE1, role, CommonResponse.MESSAGE1);
     }
 
     //

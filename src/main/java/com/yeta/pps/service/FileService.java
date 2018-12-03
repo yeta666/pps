@@ -64,8 +64,8 @@ public class FileService implements CommandLineRunner {
     public CommonResponse upload(MultipartFile multipartFile, Integer type) throws IOException {
         String dir;
         //判断文件类型
-        if (type == 1) {        //用户
-            dir = "user/";
+        if (type == 1) {        //商品
+            dir = "goods/";
         } else if (type == 2) {     //商品
             dir = "vehicle/";
         } else if (type == 3) {     //订单

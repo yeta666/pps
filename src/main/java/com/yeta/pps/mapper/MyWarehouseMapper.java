@@ -19,7 +19,9 @@ public interface MyWarehouseMapper {
 
     int findCount(WarehouseVo warehouseVo);
 
-    List<Warehouse> findAll(@Param(value = "warehouseVo") WarehouseVo warehouseVo, @Param(value = "pageVo") PageVo pageVo);
+    List<Warehouse> findAll(WarehouseVo warehouseVo);
+
+    List<Warehouse> findAllPaged(@Param(value = "warehouseVo") WarehouseVo warehouseVo, @Param(value = "pageVo") PageVo pageVo);
 
     Warehouse findById(WarehouseVo warehouseVo);
 

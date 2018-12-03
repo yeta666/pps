@@ -37,21 +37,21 @@
     </delete>
 
     <select id="findDepartmentUser" parameterType="com.yeta.pps.vo.DepartmentUserVo" resultType="com.yeta.pps.po.User">
-        SELECT
+        select
             u.id,
             u.name,
             u.username,
             u.password,
             u.remark,
             u.disabled
-        FROM
-            department_${storeId} AS d,
-            user_${storeId} AS u,
-            department_user_${storeId} AS du
-        WHERE
+        from
+            department_${storeId} as d,
+            user_${storeId} as u,
+            department_user_${storeId} as du
+        where
             d.id = du.department_id
-        AND u.id = du.user_id
-        AND d.id = #{departmentId};
+        and u.id = du.user_id
+        and d.id = #{departmentId};
     </select>
 
 </mapper>
