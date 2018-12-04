@@ -1,12 +1,8 @@
 package com.yeta.pps.controller;
 
 import com.yeta.pps.service.DepartmentService;
-import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.vo.DepartmentVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 部门相关接口

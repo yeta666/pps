@@ -1,13 +1,10 @@
 package com.yeta.pps.po;
 
-import javax.persistence.*;
-
 public class Department {
 
     /**
      * 部门id
      */
-    @Id
     private Integer id;
 
     /**
@@ -23,7 +20,6 @@ public class Department {
     /**
      * 联系电话
      */
-    @Column(name = "contact_number")
     private String contactNumber;
 
     /**

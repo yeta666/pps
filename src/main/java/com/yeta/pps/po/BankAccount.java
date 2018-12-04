@@ -1,13 +1,10 @@
 package com.yeta.pps.po;
 
-import javax.persistence.*;
-
 public class BankAccount {
 
     /**
      * 科目编号
      */
-    @Id
     private String id;
 
     /**
@@ -38,8 +35,7 @@ public class BankAccount {
     /**
      * 收款码
      */
-    @Column(name = "qrCode")
-    private String qrcode;
+    private String qrCode;
 
     /**
      * 是否用于订货平台，0：否，1：是
@@ -162,17 +158,17 @@ public class BankAccount {
      *
      * @return qrCode - 收款码
      */
-    public String getQrcode() {
-        return qrcode;
+    public String getQrCode() {
+        return qrCode;
     }
 
     /**
      * 设置收款码
      *
-     * @param qrcode 收款码
+     * @param qrCode 收款码
      */
-    public void setQrcode(String qrcode) {
-        this.qrcode = qrcode;
+    public void setQrCode(String qrCode) {
+        this.qrCode = qrCode;
     }
 
     /**
@@ -202,7 +198,7 @@ public class BankAccount {
                 ", head='" + head + '\'' +
                 ", account='" + account + '\'' +
                 ", gathering=" + gathering +
-                ", qrcode='" + qrcode + '\'' +
+                ", qrCode='" + qrCode + '\'' +
                 ", procurement=" + procurement +
                 '}';
     }

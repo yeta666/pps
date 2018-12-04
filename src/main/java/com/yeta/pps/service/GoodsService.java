@@ -44,6 +44,8 @@ public class GoodsService {
      * @return
      */
     public CommonResponse deleteBrand(GoodsBrandVo goodsBrandVo) {
+        //TODO
+        //不能删除商品品牌，否则会导致商品查询不到
         //删除商品品牌
         if (myGoodsMapper.deleteBrand(goodsBrandVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
@@ -77,7 +79,8 @@ public class GoodsService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(myGoodsMapper.findCountBrand(goodsBrandVo) / pageVo.getPageSize());
+            pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCountBrand(goodsBrandVo) * 1.0 / pageVo.getPageSize()));
+            pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
             List<GoodsBrand> goodsBrands = myGoodsMapper.findAllBrandPaged(goodsBrandVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
@@ -124,6 +127,8 @@ public class GoodsService {
      * @return
      */
     public CommonResponse deleteLabel(GoodsLabelVo goodsLabelVo) {
+        //TODO
+        //不能删除商品标签，否则会导致商品查询不到
         //删除商品标签
         if (myGoodsMapper.deleteLabel(goodsLabelVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
@@ -157,7 +162,8 @@ public class GoodsService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(myGoodsMapper.findCountLabel(goodsLabelVo) / pageVo.getPageSize());
+            pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCountLabel(goodsLabelVo) * 1.0 / pageVo.getPageSize()));
+            pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
             List<GoodsLabel> goodsLabels = myGoodsMapper.findAllLabelPaged(goodsLabelVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
@@ -204,6 +210,8 @@ public class GoodsService {
      * @return
      */
     public CommonResponse deleteType(GoodsTypeVo goodsTypeVo) {
+        //TODO
+        //不能删除商品类型，否则会导致商品查询不到
         //删除商品类型
         if (myGoodsMapper.deleteType(goodsTypeVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
@@ -237,7 +245,8 @@ public class GoodsService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(myGoodsMapper.findCountType(goodsTypeVo) / pageVo.getPageSize());
+            pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCountType(goodsTypeVo) * 1.0 / pageVo.getPageSize()));
+            pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
             List<GoodsType> goodsTypes = myGoodsMapper.findAllTypePaged(goodsTypeVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
@@ -284,6 +293,8 @@ public class GoodsService {
      * @return
      */
     public CommonResponse deleteUnit(GoodsUnitVo goodsUnitVo) {
+        //TODO
+        //不能删除商品单位，否则会导致商品查询不到
         //删除商品单位
         if (myGoodsMapper.deleteUnit(goodsUnitVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
@@ -317,7 +328,8 @@ public class GoodsService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(myGoodsMapper.findCountUnit(goodsUnitVo) / pageVo.getPageSize());
+            pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCountUnit(goodsUnitVo) * 1.0 / pageVo.getPageSize()));
+            pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
             List<GoodsUnit> goodsUnits = myGoodsMapper.findAllUnitPaged(goodsUnitVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
@@ -351,6 +363,11 @@ public class GoodsService {
      * @return
      */
     public CommonResponse add(GoodsVo goodsVo) {
+        //TODO
+        //判断品牌id是否存在
+        //判断标签id是否存在
+        //判断分类id是否存在
+        //判断单位id是否存在
         goodsVo.setId(UUID.randomUUID().toString());
         //新增
         if (myGoodsMapper.add(goodsVo) != 1) {
@@ -358,9 +375,6 @@ public class GoodsService {
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
-
-    //TODO
-    //商品批量导入和导出
 
     /**
      * 删除商品
@@ -385,6 +399,11 @@ public class GoodsService {
         if (goodsVo.getId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
+        //TODO
+        //判断品牌id是否存在
+        //判断标签id是否存在
+        //判断分类id是否存在
+        //判断单位id是否存在
         //修改
         if (myGoodsMapper.update(goodsVo) != 1) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
@@ -399,8 +418,9 @@ public class GoodsService {
      */
     public CommonResponse findAll(GoodsVo goodsVo, PageVo pageVo) {
         //查询所有页数
-        pageVo.setTotalPage(myGoodsMapper.findCount(goodsVo) / pageVo.getPageSize());
-        List<Goods> goodsList = myGoodsMapper.findAll(goodsVo, pageVo);
+        pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCount(goodsVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<Goods> goodsList = myGoodsMapper.findAllPaged(goodsVo, pageVo);
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("商品名", "name"));

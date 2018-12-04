@@ -1,13 +1,10 @@
 package com.yeta.pps.po;
 
-import javax.persistence.*;
-
 public class GoodsType {
 
     /**
      * 商品分类id
      */
-    @Id
     private Integer id;
 
     /**

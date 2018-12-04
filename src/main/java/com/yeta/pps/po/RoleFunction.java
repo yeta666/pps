@@ -1,26 +1,20 @@
 package com.yeta.pps.po;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-
 public class RoleFunction {
 
     /**
      * id
      */
-    @Id
     private Integer id;
 
     /**
      * 角色id
      */
-    @Column(name = "role_id")
     private Integer roleId;
 
     /**
      * 功能id
      */
-    @Column(name = "function_id")
     private Integer functionId;
 
     public RoleFunction() {

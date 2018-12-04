@@ -2,8 +2,6 @@ package com.yeta.pps.vo;
 
 import com.yeta.pps.util.CommonResponse;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -51,7 +49,7 @@ public class BankAccountVo {
     /**
      * 收款码
      */
-    private String qrcode;
+    private String qrCode;
 
     /**
      * 是否用于订货平台，0：否，1：是
@@ -126,12 +124,12 @@ public class BankAccountVo {
         this.gathering = gathering;
     }
 
-    public String getQrcode() {
-        return qrcode;
+    public String getQrCode() {
+        return qrCode;
     }
 
-    public void setQrcode(String qrcode) {
-        this.qrcode = qrcode;
+    public void setQrCode(String qrCode) {
+        this.qrCode = qrCode;
     }
 
     public Byte getProcurement() {
@@ -152,7 +150,7 @@ public class BankAccountVo {
                 ", head='" + head + '\'' +
                 ", account='" + account + '\'' +
                 ", gathering=" + gathering +
-                ", qrcode='" + qrcode + '\'' +
+                ", qrCode='" + qrCode + '\'' +
                 ", procurement=" + procurement +
                 '}';
     }

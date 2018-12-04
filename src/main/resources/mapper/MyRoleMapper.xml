@@ -23,7 +23,7 @@
     </select>
 
     <select id="findAllPaged" resultType="com.yeta.pps.po.Role">
-        select id, name from role_${roleVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
+        select id, name from role_${roleVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.RoleVo" resultType="com.yeta.pps.po.Role">

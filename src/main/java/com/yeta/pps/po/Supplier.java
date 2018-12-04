@@ -1,14 +1,14 @@
 package com.yeta.pps.po;
 
-public class Warehouse {
+public class Supplier {
 
     /**
-     * 仓库id
+     * 供应商编号
      */
-    private Integer id;
+    private String id;
 
     /**
-     * 仓库名
+     * 供应商名称
      */
     private String name;
 
@@ -23,54 +23,54 @@ public class Warehouse {
     private String contactNumber;
 
     /**
-     * 地址
+     * 联系地址
      */
-    private String address;
+    private String contactAddress;
 
     /**
-     * 邮编
+     * 传真
      */
-    private String postcode;
+    private String fax;
 
     /**
      * 备注
      */
     private String remark;
 
-    public Warehouse() {
+    public Supplier() {
     }
 
     /**
-     * 获取仓库id
+     * 获取供应商编号
      *
-     * @return id - 仓库id
+     * @return id - 供应商编号
      */
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
     /**
-     * 设置仓库id
+     * 设置供应商编号
      *
-     * @param id 仓库id
+     * @param id 供应商编号
      */
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
     /**
-     * 获取仓库名
+     * 获取供应商名称
      *
-     * @return name - 仓库名
+     * @return name - 供应商名称
      */
     public String getName() {
         return name;
     }
 
     /**
-     * 设置仓库名
+     * 设置供应商名称
      *
-     * @param name 仓库名
+     * @param name 供应商名称
      */
     public void setName(String name) {
         this.name = name;
@@ -113,39 +113,39 @@ public class Warehouse {
     }
 
     /**
-     * 获取地址
+     * 获取联系地址
      *
-     * @return address - 地址
+     * @return contact_address - 联系地址
      */
-    public String getAddress() {
-        return address;
+    public String getContactAddress() {
+        return contactAddress;
     }
 
     /**
-     * 设置地址
+     * 设置联系地址
      *
-     * @param address 地址
+     * @param contactAddress 联系地址
      */
-    public void setAddress(String address) {
-        this.address = address;
+    public void setContactAddress(String contactAddress) {
+        this.contactAddress = contactAddress;
     }
 
     /**
-     * 获取邮编
+     * 获取传真
      *
-     * @return postcode - 邮编
+     * @return fax - 传真
      */
-    public String getPostcode() {
-        return postcode;
+    public String getFax() {
+        return fax;
     }
 
     /**
-     * 设置邮编
+     * 设置传真
      *
-     * @param postcode 邮编
+     * @param fax 传真
      */
-    public void setPostcode(String postcode) {
-        this.postcode = postcode;
+    public void setFax(String fax) {
+        this.fax = fax;
     }
 
     /**
@@ -168,13 +168,13 @@ public class Warehouse {
 
     @Override
     public String toString() {
-        return "Warehouse{" +
-                "id=" + id +
+        return "Supplier{" +
+                "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", contacts='" + contacts + '\'' +
                 ", contactNumber='" + contactNumber + '\'' +
-                ", address='" + address + '\'' +
-                ", postcode='" + postcode + '\'' +
+                ", contactAddress='" + contactAddress + '\'' +
+                ", fax='" + fax + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';
     }

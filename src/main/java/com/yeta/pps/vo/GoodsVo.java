@@ -6,8 +6,6 @@ import com.yeta.pps.po.GoodsType;
 import com.yeta.pps.po.GoodsUnit;
 import com.yeta.pps.util.CommonResponse;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;

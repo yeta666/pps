@@ -70,7 +70,7 @@
         <if test="userVo.name!=null">
             and u.name = #{userVo.name}
         </if>
-        limit #{pageVo.page}, #{pageVo.pageSize};
+        limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.vo.UserVo">

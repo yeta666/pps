@@ -1,13 +1,10 @@
 package com.yeta.pps.po;
 
-import javax.persistence.Id;
-
 public class User {
 
     /**
      * 用户id
      */
-    @Id
     private String id;
 
     /**

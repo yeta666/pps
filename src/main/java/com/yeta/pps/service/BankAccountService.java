@@ -10,7 +10,6 @@ import com.yeta.pps.vo.BankAccountVo;
 import com.yeta.pps.vo.PageVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +73,8 @@ public class BankAccountService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(myBankAccountMapper.findCount(bankAccountVo) / pageVo.getPageSize());
+            pageVo.setTotalPage((int) Math.ceil(myBankAccountMapper.findCount(bankAccountVo) * 1.0 / pageVo.getPageSize()));
+            pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
             List<BankAccount> bankAccounts = myBankAccountMapper.findAllPaged(bankAccountVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
@@ -84,7 +84,7 @@ public class BankAccountService {
             titles.add(new Title("head", "户主名"));
             titles.add(new Title("account", "账户"));
             titles.add(new Title("gathering", "是否用于商城收款"));
-            titles.add(new Title("qrcode", "收款码"));
+            titles.add(new Title("qrCode", "收款码"));
             titles.add(new Title("procurement", "是否用于订货平台"));
             CommonResult commonResult = new CommonResult(titles, bankAccounts, pageVo);
             return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);

@@ -3,7 +3,7 @@
 <mapper namespace="com.yeta.pps.mapper.MyBankAccountMapper" >
 
     <insert id="add" parameterType="com.yeta.pps.vo.BankAccountVo">
-        insert into bank_account_${storeId} (id, name, type, head, account, gathering, qrCode, procurement) values (#{id}, #{name}, #{type}, #{head}, #{account}, #{gathering}, #{qrcode}, #{procurement});
+        insert into bank_account_${storeId} (id, name, type, head, account, gathering, qrCode, procurement) values (#{id}, #{name}, #{type}, #{head}, #{account}, #{gathering}, #{qrCode}, #{procurement});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.BankAccountVo">
@@ -11,7 +11,7 @@
     </delete>
 
     <update id="update" parameterType="com.yeta.pps.vo.BankAccountVo">
-        update bank_account_${storeId} set name = #{name}, type = #{type}, head = #{head}, account = #{account}, gathering = #{gathering}, qrCode = #{qrcode}, procurement = #{procurement} where id = #{id};
+        update bank_account_${storeId} set name = #{name}, type = #{type}, head = #{head}, account = #{account}, gathering = #{gathering}, qrCode = #{qrCode}, procurement = #{procurement} where id = #{id};
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.BankAccountVo" resultType="java.lang.Integer">
@@ -23,7 +23,7 @@
     </select>
 
     <select id="findAllPaged" resultType="com.yeta.pps.po.BankAccount">
-        select id, name, type, head, account, gathering, qrCode, procurement from bank_account_${bankAccountVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
+        select id, name, type, head, account, gathering, qrCode, procurement from bank_account_${bankAccountVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.BankAccountVo" resultType="com.yeta.pps.po.BankAccount">

@@ -14,19 +14,11 @@
         update income_expenses_${storeId} set name = #{name}, debit_credit = #{debitCredit}, check_item = #{checkItem}, type = #{type} where id = #{id};
     </update>
 
-    <resultMap id="incomeExpensesMap" type="com.yeta.pps.po.IncomeExpenses">
-        <id property="id" column="id" />
-        <result property="name" column="name" />
-        <result property="checkItem" column="check_item" />
-        <result property="debitCredit" column="debit_credit" />
-        <result property="type" column="type" />
-    </resultMap>
-
     <select id="findCount" parameterType="com.yeta.pps.vo.IncomeExpensesVo" resultType="java.lang.Integer">
         select COUNT(0) from income_expenses_${storeId};
     </select>
 
-    <select id="findAll" parameterType="com.yeta.pps.vo.IncomeExpensesVo" resultMap="incomeExpensesMap">
+    <select id="findAll" parameterType="com.yeta.pps.vo.IncomeExpensesVo" resultType="com.yeta.pps.po.IncomeExpenses">
         select
           id, name, debit_credit, check_item, type
         from
@@ -38,11 +30,11 @@
         </if>
     </select>
 
-    <select id="findAllPaged" resultMap="incomeExpensesMap">
-        select id, name, debit_credit, check_item, type from income_expenses_${incomeExpensesVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
+    <select id="findAllPaged" resultType="com.yeta.pps.po.IncomeExpenses">
+        select id, name, debit_credit, check_item, type from income_expenses_${incomeExpensesVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findById" parameterType="com.yeta.pps.vo.IncomeExpensesVo" resultMap="incomeExpensesMap">
+    <select id="findById" parameterType="com.yeta.pps.vo.IncomeExpensesVo" resultType="com.yeta.pps.po.IncomeExpenses">
         select id, name, debit_credit, check_item, type from income_expenses_${storeId} where id = #{id};
     </select>
     

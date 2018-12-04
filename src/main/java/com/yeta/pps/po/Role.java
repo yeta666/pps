@@ -1,13 +1,10 @@
 package com.yeta.pps.po;
 
-import javax.persistence.*;
-
 public class Role {
 
     /**
      * 角色id
      */
-    @Id
     private Integer id;
 
     /**

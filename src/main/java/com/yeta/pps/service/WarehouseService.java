@@ -82,7 +82,8 @@ public class WarehouseService {
         //分页
         if (pageVo.getPageSize() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(myWarehouseMapper.findCount(warehouseVo) / pageVo.getPageSize());
+            pageVo.setTotalPage((int) Math.ceil(myWarehouseMapper.findCount(warehouseVo) * 1.0 / pageVo.getPageSize()));
+            pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
             List<Warehouse> warehouses = myWarehouseMapper.findAllPaged(warehouseVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();

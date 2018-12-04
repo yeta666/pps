@@ -1,14 +1,10 @@
 package com.yeta.pps.po;
 
-import javax.persistence.*;
-import java.util.List;
-
 public class Function {
 
     /**
      * 功能id
      */
-    @Id
     private Integer id;
 
     /**
@@ -24,7 +20,6 @@ public class Function {
     /**
      * 父功能id
      */
-    @Column(name = "parnet_id")
     private Integer parnetId;
 
     public Function() {

@@ -1,13 +1,10 @@
 package com.yeta.pps.po;
 
-import javax.persistence.*;
-
 public class GoodsBrand {
 
     /**
      * 商品品牌id
      */
-    @Id
     private Integer id;
 
     /**

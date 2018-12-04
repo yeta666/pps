@@ -93,7 +93,8 @@ public class RoleService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(myRoleMapper.findCount(roleVo) / pageVo.getPageSize());
+            pageVo.setTotalPage((int) Math.ceil(myRoleMapper.findCount(roleVo) * 1.0 / pageVo.getPageSize()));
+            pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
             List<Role> roles = myRoleMapper.findAllPaged(roleVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();

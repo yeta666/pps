@@ -2,8 +2,6 @@ package com.yeta.pps.po;
 
 import com.yeta.pps.util.CommonResponse;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 
 public class Store {
@@ -11,7 +9,6 @@ public class Store {
     /**
      * 店铺id
      */
-    @Id
     private Integer id;
 
     /**
@@ -23,7 +20,6 @@ public class Store {
     /**
      * 店铺老板id
      */
-    @Column(name = "user_id")
     private String userId;
 
     public Store() {

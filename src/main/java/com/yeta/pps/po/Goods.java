@@ -3,14 +3,12 @@ package com.yeta.pps.po;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
-import javax.persistence.*;
 
 public class Goods {
 
     /**
      * 商品id
      */
-    @Id
     private String id;
 
     /**
@@ -26,34 +24,29 @@ public class Goods {
     /**
      * 条码
      */
-    @Column(name = "bar_code")
     private String barCode;
 
     /**
      * 分类
      */
-    @Column(name = "type_id")
     @JsonIgnore
     private Integer typeId;
 
     /**
      * 品牌
      */
-    @Column(name = "brand_id")
     @JsonIgnore
     private Integer brandId;
 
     /**
      * 单位
      */
-    @Column(name = "unit_id")
     @JsonIgnore
     private Integer unitId;
 
     /**
      * 标签
      */
-    @Column(name = "label_id")
     @JsonIgnore
     private Integer labelId;
 
@@ -68,25 +61,21 @@ public class Goods {
     /**
      * 零售价
      */
-    @Column(name = "retail_price")
     private BigDecimal retailPrice;
 
     /**
      * 批发价
      */
-    @Column(name = "trade_price")
     private BigDecimal tradePrice;
 
     /**
      * 预设进价
      */
-    @Column(name = "purchase_price")
     private BigDecimal purchasePrice;
 
     /**
      * vip售价
      */
-    @Column(name = "vip_price")
     private BigDecimal vipPrice;
 
     /**
@@ -107,7 +96,6 @@ public class Goods {
     /**
      * 香型
      */
-    @Column(name = "oder_type")
     private String oderType;
 
     /**
@@ -118,7 +106,6 @@ public class Goods {
     /**
      * 净含量
      */
-    @Column(name = "net_content")
     private String netContent;
 
     /**

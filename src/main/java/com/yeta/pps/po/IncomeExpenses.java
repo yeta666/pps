@@ -1,12 +1,10 @@
 package com.yeta.pps.po;
 
-import javax.persistence.*;
-
 public class IncomeExpenses {
+
     /**
      * 科目编号
      */
-    @Id
     private String id;
 
     /**
@@ -17,13 +15,11 @@ public class IncomeExpenses {
     /**
      * 核算项，1：供应商，2：客户，3：往来单位，4：职员，5：部门
      */
-    @Column(name = "check_item")
     private Byte checkItem;
 
     /**
      * 借贷，1：贷，2：借
      */
-    @Column(name = "debit_credit")
     private Byte debitCredit;
 
     /**

@@ -242,7 +242,8 @@ public class UserService {
      */
     public CommonResponse findAll(UserVo userVo, PageVo pageVo) {
         //查询所有页数
-        pageVo.setTotalPage(myUserMapper.findCount(userVo) / pageVo.getPageSize());
+        pageVo.setTotalPage((int) Math.ceil(myUserMapper.findCount(userVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         //查询
         List<UserVo> userVos = myUserMapper.findAll(userVo, pageVo);
         //封装返回结果

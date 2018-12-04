@@ -73,7 +73,8 @@ public class IncomeExpensesService {
         //分页
         if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
             //查询所有页数
-            pageVo.setTotalPage(myIncomeExpensesMapper.findCount(incomeExpensesVo) / pageVo.getPageSize());
+            pageVo.setTotalPage((int) Math.ceil(myIncomeExpensesMapper.findCount(incomeExpensesVo) * 1.0 / pageVo.getPageSize()));
+            pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
             List<IncomeExpenses> incomeExpenses = myIncomeExpensesMapper.findAllPaged(incomeExpensesVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();

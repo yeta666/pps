@@ -23,7 +23,7 @@
     </select>
 
     <select id="findAllBrandPaged" resultType="com.yeta.pps.po.GoodsBrand">
-        select id, name from goods_brand_${goodsBrandVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
+        select id, name from goods_brand_${goodsBrandVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findBrandById" parameterType="com.yeta.pps.vo.GoodsBrandVo" resultType="com.yeta.pps.po.GoodsBrand">
@@ -53,7 +53,7 @@
     </select>
 
     <select id="findAllLabelPaged" resultType="com.yeta.pps.po.GoodsLabel">
-        select id, name from goods_label_${goodsLabelVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
+        select id, name from goods_label_${goodsLabelVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findLabelById" parameterType="com.yeta.pps.vo.GoodsLabelVo" resultType="com.yeta.pps.po.GoodsLabel">
@@ -83,7 +83,7 @@
     </select>
 
     <select id="findAllTypePaged" resultType="com.yeta.pps.po.GoodsType">
-        select id, name from goods_type_${goodsTypeVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
+        select id, name from goods_type_${goodsTypeVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findTypeById" parameterType="com.yeta.pps.vo.GoodsTypeVo" resultType="com.yeta.pps.po.GoodsType">
@@ -113,7 +113,7 @@
     </select>
 
     <select id="findAllUnitPaged" resultType="com.yeta.pps.po.GoodsUnit">
-        select id, name from goods_unit_${goodsUnitVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
+        select id, name from goods_unit_${goodsUnitVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findUnitById" parameterType="com.yeta.pps.vo.GoodsUnitVo" resultType="com.yeta.pps.po.GoodsUnit">
@@ -186,7 +186,7 @@
         and g.unit_id = gu.id;
     </select>
 
-    <select id="findAll" resultMap="goodsMap">
+    <select id="findAllPaged" resultMap="goodsMap">
         select
             g.id,
             g.name,
@@ -239,7 +239,8 @@
         <if test="goodsVo.putaway!=null">
             and g.putaway = #{goodsVo.putaway}
         </if>
-        limit #{pageVo.page}, #{pageVo.pageSize};
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.GoodsVo" resultMap="goodsMap">

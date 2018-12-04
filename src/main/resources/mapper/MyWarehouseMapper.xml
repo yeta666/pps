@@ -23,7 +23,7 @@
     </select>
 
     <select id="findAllPaged" resultType="com.yeta.pps.po.Warehouse">
-        select id, name, contacts, contact_number, address, postcode, remark from warehouse_${warehouseVo.storeId} limit #{pageVo.page}, #{pageVo.pageSize};
+        select id, name, contacts, contact_number, address, postcode, remark from warehouse_${warehouseVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="com.yeta.pps.po.Warehouse">

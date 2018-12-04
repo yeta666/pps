@@ -66,8 +66,8 @@ public class FileService implements CommandLineRunner {
         //判断文件类型
         if (type == 1) {        //商品
             dir = "goods/";
-        } else if (type == 2) {     //商品
-            dir = "vehicle/";
+        } else if (type == 2) {     //银行账户
+            dir = "bank_account/";
         } else if (type == 3) {     //订单
             dir = "order/";
         } else if (type == 4) {     //系统

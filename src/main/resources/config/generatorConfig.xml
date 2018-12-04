@@ -46,6 +46,11 @@
         <!--<table tableName="goods_unit" catalog="pps"></table>-->
         <!--<table tableName="goods_label" catalog="pps"></table>-->
         <!--<table tableName="bank_account" catalog="pps"></table>-->
-        <table tableName="income_expenses" catalog="pps"></table>
+        <!--<table tableName="income_expenses" catalog="pps"></table>-->
+        <!--<table tableName="supplier" catalog="pps"></table>-->
+        <table tableName="client" catalog="pps"></table>
+        <table tableName="client_level" catalog="pps"></table>
+        <table tableName="client_client_level" catalog="pps"></table>
+        <table tableName="client_membership_number" catalog="pps"></table>
     </context>
 </generatorConfiguration>

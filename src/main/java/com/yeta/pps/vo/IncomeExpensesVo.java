@@ -3,7 +3,6 @@ package com.yeta.pps.vo;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.persistence.Column;
-import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 

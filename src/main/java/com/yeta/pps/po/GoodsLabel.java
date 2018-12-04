@@ -1,13 +1,10 @@
 package com.yeta.pps.po;
 
-import javax.persistence.*;
-
 public class GoodsLabel {
 
     /**
      * 商品标签id
      */
-    @Id
     private Integer id;
 
     /**

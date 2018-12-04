@@ -22,6 +22,11 @@ public class PageVo {
      */
     private Integer totalPage;
 
+    /**
+     * 开始
+     */
+    private Integer start;
+
     public PageVo() {
     }
 
@@ -54,12 +59,21 @@ public class PageVo {
         this.totalPage = totalPage;
     }
 
+    public Integer getStart() {
+        return start;
+    }
+
+    public void setStart(Integer start) {
+        this.start = start;
+    }
+
     @Override
     public String toString() {
         return "PageVo{" +
                 "page=" + page +
                 ", pageSize=" + pageSize +
                 ", totalPage=" + totalPage +
+                ", start=" + start +
                 '}';
     }
 }

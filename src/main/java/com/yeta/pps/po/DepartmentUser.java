@@ -1,25 +1,20 @@
 package com.yeta.pps.po;
 
-import javax.persistence.*;
-
 public class DepartmentUser {
 
     /**
      * 部门用户id
      */
-    @Id
     private Integer id;
 
     /**
      * 部门id
      */
-    @Column(name = "department_id")
     private Integer departmentId;
 
     /**
      * 用户id
      */
-    @Column(name = "user_id")
     private String userId;
 
     public DepartmentUser() {

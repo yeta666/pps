@@ -445,3 +445,102 @@ insert into income_expenses_1 (id, name, debit_credit, type) values ('605203', '
 insert into income_expenses_1 (id, name, debit_credit, type) values ('605204', '罚没收入', 1, 1);
 insert into income_expenses_1 (id, name, debit_credit, type) values ('6111', '投资收益', 1, 1);
 insert into income_expenses_1 (id, name, debit_credit, type) values ('6301', '营业外收入', 1, 1);
+
+
+drop table supplier_1;
+create table supplier_1 (
+  id varchar(20) not null primary key comment '供应商编号',
+  name varchar(50) not null comment '供应商名称',
+  contacts varchar(20) not null comment '联系人',
+  contact_number varchar(20) not null comment '联系电话',
+  contact_address varchar(100) comment '联系地址',
+  fax varchar(20) comment '传真',
+  remark varchar(200) comment '备注'
+) engine InnoDB default charset=utf8;
+
+insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys001', '美特斯邦威', '小明', '17760041487', '', '', '');
+insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys002', '耐克', '小明', '17760041487', '', '', '');
+insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys003', '阿迪达斯', '小明', '17760041487', '', '', '');
+insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys004', '新百伦', '小明', '17760041487', '', '', '');
+insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys005', '雅鹿', '小明', '17760041487', '', '', '');
+insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys006', 'HSTYLE/韩都衣舍', '小明', '17760041487', '', '', '');
+insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys007', '森马', '小明', '17760041487', '', '', '');
+insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys008', '秋水伊人', '小明', '17760041487', '', '', '');
+
+
+drop table if exists client;
+create table client(
+  id varchar(50) not null primary key comment '客户编号',
+  name varchar(10) not null comment '客户姓名',
+  username varchar(50) not null unique comment '客户用户名',
+  password varchar(50) not null comment '客户密码',
+  phone varchar(20) not null unique comment '客户电话',
+  birthday datetime comment '客户生日',
+  inviter_id varchar(50)  comment '邀请人',
+  inviter_name varchar(10) comment '邀请人姓名',
+  integral int not null comment '积分',
+  address varchar(100) comment '客户地址',
+  postcode varchar(10) comment '邮编',
+  last_deal_time datetime comment '最近交易时间',
+  create_time datetime not null comment '创建时间',
+  disabled tinyint not null comment '是否停用，0：否，1：是',
+  remark varchar(200) comment '备注'
+) engine InnoDB default charset=utf8;
+
+insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, last_deal_time, create_time, disabled, remark)
+values ('054774c2-f784-11e8-9dc7-54ee75c0f47a', '客户1', 'kh1', 'kh1', '17360034522', now(), '', '', 0, '', '', now(), now(), 0, '');
+insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, last_deal_time, create_time, disabled, remark)
+values ('054b1e2c-f784-11e8-9dc7-54ee75c0f47a', '客户2', 'kh2', 'kh2', '17360034523', now(), '', '', 0, '', '', now(), now(), 0, '');
+insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, last_deal_time, create_time, disabled, remark)
+values ('054e2add-f784-11e8-9dc7-54ee75c0f47a', '客户3', 'kh3', 'kh3', '17360034524', now(), '', '', 0, '', '', now(), now(), 0, '');
+insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, last_deal_time, create_time, disabled, remark)
+values ('05510d52-f784-11e8-9dc7-54ee75c0f47a', '客户4', 'kh4', 'kh4', '17360034525', now(), '', '', 0, '', '', now(), now(), 0, '');
+
+drop table if exists client_level;
+create table client_level(
+  id int not null primary key auto_increment comment '客户级别id',
+  name varchar(20) not null unique comment '客户级别',
+  price_type tinyint not null comment '级别价格类型，1：零售价， 2：vip售价',
+  price decimal(10, 2) not null comment '级别默认价格，级别价格类型*0.几'
+) engine InnoDB default charset=utf8;
+
+insert into client_level (name, price_type, price) values ('总店店长', 2, 0.6);
+insert into client_level (name, price_type, price) values ('分店店长', 2, 0.8);
+insert into client_level (name, price_type, price) values ('普通vip', 1, 1);
+insert into client_level (name, price_type, price) values ('普通客户', 1, 1);
+
+drop table if exists client_client_level;
+create table client_client_level(
+  id int not null primary key auto_increment comment '客户客户级别id',
+  client_id varchar(50) not null unique comment '客户编号',
+  level_id int not null comment '客户级别id'
+) engine InnoDB default charset=utf8;
+
+insert into client_client_level (client_id, level_id) values ('054774c2-f784-11e8-9dc7-54ee75c0f47a', 1);
+insert into client_client_level (client_id, level_id) values ('054b1e2c-f784-11e8-9dc7-54ee75c0f47a', 2);
+insert into client_client_level (client_id, level_id) values ('054e2add-f784-11e8-9dc7-54ee75c0f47a', 3);
+insert into client_client_level (client_id, level_id) values ('05510d52-f784-11e8-9dc7-54ee75c0f47a', 4);
+
+drop table if exists client_membership_number;
+create table client_membership_number(
+  id int not null primary key auto_increment comment '会员卡号id',
+  number varchar(100) not null unique comment '会员卡号'
+) engine InnoDB default charset=utf8;
+
+insert into client_membership_number (number) values ('001');
+insert into client_membership_number (number) values ('002');
+insert into client_membership_number (number) values ('003');
+insert into client_membership_number (number) values ('004');
+insert into client_membership_number (number) values ('005');
+insert into client_membership_number (number) values ('006');
+
+drop table if exists client_client_membership_number;
+create table client_client_membership_number(
+  id int not null primary key auto_increment comment '客户会员卡号id',
+  client_id varchar(50) not null unique comment '客户编号',
+  membership_number_id int not null unique comment '会员卡号id'
+) engine InnoDB default charset=utf8;
+
+insert into client_client_membership_number (client_id, membership_number_id) values ('054774c2-f784-11e8-9dc7-54ee75c0f47a', 1);
+insert into client_client_membership_number (client_id, membership_number_id) values ('054b1e2c-f784-11e8-9dc7-54ee75c0f47a', 2);
+insert into client_client_membership_number (client_id, membership_number_id) values ('054e2add-f784-11e8-9dc7-54ee75c0f47a', 3);

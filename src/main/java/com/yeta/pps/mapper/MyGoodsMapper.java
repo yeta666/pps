@@ -80,7 +80,7 @@ public interface MyGoodsMapper {
 
     int findCount(GoodsVo goodsVo);
 
-    List<Goods> findAll(@Param(value = "goodsVo") GoodsVo goodsVo, @Param(value = "pageVo") PageVo page);
+    List<Goods> findAllPaged(@Param(value = "goodsVo") GoodsVo goodsVo, @Param(value = "pageVo") PageVo page);
 
     Goods findById(GoodsVo goodsVo);
 }
