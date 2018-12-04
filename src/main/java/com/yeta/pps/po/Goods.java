@@ -1,7 +1,5 @@
 package com.yeta.pps.po;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.math.BigDecimal;
 
 public class Goods {
@@ -29,49 +27,32 @@ public class Goods {
     /**
      * 分类
      */
-    @JsonIgnore
     private Integer typeId;
 
     /**
      * 品牌
      */
-    @JsonIgnore
     private Integer brandId;
 
     /**
      * 单位
      */
-    @JsonIgnore
     private Integer unitId;
 
     /**
      * 标签
      */
-    @JsonIgnore
     private Integer labelId;
 
-    private GoodsBrand goodsBrand;
-
-    private GoodsLabel goodsLabel;
-
-    private GoodsType goodsType;
-
-    private GoodsUnit goodsUnit;
+    /**
+     * 进价
+     */
+    private BigDecimal purchasePrice;
 
     /**
      * 零售价
      */
     private BigDecimal retailPrice;
-
-    /**
-     * 批发价
-     */
-    private BigDecimal tradePrice;
-
-    /**
-     * 预设进价
-     */
-    private BigDecimal purchasePrice;
 
     /**
      * vip售价
@@ -190,36 +171,12 @@ public class Goods {
         this.labelId = labelId;
     }
 
-    public GoodsBrand getGoodsBrand() {
-        return goodsBrand;
+    public BigDecimal getPurchasePrice() {
+        return purchasePrice;
     }
 
-    public void setGoodsBrand(GoodsBrand goodsBrand) {
-        this.goodsBrand = goodsBrand;
-    }
-
-    public GoodsLabel getGoodsLabel() {
-        return goodsLabel;
-    }
-
-    public void setGoodsLabel(GoodsLabel goodsLabel) {
-        this.goodsLabel = goodsLabel;
-    }
-
-    public GoodsType getGoodsType() {
-        return goodsType;
-    }
-
-    public void setGoodsType(GoodsType goodsType) {
-        this.goodsType = goodsType;
-    }
-
-    public GoodsUnit getGoodsUnit() {
-        return goodsUnit;
-    }
-
-    public void setGoodsUnit(GoodsUnit goodsUnit) {
-        this.goodsUnit = goodsUnit;
+    public void setPurchasePrice(BigDecimal purchasePrice) {
+        this.purchasePrice = purchasePrice;
     }
 
     public BigDecimal getRetailPrice() {
@@ -228,22 +185,6 @@ public class Goods {
 
     public void setRetailPrice(BigDecimal retailPrice) {
         this.retailPrice = retailPrice;
-    }
-
-    public BigDecimal getTradePrice() {
-        return tradePrice;
-    }
-
-    public void setTradePrice(BigDecimal tradePrice) {
-        this.tradePrice = tradePrice;
-    }
-
-    public BigDecimal getPurchasePrice() {
-        return purchasePrice;
-    }
-
-    public void setPurchasePrice(BigDecimal purchasePrice) {
-        this.purchasePrice = purchasePrice;
     }
 
     public BigDecimal getVipPrice() {
@@ -337,13 +278,8 @@ public class Goods {
                 ", brandId=" + brandId +
                 ", unitId=" + unitId +
                 ", labelId=" + labelId +
-                ", goodsBrand=" + goodsBrand +
-                ", goodsLabel=" + goodsLabel +
-                ", goodsType=" + goodsType +
-                ", goodsUnit=" + goodsUnit +
-                ", retailPrice=" + retailPrice +
-                ", tradePrice=" + tradePrice +
                 ", purchasePrice=" + purchasePrice +
+                ", retailPrice=" + retailPrice +
                 ", vipPrice=" + vipPrice +
                 ", inventory=" + inventory +
                 ", origin='" + origin + '\'' +

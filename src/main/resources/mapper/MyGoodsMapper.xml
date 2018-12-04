@@ -22,7 +22,7 @@
         select id, name from goods_brand_${storeId};
     </select>
 
-    <select id="findAllBrandPaged" resultType="com.yeta.pps.po.GoodsBrand">
+    <select id="findAllPagedBrand" resultType="com.yeta.pps.po.GoodsBrand">
         select id, name from goods_brand_${goodsBrandVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -52,7 +52,7 @@
         select id, name from goods_label_${storeId};
     </select>
 
-    <select id="findAllLabelPaged" resultType="com.yeta.pps.po.GoodsLabel">
+    <select id="findAllPagedLabel" resultType="com.yeta.pps.po.GoodsLabel">
         select id, name from goods_label_${goodsLabelVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -82,7 +82,7 @@
         select id, name from goods_type_${storeId};
     </select>
 
-    <select id="findAllTypePaged" resultType="com.yeta.pps.po.GoodsType">
+    <select id="findAllPagedType" resultType="com.yeta.pps.po.GoodsType">
         select id, name from goods_type_${goodsTypeVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -112,7 +112,7 @@
         select id, name from goods_unit_${storeId};
     </select>
 
-    <select id="findAllUnitPaged" resultType="com.yeta.pps.po.GoodsUnit">
+    <select id="findAllPagedUnit" resultType="com.yeta.pps.po.GoodsUnit">
         select id, name from goods_unit_${goodsUnitVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -123,10 +123,10 @@
     <!---->
 
     <insert id="add" parameterType="com.yeta.pps.vo.GoodsVo">
-        insert into
-          goods_${storeId} (id, name, code, bar_code, type_id, brand_id, unit_id, label_id, retail_price, trade_price, purchase_price, vip_price, inventory, origin, image, oder_type, degree, net_content, integral, remark, putaway)
+        insert into goods_${storeId}
+            (id, name, code, bar_code, type_id, brand_id, unit_id, label_id, retail_price, purchase_price, vip_price, inventory, origin, image, oder_type, degree, net_content, integral, remark, putaway)
         VALUES
-          (#{id}, #{name}, #{code}, #{barCode}, #{typeId}, #{brandId}, #{unitId}, #{labelId}, #{retailPrice}, #{tradePrice}, #{purchasePrice}, #{vipPrice}, #{inventory}, #{origin}, #{image}, #{oderType}, #{degree}, #{netContent}, #{integral}, #{remark}, #{putaway});
+            (#{id}, #{name}, #{code}, #{barCode}, #{typeId}, #{brandId}, #{unitId}, #{labelId}, #{retailPrice}, #{purchasePrice}, #{vipPrice}, #{inventory}, #{origin}, #{image}, #{oderType}, #{degree}, #{netContent}, #{integral}, #{remark}, #{putaway});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.GoodsVo">
@@ -135,40 +135,12 @@
 
     <update id="update" parameterType="com.yeta.pps.vo.GoodsVo">
         update
-          goods_${storeId}
+            goods_${storeId}
         set
-          name = #{name}, code = #{name}, bar_code = #{barCode}, type_id = #{typeId}, brand_id = #{brandId}, unit_id = #{unitId}, label_id = #{labelId}, retail_price = #{retailPrice}, trade_price = #{tradePrice}, purchase_price = #{purchasePrice}, vip_price = #{vipPrice}, inventory = #{inventory}, origin = #{origin}, image = #{image}, oder_type = #{oderType}, degree = #{degree}, net_content = #{netContent}, integral = #{integral}, remark = #{remark}, putaway = #{putaway}
+            name = #{name}, code = #{name}, bar_code = #{barCode}, type_id = #{typeId}, brand_id = #{brandId}, unit_id = #{unitId}, label_id = #{labelId}, retail_price = #{retailPrice}, purchase_price = #{purchasePrice}, vip_price = #{vipPrice}, inventory = #{inventory}, origin = #{origin}, image = #{image}, oder_type = #{oderType}, degree = #{degree}, net_content = #{netContent}, integral = #{integral}, remark = #{remark}, putaway = #{putaway}
         where
-          id = #{id};
+            id = #{id};
     </update>
-
-    <resultMap id="goodsMap" type="com.yeta.pps.po.Goods">
-        <id column="id" property="id" />
-        <result column="name" property="name" />
-        <result column="code" property="code" />
-        <result column="bar_code" property="barCode" />
-        <result column="retail_price" property="retailPrice" />
-        <result column="trade_price" property="tradePrice" />
-        <result column="purchase_price" property="purchasePrice" />
-        <result column="vip_price" property="vipPrice" />
-        <result column="inventory" property="inventory" />
-        <result column="origin" property="origin" />
-        <result column="image" property="image" />
-        <result column="oder_type" property="oderType" />
-        <result column="degree" property="degree" />
-        <result column="net_content" property="netContent" />
-        <result column="integral" property="integral" />
-        <result column="remark" property="remark" />
-        <result column="putaway" property="putaway" />
-        <result column="brand_id" property="goodsBrand.id" />
-        <result column="brand_name" property="goodsBrand.name" />
-        <result column="label_id" property="goodsLabel.id" />
-        <result column="label_name" property="goodsLabel.name" />
-        <result column="type_id" property="goodsType.id" />
-        <result column="type_name" property="goodsType.name" />
-        <result column="unit_id" property="goodsUnit.id" />
-        <result column="unit_name" property="goodsUnit.name" />
-    </resultMap>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.GoodsVo" resultType="java.lang.Integer">
         select
@@ -186,14 +158,13 @@
         and g.unit_id = gu.id;
     </select>
 
-    <select id="findAllPaged" resultMap="goodsMap">
+    <select id="findAllPaged" resultType="com.yeta.pps.vo.GoodsVo">
         select
             g.id,
             g.name,
             g.code,
             g.bar_code,
             g.retail_price,
-            g.trade_price,
             g.purchase_price,
             g.vip_price,
             g.inventory,
@@ -243,14 +214,13 @@
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findById" parameterType="com.yeta.pps.vo.GoodsVo" resultMap="goodsMap">
+    <select id="findById" parameterType="com.yeta.pps.vo.GoodsVo" resultType="com.yeta.pps.vo.GoodsVo">
         select
             g.id,
             g.name,
             g.code,
             g.bar_code,
             g.retail_price,
-            g.trade_price,
             g.purchase_price,
             g.vip_price,
             g.inventory,
@@ -282,6 +252,50 @@
         and g.type_id = gt.id
         and g.unit_id = gu.id
         and g.id = #{id};
+    </select>
+
+    <select id="findBrandLabelTypeUnit" parameterType="com.yeta.pps.vo.GoodsVo" resultType="com.yeta.pps.vo.GoodsVo">
+        select
+            id,
+            name,
+            code,
+            bar_code,
+            retail_price,
+            purchase_price,
+            vip_price,
+            inventory,
+            origin,
+            image,
+            oder_type,
+            degree,
+            net_content,
+            integral,
+            remark,
+            putaway,
+            brand_id,
+            label_id,,
+            type_id,
+            unit_id
+        from
+            goods_${storeId}
+        where
+            1 = 1
+        <if test="typeId != null">
+        and
+            g.type_id = #{typeId}
+        </if>
+        <if test="brandId != null">
+        and
+            g.brand_id = #{brandId}
+        </if>
+        <if test="labelId != null">
+            and
+            g.brand_id = #{labelId}
+        </if>
+        <if test="unitId != null">
+            and
+            g.unit_id = #{unitId}
+        </if>
     </select>
 
 </mapper>

@@ -18,7 +18,7 @@ public interface MyGoodsMapper {
 
     List<GoodsBrand> findAllBrand(GoodsBrandVo goodsBrandVo);
 
-    List<GoodsBrand> findAllBrandPaged(@Param(value = "goodsBrandVo") GoodsBrandVo goodsBrandVo, @Param(value = "pageVo") PageVo pageVo);
+    List<GoodsBrand> findAllPagedBrand(@Param(value = "goodsBrandVo") GoodsBrandVo goodsBrandVo, @Param(value = "pageVo") PageVo pageVo);
 
     GoodsBrand findBrandById(GoodsBrandVo goodsBrandVo);
 
@@ -34,7 +34,7 @@ public interface MyGoodsMapper {
 
     List<GoodsLabel> findAllLabel(GoodsLabelVo goodsLabelVo);
 
-    List<GoodsLabel> findAllLabelPaged(@Param(value = "goodsLabelVo") GoodsLabelVo goodsLabelVo, @Param(value = "pageVo") PageVo pageVo);
+    List<GoodsLabel> findAllPagedLabel(@Param(value = "goodsLabelVo") GoodsLabelVo goodsLabelVo, @Param(value = "pageVo") PageVo pageVo);
 
     GoodsLabel findLabelById(GoodsLabelVo goodsLabelVo);
 
@@ -50,7 +50,7 @@ public interface MyGoodsMapper {
 
     List<GoodsType> findAllType(GoodsTypeVo goodsTypeVo);
 
-    List<GoodsType> findAllTypePaged(@Param(value = "goodsTypeVo") GoodsTypeVo goodsTypeVo, @Param(value = "pageVo") PageVo pageVo);
+    List<GoodsType> findAllPagedType(@Param(value = "goodsTypeVo") GoodsTypeVo goodsTypeVo, @Param(value = "pageVo") PageVo pageVo);
 
     GoodsType findTypeById(GoodsTypeVo goodsTypeVo);
 
@@ -66,7 +66,7 @@ public interface MyGoodsMapper {
 
     List<GoodsUnit> findAllUnit(GoodsUnitVo goodsUnitVo);
 
-    List<GoodsUnit> findAllUnitPaged(@Param(value = "goodsUnitVo") GoodsUnitVo goodsUnitVo, @Param(value = "pageVo") PageVo pageVo);
+    List<GoodsUnit> findAllPagedUnit(@Param(value = "goodsUnitVo") GoodsUnitVo goodsUnitVo, @Param(value = "pageVo") PageVo pageVo);
 
     GoodsUnit findUnitById(GoodsUnitVo goodsUnitVo);
 
@@ -80,7 +80,9 @@ public interface MyGoodsMapper {
 
     int findCount(GoodsVo goodsVo);
 
-    List<Goods> findAllPaged(@Param(value = "goodsVo") GoodsVo goodsVo, @Param(value = "pageVo") PageVo page);
+    List<GoodsVo> findAllPaged(@Param(value = "goodsVo") GoodsVo goodsVo, @Param(value = "pageVo") PageVo page);
 
-    Goods findById(GoodsVo goodsVo);
+    GoodsVo findById(GoodsVo goodsVo);
+
+    GoodsVo findBrandLabelTypeUnit(GoodsVo goodsVo);
 }

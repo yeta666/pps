@@ -11,7 +11,7 @@
     </delete>
 
     <update id="update" parameterType="com.yeta.pps.vo.UserVo">
-        update user_${storeId} set name = #{name}, username = #{username}, password = #{password}, phone = #{phone}, remark = #{remark}, disabled = #{disabled} where id = #{id};
+        update user_${storeId} set name = #{name}, password = #{password}, phone = #{phone}, remark = #{remark}, disabled = #{disabled} where id = #{id};
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.UserVo" resultType="java.lang.Integer">

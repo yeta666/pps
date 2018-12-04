@@ -74,7 +74,7 @@ public class UserService {
      */
     public CommonResponse login(UserVo userVo, HttpServletRequest request) {
         //判断参数
-        if (userVo.getIdentifyingCode() == null) {
+        if (userVo.getIdentifyingCode() == null || userVo.getUsername() == null || userVo.getPassword() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //判断验证码
@@ -141,7 +141,7 @@ public class UserService {
     @Transactional
     public CommonResponse add(UserVo userVo) {
         //判断参数
-        if (userVo.getName() == null || userVo.getPhone() == null ||
+        if (userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null || userVo.getPhone() == null ||
                 /*userVo.getDepartmentId() == null ||*/ userVo.getWarehouseId() == null || userVo.getRoleId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
@@ -223,15 +223,13 @@ public class UserService {
      */
     public CommonResponse update(UserVo userVo) {
         //判断参数
-        if (userVo.getId() == null || userVo.getName() == null || userVo.getPhone() == null || userVo.getDisabled() == null) {
+        if (userVo.getId() == null || userVo.getName() == null || userVo.getPassword() == null || userVo.getPhone() == null || userVo.getDisabled() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //修改用户信息
         if (myUserMapper.update(userVo) != 1) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
-        //TODO
-        //不能修改用户部门关系、用户仓库关系、用户角色关系
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 

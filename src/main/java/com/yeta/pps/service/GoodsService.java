@@ -44,11 +44,15 @@ public class GoodsService {
      * @return
      */
     public CommonResponse deleteBrand(GoodsBrandVo goodsBrandVo) {
-        //TODO
-        //不能删除商品品牌，否则会导致商品查询不到
+        //判断商品品牌是否使用
+        GoodsVo goodsVo = new GoodsVo(goodsBrandVo.getStoreId(), null, goodsBrandVo.getId(), null, null);
+        goodsVo = myGoodsMapper.findBrandLabelTypeUnit(goodsVo);
+        if (goodsVo != null) {
+            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
+        }
         //删除商品品牌
         if (myGoodsMapper.deleteBrand(goodsBrandVo) != 1) {
-            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
@@ -81,7 +85,7 @@ public class GoodsService {
             //查询所有页数
             pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCountBrand(goodsBrandVo) * 1.0 / pageVo.getPageSize()));
             pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-            List<GoodsBrand> goodsBrands = myGoodsMapper.findAllBrandPaged(goodsBrandVo, pageVo);
+            List<GoodsBrand> goodsBrands = myGoodsMapper.findAllPagedBrand(goodsBrandVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("品牌名", "name"));
@@ -127,11 +131,15 @@ public class GoodsService {
      * @return
      */
     public CommonResponse deleteLabel(GoodsLabelVo goodsLabelVo) {
-        //TODO
-        //不能删除商品标签，否则会导致商品查询不到
+        //判断商品标签是否使用
+        GoodsVo goodsVo = new GoodsVo(goodsLabelVo.getStoreId(), null, null, null, goodsLabelVo.getId());
+        goodsVo = myGoodsMapper.findBrandLabelTypeUnit(goodsVo);
+        if (goodsVo != null) {
+            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
+        }
         //删除商品标签
         if (myGoodsMapper.deleteLabel(goodsLabelVo) != 1) {
-            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
@@ -164,7 +172,7 @@ public class GoodsService {
             //查询所有页数
             pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCountLabel(goodsLabelVo) * 1.0 / pageVo.getPageSize()));
             pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-            List<GoodsLabel> goodsLabels = myGoodsMapper.findAllLabelPaged(goodsLabelVo, pageVo);
+            List<GoodsLabel> goodsLabels = myGoodsMapper.findAllPagedLabel(goodsLabelVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("标签名", "name"));
@@ -210,11 +218,15 @@ public class GoodsService {
      * @return
      */
     public CommonResponse deleteType(GoodsTypeVo goodsTypeVo) {
-        //TODO
-        //不能删除商品类型，否则会导致商品查询不到
+        //判断商品类型是否使用
+        GoodsVo goodsVo = new GoodsVo(goodsTypeVo.getStoreId(), goodsTypeVo.getId(), null, null, null);
+        goodsVo = myGoodsMapper.findBrandLabelTypeUnit(goodsVo);
+        if (goodsVo != null) {
+            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
+        }
         //删除商品类型
         if (myGoodsMapper.deleteType(goodsTypeVo) != 1) {
-            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
@@ -247,7 +259,7 @@ public class GoodsService {
             //查询所有页数
             pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCountType(goodsTypeVo) * 1.0 / pageVo.getPageSize()));
             pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-            List<GoodsType> goodsTypes = myGoodsMapper.findAllTypePaged(goodsTypeVo, pageVo);
+            List<GoodsType> goodsTypes = myGoodsMapper.findAllPagedType(goodsTypeVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("类型名", "name"));
@@ -293,11 +305,15 @@ public class GoodsService {
      * @return
      */
     public CommonResponse deleteUnit(GoodsUnitVo goodsUnitVo) {
-        //TODO
-        //不能删除商品单位，否则会导致商品查询不到
+        //判断商品单位是否使用
+        GoodsVo goodsVo = new GoodsVo(goodsUnitVo.getStoreId(), null, null, goodsUnitVo.getId(), null);
+        goodsVo = myGoodsMapper.findBrandLabelTypeUnit(goodsVo);
+        if (goodsVo != null) {
+            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
+        }
         //删除商品单位
         if (myGoodsMapper.deleteUnit(goodsUnitVo) != 1) {
-            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
@@ -330,7 +346,7 @@ public class GoodsService {
             //查询所有页数
             pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCountUnit(goodsUnitVo) * 1.0 / pageVo.getPageSize()));
             pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-            List<GoodsUnit> goodsUnits = myGoodsMapper.findAllUnitPaged(goodsUnitVo, pageVo);
+            List<GoodsUnit> goodsUnits = myGoodsMapper.findAllPagedUnit(goodsUnitVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("单位名", "name"));
@@ -363,13 +379,29 @@ public class GoodsService {
      * @return
      */
     public CommonResponse add(GoodsVo goodsVo) {
-        //TODO
         //判断品牌id是否存在
+        GoodsBrandVo goodsBrandVo = new GoodsBrandVo(goodsVo.getStoreId(), goodsVo.getBrandId());
+        if (myGoodsMapper.findBrandById(goodsBrandVo) == null) {
+            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+        }
         //判断标签id是否存在
+        GoodsLabelVo goodsLabelVo = new GoodsLabelVo(goodsVo.getStoreId(), goodsVo.getLabelId());
+        if (myGoodsMapper.findLabelById(goodsLabelVo) == null) {
+            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+        }
         //判断分类id是否存在
+        GoodsTypeVo goodsTypeVo = new GoodsTypeVo(goodsVo.getStoreId(), goodsVo.getTypeId());
+        if (myGoodsMapper.findTypeById(goodsTypeVo) == null) {
+            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+        }
         //判断单位id是否存在
+        GoodsUnitVo goodsUnitVo = new GoodsUnitVo(goodsVo.getStoreId(), goodsVo.getUnitId());
+        if (myGoodsMapper.findUnitById(goodsUnitVo) == null) {
+            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+        }
+        //设置id
         goodsVo.setId(UUID.randomUUID().toString());
-        //新增
+        //新增商品
         if (myGoodsMapper.add(goodsVo) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
@@ -399,12 +431,27 @@ public class GoodsService {
         if (goodsVo.getId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
-        //TODO
         //判断品牌id是否存在
+        GoodsBrandVo goodsBrandVo = new GoodsBrandVo(goodsVo.getStoreId(), goodsVo.getBrandId());
+        if (myGoodsMapper.findBrandById(goodsBrandVo) == null) {
+            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+        }
         //判断标签id是否存在
+        GoodsLabelVo goodsLabelVo = new GoodsLabelVo(goodsVo.getStoreId(), goodsVo.getLabelId());
+        if (myGoodsMapper.findLabelById(goodsLabelVo) == null) {
+            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+        }
         //判断分类id是否存在
+        GoodsTypeVo goodsTypeVo = new GoodsTypeVo(goodsVo.getStoreId(), goodsVo.getTypeId());
+        if (myGoodsMapper.findTypeById(goodsTypeVo) == null) {
+            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+        }
         //判断单位id是否存在
-        //修改
+        GoodsUnitVo goodsUnitVo = new GoodsUnitVo(goodsVo.getStoreId(), goodsVo.getUnitId());
+        if (myGoodsMapper.findUnitById(goodsUnitVo) == null) {
+            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+        }
+        //修改商品
         if (myGoodsMapper.update(goodsVo) != 1) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
@@ -420,19 +467,18 @@ public class GoodsService {
         //查询所有页数
         pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCount(goodsVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        List<Goods> goodsList = myGoodsMapper.findAllPaged(goodsVo, pageVo);
+        List<GoodsVo> goodsVos = myGoodsMapper.findAllPaged(goodsVo, pageVo);
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("商品名", "name"));
         titles.add(new Title("货号", "code"));
         titles.add(new Title("条码", "barCode"));
-        titles.add(new Title("分类", "goodsType.name"));
-        titles.add(new Title("品牌", "goodsBrand.name"));
-        titles.add(new Title("单位", "goodsUnit.name"));
-        titles.add(new Title("标签", "goodsLabel.name"));
+        titles.add(new Title("分类", "typeName"));
+        titles.add(new Title("品牌", "brandName"));
+        titles.add(new Title("单位", "unitName"));
+        titles.add(new Title("标签", "labelName"));
+        titles.add(new Title("进价", "purchasePrice"));
         titles.add(new Title("零售价", "retailPrice"));
-        titles.add(new Title("批发价", "tradePrice"));
-        titles.add(new Title("预设进价", "purchasePrice"));
         titles.add(new Title("vip售价", "vipPrice"));
         titles.add(new Title("可用库存", "inventory"));
         titles.add(new Title("产地", "origin"));
@@ -443,7 +489,7 @@ public class GoodsService {
         titles.add(new Title("商品积分", "integral"));
         titles.add(new Title("备注", "remark"));
         titles.add(new Title("上架状态", "putaway"));
-        CommonResult commonResult = new CommonResult(titles, goodsList, pageVo);
+        CommonResult commonResult = new CommonResult(titles, goodsVos, pageVo);
         return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
     }
 
@@ -453,10 +499,10 @@ public class GoodsService {
      * @return
      */
     public CommonResponse findById(GoodsVo goodsVo) {
-        Goods good = myGoodsMapper.findById(goodsVo);
-        if (good == null) {
+        goodsVo = myGoodsMapper.findById(goodsVo);
+        if (goodsVo == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
-        return new CommonResponse(CommonResponse.CODE1, good, CommonResponse.MESSAGE1);
+        return new CommonResponse(CommonResponse.CODE1, goodsVo, CommonResponse.MESSAGE1);
     }
 }

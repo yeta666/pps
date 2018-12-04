@@ -1,9 +1,5 @@
 package com.yeta.pps.vo;
 
-import com.yeta.pps.po.GoodsBrand;
-import com.yeta.pps.po.GoodsLabel;
-import com.yeta.pps.po.GoodsType;
-import com.yeta.pps.po.GoodsUnit;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
@@ -48,10 +44,20 @@ public class GoodsVo {
     private Integer typeId;
 
     /**
+     * 分类名
+     */
+    private String typeName;
+
+    /**
      * 品牌id
      */
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer brandId;
+
+    /**
+     * 品牌名
+     */
+    private String brandName;
 
     /**
      * 单位id
@@ -60,36 +66,32 @@ public class GoodsVo {
     private Integer unitId;
 
     /**
+     * 单位名
+     */
+    private String unitName;
+
+    /**
      * 标签id
      */
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer labelId;
 
-    private GoodsBrand goodsBrand;
+    /**
+     * 标签名
+     */
+    private String labelName;
 
-    private GoodsLabel goodsLabel;
-
-    private GoodsType goodsType;
-
-    private GoodsUnit goodsUnit;
+    /**
+     * 进价
+     */
+    @NotNull(message = CommonResponse.MESSAGE3)
+    private BigDecimal purchasePrice;
 
     /**
      * 零售价
      */
     @NotNull(message = CommonResponse.MESSAGE3)
     private BigDecimal retailPrice;
-
-    /**
-     * 批发价
-     */
-    @NotNull(message = CommonResponse.MESSAGE3)
-    private BigDecimal tradePrice;
-
-    /**
-     * 预设进价
-     */
-    @NotNull(message = CommonResponse.MESSAGE3)
-    private BigDecimal purchasePrice;
 
     /**
      * vip售价
@@ -160,6 +162,14 @@ public class GoodsVo {
         this.putaway = putaway;
     }
 
+    public GoodsVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotNull(message = CommonResponse.MESSAGE3) Integer typeId, @NotNull(message = CommonResponse.MESSAGE3) Integer brandId, @NotNull(message = CommonResponse.MESSAGE3) Integer unitId, @NotNull(message = CommonResponse.MESSAGE3) Integer labelId) {
+        this.storeId = storeId;
+        this.typeId = typeId;
+        this.brandId = brandId;
+        this.unitId = unitId;
+        this.labelId = labelId;
+    }
+
     public Integer getStoreId() {
         return storeId;
     }
@@ -208,12 +218,28 @@ public class GoodsVo {
         this.typeId = typeId;
     }
 
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
     public Integer getBrandId() {
         return brandId;
     }
 
     public void setBrandId(Integer brandId) {
         this.brandId = brandId;
+    }
+
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
     }
 
     public Integer getUnitId() {
@@ -224,6 +250,14 @@ public class GoodsVo {
         this.unitId = unitId;
     }
 
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
     public Integer getLabelId() {
         return labelId;
     }
@@ -232,52 +266,12 @@ public class GoodsVo {
         this.labelId = labelId;
     }
 
-    public GoodsBrand getGoodsBrand() {
-        return goodsBrand;
+    public String getLabelName() {
+        return labelName;
     }
 
-    public void setGoodsBrand(GoodsBrand goodsBrand) {
-        this.goodsBrand = goodsBrand;
-    }
-
-    public GoodsLabel getGoodsLabel() {
-        return goodsLabel;
-    }
-
-    public void setGoodsLabel(GoodsLabel goodsLabel) {
-        this.goodsLabel = goodsLabel;
-    }
-
-    public GoodsType getGoodsType() {
-        return goodsType;
-    }
-
-    public void setGoodsType(GoodsType goodsType) {
-        this.goodsType = goodsType;
-    }
-
-    public GoodsUnit getGoodsUnit() {
-        return goodsUnit;
-    }
-
-    public void setGoodsUnit(GoodsUnit goodsUnit) {
-        this.goodsUnit = goodsUnit;
-    }
-
-    public BigDecimal getRetailPrice() {
-        return retailPrice;
-    }
-
-    public void setRetailPrice(BigDecimal retailPrice) {
-        this.retailPrice = retailPrice;
-    }
-
-    public BigDecimal getTradePrice() {
-        return tradePrice;
-    }
-
-    public void setTradePrice(BigDecimal tradePrice) {
-        this.tradePrice = tradePrice;
+    public void setLabelName(String labelName) {
+        this.labelName = labelName;
     }
 
     public BigDecimal getPurchasePrice() {
@@ -286,6 +280,14 @@ public class GoodsVo {
 
     public void setPurchasePrice(BigDecimal purchasePrice) {
         this.purchasePrice = purchasePrice;
+    }
+
+    public BigDecimal getRetailPrice() {
+        return retailPrice;
+    }
+
+    public void setRetailPrice(BigDecimal retailPrice) {
+        this.retailPrice = retailPrice;
     }
 
     public BigDecimal getVipPrice() {
@@ -377,16 +379,15 @@ public class GoodsVo {
                 ", code='" + code + '\'' +
                 ", barCode='" + barCode + '\'' +
                 ", typeId=" + typeId +
+                ", typeName='" + typeName + '\'' +
                 ", brandId=" + brandId +
+                ", brandName='" + brandName + '\'' +
                 ", unitId=" + unitId +
+                ", unitName='" + unitName + '\'' +
                 ", labelId=" + labelId +
-                ", goodsBrand=" + goodsBrand +
-                ", goodsLabel=" + goodsLabel +
-                ", goodsType=" + goodsType +
-                ", goodsUnit=" + goodsUnit +
-                ", retailPrice=" + retailPrice +
-                ", tradePrice=" + tradePrice +
+                ", labelName='" + labelName + '\'' +
                 ", purchasePrice=" + purchasePrice +
+                ", retailPrice=" + retailPrice +
                 ", vipPrice=" + vipPrice +
                 ", inventory=" + inventory +
                 ", origin='" + origin + '\'' +

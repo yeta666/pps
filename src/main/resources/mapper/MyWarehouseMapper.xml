@@ -44,22 +44,8 @@
         delete from warehouse_user_${storeId} where user_id = #{userId};
     </delete>
 
-    <select id="findWarehouseUser" parameterType="com.yeta.pps.vo.WarehouseUserVo" resultType="com.yeta.pps.po.User">
-        select
-            u.id,
-            u.name,
-            u.username,
-            u.password,
-            u.remark,
-            u.disabled
-        from
-            warehouse_${storeId} as w,
-            user_${storeId} as u,
-            warehouse_user_${storeId} as wu
-        where
-            w.id = wu.warehouseId
-        and u.id = wu.user_id
-        and w.id = #{warehouseId};
+    <select id="findWarehouseUser" parameterType="com.yeta.pps.vo.WarehouseUserVo" resultType="com.yeta.pps.vo.WarehouseUserVo">
+        select id, warehouse_id, user_id from warehouse_user_${storeId} where warehouse_id = #{warehouseId};
     </select>
     
 </mapper>

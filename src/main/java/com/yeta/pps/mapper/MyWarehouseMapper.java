@@ -27,11 +27,9 @@ public interface MyWarehouseMapper {
 
     //
 
-    int addWarehouseUser(WarehouseUserVo departmentUserVo);
+    int addWarehouseUser(WarehouseUserVo warehouseUserVo);
 
-    int deleteWarehouseUser(WarehouseUserVo departmentUserVo);
+    int deleteUserWarehouse(WarehouseUserVo warehouseUserVo);
 
-    int deleteUserWarehouse(WarehouseUserVo departmentUserVo);
-
-    List<User> findWarehouseUser(WarehouseUserVo departmentUserVo);
+    WarehouseUserVo findWarehouseUser(WarehouseUserVo warehouseUserVo);
 }

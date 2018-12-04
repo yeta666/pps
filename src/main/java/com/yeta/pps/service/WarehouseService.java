@@ -10,7 +10,6 @@ import com.yeta.pps.vo.WarehouseUserVo;
 import com.yeta.pps.vo.WarehouseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,15 +43,17 @@ public class WarehouseService {
      * @param warehouseVo
      * @return
      */
-    @Transactional
     public CommonResponse delete(WarehouseVo warehouseVo) {
+        //判断仓库是否使用
+        WarehouseUserVo warehouseUserVo = new WarehouseUserVo(warehouseVo.getStoreId(), warehouseVo.getId());
+        warehouseUserVo = myWarehouseMapper.findWarehouseUser(warehouseUserVo);
+        if (warehouseUserVo != null) {
+            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
+        }
         //删除仓库
         if (myWarehouseMapper.delete(warehouseVo) != 1) {
             return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
         }
-        //删除仓库用户关系
-        WarehouseUserVo warehouseUserVo = new WarehouseUserVo(warehouseVo.getStoreId(), warehouseVo.getId());
-        myWarehouseMapper.deleteWarehouseUser(warehouseUserVo);
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
