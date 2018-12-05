@@ -1,12 +1,15 @@
 package com.yeta.pps.service;
 
-import com.alibaba.fastjson.JSON;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyClientMapper;
-import com.yeta.pps.po.*;
+import com.yeta.pps.po.ClientClientLevel;
+import com.yeta.pps.po.ClientIntegralDetail;
+import com.yeta.pps.po.ClientLevel;
+import com.yeta.pps.po.ClientMembershipNumber;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
+import com.yeta.pps.vo.ClientIntegralDetailVo;
 import com.yeta.pps.vo.ClientVo;
 import com.yeta.pps.vo.PageVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -330,6 +333,52 @@ public class ClientService {
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
+
+    /**
+     * 修改客户积分
+     * @param clientIntegralDetailVo
+     * @return
+     */
+    @Transactional
+    public CommonResponse updateIntegral(ClientIntegralDetailVo clientIntegralDetailVo) {
+        //判断客户是否存在
+        ClientVo clientVo = new ClientVo(clientIntegralDetailVo.getClientId());
+        clientVo = myClientMapper.findClient(clientVo);
+        if (clientVo == null || clientVo.getLevelId() == 4) {       //4，普通客户没有积分
+            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+        }
+        ClientIntegralDetail clientIntegralDetail = new ClientIntegralDetail();
+        //判断是增加积分还是减少积分
+        if (clientIntegralDetailVo.getType() == 0) {        //减少积分
+            clientVo.setIntegral(clientVo.getIntegral() - clientIntegralDetailVo.getChangeIntegral());
+            if (clientVo.getIntegral() < 0) {
+                return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+            }
+            clientIntegralDetail.setType((byte)5);      //5：后台减少
+        } else if (clientIntegralDetailVo.getType() == 1) {
+            clientVo.setIntegral(clientVo.getIntegral() + clientIntegralDetailVo.getChangeIntegral());
+            clientIntegralDetail.setType((byte)1);      //1：后台增加
+        } else {
+            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
+        //修改客户积分
+        if (myClientMapper.updateIntegral(clientVo) != 1) {
+            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        }
+        //增加积分明细
+        clientIntegralDetail.setId(UUID.randomUUID().toString());
+        clientIntegralDetail.setClientId(clientIntegralDetailVo.getClientId());
+        clientIntegralDetail.setCreateTime(new Date());
+        clientIntegralDetail.setChangeIntegral(clientIntegralDetailVo.getChangeIntegral());
+        clientIntegralDetail.setAfterChangeIntegral(clientVo.getIntegral());
+        clientIntegralDetail.setHandledBy(clientIntegralDetailVo.getUserId());
+        clientIntegralDetail.setRemark(clientIntegralDetailVo.getRemark());
+        if (myClientMapper.insertIntegralDetail(clientIntegralDetail) != 1) {
+            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        }
+        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+    }
+
     /**
      * 查找所有客户
      * @return
@@ -376,4 +425,36 @@ public class ClientService {
         }
         return new CommonResponse(CommonResponse.CODE1, clientVo, CommonResponse.MESSAGE1);
     }
+
+    //
+
+    /**
+     * 查找所有积分明细
+     * @param clientIntegralDetail
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findAllIntegralDetail(ClientIntegralDetail clientIntegralDetail, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myClientMapper.findCountIntegralDetail(clientIntegralDetail) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        //查找所有客户
+        List<ClientIntegralDetail> clientIntegralDetails = myClientMapper.findAllPagedIntegralDetail(clientIntegralDetail, pageVo);
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("id", "积分明细id"));
+        titles.add(new Title("clientId", "客户编号"));
+        titles.add(new Title("createTime", "发生日期"));
+        titles.add(new Title("type", "操作类型"));
+        titles.add(new Title("changeIntegral", "改变积分"));
+        titles.add(new Title("afterChangeIntegral", "改变后的积分"));
+        titles.add(new Title("invoicesDate", "单据日期"));
+        titles.add(new Title("invoicesId", "单据编号"));
+        titles.add(new Title("invoicesType", "单据类型"));
+        titles.add(new Title("handledBy", "经手人"));
+        titles.add(new Title("remark", "备注"));
+        CommonResult commonResult = new CommonResult(titles, clientIntegralDetails, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+    }
+
 }

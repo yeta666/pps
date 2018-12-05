@@ -1,6 +1,7 @@
 package com.yeta.pps.mapper;
 
 import com.yeta.pps.po.ClientClientLevel;
+import com.yeta.pps.po.ClientIntegralDetail;
 import com.yeta.pps.po.ClientLevel;
 import com.yeta.pps.po.ClientMembershipNumber;
 import com.yeta.pps.vo.ClientVo;
@@ -67,7 +68,16 @@ public interface MyClientMapper {
     int findCount();
 
     List<ClientVo> findAllPaged(@Param(value = "clientVo") ClientVo clientVo,
-                                         @Param(value = "pageVo") PageVo pageVo);
+                                @Param(value = "pageVo") PageVo pageVo);
 
     ClientVo findClient(ClientVo clientVo);
+
+    //
+
+    int insertIntegralDetail(ClientIntegralDetail clientIntegralDetail);
+
+    int findCountIntegralDetail(ClientIntegralDetail clientIntegralDetail);
+
+    List<ClientIntegralDetail> findAllPagedIntegralDetail(@Param(value = "clientIntegralDetail") ClientIntegralDetail clientIntegralDetail,
+                                                          @Param(value = "pageVo") PageVo pageVo);
 }

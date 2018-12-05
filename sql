@@ -533,3 +533,18 @@ insert into client_membership_number (number) values ('003');
 insert into client_membership_number (number) values ('004');
 insert into client_membership_number (number) values ('005');
 insert into client_membership_number (number) values ('006');
+
+drop table if exists client_integral_detail;
+create table client_integral_detail(
+  id varchar(50) not null primary key comment '积分明细id',
+  client_id varchar(50) not null comment '客户编号',
+  create_time datetime not null comment '发生日期',
+  type tinyint not null comment '操作类型，1：后台增加，3：消费增加，4：提成增加，5：后台减少，6：提现减少',
+  change_integral int not null comment '改变积分',
+  after_change_integral int not null comment '改变后的积分',
+  invoices_date datetime comment '单据日期',
+  invoices_id varchar(50) comment '单据编号',
+  invoices_type tinyint comment '单据类型，？？',
+  handled_by varchar(50) comment '经手人',
+  remark varchar(200) comment '备注'
+) engine InnoDB default charset=utf8;

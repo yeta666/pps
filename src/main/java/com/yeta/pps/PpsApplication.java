@@ -5,19 +5,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
-//扫描Mybatis mapper包路径
-@MapperScan(basePackages = "com.yeta.pps.mapper")
-//扫描配置的过滤器和拦截器，因为这两个是基于Servlet的
-@ServletComponentScan
-//
-@Configuration
+@MapperScan(basePackages = "com.yeta.pps.mapper")       //扫描Mybatis mapper包路径
+@ServletComponentScan       //扫描配置的过滤器和拦截器，因为这两个是基于Servlet的
+@Configuration      //注册Bean
+@EnableSwagger2     //开启Swagger支持
 public class PpsApplication {
 
     public static void main(String[] args) {
@@ -51,9 +57,29 @@ public class PpsApplication {
         public void addResourceHandlers(ResourceHandlerRegistry registry) {
             registry.addResourceHandler("/upload/**").addResourceLocations("classpath:upload/");
             registry.addResourceHandler("/download/**").addResourceLocations("classpath:download/");
-            //registry.addResourceHandler("/upload/**").addResourceLocations("file:upload/");
-            //registry.addResourceHandler("/download/**").addResourceLocations("file:download/");
+            registry.addResourceHandler("/upload/**").addResourceLocations("file:upload/");
+            registry.addResourceHandler("/download/**").addResourceLocations("file:download/");
             super.addResourceHandlers(registry);
         }
+    }
+
+    /**
+     * 配置Swagger
+     * @return
+     */
+    @Bean
+    public Docket createRestApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(new ApiInfoBuilder()
+                        .title("这是标题")
+                        .description("这是描述")
+                        .termsOfServiceUrl("这是url")
+                        .contact("这是联系人")
+                        .version("这是版本")
+                        .build())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.yeta.pps.controller"))
+                .paths(PathSelectors.any())
+                .build();
     }
 }

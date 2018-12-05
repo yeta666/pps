@@ -2,40 +2,42 @@ package com.yeta.pps.util;
 
 import com.yeta.pps.vo.PageVo;
 
+import java.util.List;
+
 /**
  * @author YETA
  * @date 2018/12/02/19:01
  */
-public class CommonResult {
+public class CommonResult<T> {
 
-    private Object title;
+    private List<Title> title;
 
-    private Object items;
+    private T items;
 
     private PageVo pageVo;
 
     public CommonResult() {
     }
 
-    public CommonResult(Object title, Object items, PageVo pageVo) {
+    public CommonResult(List<Title> title, T items, PageVo pageVo) {
         this.title = title;
         this.items = items;
         this.pageVo = pageVo;
     }
 
-    public Object getTitle() {
+    public List<Title> getTitle() {
         return title;
     }
 
-    public void setTitle(Object title) {
+    public void setTitle(List<Title> title) {
         this.title = title;
     }
 
-    public Object getItems() {
+    public T getItems() {
         return items;
     }
 
-    public void setItems(Object items) {
+    public void setItems(T items) {
         this.items = items;
     }
 
@@ -45,5 +47,14 @@ public class CommonResult {
 
     public void setPageVo(PageVo pageVo) {
         this.pageVo = pageVo;
+    }
+
+    @Override
+    public String toString() {
+        return "CommonResult{" +
+                "title=" + title +
+                ", items=" + items +
+                ", pageVo=" + pageVo +
+                '}';
     }
 }

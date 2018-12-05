@@ -5,7 +5,7 @@ package com.yeta.pps.util;
  * @author YETA
  * @date 2018/11/27/18:31
  */
-public class CommonResponse {
+public class CommonResponse<T> {
 
     public static final Integer CODE1 = 1001;
     public static final Integer CODE2 = 1002;
@@ -45,14 +45,14 @@ public class CommonResponse {
 
     private Integer code;
 
-    private Object data;
+    private T data;
 
     private String message;
 
     public CommonResponse() {
     }
 
-    public CommonResponse(Integer code, Object data, String message) {
+    public CommonResponse(Integer code, T data, String message) {
         this.code = code;
         this.data = data;
         this.message = message;
@@ -66,11 +66,11 @@ public class CommonResponse {
         this.code = code;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(T data) {
         this.data = data;
     }
 

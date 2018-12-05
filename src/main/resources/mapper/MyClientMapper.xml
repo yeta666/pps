@@ -106,6 +106,14 @@
         update client set name = #{name}, username = #{username}, password = #{password}, phone = #{phone}, birthday = #{birthday}, inviter_id = #{inviterId}, inviter_name = #{inviterName}, address = #{address}, postcode = #{postcode}, membership_number = #{membershipNumber}, last_deal_time = #{lastDealTime}, disabled = #{disabled}, remark = #{remark} where id = #{id};
     </update>
 
+    <update id="updateIntegral" parameterType="com.yeta.pps.vo.ClientVo">
+        update client set integral = #{integral} where id = #{id};
+    </update>
+
+    <update id="updateLastDealTime" parameterType="com.yeta.pps.vo.ClientVo">
+        update client set last_deal_time = #{lastDealTime} where id = #{id};
+    </update>
+
     <select id="findCount" parameterType="com.yeta.pps.vo.ClientVo" resultType="java.lang.Integer">
         select
             count(0)
@@ -232,4 +240,62 @@
             c.membership_number = #{membershipNumber}
         </if>
     </select>
+
+    <!---->
+
+    <insert id="insertIntegralDetail" parameterType="com.yeta.pps.po.ClientIntegralDetail">
+        insert into client_integral_detail
+            (id, client_id, create_time, type, change_integral, after_change_integral, invoices_date, invoices_id, invoices_type, handled_by, remark)
+        values
+            (#{id}, #{clientId}, #{createTime}, #{type}, #{changeIntegral}, #{afterChangeIntegral}, #{invoicesDate}, #{invoicesId}, #{invoicesType}, #{handledBy}, #{remark});
+    </insert>
+
+    <select id="findCountIntegralDetail" parameterType="com.yeta.pps.po.ClientIntegralDetail" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            client_integral_detail
+        where
+            1 = 1
+        <if test="type != null">
+        and
+            type = #{type}
+        </if>
+        <if test="invoicesId != null">
+        and
+            invoices_id = #{invoicesId}
+        </if>
+    </select>
+
+    <select id="findAllPagedIntegralDetail" resultType="com.yeta.pps.po.ClientIntegralDetail">
+        select
+            id,
+            client_id,
+            create_time,
+            type,
+            change_integral,
+            after_change_integral,
+            invoices_date,
+            invoices_id,
+            invoices_type,
+            handled_by,
+            remark
+        from
+            client_integral_detail
+        where
+            1 = 1
+        <if test="clientIntegralDetail.type != null">
+        and
+            type = #{clientIntegralDetail.type}
+        </if>
+        <if test="clientIntegralDetail.invoicesId != null">
+        and
+            invoices_id = #{clientIntegralDetail.invoicesId}
+        </if>
+        order by
+            create_time desc
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
 </mapper>

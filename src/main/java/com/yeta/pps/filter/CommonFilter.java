@@ -23,12 +23,12 @@ public class CommonFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        LOG.info("过滤器init()...");
+        //LOG.info("过滤器init()...");
     }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        LOG.info("过滤器doFilter()...");
+        //LOG.info("过滤器doFilter()...");
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
@@ -48,6 +48,6 @@ public class CommonFilter implements Filter {
 
     @Override
     public void destroy() {
-        LOG.info("过滤器destroy()...");
+        //LOG.info("过滤器destroy()...");
     }
 }

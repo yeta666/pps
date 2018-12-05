@@ -51,7 +51,7 @@ public class CommonInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        LOG.info("拦截器preHandle()...");
+        //LOG.info("拦截器preHandle()...");
 
         //获取在线用户id
         HttpSession httpSession = request.getSession();
@@ -97,7 +97,7 @@ public class CommonInterceptor implements HandlerInterceptor {
      */
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        LOG.info("拦截器postHandle()...");
+        //LOG.info("拦截器postHandle()...");
     }
 
     /**
@@ -110,6 +110,6 @@ public class CommonInterceptor implements HandlerInterceptor {
      */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        LOG.info("拦截器afterCompletion()...");
+        //LOG.info("拦截器afterCompletion()...");
     }
 }
