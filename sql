@@ -480,20 +480,21 @@ create table client(
   integral int not null comment '积分',
   address varchar(100) comment '客户地址',
   postcode varchar(10) comment '邮编',
+  membership_number varchar(100) comment '会员卡号',
   last_deal_time datetime comment '最近交易时间',
   create_time datetime not null comment '创建时间',
   disabled tinyint not null comment '是否停用，0：否，1：是',
   remark varchar(200) comment '备注'
 ) engine InnoDB default charset=utf8;
 
-insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, last_deal_time, create_time, disabled, remark)
-values ('054774c2-f784-11e8-9dc7-54ee75c0f47a', '客户1', 'kh1', 'kh1', '17360034522', now(), '', '', 0, '', '', now(), now(), 0, '');
-insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, last_deal_time, create_time, disabled, remark)
-values ('054b1e2c-f784-11e8-9dc7-54ee75c0f47a', '客户2', 'kh2', 'kh2', '17360034523', now(), '', '', 0, '', '', now(), now(), 0, '');
-insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, last_deal_time, create_time, disabled, remark)
-values ('054e2add-f784-11e8-9dc7-54ee75c0f47a', '客户3', 'kh3', 'kh3', '17360034524', now(), '', '', 0, '', '', now(), now(), 0, '');
-insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, last_deal_time, create_time, disabled, remark)
-values ('05510d52-f784-11e8-9dc7-54ee75c0f47a', '客户4', 'kh4', 'kh4', '17360034525', now(), '', '', 0, '', '', now(), now(), 0, '');
+insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
+values ('054774c2-f784-11e8-9dc7-54ee75c0f47a', '客户1', 'kh1', 'kh1', '17360034522', now(), '', '', 0, '', '', '001', now(), now(), 0, '');
+insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
+values ('054b1e2c-f784-11e8-9dc7-54ee75c0f47a', '客户2', 'kh2', 'kh2', '17360034523', now(), '', '', 0, '', '', '002', now(), now(), 0, '');
+insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
+values ('054e2add-f784-11e8-9dc7-54ee75c0f47a', '客户3', 'kh3', 'kh3', '17360034524', now(), '', '', 0, '', '', '003', now(), now(), 0, '');
+insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
+values ('05510d52-f784-11e8-9dc7-54ee75c0f47a', '客户4', 'kh4', 'kh4', '17360034525', now(), '', '', 0, '', '', null, now(), now(), 0, '');
 
 drop table if exists client_level;
 create table client_level(
@@ -532,14 +533,3 @@ insert into client_membership_number (number) values ('003');
 insert into client_membership_number (number) values ('004');
 insert into client_membership_number (number) values ('005');
 insert into client_membership_number (number) values ('006');
-
-drop table if exists client_client_membership_number;
-create table client_client_membership_number(
-  id int not null primary key auto_increment comment '客户会员卡号id',
-  client_id varchar(50) not null unique comment '客户编号',
-  membership_number_id int not null unique comment '会员卡号id'
-) engine InnoDB default charset=utf8;
-
-insert into client_client_membership_number (client_id, membership_number_id) values ('054774c2-f784-11e8-9dc7-54ee75c0f47a', 1);
-insert into client_client_membership_number (client_id, membership_number_id) values ('054b1e2c-f784-11e8-9dc7-54ee75c0f47a', 2);
-insert into client_client_membership_number (client_id, membership_number_id) values ('054e2add-f784-11e8-9dc7-54ee75c0f47a', 3);

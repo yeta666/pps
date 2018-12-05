@@ -50,6 +50,11 @@ public class ClientVo {
     private String inviterName;
 
     /**
+     * 邀请人电话
+     */
+    private String inviterPhone;
+
+    /**
      * 积分
      */
     private Integer integral;
@@ -63,6 +68,11 @@ public class ClientVo {
      * 邮编
      */
     private String postcode;
+
+    /**
+     * 会员卡号
+     */
+    private String membershipNumber;
 
     /**
      * 最近交易时间
@@ -98,36 +108,25 @@ public class ClientVo {
      */
     private String levelName;
 
-    /**
-     * 会员卡号id
-     */
-    private Integer membershipNumberId;
-
-    /**
-     * 会员卡号
-     */
-    private String membershipNumber;
-
     public ClientVo() {
     }
 
-    public ClientVo(String id, String name) {
+    public ClientVo(String id) {
         this.id = id;
-        this.name = name;
     }
 
-    public ClientVo(String id, String name, String phone) {
+    public ClientVo(String id, String phone, String membershipNumber) {
         this.id = id;
-        this.name = name;
         this.phone = phone;
-    }
-
-    public ClientVo(String id, String name, String phone, Integer levelId, String membershipNumber) {
-        this.id = id;
-        this.name = name;
-        this.phone = phone;
-        this.levelId = levelId;
         this.membershipNumber = membershipNumber;
+    }
+
+    public ClientVo(String id, String name, String phone, String membershipNumber, Integer levelId) {
+        this.id = id;
+        this.name = name;
+        this.phone = phone;
+        this.membershipNumber = membershipNumber;
+        this.levelId = levelId;
     }
 
     public String getId() {
@@ -194,6 +193,14 @@ public class ClientVo {
         this.inviterName = inviterName;
     }
 
+    public String getInviterPhone() {
+        return inviterPhone;
+    }
+
+    public void setInviterPhone(String inviterPhone) {
+        this.inviterPhone = inviterPhone;
+    }
+
     public Integer getIntegral() {
         return integral;
     }
@@ -216,6 +223,14 @@ public class ClientVo {
 
     public void setPostcode(String postcode) {
         this.postcode = postcode;
+    }
+
+    public String getMembershipNumber() {
+        return membershipNumber;
+    }
+
+    public void setMembershipNumber(String membershipNumber) {
+        this.membershipNumber = membershipNumber;
     }
 
     public Date getLastDealTime() {
@@ -266,22 +281,6 @@ public class ClientVo {
         this.levelName = levelName;
     }
 
-    public Integer getMembershipNumberId() {
-        return membershipNumberId;
-    }
-
-    public void setMembershipNumberId(Integer membershipNumberId) {
-        this.membershipNumberId = membershipNumberId;
-    }
-
-    public String getMembershipNumber() {
-        return membershipNumber;
-    }
-
-    public void setMembershipNumber(String membershipNumber) {
-        this.membershipNumber = membershipNumber;
-    }
-
     @Override
     public String toString() {
         return "ClientVo{" +
@@ -293,17 +292,17 @@ public class ClientVo {
                 ", birthday=" + birthday +
                 ", inviterId='" + inviterId + '\'' +
                 ", inviterName='" + inviterName + '\'' +
+                ", inviterPhone='" + inviterPhone + '\'' +
                 ", integral=" + integral +
                 ", address='" + address + '\'' +
                 ", postcode='" + postcode + '\'' +
+                ", membershipNumber='" + membershipNumber + '\'' +
                 ", lastDealTime=" + lastDealTime +
                 ", createTime=" + createTime +
                 ", disabled=" + disabled +
                 ", remark='" + remark + '\'' +
                 ", levelId=" + levelId +
                 ", levelName='" + levelName + '\'' +
-                ", membershipNumberId=" + membershipNumberId +
-                ", membershipNumber='" + membershipNumber + '\'' +
                 '}';
     }
 }

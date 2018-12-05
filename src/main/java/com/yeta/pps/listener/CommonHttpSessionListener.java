@@ -15,9 +15,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * @date 2018/05/25/13:30
  */
 @WebListener(value = "Session监听器")
-public class CommonHttpSessionLinstener implements HttpSessionListener {
+public class CommonHttpSessionListener implements HttpSessionListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CommonHttpSessionLinstener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CommonHttpSessionListener.class);
 
     @Override
     public void sessionCreated(HttpSessionEvent httpSessionEvent) {

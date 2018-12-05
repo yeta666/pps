@@ -37,22 +37,8 @@
         select id, number from client_membership_number where id = #{id};
     </select>
 
-    <select id="findClientMembershipNumberByMembershipNumber" parameterType="com.yeta.pps.po.ClientClientMembershipNumber" resultType="com.yeta.pps.po.ClientMembershipNumber">
+    <select id="findClientMembershipNumber" parameterType="com.yeta.pps.po.ClientMembershipNumber" resultType="com.yeta.pps.po.ClientMembershipNumber">
         select id, number from client_membership_number where number = #{number};
-    </select>
-
-    <!---->
-
-    <insert id="addClientClientMembershipNumber" parameterType="com.yeta.pps.po.ClientClientMembershipNumber">
-        insert into client_client_membership_number (client_id, membership_number_id) values (#{clientId}, #{memebershipNumberId});
-    </insert>
-
-    <delete id="deleteClientClientMembershipNumber" parameterType="com.yeta.pps.po.ClientClientMembershipNumber">
-        delete from client_client_membership_number where client_id = #{clientId};
-    </delete>
-
-    <select id="findClientClientMembershipNumber" parameterType="com.yeta.pps.po.ClientClientMembershipNumber" resultType="com.yeta.pps.po.ClientClientMembershipNumber">
-        select id, client_id, membership_number_id from client_client_membership_number where membership_number_id = #{memebershipNumberId};
     </select>
 
     <!---->
@@ -95,6 +81,10 @@
         delete from client_client_level where client_id = #{clientId};
     </delete>
 
+    <update id="updateClientClientLevel" parameterType="com.yeta.pps.po.ClientClientLevel">
+        update client_client_level set level_id = #{levelId} where client_id = #{clientId};
+    </update>
+
     <select id="findClientClientLevel" parameterType="com.yeta.pps.po.ClientClientLevel" resultType="com.yeta.pps.po.ClientClientLevel">
         select id, client_id, level_id from client_client_level where level_id = #{levelId};
     </select>
@@ -103,48 +93,30 @@
 
     <insert id="add" parameterType="com.yeta.pps.vo.ClientVo">
         insert into
-          client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, create_time, disabled)
+          client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
         values
-          (#{id}, #{name}, #{username}, #{password}, #{phone}, #{birthday}, #{inviterId}, #{inviterName}, #{integral}, #{address}, #{postcode}, #{createTime}, #{disabled});
+          (#{id}, #{name}, #{username}, #{password}, #{phone}, #{birthday}, #{inviterId}, #{inviterName}, #{integral}, #{address}, #{postcode}, #{membershipNumber}, #{lastDealTime}, #{createTime}, #{disabled}, #{remark});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.ClientVo">
         delete from client where id = #{id};
     </delete>
 
-    <update id="updateInfo" parameterType="com.yeta.pps.vo.ClientVo">
-        update client set password = #{password}, phone = #{phone}, birthday = #{birthday},  address = #{address}, postcode = #{postcode} where id = #{id};
+    <update id="update" parameterType="com.yeta.pps.vo.ClientVo">
+        update client set name = #{name}, username = #{username}, password = #{password}, phone = #{phone}, birthday = #{birthday}, inviter_id = #{inviterId}, inviter_name = #{inviterName}, address = #{address}, postcode = #{postcode}, membership_number = #{membershipNumber}, last_deal_time = #{lastDealTime}, disabled = #{disabled}, remark = #{remark} where id = #{id};
     </update>
 
-    <update id="updateIntegral" parameterType="com.yeta.pps.vo.ClientVo">
-        update client set integral = #{integral} where id = #{id};
-    </update>
-
-    <update id="updateLastDealTime" parameterType="com.yeta.pps.vo.ClientVo">
-        update client set last_deal_time = #{lastDealTime} where id = #{id};
-    </update>
-
-    <update id="updateOther" parameterType="com.yeta.pps.vo.ClientVo">
-        update client set disabled = #{disabled}, remark = #{remark} where id = #{id};
-    </update>
-
-    <select id="findCountVIPClient" parameterType="com.yeta.pps.vo.ClientVo" resultType="java.lang.Integer">
+    <select id="findCount" parameterType="com.yeta.pps.vo.ClientVo" resultType="java.lang.Integer">
         select
             count(0)
         from
             client as c,
             client_level as cl,
-            client_client_level as ccl,
-            client_membership_number as cmn,
-            client_client_membership_number as ccmn
+            client_client_level as ccl
         where
             c.id = ccl.client_id
         and
             cl.id = ccl.level_id
-        and
-            c.id = ccmn.client_id
-        and
-            cmn.id = ccmn.membership_number_id
         <if test="id != null">
         and
             c.id = #{id}
@@ -156,20 +128,89 @@
         <if test="phone != null">
         and
             c.phone = #{phone}
+        </if>
+        <if test="membershipNumber != null">
+        and
+            c.membership_number = #{membershipNumber}
         </if>
         <if test="levelId != null">
         and
             cl.id = #{levelId}
         </if>
-        <if test="membershipNumber != null">
-        and
-            cmn.id = #{membershipNumber}
-        </if>
     </select>
 
-    <select id="findCountCommonClient" parameterType="com.yeta.pps.vo.ClientVo" resultType="java.lang.Integer">
+    <select id="findAllPaged" resultType="com.yeta.pps.vo.ClientVo">
         select
-          count(0)
+            c.id,
+            c.name,
+            c.username,
+            c.password,
+            c.phone,
+            c.birthday,
+            c.inviter_id,
+            c.inviter_name,
+            c.integral,
+            c.address,
+            c.postcode,
+            c.membership_number,
+            c.last_deal_time,
+            c.create_time,
+            c.disabled,
+            c.remark,
+            cl.id as levelId,
+            cl.name as levelName
+        from
+            client as c,
+            client_level as cl,
+            client_client_level as ccl
+        where
+            c.id = ccl.client_id
+        and
+            cl.id = ccl.level_id
+        <if test="clientVo.id != null">
+        and
+            c.id = #{clientVo.id}
+        </if>
+        <if test="clientVo.name != null">
+        and
+            c.name = #{clientVo.name}
+        </if>
+        <if test="clientVo.phone != null">
+        and
+            c.phone = #{clientVo.phone}
+        </if>
+        <if test="clientVo.membershipNumber != null">
+        and
+            c.membership_number = #{clientVo.membershipNumber}
+        </if>
+        <if test="clientVo.levelId != null">
+        and
+            cl.id = #{clientVo.levelId}
+        </if>
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findClient" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.vo.ClientVo">
+        select
+            c.id,
+            c.name,
+            c.username,
+            c.password,
+            c.phone,
+            c.birthday,
+            c.inviter_id,
+            c.inviter_name,
+            c.integral,
+            c.address,
+            c.postcode,
+            c.membership_number,
+            c.last_deal_time,
+            c.create_time,
+            c.disabled,
+            c.remark,
+            cl.id as levelId,
+            cl.name as levelName
         from
             client as c,
             client_level as cl,
@@ -182,189 +223,13 @@
         and
             c.id = #{id}
         </if>
-        <if test="name != null">
-        and
-            c.name = #{name}
-        </if>
         <if test="phone != null">
         and
             c.phone = #{phone}
         </if>
+        <if test="membershipNumber != null">
+        and
+            c.membership_number = #{membershipNumber}
+        </if>
     </select>
-
-    <select id="findAllPagedVIPClient" resultType="com.yeta.pps.vo.ClientVo">
-        select
-            c.id,
-            c.name,
-            c.username,
-            c.password,
-            c.phone,
-            c.birthday,
-            c.inviter_id,
-            c.inviter_name,
-            c.integral,
-            c.address,
-            c.postcode,
-            c.last_deal_time,
-            c.create_time,
-            c.disabled,
-            c.remark,
-            cl.id as levelId,
-            cl.name as levelName,
-            cmn.id as membershipNumberId,
-            cmn.number as membershipNumber
-        from
-            client as c,
-            client_level as cl,
-            client_client_level as ccl,
-            client_membership_number as cmn,
-            client_client_membership_number as ccmn
-        where
-            c.id = ccl.client_id
-        and
-            cl.id = ccl.level_id
-        and
-            c.id = ccmn.client_id
-        and
-            cmn.id = ccmn.membership_number_id
-        <if test="clientVo.id != null">
-        and c.id = #{clientVo.id}
-        </if>
-        <if test="clientVo.name != null">
-        and c.name = #{clientVo.name}
-        </if>
-        <if test="clientVo.phone != null">
-        and c.phone = #{clientVo.phone}
-        </if>
-        <if test="clientVo.levelId != null">
-        and cl.id = #{clientVo.levelId}
-        </if>
-        <if test="clientVo.membershipNumber != null">
-        and cmn.id = #{clientVo.membershipNumber}
-        </if>
-        limit
-            #{pageVo.start}, #{pageVo.pageSize};
-    </select>
-
-    <select id="findAllPagedCommonClient" resultType="com.yeta.pps.vo.ClientVo">
-        select
-            c.id,
-            c.name,
-            c.username,
-            c.password,
-            c.phone,
-            c.birthday,
-            c.inviter_id,
-            c.inviter_name,
-            c.integral,
-            c.address,
-            c.postcode,
-            c.last_deal_time,
-            c.create_time,
-            c.disabled,
-            c.remark,
-            cl.id as levelId,
-            cl.name as levelName
-        from
-            client as c,
-            client_level as cl,
-            client_client_level as ccl
-        where
-            c.id = ccl.client_id
-        and
-            cl.id = ccl.level_id
-        and
-            cl.id = 4
-        <if test="clientVo.id != null">
-        and c.id = #{clientVo.id}
-        </if>
-        <if test="clientVo.name != null">
-        and c.name = #{clientVo.name}
-        </if>
-        <if test="clientVo.phone != null">
-        and c.phone = #{clientVo.phone}
-        </if>
-        limit
-            #{pageVo.start}, #{pageVo.pageSize};
-    </select>
-
-    <select id="findVIPClientById" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.vo.ClientVo">
-        select
-            c.id,
-            c.name,
-            c.username,
-            c.password,
-            c.phone,
-            c.birthday,
-            c.inviter_id,
-            c.inviter_name,
-            c.integral,
-            c.address,
-            c.postcode,
-            c.last_deal_time,
-            c.create_time,
-            c.disabled,
-            c.remark,
-            cl.id as levelId,
-            cl.name as levelName,
-            cmn.id as membershipNumberId,
-            cmn.number as membershipNumber
-        from
-            client as c,
-            client_level as cl,
-            client_client_level as ccl,
-            client_membership_number as cmn,
-            client_client_membership_number as ccmn
-        where
-            c.id = ccl.client_id
-        and
-            cl.id = ccl.level_id
-        and
-            c.id = ccmn.client_id
-        and
-            cmn.id = ccmn.membership_number_id
-        and
-            c.id = #{id};
-    </select>
-
-    <select id="findCommonClientById" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.vo.ClientVo">
-        select
-            c.id,
-            c.name,
-            c.username,
-            c.password,
-            c.phone,
-            c.birthday,
-            c.inviter_id,
-            c.inviter_name,
-            c.integral,
-            c.address,
-            c.postcode,
-            c.last_deal_time,
-            c.create_time,
-            c.disabled,
-            c.remark,
-            cl.id as levelId,
-            cl.name as levelName
-        from
-            client as c,
-            client_level as cl,
-            client_client_level as ccl
-        where
-            c.id = ccl.client_id
-        and
-            cl.id = ccl.level_id
-        and
-            c.id = #{id};
-    </select>
-
-    <select id="findByName" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.vo.ClientVo">
-        select
-            id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, last_deal_time, create_time, disabled, remark
-        from
-            client
-        where
-            name = #{name};
-    </select>
-
 </mapper>

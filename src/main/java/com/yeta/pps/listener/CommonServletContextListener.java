@@ -14,15 +14,15 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * @date 2018/05/25/13:30
  */
 @WebListener(value = "ServletContext监听器")
-public class CommonServletContextLinstener implements ServletContextListener {
+public class CommonServletContextListener implements ServletContextListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CommonHttpSessionLinstener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CommonServletContextListener.class);
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         LOG.info("监听器contextInitialized()...");
 
-        //初始化的时候新建一个List，用来存所有在线用户
+        //初始化的时候新建一个Set，用来存所有在线用户
         ConcurrentSkipListSet<String> onlineIds = new ConcurrentSkipListSet<>();
         servletContextEvent.getServletContext().setAttribute("onlineIds", onlineIds);
     }

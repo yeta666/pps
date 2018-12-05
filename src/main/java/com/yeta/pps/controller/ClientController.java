@@ -149,31 +149,21 @@ public class ClientController {
      */
     @DeleteMapping(value = "/clients/{clientId}")
     public CommonResponse delete(@PathVariable(value = "clientId") String clientId) {
-        return clientService.delete(new ClientVo(clientId, null));
+        return clientService.delete(new ClientVo(clientId));
     }
 
     /**
-     * 修改客户信息接口
+     * 修改客户接口
      * @param clientVo
      * @return
      */
-    @PutMapping(value = "/clients/info")
-    public CommonResponse updateInfo(@RequestBody ClientVo clientVo) {
-        return clientService.updateInfo(clientVo);
+    @PutMapping(value = "/clients")
+    public CommonResponse update(@RequestBody ClientVo clientVo) {
+        return clientService.update(clientVo);
     }
 
     /**
-     * 修改客户其他信息接口
-     * @param clientVo
-     * @return
-     */
-    @PutMapping(value = "/clients/other")
-    public CommonResponse updateOther(@RequestBody ClientVo clientVo) {
-        return clientService.updateOther(clientVo);
-    }
-
-    /**
-     * 查找所有vip客户接口
+     * 查找所有客户接口
      * @param id
      * @param name
      * @param phone
@@ -183,52 +173,24 @@ public class ClientController {
      * @param pageSize
      * @return
      */
-    @GetMapping(value = "/clients/vip")
+    @GetMapping(value = "/clients")
     public CommonResponse findAllVIPClient(@RequestParam(value = "id", required = false) String id,
-                                  @RequestParam(value = "name", required = false) String name,
-                                  @RequestParam(value = "phone", required = false) String phone,
-                                  @RequestParam(value = "levelId", required = false) Integer levelId,
-                                  @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
-                                  @RequestParam(value = "page") Integer page,
-                                  @RequestParam(value = "pageSize") Integer pageSize) {
-        return clientService.findAllVIPClient(new ClientVo(id, name, phone, levelId, membershipNumber), new PageVo(page, pageSize));
+                                           @RequestParam(value = "name", required = false) String name,
+                                           @RequestParam(value = "phone", required = false) String phone,
+                                           @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
+                                           @RequestParam(value = "levelId", required = false) Integer levelId,
+                                           @RequestParam(value = "page") Integer page,
+                                           @RequestParam(value = "pageSize") Integer pageSize) {
+        return clientService.findAll(new ClientVo(id, name, phone, membershipNumber, levelId), new PageVo(page, pageSize));
     }
 
     /**
-     * 查找所有普通客户接口
-     * @param id
-     * @param name
-     * @param phone
-     * @param page
-     * @param pageSize
-     * @return
-     */
-    @GetMapping(value = "/clients/common")
-    public CommonResponse findAllCommonClient(@RequestParam(value = "id", required = false) String id,
-                                  @RequestParam(value = "name", required = false) String name,
-                                  @RequestParam(value = "phone", required = false) String phone,
-                                  @RequestParam(value = "page") Integer page,
-                                  @RequestParam(value = "pageSize") Integer pageSize) {
-        return clientService.findAllCommonClient(new ClientVo(id, name, phone), new PageVo(page, pageSize));
-    }
-
-    /**
-     * 根据id查找vip客户接口
+     * 根据id查找客户接口
      * @param clientId
      * @return
      */
-    @GetMapping(value = "/clients/vip/{clientId}")
+    @GetMapping(value = "/clients/{clientId}")
     public CommonResponse findVIPClientById(@PathVariable(value = "clientId") String clientId) {
-        return clientService.findVIPClientById(new ClientVo(clientId, null));
-    }
-
-    /**
-     * 根据id查找普通客户接口
-     * @param clientId
-     * @return
-     */
-    @GetMapping(value = "/clients/common/{clientId}")
-    public CommonResponse findCommonClientById(@PathVariable(value = "clientId") String clientId) {
-        return clientService.findCommonClientById(new ClientVo(clientId, null));
+        return clientService.findById(new ClientVo(clientId));
     }
 }

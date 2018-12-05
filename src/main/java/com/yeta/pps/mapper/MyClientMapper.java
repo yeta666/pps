@@ -1,7 +1,6 @@
 package com.yeta.pps.mapper;
 
 import com.yeta.pps.po.ClientClientLevel;
-import com.yeta.pps.po.ClientClientMembershipNumber;
 import com.yeta.pps.po.ClientLevel;
 import com.yeta.pps.po.ClientMembershipNumber;
 import com.yeta.pps.vo.ClientVo;
@@ -25,15 +24,7 @@ public interface MyClientMapper {
 
     ClientMembershipNumber findClientMembershipNumberById(ClientMembershipNumber clientMembershipNumber);
 
-    ClientMembershipNumber findClientMembershipNumberByMembershipNumber(ClientMembershipNumber clientMembershipNumber);
-
-    //
-
-    int addClientClientMembershipNumber(ClientClientMembershipNumber clientClientMembershipNumber);
-
-    int deleteClientClientMembershipNumber(ClientClientMembershipNumber clientClientMembershipNumber);
-
-    ClientClientMembershipNumber findClientClientMembershipNumber(ClientClientMembershipNumber clientClientMembershipNumber);
+    ClientMembershipNumber findClientMembershipNumber(ClientMembershipNumber clientMembershipNumber);
 
     //
 
@@ -57,6 +48,8 @@ public interface MyClientMapper {
 
     int deleteClientClientLevel(ClientClientLevel clientClientLevel);
 
+    int updateClientClientLevel(ClientClientLevel clientClientLevel);
+
     ClientClientLevel findClientClientLevel(ClientClientLevel clientClientLevel);
 
     //
@@ -65,27 +58,16 @@ public interface MyClientMapper {
 
     int delete(ClientVo clientVo);
 
-    int updateInfo(ClientVo clientVo);
+    int update(ClientVo clientVo);
 
     int updateIntegral(ClientVo clientVo);
 
     int updateLastDealTime(ClientVo clientVo);
 
-    int updateOther(ClientVo clientVo);
+    int findCount();
 
-    int findCountVIPClient();
-
-    int findCountCommonClient();
-
-    List<ClientVo> findAllPagedVIPClient(@Param(value = "clientVo") ClientVo clientVo,
+    List<ClientVo> findAllPaged(@Param(value = "clientVo") ClientVo clientVo,
                                          @Param(value = "pageVo") PageVo pageVo);
 
-    List<ClientVo> findAllPagedCommonClient(@Param(value = "clientVo") ClientVo clientVo,
-                                         @Param(value = "pageVo") PageVo pageVo);
-
-    ClientVo findVIPClientById(ClientVo clientVo);
-
-    ClientVo findCommonClientById(ClientVo clientVo);
-
-    ClientVo findByName(ClientVo clientVo);
+    ClientVo findClient(ClientVo clientVo);
 }
