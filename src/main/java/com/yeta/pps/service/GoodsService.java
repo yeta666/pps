@@ -520,9 +520,6 @@ public class GoodsService {
         return new CommonResponse(CommonResponse.CODE1, goodsVo, CommonResponse.MESSAGE1);
     }
 
-    //用于设置导出商品excel行号
-    private static int i = 3;
-
     /**
      * 导出商品信息
      * @param goodsVo
@@ -533,17 +530,16 @@ public class GoodsService {
         //根据筛选条件查找商品
         List<GoodsVo> goodsVos = myGoodsMapper.findAll(goodsVo);
         GoodsVo vo = goodsVos.get(0);
-
         //备注
         String remark = "【筛选条件】" +
                 "，类型：" + (goodsVo.getTypeId() == null ? "无" : vo.getTypeName()) +
                 "，品牌：" + (goodsVo.getBrandId() == null ? "无" : vo.getBrandName()) +
                 "，货号：" + (goodsVo.getCode() == null ? "无" : vo.getCode()) +
                 "，条码：" + (goodsVo.getBarCode() == null ? "无" : vo.getBarCode()) +
-                "，上架状态0表示不上架，1表示上架：" + (goodsVo.getPutaway() == null ? "无" : vo.getPutaway().toString());
+                "，上架状态：" + (goodsVo.getPutaway() == null ? "无" : vo.getPutaway().toString());
         //标题行内容
         List<String> titleRowCell = Arrays.asList(new String[]{
-                "商品号", "货号", "条码", "分类", "品牌", "单位", "标签", "进价", "零售价", "vip售价", "上架状态", "可用库存", "产地", "图片", "香型", "度数", "净含量", "商品积分", "备注"
+                "商品名", "货号", "条码", "分类", "品牌", "单位", "标签", "进价", "零售价", "vip售价", "上架状态（0：不上架，1：上架）", "可用库存", "产地", "图片", "香型", "度数", "净含量", "商品积分", "备注"
         });
         //最后一个必填列列数
         int lastRequiredCol = 11;
@@ -586,11 +582,11 @@ public class GoodsService {
     public void getImportGoodsTemplate(HttpServletResponse response) throws IOException {
         //备注
         String remark = "【导入备注】，只能增加行数，按照标题填写，不能增加其他列。" +
-                "必填列已标红，其中分类、品牌、单位、标签需要填写系统中已经存在的，否则会导致导入失败。" +
-                "上架状态0表示不上架，1表示上架";
+                "必填列已标红，其中分类、品牌、单位、标签需要填写系统中已经存在的，否则会导致导入失败。";
         //标题行内容
-        List<String> titleRowCell = Arrays.asList(new String[]
-                {"商品号", "货号", "条码", "分类", "品牌", "单位", "标签", "进价", "零售价", "vip售价", "上架状态", "可用库存", "产地", "图片", "香型", "度数", "净含量", "商品积分", "备注"});
+        List<String> titleRowCell = Arrays.asList(new String[]{
+                "商品名", "货号", "条码", "分类", "品牌", "单位", "标签", "进价", "零售价", "vip售价", "上架状态（0：不上架，1：上架）", "可用库存", "产地", "图片", "香型", "度数", "净含量", "商品积分", "备注"
+        });
         //最后一个必填列列数
         int lastRequiredCol = 11;
         //文件名

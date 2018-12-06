@@ -15,8 +15,12 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -218,6 +222,7 @@ public class ClientController {
 
     /**
      * 查找所有客户接口
+     *
      * @param id
      * @param name
      * @param phone
@@ -239,12 +244,12 @@ public class ClientController {
     })
     @GetMapping(value = "/clients")
     public CommonResponse<CommonResult<List<ClientVo>>> findAll(@RequestParam(value = "id", required = false) String id,
-                                  @RequestParam(value = "name", required = false) String name,
-                                  @RequestParam(value = "phone", required = false) String phone,
-                                  @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
-                                  @RequestParam(value = "levelId", required = false) Integer levelId,
-                                  @RequestParam(value = "page") Integer page,
-                                  @RequestParam(value = "pageSize") Integer pageSize) {
+                                                                @RequestParam(value = "name", required = false) String name,
+                                                                @RequestParam(value = "phone", required = false) String phone,
+                                                                @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
+                                                                @RequestParam(value = "levelId", required = false) Integer levelId,
+                                                                @RequestParam(value = "page") Integer page,
+                                                                @RequestParam(value = "pageSize") Integer pageSize) {
         return clientService.findAll(new ClientVo(id, name, phone, membershipNumber, levelId), new PageVo(page, pageSize));
     }
 
@@ -258,6 +263,56 @@ public class ClientController {
     @GetMapping(value = "/clients/{clientId}")
     public CommonResponse<ClientVo> findById(@PathVariable(value = "clientId") String clientId) {
         return clientService.findById(new ClientVo(clientId));
+    }
+
+    /**
+     * 导出客户接口
+     * @param id
+     * @param name
+     * @param phone
+     * @param membershipNumber
+     * @param levelId
+     */
+    @ApiOperation(value = "导出客户", notes = "可筛选导出")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "客户编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "name", value = "姓名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "phone", value = "电话", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "membershipNumber", value = "会员卡号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "levelId", value = "客户级别id", required = false, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/clients/export")
+    public void exportClient(@RequestParam(value = "id", required = false) String id,
+                             @RequestParam(value = "name", required = false) String name,
+                             @RequestParam(value = "phone", required = false) String phone,
+                             @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
+                             @RequestParam(value = "levelId", required = false) Integer levelId,
+                             HttpServletResponse response) throws IOException {
+        clientService.exportClient(new ClientVo(id, name, phone, membershipNumber, levelId), response);
+    }
+
+    /**
+     * 获取导入模版接口
+     * @param response
+     * @throws IOException
+     */
+    @ApiOperation(value = "获取导入客户模版")
+    @GetMapping(value = "/clients/import/template")
+    public void getImportClientTemplate(HttpServletResponse response) throws IOException {
+        clientService.getImportClientTemplate(response);
+    }
+
+    /**
+     * 导入客户接口
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    @ApiOperation(value = "导入客户")
+    @ApiImplicitParam(name = "file", value = "文件", required = true, paramType = "form", dataType = "File")
+    @PostMapping(value = "/clients/import")
+    public CommonResponse importClient(@RequestParam(value = "file") MultipartFile file) throws IOException, ParseException {
+        return clientService.importClient(file);
     }
 
     //

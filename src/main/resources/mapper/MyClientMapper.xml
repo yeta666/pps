@@ -67,8 +67,22 @@
         select id, name, price_type, price from client_level limit #{start}, #{pageSize};
     </select>
 
-    <select id="findClientLevelById" parameterType="com.yeta.pps.po.ClientLevel" resultType="com.yeta.pps.po.ClientLevel">
-        select id, name, price_type, price from client_level where id = #{id};
+    <select id="findClientLevel" parameterType="com.yeta.pps.po.ClientLevel" resultType="com.yeta.pps.po.ClientLevel">
+        select
+            id,
+            name,
+            price_type,
+            price
+        from
+            client_level
+        where
+            1 = 1
+        <if test="id != null">
+        and id = #{id};
+        </if>
+        <if test="name != null">
+            and name = #{name};
+        </if>
     </select>
 
     <!---->
@@ -197,6 +211,56 @@
         </if>
         limit
             #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAll" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.vo.ClientVo">
+        select
+            c.id,
+            c.name,
+            c.username,
+            c.password,
+            c.phone,
+            c.birthday,
+            c.inviter_id,
+            c.inviter_name,
+            c.integral,
+            c.address,
+            c.postcode,
+            c.membership_number,
+            c.last_deal_time,
+            c.create_time,
+            c.disabled,
+            c.remark,
+            cl.id as levelId,
+            cl.name as levelName
+        from
+            client as c,
+            client_level as cl,
+            client_client_level as ccl
+        where
+            c.id = ccl.client_id
+        and
+            cl.id = ccl.level_id
+        <if test="id != null">
+        and
+            c.id = #{id}
+        </if>
+        <if test="name != null">
+        and
+            c.name = #{name}
+        </if>
+        <if test="phone != null">
+        and
+            c.phone = #{phone}
+        </if>
+        <if test="membershipNumber != null">
+        and
+            c.membership_number = #{membershipNumber}
+        </if>
+        <if test="levelId != null">
+        and
+            cl.id = #{levelId}
+        </if>
     </select>
 
     <select id="findClient" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.vo.ClientVo">

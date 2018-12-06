@@ -57,8 +57,8 @@ public class PpsApplication {
         public void addResourceHandlers(ResourceHandlerRegistry registry) {
             registry.addResourceHandler("/upload/**").addResourceLocations("classpath:upload/");
             registry.addResourceHandler("/download/**").addResourceLocations("classpath:download/");
-            registry.addResourceHandler("/upload/**").addResourceLocations("file:upload/");
-            registry.addResourceHandler("/download/**").addResourceLocations("file:download/");
+            //registry.addResourceHandler("/upload/**").addResourceLocations("file:upload/");
+            //registry.addResourceHandler("/download/**").addResourceLocations("file:download/");
             super.addResourceHandlers(registry);
         }
     }

@@ -38,6 +38,10 @@ public class ClientLevel {
         this.id = id;
     }
 
+    public ClientLevel(@NotBlank(message = CommonResponse.MESSAGE3) String name) {
+        this.name = name;
+    }
+
     /**
      * 获取客户级别id
      *

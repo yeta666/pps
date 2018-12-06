@@ -41,7 +41,7 @@ public interface MyClientMapper {
 
     List<ClientLevel> findAllPagedClientLevel(PageVo pageVo);
 
-    ClientLevel findClientLevelById(ClientLevel clientLevel);
+    ClientLevel findClientLevel(ClientLevel clientLevel);
 
     //
 
@@ -69,6 +69,8 @@ public interface MyClientMapper {
 
     List<ClientVo> findAllPaged(@Param(value = "clientVo") ClientVo clientVo,
                                 @Param(value = "pageVo") PageVo pageVo);
+
+    List<ClientVo> findAll(ClientVo clientVo);
 
     ClientVo findClient(ClientVo clientVo);
 

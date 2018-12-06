@@ -1,25 +1,34 @@
 package com.yeta.pps.vo;
 
+import com.yeta.pps.util.CommonResponse;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class ClientIntegralDetailVo {
 
     /**
      * 用户id
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String userId;
 
     /**
      * 客户编号
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String clientId;
 
     /**
      * 操作类型，0：减少，1：增加
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Byte type;
 
     /**
      * 改变积分
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Integer changeIntegral;
 
     /**
