@@ -323,13 +323,14 @@ create table goods_1(
   oder_type varchar(10) comment '香型',
   degree varchar(10) comment '度数',
   net_content varchar(10) comment '净含量',
-  integral int not null comment '商品积分',
+  integral int comment '商品积分',
   remark varchar(200) comment '备注',
   putaway tinyint not null comment '上架状态，0：未上架，1：已上架'
 ) engine InnoDB default charset=utf8;
 
 insert into goods_1 (id, name, code, bar_code, type_id, brand_id, unit_id, label_id, purchase_price, retail_price, vip_price, inventory, origin, image, oder_type, degree, net_content, integral, remark, putaway)
 VALUES (uuid(), '商品1', 'sp001', '176', 1, 1, 1, 1, 150, 180, 300, 666, '产地', '/upload/goods/123123.jpg', '浓香型', '43%', '500ml', 0, '', 1);
+
 
 drop table goods_type_1;
 create table goods_type_1(

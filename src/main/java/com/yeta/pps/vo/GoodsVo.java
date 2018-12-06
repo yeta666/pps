@@ -102,6 +102,7 @@ public class GoodsVo {
     /**
      * 可用库存
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Integer inventory;
 
     /**

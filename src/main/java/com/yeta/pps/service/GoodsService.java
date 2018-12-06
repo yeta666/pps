@@ -5,14 +5,28 @@ import com.yeta.pps.mapper.MyGoodsMapper;
 import com.yeta.pps.po.*;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
+import com.yeta.pps.util.CommonUtil;
 import com.yeta.pps.util.Title;
 import com.yeta.pps.vo.*;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static com.yeta.pps.service.FileService.upload;
 
 /**
  * 商品相关逻辑处理
@@ -103,7 +117,7 @@ public class GoodsService {
      * @return
      */
     public CommonResponse findBrandById(GoodsBrandVo goodsBrandVo) {
-        GoodsBrand goodsBrand = myGoodsMapper.findBrandById(goodsBrandVo);
+        GoodsBrand goodsBrand = myGoodsMapper.findBrand(goodsBrandVo);
         if (goodsBrand == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
@@ -190,7 +204,7 @@ public class GoodsService {
      * @return
      */
     public CommonResponse findLabelById(GoodsLabelVo goodsLabelVo) {
-        GoodsLabel goodsLabel = myGoodsMapper.findLabelById(goodsLabelVo);
+        GoodsLabel goodsLabel = myGoodsMapper.findLabel(goodsLabelVo);
         if (goodsLabel == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
@@ -277,7 +291,7 @@ public class GoodsService {
      * @return
      */
     public CommonResponse findTypeById(GoodsTypeVo goodsTypeVo) {
-        GoodsType goodsType = myGoodsMapper.findTypeById(goodsTypeVo);
+        GoodsType goodsType = myGoodsMapper.findType(goodsTypeVo);
         if (goodsType == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
@@ -364,7 +378,7 @@ public class GoodsService {
      * @return
      */
     public CommonResponse findUnitById(GoodsUnitVo goodsUnitVo) {
-        GoodsUnit goodsUnit = myGoodsMapper.findUnitById(goodsUnitVo);
+        GoodsUnit goodsUnit = myGoodsMapper.findUnit(goodsUnitVo);
         if (goodsUnit == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
@@ -381,22 +395,22 @@ public class GoodsService {
     public CommonResponse add(GoodsVo goodsVo) {
         //判断品牌id是否存在
         GoodsBrandVo goodsBrandVo = new GoodsBrandVo(goodsVo.getStoreId(), goodsVo.getBrandId());
-        if (myGoodsMapper.findBrandById(goodsBrandVo) == null) {
+        if (myGoodsMapper.findBrand(goodsBrandVo) == null) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         //判断标签id是否存在
         GoodsLabelVo goodsLabelVo = new GoodsLabelVo(goodsVo.getStoreId(), goodsVo.getLabelId());
-        if (myGoodsMapper.findLabelById(goodsLabelVo) == null) {
+        if (myGoodsMapper.findLabel(goodsLabelVo) == null) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         //判断分类id是否存在
         GoodsTypeVo goodsTypeVo = new GoodsTypeVo(goodsVo.getStoreId(), goodsVo.getTypeId());
-        if (myGoodsMapper.findTypeById(goodsTypeVo) == null) {
+        if (myGoodsMapper.findType(goodsTypeVo) == null) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         //判断单位id是否存在
         GoodsUnitVo goodsUnitVo = new GoodsUnitVo(goodsVo.getStoreId(), goodsVo.getUnitId());
-        if (myGoodsMapper.findUnitById(goodsUnitVo) == null) {
+        if (myGoodsMapper.findUnit(goodsUnitVo) == null) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         //设置id
@@ -433,22 +447,22 @@ public class GoodsService {
         }
         //判断品牌id是否存在
         GoodsBrandVo goodsBrandVo = new GoodsBrandVo(goodsVo.getStoreId(), goodsVo.getBrandId());
-        if (myGoodsMapper.findBrandById(goodsBrandVo) == null) {
+        if (myGoodsMapper.findBrand(goodsBrandVo) == null) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
         //判断标签id是否存在
         GoodsLabelVo goodsLabelVo = new GoodsLabelVo(goodsVo.getStoreId(), goodsVo.getLabelId());
-        if (myGoodsMapper.findLabelById(goodsLabelVo) == null) {
+        if (myGoodsMapper.findLabel(goodsLabelVo) == null) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
         //判断分类id是否存在
         GoodsTypeVo goodsTypeVo = new GoodsTypeVo(goodsVo.getStoreId(), goodsVo.getTypeId());
-        if (myGoodsMapper.findTypeById(goodsTypeVo) == null) {
+        if (myGoodsMapper.findType(goodsTypeVo) == null) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
         //判断单位id是否存在
         GoodsUnitVo goodsUnitVo = new GoodsUnitVo(goodsVo.getStoreId(), goodsVo.getUnitId());
-        if (myGoodsMapper.findUnitById(goodsUnitVo) == null) {
+        if (myGoodsMapper.findUnit(goodsUnitVo) == null) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
         }
         //修改商品
@@ -504,5 +518,163 @@ public class GoodsService {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
         return new CommonResponse(CommonResponse.CODE1, goodsVo, CommonResponse.MESSAGE1);
+    }
+
+    //用于设置导出商品excel行号
+    private static int i = 3;
+
+    /**
+     * 导出商品信息
+     * @param goodsVo
+     * @param response
+     * @throws IOException
+     */
+    public void exportGoods(GoodsVo goodsVo, HttpServletResponse response) throws IOException {
+        //根据筛选条件查找商品
+        List<GoodsVo> goodsVos = myGoodsMapper.findAll(goodsVo);
+        GoodsVo vo = goodsVos.get(0);
+
+        //备注
+        String remark = "【筛选条件】" +
+                "，类型：" + (goodsVo.getTypeId() == null ? "无" : vo.getTypeName()) +
+                "，品牌：" + (goodsVo.getBrandId() == null ? "无" : vo.getBrandName()) +
+                "，货号：" + (goodsVo.getCode() == null ? "无" : vo.getCode()) +
+                "，条码：" + (goodsVo.getBarCode() == null ? "无" : vo.getBarCode()) +
+                "，上架状态0表示不上架，1表示上架：" + (goodsVo.getPutaway() == null ? "无" : vo.getPutaway().toString());
+        //标题行内容
+        List<String> titleRowCell = Arrays.asList(new String[]{
+                "商品号", "货号", "条码", "分类", "品牌", "单位", "标签", "进价", "零售价", "vip售价", "上架状态", "可用库存", "产地", "图片", "香型", "度数", "净含量", "商品积分", "备注"
+        });
+        //最后一个必填列列数
+        int lastRequiredCol = 11;
+        //数据行
+        List<List<String>> dataRowCells = new ArrayList<>();
+        goodsVos.stream().forEach(gVo -> {
+            List<String> dataRowCell = new ArrayList<>();
+            dataRowCell.add(gVo.getName());
+            dataRowCell.add(gVo.getCode());
+            dataRowCell.add(gVo.getBarCode());
+            dataRowCell.add(gVo.getTypeName());
+            dataRowCell.add(gVo.getBrandName());
+            dataRowCell.add(gVo.getUnitName());
+            dataRowCell.add(gVo.getLabelName());
+            dataRowCell.add(gVo.getPurchasePrice().toString());
+            dataRowCell.add(gVo.getRetailPrice().toString());
+            dataRowCell.add(gVo.getVipPrice().toString());
+            dataRowCell.add(gVo.getPutaway().toString());
+            dataRowCell.add(gVo.getInventory().toString());
+            dataRowCell.add(gVo.getOrigin());
+            dataRowCell.add(gVo.getImage());
+            dataRowCell.add(gVo.getOderType());
+            dataRowCell.add(gVo.getDegree());
+            dataRowCell.add(gVo.getNetContent());
+            dataRowCell.add(gVo.getIntegral().toString());
+            dataRowCell.add(gVo.getRemark());
+            dataRowCells.add(dataRowCell);
+        });
+        //文件名
+        String fileName = "【商品导出】_" + System.currentTimeMillis() + ".xls";
+        //输出excel
+        CommonUtil.outputExcel(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
+    }
+
+    /**
+     * 获取导入商品模版
+     * @param response
+     * @throws IOException
+     */
+    public void getImportGoodsTemplate(HttpServletResponse response) throws IOException {
+        //备注
+        String remark = "【导入备注】，只能增加行数，按照标题填写，不能增加其他列。" +
+                "必填列已标红，其中分类、品牌、单位、标签需要填写系统中已经存在的，否则会导致导入失败。" +
+                "上架状态0表示不上架，1表示上架";
+        //标题行内容
+        List<String> titleRowCell = Arrays.asList(new String[]
+                {"商品号", "货号", "条码", "分类", "品牌", "单位", "标签", "进价", "零售价", "vip售价", "上架状态", "可用库存", "产地", "图片", "香型", "度数", "净含量", "商品积分", "备注"});
+        //最后一个必填列列数
+        int lastRequiredCol = 11;
+        //文件名
+        String fileName = "【商品导入模版】_" + System.currentTimeMillis() + ".xls";
+        //输出excel
+        CommonUtil.outputExcel(remark, titleRowCell, lastRequiredCol, new ArrayList<>(), fileName, response);
+    }
+
+    /**
+     * 导入商品
+     * @param multipartFile
+     * @param storeId
+     * @return
+     * @throws IOException
+     */
+    @Transactional
+    public CommonResponse importGoods(MultipartFile multipartFile, Integer storeId) throws IOException {
+        //创建Excel工作簿
+        HSSFWorkbook workbook = new HSSFWorkbook(multipartFile.getInputStream());
+        //创建一个工作表sheet
+        HSSFSheet sheet = workbook.getSheetAt(0);
+        //获取数据
+        for (int j = 3; j <= sheet.getLastRowNum(); j++) {
+            HSSFRow row = sheet.getRow(sheet.getLastRowNum());
+            GoodsVo goodsVo = new GoodsVo();
+            goodsVo.setStoreId(storeId);
+            goodsVo.setId(UUID.randomUUID().toString());
+            goodsVo.setName(CommonUtil.getCellValue(row.getCell(0)));
+            goodsVo.setCode(CommonUtil.getCellValue(row.getCell(1)));
+            goodsVo.setBarCode(CommonUtil.getCellValue(row.getCell(2)));
+            //判断商品类型是否存在
+            GoodsTypeVo goodsTypeVo = new GoodsTypeVo(storeId, CommonUtil.getCellValue(row.getCell(3)));
+            GoodsType goodsType = myGoodsMapper.findType(goodsTypeVo);
+            if (goodsType == null) {
+                return new CommonResponse(CommonResponse.CODE17, null, CommonResponse.MESSAGE17);
+            }
+            goodsVo.setTypeId(goodsType.getId());
+            //判断商品品牌是否存在
+            GoodsBrandVo goodsBrandVo = new GoodsBrandVo(storeId, CommonUtil.getCellValue(row.getCell(4)));
+            GoodsBrand goodsBrand = myGoodsMapper.findBrand(goodsBrandVo);
+            if (goodsBrand == null) {
+                return new CommonResponse(CommonResponse.CODE17, null, CommonResponse.MESSAGE17);
+            }
+            goodsVo.setBrandId(goodsBrand.getId());
+            //判断商品单位是否存在
+            GoodsUnitVo goodsUnitVo = new GoodsUnitVo(storeId, CommonUtil.getCellValue(row.getCell(5)));
+            GoodsUnit goodsUnit = myGoodsMapper.findUnit(goodsUnitVo);
+            if (goodsUnit == null) {
+                return new CommonResponse(CommonResponse.CODE17, null, CommonResponse.MESSAGE17);
+            }
+            goodsVo.setUnitId(goodsUnit.getId());
+            //判断商品标签是否存在
+            GoodsLabelVo goodsLabelVo = new GoodsLabelVo(storeId, CommonUtil.getCellValue(row.getCell(6)));
+            GoodsLabel goodsLabel = myGoodsMapper.findLabel(goodsLabelVo);
+            if (goodsLabel == null) {
+                return new CommonResponse(CommonResponse.CODE17, null, CommonResponse.MESSAGE17);
+            }
+            goodsVo.setLabelId(goodsLabel.getId());
+            goodsVo.setPurchasePrice(new BigDecimal(CommonUtil.getCellValue(row.getCell(7))));
+            goodsVo.setRetailPrice(new BigDecimal(CommonUtil.getCellValue(row.getCell(8))));
+            goodsVo.setVipPrice(new BigDecimal(CommonUtil.getCellValue(row.getCell(9))));
+            String putaway = CommonUtil.getCellValue(row.getCell(10));
+            if (!putaway.equals("")) {
+                goodsVo.setPutaway(Integer.valueOf(putaway));
+            }
+            String inventory = CommonUtil.getCellValue(row.getCell(11));
+            if (!inventory.equals("")) {
+                goodsVo.setInventory(Integer.valueOf(inventory));
+            }
+            goodsVo.setOrigin(CommonUtil.getCellValue(row.getCell(12)));
+            goodsVo.setImage(CommonUtil.getCellValue(row.getCell(13)));
+            goodsVo.setOderType(CommonUtil.getCellValue(row.getCell(14)));
+            goodsVo.setDegree(CommonUtil.getCellValue(row.getCell(15)));
+            goodsVo.setNetContent(CommonUtil.getCellValue(row.getCell(16)));
+            String integral = CommonUtil.getCellValue(row.getCell(17));
+            if (!integral.equals("")) {
+                goodsVo.setIntegral(Integer.valueOf(integral));
+            }
+            goodsVo.setRemark(CommonUtil.getCellValue(row.getCell(18)));
+            //保存商品
+            if (myGoodsMapper.add(goodsVo) != 1) {
+                throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+            }
+        }
+        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 }

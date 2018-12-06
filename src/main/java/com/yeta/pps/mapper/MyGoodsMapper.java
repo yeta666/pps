@@ -20,7 +20,7 @@ public interface MyGoodsMapper {
 
     List<GoodsBrand> findAllPagedBrand(@Param(value = "goodsBrandVo") GoodsBrandVo goodsBrandVo, @Param(value = "pageVo") PageVo pageVo);
 
-    GoodsBrand findBrandById(GoodsBrandVo goodsBrandVo);
+    GoodsBrand findBrand(GoodsBrandVo goodsBrandVo);
 
     //
 
@@ -36,7 +36,7 @@ public interface MyGoodsMapper {
 
     List<GoodsLabel> findAllPagedLabel(@Param(value = "goodsLabelVo") GoodsLabelVo goodsLabelVo, @Param(value = "pageVo") PageVo pageVo);
 
-    GoodsLabel findLabelById(GoodsLabelVo goodsLabelVo);
+    GoodsLabel findLabel(GoodsLabelVo goodsLabelVo);
 
     //
 
@@ -52,7 +52,7 @@ public interface MyGoodsMapper {
 
     List<GoodsType> findAllPagedType(@Param(value = "goodsTypeVo") GoodsTypeVo goodsTypeVo, @Param(value = "pageVo") PageVo pageVo);
 
-    GoodsType findTypeById(GoodsTypeVo goodsTypeVo);
+    GoodsType findType(GoodsTypeVo goodsTypeVo);
 
     //
 
@@ -68,7 +68,7 @@ public interface MyGoodsMapper {
 
     List<GoodsUnit> findAllPagedUnit(@Param(value = "goodsUnitVo") GoodsUnitVo goodsUnitVo, @Param(value = "pageVo") PageVo pageVo);
 
-    GoodsUnit findUnitById(GoodsUnitVo goodsUnitVo);
+    GoodsUnit findUnit(GoodsUnitVo goodsUnitVo);
 
     //
 
@@ -81,6 +81,8 @@ public interface MyGoodsMapper {
     int findCount(GoodsVo goodsVo);
 
     List<GoodsVo> findAllPaged(@Param(value = "goodsVo") GoodsVo goodsVo, @Param(value = "pageVo") PageVo page);
+
+    List<GoodsVo> findAll(GoodsVo goodsVo);
 
     GoodsVo findById(GoodsVo goodsVo);
 

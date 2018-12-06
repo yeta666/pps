@@ -36,6 +36,11 @@ public class GoodsTypeVo {
         this.id = id;
     }
 
+    public GoodsTypeVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotBlank(message = CommonResponse.MESSAGE3) String name) {
+        this.storeId = storeId;
+        this.name = name;
+    }
+
     public Integer getStoreId() {
         return storeId;
     }

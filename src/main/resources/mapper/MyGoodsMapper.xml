@@ -26,8 +26,21 @@
         select id, name from goods_brand_${goodsBrandVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findBrandById" parameterType="com.yeta.pps.vo.GoodsBrandVo" resultType="com.yeta.pps.po.GoodsBrand">
-        select id, name from goods_brand_${storeId} where id = #{id};
+    <select id="findBrand" parameterType="com.yeta.pps.vo.GoodsBrandVo" resultType="com.yeta.pps.po.GoodsBrand">
+        select
+            id, name
+        from
+            goods_brand_${storeId}
+        where
+            1 = 1
+        <if test="id != null">
+        and
+            id = #{id}
+        </if>
+        <if test="name != null">
+        and
+            name = #{name}
+        </if>
     </select>
 
     <!---->
@@ -56,8 +69,21 @@
         select id, name from goods_label_${goodsLabelVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findLabelById" parameterType="com.yeta.pps.vo.GoodsLabelVo" resultType="com.yeta.pps.po.GoodsLabel">
-        select id, name from goods_label_${storeId} where id = #{id};
+    <select id="findLabel" parameterType="com.yeta.pps.vo.GoodsLabelVo" resultType="com.yeta.pps.po.GoodsLabel">
+        select
+            id, name
+        from
+            goods_label_${storeId}
+        where
+            1 = 1
+        <if test="id != null">
+        and
+            id = #{id}
+        </if>
+        <if test="name != null">
+        and
+            name = #{name}
+        </if>
     </select>
 
     <!---->
@@ -86,8 +112,21 @@
         select id, name from goods_type_${goodsTypeVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findTypeById" parameterType="com.yeta.pps.vo.GoodsTypeVo" resultType="com.yeta.pps.po.GoodsType">
-        select id, name from goods_type_${storeId} where id = #{id};
+    <select id="findType" parameterType="com.yeta.pps.vo.GoodsTypeVo" resultType="com.yeta.pps.po.GoodsType">
+        select
+            id, name
+        from
+            goods_type_${storeId}
+        where
+            1 = 1
+        <if test="id != null">
+        and
+            id = #{id}
+        </if>
+        <if test="name != null">
+        and
+            name = #{name}
+        </if>
     </select>
 
     <!---->
@@ -116,8 +155,21 @@
         select id, name from goods_unit_${goodsUnitVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findUnitById" parameterType="com.yeta.pps.vo.GoodsUnitVo" resultType="com.yeta.pps.po.GoodsUnit">
-        select id, name from goods_unit_${storeId} where id = #{id};
+    <select id="findUnit" parameterType="com.yeta.pps.vo.GoodsUnitVo" resultType="com.yeta.pps.po.GoodsUnit">
+        select
+            id, name
+        from
+            goods_unit_${storeId}
+        where
+            1 = 1
+        <if test="id != null">
+        and
+            id = #{id}
+        </if>
+        <if test="name != null">
+        and
+            name = #{name}
+        </if>
     </select>
 
     <!---->
@@ -212,6 +264,68 @@
         </if>
         limit
             #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAll" parameterType="com.yeta.pps.vo.GoodsVo" resultType="com.yeta.pps.vo.GoodsVo">
+        select
+            g.id,
+            g.name,
+            g.code,
+            g.bar_code,
+            g.retail_price,
+            g.purchase_price,
+            g.vip_price,
+            g.inventory,
+            g.origin,
+            g.image,
+            g.oder_type,
+            g.degree,
+            g.net_content,
+            g.integral,
+            g.remark,
+            g.putaway,
+            gb.id as brand_id,
+            gb.name as brand_name,
+            gl.id label_id,
+            gl.name as label_name,
+            gt.id as type_id,
+            gt.name as type_name,
+            gu.id as unit_id,
+            gu.name as unit_name
+        from
+            goods_${storeId} as g,
+            goods_brand_${storeId} as gb,
+            goods_label_${storeId} as gl,
+            goods_type_${storeId} as gt,
+            goods_unit_${storeId} as gu
+        where
+            g.brand_id = gb.id
+        and
+            g.label_id = gl.id
+        and
+            g.type_id = gt.id
+        and
+            g.unit_id = gu.id
+        <if test="typeId!=null">
+        and
+            g.type_id = #{typeId}
+        </if>
+        <if test="brandId!=null">
+        and
+            g.brand_id = #{brandId}
+        </if>
+        <if test="code!=null">
+        and
+            g.code = #{code}
+        </if>
+        <if test="barCode!=null">
+        and
+            g.bar_code = #{barCode}
+        </if>
+        <if test="putaway!=null">
+        and
+            g.putaway = #{putaway}
+        </if>
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.GoodsVo" resultType="com.yeta.pps.vo.GoodsVo">

@@ -1,8 +1,12 @@
 package com.yeta.pps.util;
 
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.util.DigestUtils;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -10,7 +14,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -269,5 +276,107 @@ public class CommonUtil {
 
         }
 
+    }
+
+    //EXCEL相关
+
+    /**
+     * 输出excel
+     * @param remark
+     * @param titleRowCell
+     * @param lastRequiredCol
+     * @param fileName
+     * @param response
+     * @throws IOException
+     */
+    public static void outputExcel(String remark, List<String> titleRowCell, int lastRequiredCol, List<List<String>> dataRowCells, String fileName, HttpServletResponse response) throws IOException {
+        //创建Excel工作簿
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        //创建一个工作表sheet
+        HSSFSheet sheet = workbook.createSheet();
+        //设置备注行
+        HSSFRow remarkRow = sheet.createRow(1);
+        remarkRow.createCell(0).setCellValue(remark);
+        CellRangeAddress region = new CellRangeAddress(1, 1, 0, titleRowCell.size() - 1);
+        sheet.addMergedRegion(region);
+        remarkRow.setHeightInPoints(30);
+        //创建标题行
+        HSSFRow titleRow = sheet.createRow(2);
+        for (int i = 0; i < titleRowCell.size(); i++) {
+            titleRow.createCell(i).setCellValue(titleRowCell.get(i));
+        }
+        //设置标题行单元格样式
+        HSSFCellStyle titleCellStyle1 = workbook.createCellStyle();
+        HSSFFont font1 = workbook.createFont();
+        font1.setBold(true);
+        titleCellStyle1.setFont(font1);
+        HSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
+        HSSFFont font2 = workbook.createFont();
+        font2.setBold(true);
+        font2.setColor(HSSFColor.RED.index);
+        titleCellStyle2.setFont(font2);
+        for (int i = 0; i < titleRowCell.size(); i++) {
+            if (i <= lastRequiredCol) {
+                titleRow.getCell(i).setCellStyle(titleCellStyle2);
+            } else {
+                titleRow.getCell(i).setCellStyle(titleCellStyle1);
+            }
+        }
+        //创建数据行
+        for (int i = 3; i < dataRowCells.size() + 3; i++) {
+            List<String> dataRowCell = dataRowCells.get(i - 3);
+            HSSFRow row = sheet.createRow(i);
+            for (int j = 0; j < dataRowCell.size(); j++) {
+                row.createCell(j).setCellValue(dataRowCell.get(j));
+            }
+        }
+        //强制下载
+        response.setContentType("application/force-download");
+        //设置下载文件的文件名
+        response.setHeader("Content-Disposition", "attachment;fileName=" + java.net.URLEncoder.encode(fileName, "UTF-8"));
+        //初始化响应输出流
+        OutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        //清理
+        outputStream.close();
+        workbook.close();
+    }
+
+    /**
+     * 判断单元格类型，统一返回字符串
+     * @param cell
+     * @return
+     */
+    public static String getCellValue(HSSFCell cell) {
+        String value = "";
+        if (cell != null) {
+            switch (cell.getCellType()) {
+                case HSSFCell.CELL_TYPE_NUMERIC:        //数字
+                    //时间格式
+                    if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        value = sdf.format(HSSFDateUtil.getJavaDate(cell.getNumericCellValue()));
+                    } else {
+                        value = new DecimalFormat("0").format(cell.getNumericCellValue());
+                    }
+                    break;
+                case HSSFCell.CELL_TYPE_STRING:     //字符串
+                    value = cell.getStringCellValue();
+                    break;
+                case HSSFCell.CELL_TYPE_BOOLEAN:        //Boolean
+                    value = cell.getBooleanCellValue() + "";
+                    break;
+                case HSSFCell.CELL_TYPE_FORMULA:        //公式
+                    value = cell.getCellFormula() + "";
+                    break;
+                case HSSFCell.CELL_TYPE_BLANK:      //空值
+                    break;
+                case HSSFCell.CELL_TYPE_ERROR:      //故障
+                    break;
+                default:
+                    break;
+            }
+        }
+        return value;
     }
 }

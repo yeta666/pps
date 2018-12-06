@@ -23,6 +23,7 @@ public class CommonResponse<T> {
     public static final Integer CODE14 = 1014;
     public static final Integer CODE15 = 1015;
     public static final Integer CODE16 = 1016;
+    public static final Integer CODE17 = 1017;
 
     //...
 
@@ -42,6 +43,7 @@ public class CommonResponse<T> {
     public static final String MESSAGE14 = "token错误";
     public static final String MESSAGE15 = "会员卡号错误";
     public static final String MESSAGE16 = "邀请人错误";
+    public static final String MESSAGE17 = "导入失败，填入的关联数据不正确";
 
     private Integer code;
 
