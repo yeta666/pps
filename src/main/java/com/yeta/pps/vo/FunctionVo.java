@@ -3,19 +3,15 @@ package com.yeta.pps.vo;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
-public class UserRoleVo {
+public class FunctionVo {
 
     /**
      * 店铺id
      */
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
-
-    /**
-     * id
-     */
-    private Integer id;
 
     /**
      * 用户id
@@ -27,20 +23,16 @@ public class UserRoleVo {
      */
     private Integer roleId;
 
-    public UserRoleVo() {
+    /**
+     * 功能id集合
+     */
+    @NotNull(message = CommonResponse.MESSAGE3)
+    private Set<Integer> functionIds;
+
+    public FunctionVo() {
     }
 
-    public UserRoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String userId) {
-        this.storeId = storeId;
-        this.userId = userId;
-    }
-
-    public UserRoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer roleId) {
-        this.storeId = storeId;
-        this.roleId = roleId;
-    }
-
-    public UserRoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String userId, Integer roleId) {
+    public FunctionVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String userId, Integer roleId) {
         this.storeId = storeId;
         this.userId = userId;
         this.roleId = roleId;
@@ -52,14 +44,6 @@ public class UserRoleVo {
 
     public void setStoreId(Integer storeId) {
         this.storeId = storeId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getUserId() {
@@ -78,13 +62,21 @@ public class UserRoleVo {
         this.roleId = roleId;
     }
 
+    public Set<Integer> getFunctionIds() {
+        return functionIds;
+    }
+
+    public void setFunctionIds(Set<Integer> functionIds) {
+        this.functionIds = functionIds;
+    }
+
     @Override
     public String toString() {
-        return "UserRoleVo{" +
+        return "FunctionVo{" +
                 "storeId=" + storeId +
-                ", id=" + id +
                 ", userId='" + userId + '\'' +
                 ", roleId=" + roleId +
+                ", functionIds=" + functionIds +
                 '}';
     }
 }

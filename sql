@@ -8,7 +8,7 @@ create table store(
 
 insert into store(name, user_id) values ('总店', '9ba15c62-f2ef-11e8-bbaf-00155d031a09');
 
-drop table user_1;
+drop table if exists user_1;
 create table user_1(
   id varchar(50) NOT NULL primary key COMMENT '用户id',
   name varchar(10) NOT NULL COMMENT '用户姓名',
@@ -19,7 +19,6 @@ create table user_1(
   disabled tinyint not null comment '是否禁用，0：不禁用，1：禁用',
   remark varchar(200) comment '备注'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '总店老板', 'lb', 'lb', '17760041487', 1, 0);
 insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '总店销售经理', 'xsjl', 'xsjl', '17760041487', 1, 0);
 insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '总店销售', 'xs', 'xs', '17760041487', 1, 0);
@@ -27,13 +26,12 @@ insert into user_1(id, name, username, password, phone, warehouse_id, disabled) 
 insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '总店库管', 'kg', 'kg', '17760041487', 1, 0);
 insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '总店财务', 'cw', 'cw', '17760041487', 1, 0);
 
-drop table role_1;
-create table role_2(
+drop table if exists role_1;
+create table role_1(
   id int not null auto_increment comment '角色id',
   name varchar(10) not null comment '角色名',
   primary key (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 insert into role_1(name) values ('老板');
 insert into role_1(name) values ('销售经理');
 insert into role_1(name) values ('销售');
@@ -41,14 +39,13 @@ insert into role_1(name) values ('采购');
 insert into role_1(name) values ('库管');
 insert into role_1(name) values ('财务');
 
-drop table user_role_1;
-create table user_role(
+drop table if exists user_role_1;
+create table user_role_1(
   id int not null auto_increment comment 'id',
   user_id varchar(50) NOT NULL COMMENT '用户id',
   role_id int not null comment '角色id',
   primary key (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 insert into user_role_1 (user_id, role_id) VALUES ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', 1);
 insert into user_role_1 (user_id, role_id) VALUES ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', 2);
 insert into user_role_1 (user_id, role_id) VALUES ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', 3);
@@ -64,7 +61,6 @@ create table function(
   parnet_id int not null comment '父功能id',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 INSERT INTO function (name, level, parnet_id) VALUES ('销售', '1', 0);
 INSERT INTO function (name, level, parnet_id) VALUES ('采购', '1', 0);
 INSERT INTO function (name, level, parnet_id) VALUES ('仓库', '1', 0);
@@ -74,30 +70,23 @@ INSERT INTO function (name, level, parnet_id) VALUES ('CRM', '1', 0);
 INSERT INTO function (name, level, parnet_id) VALUES ('报表', '1', 0);
 INSERT INTO function (name, level, parnet_id) VALUES ('资料', '1', 0);
 INSERT INTO function (name, level, parnet_id) VALUES ('设置', '1', 0);
-
 insert into function (name, level, parnet_id) values ('批发业务', 2, 1);
 insert into function (name, level, parnet_id) values ('零售业务', 2, 1);
 insert into function (name, level, parnet_id) values ('销售结果', 2, 1);
-
 insert into function (name, level, parnet_id) values ('采购业务', 2, 2);
 insert into function (name, level, parnet_id) values ('采购结果', 2, 2);
-
 insert into function (name, level, parnet_id) values ('收发货', 2, 3);
 insert into function (name, level, parnet_id) values ('其他出入库', 2, 3);
 insert into function (name, level, parnet_id) values ('盘点', 2, 3);
 insert into function (name, level, parnet_id) values ('预警', 2, 3);
-
 insert into function (name, level, parnet_id) values ('收款', 2, 4);
 insert into function (name, level, parnet_id) values ('付款', 2, 4);
 insert into function (name, level, parnet_id) values ('往来对账', 2, 4);
 insert into function (name, level, parnet_id) values ('往来调整', 2, 4);
 insert into function (name, level, parnet_id) values ('收入支出', 2, 4);
-
 insert into function (name, level, parnet_id) values ('营销活动', 2, 5);
-
 insert into function (name, level, parnet_id) values ('外勤', 2, 6);
 insert into function (name, level, parnet_id) values ('CRM', 2, 6);
-
 insert into function (name, level, parnet_id) values ('单据中心', 2, 7);
 insert into function (name, level, parnet_id) values ('库存报表', 2, 7);
 insert into function (name, level, parnet_id) values ('资金报表', 2, 7);
@@ -105,100 +94,74 @@ insert into function (name, level, parnet_id) values ('订单统计', 2, 7);
 insert into function (name, level, parnet_id) values ('销售报表', 2, 7);
 insert into function (name, level, parnet_id) values ('采购报表', 2, 7);
 insert into function (name, level, parnet_id) values ('经营中心', 2, 7);
-
-
 insert into function (name, level, parnet_id) values ('商品管理', 2, 8);
 insert into function (name, level, parnet_id) values ('往来单位', 2, 8);
 insert into function (name, level, parnet_id) values ('机构管理', 2, 8);
 insert into function (name, level, parnet_id) values ('财务账户', 2, 8);
 insert into function (name, level, parnet_id) values ('岗位权限', 2, 8);
-
-
 insert into function (name, level, parnet_id) values ('系统配置', 2, 9);
 insert into function (name, level, parnet_id) values ('期初录入', 2, 9);
 insert into function (name, level, parnet_id) values ('账套操作', 2, 9);
-
 insert into function (name, level, parnet_id) values ('销售订单', 3, 10);
 insert into function (name, level, parnet_id) values ('销售退货申请', 3, 10);
 insert into function (name, level, parnet_id) values ('销售换货申请', 3, 10);
-
 insert into function (name, level, parnet_id) values ('零售单', 3, 11);
 insert into function (name, level, parnet_id) values ('零售交班历史', 3, 11);
-
 insert into function (name, level, parnet_id) values ('销售历史', 3, 12);
-
 insert into function (name, level, parnet_id) values ('采购订单', 3, 13);
 insert into function (name, level, parnet_id) values ('采购退货申请', 3, 13);
 insert into function (name, level, parnet_id) values ('采购换货申请', 3, 13);
-
 insert into function (name, level, parnet_id) values ('采购历史', 3, 14);
-
 insert into function (name, level, parnet_id) values ('待发货', 3, 15);
 insert into function (name, level, parnet_id) values ('待收货', 3, 15);
-
 insert into function (name, level, parnet_id) values ('其他入库单', 3, 16);
 insert into function (name, level, parnet_id) values ('其他出库单', 3, 16);
 insert into function (name, level, parnet_id) values ('其他出入库历史', 3, 16);
-
 insert into function (name, level, parnet_id) values ('报损单', 3, 17);
 insert into function (name, level, parnet_id) values ('报溢单', 3, 17);
 insert into function (name, level, parnet_id) values ('库存盘点单', 3, 17);
 insert into function (name, level, parnet_id) values ('成本调价单', 3, 17);
-
 insert into function (name, level, parnet_id) values ('库存预警设置', 3, 18);
 insert into function (name, level, parnet_id) values ('库存预警查询', 3, 18);
 insert into function (name, level, parnet_id) values ('近效期设置', 3, 18);
 insert into function (name, level, parnet_id) values ('近效期查询', 3, 18);
-
 insert into function (name, level, parnet_id) values ('按单收款', 3, 19);
 insert into function (name, level, parnet_id) values ('收款单', 3, 19);
 insert into function (name, level, parnet_id) values ('预收款单', 3, 19);
 insert into function (name, level, parnet_id) values ('待确认款项', 3, 19);
 insert into function (name, level, parnet_id) values ('收款统计', 3, 19);
-
 insert into function (name, level, parnet_id) values ('按单付款', 3, 20);
 insert into function (name, level, parnet_id) values ('付款单', 3, 20);
 insert into function (name, level, parnet_id) values ('预付款单', 3, 20);
 insert into function (name, level, parnet_id) values ('付款统计', 3, 20);
-
 insert into function (name, level, parnet_id) values ('查应收', 3, 21);
 insert into function (name, level, parnet_id) values ('职员部门应收款', 3, 21);
 insert into function (name, level, parnet_id) values ('超期应收查询', 3, 21);
 insert into function (name, level, parnet_id) values ('查应付', 3, 21);
-
 insert into function (name, level, parnet_id) values ('应收应付调整', 3, 22);
 insert into function (name, level, parnet_id) values ('往来清账', 3, 22);
-
 insert into function (name, level, parnet_id) values ('应收应付调整', 3, 23);
 insert into function (name, level, parnet_id) values ('其他收入', 3, 23);
-
 insert into function (name, level, parnet_id) values ('发短信', 3, 24);
 insert into function (name, level, parnet_id) values ('优惠券', 3, 24);
 insert into function (name, level, parnet_id) values ('促销管理', 3, 24);
-
 insert into function (name, level, parnet_id) values ('客户分布', 3, 25);
-
 insert into function (name, level, parnet_id) values ('客户管理', 3, 26);
 insert into function (name, level, parnet_id) values ('客户跟进', 3, 26);
 insert into function (name, level, parnet_id) values ('合同', 3, 26);
-
 insert into function (name, level, parnet_id) values ('待记账单据', 3, 27);
 insert into function (name, level, parnet_id) values ('业务草稿', 3, 27);
-
 insert into function (name, level, parnet_id) values ('查库存', 3, 28);
 insert into function (name, level, parnet_id) values ('进销存分析', 3, 28);
 insert into function (name, level, parnet_id) values ('出入库明细', 3, 28);
-
 insert into function (name, level, parnet_id) values ('查应收', 3, 29);
 insert into function (name, level, parnet_id) values ('查应付', 3, 29);
 insert into function (name, level, parnet_id) values ('查资金', 3, 29);
 insert into function (name, level, parnet_id) values ('查回款', 3, 29);
 insert into function (name, level, parnet_id) values ('查费用', 3, 29);
-
 insert into function (name, level, parnet_id) values ('订单分析', 3, 30);
 insert into function (name, level, parnet_id) values ('商品订货分析', 3, 30);
 insert into function (name, level, parnet_id) values ('客户订货分析', 3, 30);
-
 insert into function (name, level, parnet_id) values ('销售日月年报', 3, 31);
 insert into function (name, level, parnet_id) values ('商品销售分析', 3, 31);
 insert into function (name, level, parnet_id) values ('客户销售分析', 3, 31);
@@ -206,79 +169,222 @@ insert into function (name, level, parnet_id) values ('业绩统计', 3, 31);
 insert into function (name, level, parnet_id) values ('回款统计', 3, 31);
 insert into function (name, level, parnet_id) values ('提成设置', 3, 31);
 insert into function (name, level, parnet_id) values ('提成统计', 3, 31);
-
 insert into function (name, level, parnet_id) values ('商品采购分析', 3, 32);
 insert into function (name, level, parnet_id) values ('供应商采购分析', 3, 32);
 insert into function (name, level, parnet_id) values ('采购订单分析', 3, 32);
-
 insert into function (name, level, parnet_id) values ('销售经营分析', 3, 33);
 insert into function (name, level, parnet_id) values ('资金经营分析', 3, 33);
 insert into function (name, level, parnet_id) values ('往来经营分析', 3, 33);
 insert into function (name, level, parnet_id) values ('库存经营分析', 3, 33);
 insert into function (name, level, parnet_id) values ('利润经营分析', 3, 33);
 insert into function (name, level, parnet_id) values ('老板中心', 3, 33);
-
 insert into function (name, level, parnet_id) values ('商品', 3, 34);
 insert into function (name, level, parnet_id) values ('商品SKU及条码', 3, 34);
 insert into function (name, level, parnet_id) values ('商品价格管理', 3, 34);
 insert into function (name, level, parnet_id) values ('商品辅助资料', 3, 34);
 insert into function (name, level, parnet_id) values ('图片管理', 3, 34);
-
 insert into function (name, level, parnet_id) values ('客户', 3, 35);
 insert into function (name, level, parnet_id) values ('供应商', 3, 35);
-
 insert into function (name, level, parnet_id) values ('仓库信息', 3, 36);
 insert into function (name, level, parnet_id) values ('职员部门', 3, 36);
-
 insert into function (name, level, parnet_id) values ('银行账户', 3, 37);
 insert into function (name, level, parnet_id) values ('费用类型', 3, 37);
 insert into function (name, level, parnet_id) values ('其他收入', 3, 37);
-
 insert into function (name, level, parnet_id) values ('费用单', 3, 38);
 insert into function (name, level, parnet_id) values ('全部操作员', 3, 38);
-
 insert into function (name, level, parnet_id) values ('系统参数', 3, 39);
 insert into function (name, level, parnet_id) values ('审核设置', 3, 39);
 insert into function (name, level, parnet_id) values ('支付配置', 3, 39);
 insert into function (name, level, parnet_id) values ('企业信息', 3, 39);
-
 insert into function (name, level, parnet_id) values ('库存期初', 3, 40);
 insert into function (name, level, parnet_id) values ('现金银行期初', 3, 40);
 insert into function (name, level, parnet_id) values ('应收期初', 3, 40);
 insert into function (name, level, parnet_id) values ('应付期初', 3, 40);
-
 insert into function (name, level, parnet_id) values ('系统开账', 3, 41);
 insert into function (name, level, parnet_id) values ('系统重建', 3, 41);
 insert into function (name, level, parnet_id) values ('操作日志', 3, 41);
 
-drop table role_function_1;
-create table role_function(
+drop table if exists role_function_1;
+create table role_function_1(
   id int not null auto_increment comment 'id',
   role_id int not null comment '角色id',
   function_id int NOT NULL COMMENT '功能id',
   primary key (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-drop table department;
-create table department_1(
-  id int not null primary key auto_increment comment '部门id',
-  name varchar(20) not null unique comment '部门名',
-  contacts varchar(20) comment '联系人',
-  contact_number varchar(20) comment '联系电话',
-  remark varchar(200) comment '备注'
-) engine InnoDB default charset=utf8;
-
-insert into department_1 (name) VALUES ('老板部门');
-
-drop table department_user;
-create table department_user_1(
-  id int not null primary key auto_increment comment '部门用户id',
-  department_id int not null comment '部门id',
-  user_id varchar(50) not null comment '用户id'
-) engine InnoDB default charset=utf8;
-
-insert into department_user_1 (department_id, user_id) VALUES (1, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a');
-insert into department_user_1 (department_id, user_id) VALUES (1, 'dcb9fa13-f384-11e8-b25b-54ee75c0f47a');
+INSERT INTO role_function_1 VALUES ('1', '1', '1');
+INSERT INTO role_function_1 VALUES ('2', '1', '2');
+INSERT INTO role_function_1 VALUES ('3', '1', '3');
+INSERT INTO role_function_1 VALUES ('4', '1', '4');
+INSERT INTO role_function_1 VALUES ('5', '1', '5');
+INSERT INTO role_function_1 VALUES ('6', '1', '6');
+INSERT INTO role_function_1 VALUES ('7', '1', '7');
+INSERT INTO role_function_1 VALUES ('8', '1', '8');
+INSERT INTO role_function_1 VALUES ('9', '1', '9');
+INSERT INTO role_function_1 VALUES ('10', '1', '10');
+INSERT INTO role_function_1 VALUES ('11', '1', '11');
+INSERT INTO role_function_1 VALUES ('12', '1', '12');
+INSERT INTO role_function_1 VALUES ('13', '1', '13');
+INSERT INTO role_function_1 VALUES ('14', '1', '14');
+INSERT INTO role_function_1 VALUES ('15', '1', '15');
+INSERT INTO role_function_1 VALUES ('16', '1', '16');
+INSERT INTO role_function_1 VALUES ('17', '1', '17');
+INSERT INTO role_function_1 VALUES ('18', '1', '18');
+INSERT INTO role_function_1 VALUES ('19', '1', '19');
+INSERT INTO role_function_1 VALUES ('20', '1', '20');
+INSERT INTO role_function_1 VALUES ('21', '1', '21');
+INSERT INTO role_function_1 VALUES ('22', '1', '22');
+INSERT INTO role_function_1 VALUES ('23', '1', '23');
+INSERT INTO role_function_1 VALUES ('24', '1', '24');
+INSERT INTO role_function_1 VALUES ('25', '1', '25');
+INSERT INTO role_function_1 VALUES ('26', '1', '26');
+INSERT INTO role_function_1 VALUES ('27', '1', '27');
+INSERT INTO role_function_1 VALUES ('28', '1', '28');
+INSERT INTO role_function_1 VALUES ('29', '1', '29');
+INSERT INTO role_function_1 VALUES ('30', '1', '30');
+INSERT INTO role_function_1 VALUES ('31', '1', '31');
+INSERT INTO role_function_1 VALUES ('32', '1', '32');
+INSERT INTO role_function_1 VALUES ('33', '1', '33');
+INSERT INTO role_function_1 VALUES ('34', '1', '34');
+INSERT INTO role_function_1 VALUES ('35', '1', '35');
+INSERT INTO role_function_1 VALUES ('36', '1', '36');
+INSERT INTO role_function_1 VALUES ('37', '1', '37');
+INSERT INTO role_function_1 VALUES ('38', '1', '38');
+INSERT INTO role_function_1 VALUES ('39', '1', '39');
+INSERT INTO role_function_1 VALUES ('40', '1', '40');
+INSERT INTO role_function_1 VALUES ('41', '1', '41');
+INSERT INTO role_function_1 VALUES ('42', '1', '42');
+INSERT INTO role_function_1 VALUES ('43', '1', '43');
+INSERT INTO role_function_1 VALUES ('44', '1', '44');
+INSERT INTO role_function_1 VALUES ('45', '1', '45');
+INSERT INTO role_function_1 VALUES ('46', '1', '46');
+INSERT INTO role_function_1 VALUES ('47', '1', '47');
+INSERT INTO role_function_1 VALUES ('48', '1', '48');
+INSERT INTO role_function_1 VALUES ('49', '1', '49');
+INSERT INTO role_function_1 VALUES ('50', '1', '50');
+INSERT INTO role_function_1 VALUES ('51', '1', '51');
+INSERT INTO role_function_1 VALUES ('52', '1', '52');
+INSERT INTO role_function_1 VALUES ('53', '1', '53');
+INSERT INTO role_function_1 VALUES ('54', '1', '54');
+INSERT INTO role_function_1 VALUES ('55', '1', '55');
+INSERT INTO role_function_1 VALUES ('56', '1', '56');
+INSERT INTO role_function_1 VALUES ('57', '1', '57');
+INSERT INTO role_function_1 VALUES ('58', '1', '58');
+INSERT INTO role_function_1 VALUES ('59', '1', '59');
+INSERT INTO role_function_1 VALUES ('60', '1', '60');
+INSERT INTO role_function_1 VALUES ('61', '1', '61');
+INSERT INTO role_function_1 VALUES ('62', '1', '62');
+INSERT INTO role_function_1 VALUES ('63', '1', '63');
+INSERT INTO role_function_1 VALUES ('64', '1', '64');
+INSERT INTO role_function_1 VALUES ('65', '1', '65');
+INSERT INTO role_function_1 VALUES ('66', '1', '66');
+INSERT INTO role_function_1 VALUES ('67', '1', '67');
+INSERT INTO role_function_1 VALUES ('68', '1', '68');
+INSERT INTO role_function_1 VALUES ('69', '1', '69');
+INSERT INTO role_function_1 VALUES ('70', '1', '70');
+INSERT INTO role_function_1 VALUES ('71', '1', '71');
+INSERT INTO role_function_1 VALUES ('72', '1', '72');
+INSERT INTO role_function_1 VALUES ('73', '1', '73');
+INSERT INTO role_function_1 VALUES ('74', '1', '74');
+INSERT INTO role_function_1 VALUES ('75', '1', '75');
+INSERT INTO role_function_1 VALUES ('76', '1', '76');
+INSERT INTO role_function_1 VALUES ('77', '1', '77');
+INSERT INTO role_function_1 VALUES ('78', '1', '78');
+INSERT INTO role_function_1 VALUES ('79', '1', '79');
+INSERT INTO role_function_1 VALUES ('80', '1', '80');
+INSERT INTO role_function_1 VALUES ('81', '1', '81');
+INSERT INTO role_function_1 VALUES ('82', '1', '82');
+INSERT INTO role_function_1 VALUES ('83', '1', '83');
+INSERT INTO role_function_1 VALUES ('84', '1', '84');
+INSERT INTO role_function_1 VALUES ('85', '1', '85');
+INSERT INTO role_function_1 VALUES ('86', '1', '86');
+INSERT INTO role_function_1 VALUES ('87', '1', '87');
+INSERT INTO role_function_1 VALUES ('88', '1', '88');
+INSERT INTO role_function_1 VALUES ('89', '1', '89');
+INSERT INTO role_function_1 VALUES ('90', '1', '90');
+INSERT INTO role_function_1 VALUES ('91', '1', '91');
+INSERT INTO role_function_1 VALUES ('92', '1', '92');
+INSERT INTO role_function_1 VALUES ('93', '1', '93');
+INSERT INTO role_function_1 VALUES ('94', '1', '94');
+INSERT INTO role_function_1 VALUES ('95', '1', '95');
+INSERT INTO role_function_1 VALUES ('96', '1', '96');
+INSERT INTO role_function_1 VALUES ('97', '1', '97');
+INSERT INTO role_function_1 VALUES ('98', '1', '98');
+INSERT INTO role_function_1 VALUES ('99', '1', '99');
+INSERT INTO role_function_1 VALUES ('100', '1', '100');
+INSERT INTO role_function_1 VALUES ('101', '1', '101');
+INSERT INTO role_function_1 VALUES ('102', '1', '102');
+INSERT INTO role_function_1 VALUES ('103', '1', '103');
+INSERT INTO role_function_1 VALUES ('104', '1', '104');
+INSERT INTO role_function_1 VALUES ('105', '1', '105');
+INSERT INTO role_function_1 VALUES ('106', '1', '106');
+INSERT INTO role_function_1 VALUES ('107', '1', '107');
+INSERT INTO role_function_1 VALUES ('108', '1', '108');
+INSERT INTO role_function_1 VALUES ('109', '1', '109');
+INSERT INTO role_function_1 VALUES ('110', '1', '110');
+INSERT INTO role_function_1 VALUES ('111', '1', '111');
+INSERT INTO role_function_1 VALUES ('112', '1', '112');
+INSERT INTO role_function_1 VALUES ('113', '1', '113');
+INSERT INTO role_function_1 VALUES ('114', '1', '114');
+INSERT INTO role_function_1 VALUES ('115', '1', '115');
+INSERT INTO role_function_1 VALUES ('116', '1', '116');
+INSERT INTO role_function_1 VALUES ('117', '1', '117');
+INSERT INTO role_function_1 VALUES ('118', '1', '118');
+INSERT INTO role_function_1 VALUES ('119', '1', '119');
+INSERT INTO role_function_1 VALUES ('120', '1', '120');
+INSERT INTO role_function_1 VALUES ('121', '1', '121');
+INSERT INTO role_function_1 VALUES ('122', '1', '122');
+INSERT INTO role_function_1 VALUES ('123', '1', '123');
+INSERT INTO role_function_1 VALUES ('124', '1', '124');
+INSERT INTO role_function_1 VALUES ('125', '1', '125');
+INSERT INTO role_function_1 VALUES ('126', '1', '126');
+INSERT INTO role_function_1 VALUES ('127', '1', '127');
+INSERT INTO role_function_1 VALUES ('128', '1', '128');
+INSERT INTO role_function_1 VALUES ('129', '1', '129');
+INSERT INTO role_function_1 VALUES ('130', '1', '130');
+INSERT INTO role_function_1 VALUES ('131', '1', '131');
+INSERT INTO role_function_1 VALUES ('132', '1', '132');
+INSERT INTO role_function_1 VALUES ('133', '1', '133');
+INSERT INTO role_function_1 VALUES ('134', '1', '134');
+INSERT INTO role_function_1 VALUES ('135', '1', '135');
+INSERT INTO role_function_1 VALUES ('136', '1', '136');
+INSERT INTO role_function_1 VALUES ('137', '1', '137');
+INSERT INTO role_function_1 VALUES ('138', '1', '138');
+INSERT INTO role_function_1 VALUES ('139', '1', '139');
+INSERT INTO role_function_1 VALUES ('140', '1', '140');
+INSERT INTO role_function_1 VALUES ('141', '1', '141');
+INSERT INTO role_function_1 VALUES ('142', '1', '142');
+INSERT INTO role_function_1 VALUES ('143', '1', '143');
+INSERT INTO role_function_1 VALUES ('144', '1', '144');
+INSERT INTO role_function_1 VALUES ('145', '1', '145');
+INSERT INTO role_function_1 VALUES ('146', '1', '146');
+INSERT INTO role_function_1 VALUES ('147', '1', '147');
+INSERT INTO role_function_1 VALUES ('148', '1', '148');
+INSERT INTO role_function_1 VALUES ('149', '1', '149');
+INSERT INTO role_function_1 VALUES ('150', '1', '150');
+INSERT INTO role_function_1 VALUES ('151', '1', '151');
+INSERT INTO role_function_1 VALUES ('152', '1', '152');
+INSERT INTO role_function_1 VALUES ('153', '1', '153');
+INSERT INTO role_function_1 VALUES ('154', '1', '154');
+INSERT INTO role_function_1 VALUES ('155', '1', '155');
+INSERT INTO role_function_1 VALUES ('156', '1', '156');
+INSERT INTO role_function_1 VALUES ('157', '1', '157');
+INSERT INTO role_function_1 VALUES ('158', '1', '158');
+INSERT INTO role_function_1 VALUES ('159', '1', '159');
+INSERT INTO role_function_1 VALUES ('160', '1', '160');
+INSERT INTO role_function_1 VALUES ('161', '1', '161');
+INSERT INTO role_function_1 VALUES ('162', '1', '162');
+INSERT INTO role_function_1 VALUES ('163', '1', '163');
+INSERT INTO role_function_1 VALUES ('164', '1', '164');
+INSERT INTO role_function_1 VALUES ('165', '1', '165');
+INSERT INTO role_function_1 VALUES ('166', '1', '166');
+INSERT INTO role_function_1 VALUES ('167', '1', '167');
+INSERT INTO role_function_1 VALUES ('168', '1', '168');
+INSERT INTO role_function_1 VALUES ('169', '1', '169');
+INSERT INTO role_function_1 VALUES ('170', '1', '170');
+INSERT INTO role_function_1 VALUES ('171', '1', '171');
+INSERT INTO role_function_1 VALUES ('172', '1', '172');
+INSERT INTO role_function_1 VALUES ('173', '1', '173');
+INSERT INTO role_function_1 VALUES ('174', '1', '174');
 
 drop table warehouse_1;
 create table warehouse_1(

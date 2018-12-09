@@ -1,6 +1,5 @@
 package com.yeta.pps.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.po.Role;
 import com.yeta.pps.util.CommonResponse;
 
@@ -14,21 +13,18 @@ public class UserVo {
      * 用于接收参数
      */
     @NotNull(message = CommonResponse.MESSAGE3)
-    @JsonIgnore
     private Integer storeId;
 
     /**
      * 验证码
      * 用于接收参数
      */
-    @JsonIgnore
     private String identifyingCode;
 
     /**
      * 角色id
      * 用于接收参数，查询的时候
      */
-    @JsonIgnore
     private Integer roleId;
 
     /**

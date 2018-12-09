@@ -128,10 +128,6 @@
         delete from user_role_${storeId} where user_id = #{userId};
     </delete>
 
-    <delete id="deleteUserRole" parameterType="com.yeta.pps.vo.UserRoleVo">
-        delete from user_role_${storeId} where user_id = #{userId} and role_id = #{roleId};
-    </delete>
-
     <select id="findUserRole" parameterType="com.yeta.pps.vo.UserRoleVo" resultType="com.yeta.pps.po.Role">
         select
             r.id,

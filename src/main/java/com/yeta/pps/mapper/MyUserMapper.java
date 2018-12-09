@@ -31,7 +31,5 @@ public interface MyUserMapper {
 
     int deleteAllUserRole(UserRoleVo userRoleVo);
 
-    int deleteUserRole(UserRoleVo userRoleVo);
-
     List<Role> findUserRole(UserRoleVo userRoleVo);
 }

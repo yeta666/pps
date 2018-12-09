@@ -1,7 +1,6 @@
 package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
-import com.yeta.pps.mapper.MyDepartmentMapper;
 import com.yeta.pps.mapper.MyRoleMapper;
 import com.yeta.pps.mapper.MyUserMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
@@ -23,7 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
@@ -41,9 +42,6 @@ public class UserService {
 
     @Autowired
     private MyRoleMapper myRoleMapper;
-
-    @Autowired
-    private MyDepartmentMapper myDepartmentMapper;
 
     @Autowired
     private MyWarehouseMapper myWarehouseMapper;
@@ -143,7 +141,7 @@ public class UserService {
     public CommonResponse add(UserVo userVo) {
         //判断参数
         if (userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null || userVo.getPhone() == null ||
-                userVo.getWarehouseId() == null || userVo.getRoleId() == null) {
+                userVo.getWarehouseId() == null || userVo.getRoles() == null || userVo.getRoles().size() == 0) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //判断仓库id是否存在
