@@ -3,7 +3,7 @@
 <mapper namespace="com.yeta.pps.mapper.MyUserMapper">
 
     <insert id="add" parameterType="com.yeta.pps.vo.UserVo">
-        insert into user_${storeId} (id, name, username, password, phone, remark, disabled) values (#{id}, #{name}, #{username}, #{password}, #{phone}, #{remark}, #{disabled});
+        insert into user_${storeId} (id, name, username, password, phone, warehouse_id, disabled, remark) values (#{id}, #{name}, #{username}, #{password}, #{phone}, #{warehouseId}, #{disabled}, #{remark});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.UserVo">
@@ -11,7 +11,7 @@
     </delete>
 
     <update id="update" parameterType="com.yeta.pps.vo.UserVo">
-        update user_${storeId} set name = #{name}, password = #{password}, phone = #{phone}, remark = #{remark}, disabled = #{disabled} where id = #{id};
+        update user_${storeId} set name = #{name}, password = #{password}, phone = #{phone}, warehouse_id = #{warehouseId}, disabled = #{disabled}, remark = #{remark} where id = #{id};
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.UserVo" resultType="java.lang.Integer">
@@ -21,93 +21,101 @@
             user_${storeId} as u,
             role_${storeId} as r,
             user_role_${storeId} as ur,
-            department_${storeId} as d,
-            department_user_${storeId} as du,
-            warehouse_${storeId} as w,
-            warehouse_user_${storeId} as wu
+            warehouse_${storeId} as w
         where
             u.id = ur.user_id
-        and r.id = ur.role_id
-        and d.id = du.department_id
-        and u.id = du.user_id
-        and w.id = wu.warehouse_id
-        and u.id = wu.user_id;
+        and
+            r.id = ur.role_id
+        and
+            u.warehouse_id = w.id
+        <if test="roleId!=null">
+        and r.id = #{roleId}
+        </if>
+        <if test="name!=null">
+        and u.name = #{name}
+        </if>
     </select>
 
-    <select id="findAll" resultType="com.yeta.pps.vo.UserVo">
+    <resultMap id="userVoMap" type="com.yeta.pps.vo.UserVo">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="username" column="username" />
+        <result property="password" column="password" />
+        <result property="phone" column="phone" />
+        <result property="warehouseId" column="warehouse_id" />
+        <result property="disabled" column="disabled" />
+        <result property="remark" column="remark" />
+        <result property="warehouseName" column="warehouse_name" />
+        <collection property="roles" ofType="com.yeta.pps.po.Role">
+            <id property="id" column="role_id" />
+            <result property="name" column="role_name" />
+        </collection>
+    </resultMap>
+
+    <select id="findAllPaged" resultMap="userVoMap">
         select
-            u.id as id,
-            u.name as name,
-            u.username as username,
-            u.password as password,
-            u.phone as phone,
-            u.remark as remark,
-            u.disabled as disabled,
-            r.id as roleId,
-            r.name as roleName,
-            d.id as departmentId,
-            d.name as departmentName,
-            w.id as warehouseId,
-            w.name as warehouseName
+            u.id,
+            u.name,
+            u.username,
+            u.password,
+            u.phone,
+            u.warehouse_id,
+            u.disabled,
+            u.remark,
+            r.id as role_id,
+            r.name as role_name,
+            w.name as warehouse_name
         from 
             user_${userVo.storeId} as u,
             role_${userVo.storeId} as r,
             user_role_${userVo.storeId} as ur,
-            department_${userVo.storeId} as d,
-            department_user_${userVo.storeId} as du,
-            warehouse_${userVo.storeId} as w,
-            warehouse_user_${userVo.storeId} as wu
+            warehouse_${userVo.storeId} as w
         where 
             u.id = ur.user_id
-        and r.id = ur.role_id
-        and d.id = du.department_id
-        and u.id = du.user_id
-        and w.id = wu.warehouse_id
-        and u.id = wu.user_id
+        and
+            r.id = ur.role_id
+        and
+            u.warehouse_id = w.id
         <if test="userVo.roleId!=null">
-            and r.id = #{userVo.roleId}
+        and r.id = #{userVo.roleId}
         </if>
         <if test="userVo.name!=null">
-            and u.name = #{userVo.name}
+        and u.name = #{userVo.name}
         </if>
-        limit #{pageVo.start}, #{pageVo.pageSize};
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findById" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.vo.UserVo">
+    <select id="findById" parameterType="com.yeta.pps.vo.UserVo" resultMap="userVoMap">
         select
-            u.id as id,
-            u.name as name,
-            u.username as username,
-            u.password as password,
-            u.phone as phone,
-            u.remark as remark,
-            u.disabled as disabled,
-            r.id as roleId,
-            r.name as roleName,
-            d.id as departmentId,
-            d.name as departmentName,
-            w.id as warehouseId,
-            w.name as warehouseName
+            u.id,
+            u.name,
+            u.username,
+            u.password,
+            u.phone,
+            u.warehouse_id,
+            u.disabled,
+            u.remark,
+            r.id as role_id,
+            r.name as role_name,
+            w.name as warehouse_name
         from
             user_${storeId} as u,
             role_${storeId} as r,
             user_role_${storeId} as ur,
-            department_${storeId} as d,
-            department_user_${storeId} as du,
-            warehouse_${storeId} as w,
-            warehouse_user_${storeId} as wu
+            warehouse_${storeId} as w
         where
             u.id = ur.user_id
-        and r.id = ur.role_id
-        and d.id = du.department_id
-        and u.id = du.user_id
-        and w.id = wu.warehouse_id
-        and u.id = wu.user_id
-        and u.id = #{id};
+        and
+            r.id = ur.role_id
+        and
+            u.warehouse_id = w.id
+        and
+            u.id = #{id};
     </select>
 
     <select id="findByUsernameAndPassword" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.po.User">
-        select id, name, username, password, phone, remark, disabled from user_${storeId} where username = #{username} and password = #{password};
+        select id, name, username, password, phone, warehouse_id, disabled, remark from user_${storeId} where username = #{username} and password = #{password};
     </select>
 
     <!---->
@@ -116,17 +124,13 @@
         insert into user_role_${storeId} (user_id, role_id) values (#{userId}, #{roleId});
     </insert>
 
-    <delete id="deleteUserRole" parameterType="com.yeta.pps.vo.UserRoleVo">
+    <delete id="deleteAllUserRole" parameterType="com.yeta.pps.vo.UserRoleVo">
         delete from user_role_${storeId} where user_id = #{userId};
     </delete>
 
-    <delete id="deleteRoleUser" parameterType="com.yeta.pps.vo.UserRoleVo">
-        delete from user_role_${storeId} where role_id = #{roleId};
+    <delete id="deleteUserRole" parameterType="com.yeta.pps.vo.UserRoleVo">
+        delete from user_role_${storeId} where user_id = #{userId} and role_id = #{roleId};
     </delete>
-
-    <update id="updateUserRole" parameterType="com.yeta.pps.vo.UserRoleVo">
-        update user_role_${storeId} set role_id = #{roleId};
-    </update>
 
     <select id="findUserRole" parameterType="com.yeta.pps.vo.UserRoleVo" resultType="com.yeta.pps.po.Role">
         select

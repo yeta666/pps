@@ -28,14 +28,19 @@ public class User {
     private String phone;
 
     /**
-     * 备注
+     * 仓库id
      */
-    private String remark;
+    private Integer warehouseId;
 
     /**
      * 是否禁用，0：不禁用，1：禁用
      */
     private Integer disabled;
+
+    /**
+     * 备注
+     */
+    private String remark;
 
     public User() {
     }
@@ -45,74 +50,34 @@ public class User {
         this.password = password;
     }
 
-    /**
-     * 获取用户id
-     *
-     * @return id - 用户id
-     */
     public String getId() {
         return id;
     }
 
-    /**
-     * 设置用户id
-     *
-     * @param id 用户id
-     */
     public void setId(String id) {
         this.id = id;
     }
 
-    /**
-     * 获取用户姓名
-     *
-     * @return name - 用户姓名
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * 设置用户姓名
-     *
-     * @param name 用户姓名
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * 获取用户名
-     *
-     * @return username - 用户名
-     */
     public String getUsername() {
         return username;
     }
 
-    /**
-     * 设置用户名
-     *
-     * @param username 用户名
-     */
     public void setUsername(String username) {
         this.username = username;
     }
 
-    /**
-     * 获取密码
-     *
-     * @return password - 密码
-     */
     public String getPassword() {
         return password;
     }
 
-    /**
-     * 设置密码
-     *
-     * @param password 密码
-     */
     public void setPassword(String password) {
         this.password = password;
     }
@@ -125,22 +90,12 @@ public class User {
         this.phone = phone;
     }
 
-    /**
-     * 获取备注
-     *
-     * @return remark - 备注
-     */
-    public String getRemark() {
-        return remark;
+    public Integer getWarehouseId() {
+        return warehouseId;
     }
 
-    /**
-     * 设置备注
-     *
-     * @param remark 备注
-     */
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setWarehouseId(Integer warehouseId) {
+        this.warehouseId = warehouseId;
     }
 
     public Integer getDisabled() {
@@ -151,6 +106,14 @@ public class User {
         this.disabled = disabled;
     }
 
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -159,8 +122,9 @@ public class User {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
-                ", remark='" + remark + '\'' +
+                ", warehouseId=" + warehouseId +
                 ", disabled=" + disabled +
+                ", remark='" + remark + '\'' +
                 '}';
     }
 }

@@ -1,9 +1,8 @@
 package com.yeta.pps.controller;
 
-import com.yeta.pps.po.GoodsBrand;
 import com.yeta.pps.po.GoodsLabel;
+import com.yeta.pps.po.GoodsPropertyKey;
 import com.yeta.pps.po.GoodsType;
-import com.yeta.pps.po.GoodsUnit;
 import com.yeta.pps.service.GoodsService;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
@@ -32,86 +31,6 @@ public class GoodsController {
 
     @Autowired
     private GoodsService goodsService;
-
-    /**
-     * 新增商品品牌接口
-     * @param goodsBrandVo
-     * @return
-     */
-    @ApiOperation(value = "新增商品品牌")
-    @ApiImplicitParam(name = "goodsBrandVo", value = "storeId, name必填", required = true, paramType = "body", dataType = "GoodsBrandVo")
-    @PostMapping(value = "/goods/brands")
-    public CommonResponse addBrand(@RequestBody @Valid GoodsBrandVo goodsBrandVo) {
-        return goodsService.addBrand(goodsBrandVo);
-    }
-
-    /**
-     * 删除商品品牌接口
-     * @param storeId
-     * @param brandId
-     * @return
-     */
-    @ApiOperation(value = "删除商品品牌")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "brandId", value = "品牌id", required = true, paramType = "path", dataType = "int")
-    })
-    @DeleteMapping(value = "/goods/brands/{brandId}")
-    public CommonResponse deleteBrand(@RequestParam(value = "storeId") Integer storeId,
-                                      @PathVariable(value = "brandId") Integer brandId) {
-        return goodsService.deleteBrand(new GoodsBrandVo(storeId, brandId));
-    }
-
-    /**
-     * 修改商品品牌接口
-     * @param goodsBrandVo
-     * @return
-     */
-    @ApiOperation(value = "修改商品品牌")
-    @ApiImplicitParam(name = "goodsBrandVo", value = "storeId, id, name必填", required = true, paramType = "body", dataType = "GoodsBrandVo")
-    @PutMapping(value = "/goods/brands")
-    public CommonResponse updateBrand(@RequestBody @Valid GoodsBrandVo goodsBrandVo) {
-        return goodsService.updateBrand(goodsBrandVo);
-    }
-
-    /**
-     * 查询所有商品品牌接口
-     * @param storeId
-     * @param page
-     * @param pageSize
-     * @return
-     */
-    @ApiOperation(value = "查找商品品牌", notes = "可选择分页或不分页查询")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = false, paramType = "query", dataType = "int")
-    })
-    @GetMapping(value = "/goods/brands")
-    public CommonResponse<CommonResult<List<GoodsBrand>>> findAllBrand(@RequestParam(value = "storeId") Integer storeId,
-                                                                       @RequestParam(value = "page", required = false) Integer page,
-                                                                       @RequestParam(value = "pageSize", required = false) Integer pageSize) {
-        return goodsService.findAllBrand(new GoodsBrandVo(storeId), new PageVo(page, pageSize));
-    }
-
-    /**
-     * 根据id查询商品品牌接口
-     * @param storeId
-     * @param brandId
-     * @return
-     */
-    @ApiOperation(value = "根据id查找商品品牌")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "brandId", value = "品牌id", required = true, paramType = "path", dataType = "int")
-    })
-    @GetMapping(value = "/goods/brands/{brandId}")
-    public CommonResponse<GoodsBrand> findBrandById(@RequestParam(value = "storeId") Integer storeId,
-                                                    @PathVariable(value = "brandId") Integer brandId) {
-        return goodsService.findBrandById(new GoodsBrandVo(storeId, brandId));
-    }
-
-    //
 
     /**
      * 新增商品标签接口
@@ -161,7 +80,7 @@ public class GoodsController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查找商品标签", notes = "可选择分页或不分页查询")
+    @ApiOperation(value = "查找商品标签", notes = "可选择分页或不分页查询，分页查询用于表格展示，不分页查询用于增加商品的时候选择")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = false, paramType = "query", dataType = "int"),
@@ -176,7 +95,6 @@ public class GoodsController {
 
     /**
      * 根据id查询商品标签接口
-     *
      * @param storeId
      * @param labelId
      * @return
@@ -242,7 +160,7 @@ public class GoodsController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查找商品类型", notes = "可选择分页或不分页查询")
+    @ApiOperation(value = "查询商品类型", notes = "分页查询用于表格，不分页查询用于修改或新增商品属性名的时候，注意两种情况返回格式不一样")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = false, paramType = "query", dataType = "int"),
@@ -257,7 +175,6 @@ public class GoodsController {
 
     /**
      * 根据id查询商品类型接口
-     *
      * @param storeId
      * @param typeId
      * @return
@@ -273,88 +190,181 @@ public class GoodsController {
         return goodsService.findTypeById(new GoodsTypeVo(storeId, typeId));
     }
 
-    //
+    //商品属性名
 
     /**
-     * 新增商品单位接口
-     * @param goodsUnitVo
+     * 新增商品属性名接口
+     * @param goodsPropertyKeyVo
      * @return
      */
-    @ApiOperation(value = "新增商品单位")
-    @ApiImplicitParam(name = "goodsUnitVo", value = "storeId, name必填", required = true, paramType = "body", dataType = "GoodsUnitVo")
-    @PostMapping(value = "/goods/units")
-    public CommonResponse addUnit(@RequestBody @Valid GoodsUnitVo goodsUnitVo) {
-        return goodsService.addUnit(goodsUnitVo);
+    @ApiOperation(value = "新增商品属性名")
+    @ApiImplicitParam(name = "goodsPropertyKeyVo", value = "storeId, name, typeId必填", required = true, paramType = "body", dataType = "GoodsPropertyKeyVo")
+    @PostMapping(value = "/goods/types/properties/keys")
+    public CommonResponse addPropertyKey(@RequestBody @Valid GoodsPropertyKeyVo goodsPropertyKeyVo) {
+        return goodsService.addPropertyKey(goodsPropertyKeyVo);
     }
 
     /**
-     * 删除商品单位接口
+     * 删除商品属性名接口
      * @param storeId
-     * @param unitId
+     * @param keyId
      * @return
      */
-    @ApiOperation(value = "删除商品单位")
+    @ApiOperation(value = "删除商品属性名")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "unitId", value = "单位id", required = true, paramType = "path", dataType = "int")
+            @ApiImplicitParam(name = "keyId", value = "属性名id", required = true, paramType = "path", dataType = "int")
     })
-    @DeleteMapping(value = "/goods/units/{unitId}")
-    public CommonResponse deleteUnit(@RequestParam(value = "storeId") Integer storeId,
-                                     @PathVariable(value = "unitId") Integer unitId) {
-        return goodsService.deleteUnit(new GoodsUnitVo(storeId, unitId));
+    @DeleteMapping(value = "/goods/types/properties/keys/{keyId}")
+    public CommonResponse deletePropertyKey(@RequestParam(value = "storeId") Integer storeId,
+                                            @PathVariable(value = "keyId") Integer keyId) {
+        return goodsService.deletePropertyKey(new GoodsPropertyKeyVo(storeId, keyId, null));
     }
 
     /**
-     * 修改商品单位接口
-     * @param goodsUnitVo
+     * 修改商品属性名接口
+     * @param goodsPropertyKeyVo
      * @return
      */
-    @ApiOperation(value = "修改商品单位")
-    @ApiImplicitParam(name = "goodsUnitVo", value = "storeId, id, name必填", required = true, paramType = "body", dataType = "GoodsUnitVo")
-    @PutMapping(value = "/goods/units")
-    public CommonResponse updateUnit(@RequestBody @Valid GoodsUnitVo goodsUnitVo) {
-        return goodsService.updateUnit(goodsUnitVo);
+    @ApiOperation(value = "修改商品属性名")
+    @ApiImplicitParam(name = "goodsPropertyKeyVo", value = "storeId, id, name, typeId必填", required = true, paramType = "body", dataType = "GoodsPropertyKeyVo")
+    @PutMapping(value = "/goods/types/properties/keys")
+    public CommonResponse updatePropertyKey(@RequestBody @Valid GoodsPropertyKeyVo goodsPropertyKeyVo) {
+        return goodsService.updatePropertyKey(goodsPropertyKeyVo);
     }
 
     /**
-     * 查询所有商品单位接口
+     * 查询所有商品属性名接口
      * @param storeId
      * @param page
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查找商品单位", notes = "可选择分页或不分页查询")
+    @ApiOperation(value = "查询商品属性名", notes = "分页查询用于表格，不分页查询用于修改或新增商品属性值的时候，注意两种情况返回格式不一样")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = false, paramType = "query", dataType = "int")
     })
-    @GetMapping(value = "/goods/units")
-    public CommonResponse<CommonResult<List<GoodsUnit>>> findAllUnit(@RequestParam(value = "storeId") Integer storeId,
-                                                                     @RequestParam(value = "page", required = false) Integer page,
-                                                                     @RequestParam(value = "pageSize", required = false) Integer pageSize) {
-        return goodsService.findAllUnit(new GoodsUnitVo(storeId), new PageVo(page, pageSize));
+    @GetMapping(value = "/goods/types/properties/keys")
+    public CommonResponse<CommonResult<List<GoodsPropertyKeyVo>>> findAllPropertyKey(@RequestParam(value = "storeId") Integer storeId,
+                                                                                   @RequestParam(value = "page", required = false) Integer page,
+                                                                                   @RequestParam(value = "pageSize", required = false) Integer pageSize) {
+        return goodsService.findAllPropertyKey(new GoodsPropertyKeyVo(storeId), new PageVo(page, pageSize));
     }
 
     /**
-     * 根据id查询商品单位接口
-     *
+     * 根据id查询商品属性名接口
      * @param storeId
-     * @param unitId
+     * @param keyId
      * @return
      */
-    @ApiOperation(value = "根据id查找商品单位")
+    @ApiOperation(value = "根据id查找商品属性名")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "unitId", value = "单位id", required = true, paramType = "path", dataType = "int")
+            @ApiImplicitParam(name = "keyId", value = "属性名id", required = true, paramType = "path", dataType = "int")
     })
-    @GetMapping(value = "/goods/units/{unitId}")
-    public CommonResponse<GoodsUnit> findUnitById(@RequestParam(value = "storeId") Integer storeId,
-                                                  @PathVariable(value = "unitId") Integer unitId) {
-        return goodsService.findUnitById(new GoodsUnitVo(storeId, unitId));
+    @GetMapping(value = "/goods/types/properties/keys/{keyId}")
+    public CommonResponse<GoodsPropertyKey> findPropertyKeyById(@RequestParam(value = "storeId") Integer storeId,
+                                                                @PathVariable(value = "keyId") Integer keyId) {
+        return goodsService.findPropertyKeyById(new GoodsPropertyKeyVo(storeId, keyId, null));
     }
 
-    //
+    //商品属性值
+
+    /**
+     * 新增商品属性值接口
+     * @param goodsPropertyValueVo
+     * @return
+     */
+    @ApiOperation(value = "新增商品属性值")
+    @ApiImplicitParam(name = "goodsPropertyValueVo", value = "storeId, name, propertyKeyId必填", required = true, paramType = "body", dataType = "GoodsPropertyValueVo")
+    @PostMapping(value = "/goods/types/properties/values")
+    public CommonResponse addPropertyValue(@RequestBody @Valid GoodsPropertyValueVo goodsPropertyValueVo) {
+        return goodsService.addPropertyValue(goodsPropertyValueVo);
+    }
+
+    /**
+     * 删除商品属性值接口
+     * @param storeId
+     * @param valueId
+     * @return
+     */
+    @ApiOperation(value = "删除商品属性值")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "valueId", value = "属性值id", required = true, paramType = "path", dataType = "int")
+    })
+    @DeleteMapping(value = "/goods/types/properties/values/{valueId}")
+    public CommonResponse deletePropertyValue(@RequestParam(value = "storeId") Integer storeId,
+                                              @PathVariable(value = "valueId") Integer valueId) {
+        return goodsService.deletePropertyValue(new GoodsPropertyValueVo(storeId, valueId, null));
+    }
+
+    /**
+     * 修改商品属性值接口
+     * @param goodsPropertyValueVo
+     * @return
+     */
+    @ApiOperation(value = "修改商品属性值")
+    @ApiImplicitParam(name = "goodsPropertyValueVo", value = "storeId, id, name, propertyKeyId必填", required = true, paramType = "body", dataType = "GoodsPropertyValueVo")
+    @PutMapping(value = "/goods/types/properties/values")
+    public CommonResponse updatePropertyValue(@RequestBody @Valid GoodsPropertyValueVo goodsPropertyValueVo) {
+        return goodsService.updatePropertyValue(goodsPropertyValueVo);
+    }
+
+    /**
+     * 查询所有商品属性值接口
+     * @param storeId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "查询商品属性值", notes = "分页查询用于表格")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/goods/types/properties/values")
+    public CommonResponse<CommonResult<List<GoodsPropertyValueVo>>> findAllPropertyValue(@RequestParam(value = "storeId") Integer storeId,
+                                                                                         @RequestParam(value = "page") Integer page,
+                                                                                         @RequestParam(value = "pageSize") Integer pageSize) {
+        return goodsService.findAllPropertyValue(new GoodsPropertyValueVo(storeId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据id查询商品属性值接口
+     * @param storeId
+     * @param valueId
+     * @return
+     */
+    @ApiOperation(value = "根据id查找商品属性值")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "valueId", value = "属性值id", required = true, paramType = "path", dataType = "int")
+    })
+    @GetMapping(value = "/goods/types/properties/values/{valueId}")
+    public CommonResponse<GoodsPropertyValueVo> findPropertyValueById(@RequestParam(value = "storeId") Integer storeId,
+                                                                      @PathVariable(value = "valueId") Integer valueId) {
+        return goodsService.findPropertyValueById(new GoodsPropertyValueVo(storeId, valueId, null));
+    }
+
+    //商品类型/商品属性名/商品属性值
+
+    /**
+     * 查询所有商品属性
+     * @param storeId
+     * @return
+     */
+    @ApiOperation(value = "查询所有商品属性", notes = "将所有商品分类下的所有商品属性名、所有商品属性值都查出来")
+    @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int")
+    @GetMapping(value = "/goods/types/properties")
+    public CommonResponse<GoodsTypeVo> findAllProperties(@RequestParam(value = "storeId") Integer storeId) {
+        return goodsService.findAllProperties(new GoodsTypeVo(storeId));
+    }
+
+    //商品
 
     /**
      * 新增商品接口
@@ -362,9 +372,7 @@ public class GoodsController {
      * @return
      */
     @ApiOperation(value = "新增商品")
-    @ApiImplicitParam(name = "goodsVo",
-            value = "storeId, name, code, barCode, typeId, brandId, unitId, labelId, purchasePrice, retailPrice, vipPrice, inventory, putaway必填；其他选填",
-            required = true, paramType = "body", dataType = "GoodsVo")
+    @ApiImplicitParam(name = "goodsVo", value = "storeId, name, barCode, typeId, putaway必填；其他选填", required = true, paramType = "body", dataType = "GoodsVo")
     @PostMapping(value = "/goods")
     public CommonResponse add(@RequestBody @Valid GoodsVo goodsVo) {
         return goodsService.add(goodsVo);
@@ -392,10 +400,8 @@ public class GoodsController {
      * @param goodsVo
      * @return
      */
-    @ApiOperation(value = "修改商品")
-    @ApiImplicitParam(name = "goodsVo",
-            value = "storeId, id, name, code, barCode, typeId, brandId, unitId, labelId, purchasePrice, retailPrice, vipPrice, inventory, putaway必填；其他选填",
-            required = true, paramType = "body", dataType = "GoodsVo")
+    @ApiOperation(value = "修改商品", notes = "不能修改商品类型")
+    @ApiImplicitParam(name = "goodsVo", value = "storeId, id, name, barCode, putaway必填；其他选填", required = true, paramType = "body", dataType = "GoodsVo")
     @PutMapping(value = "/goods")
     public CommonResponse update(@RequestBody @Valid GoodsVo goodsVo) {
         return goodsService.update(goodsVo);
@@ -404,62 +410,64 @@ public class GoodsController {
     /**
      * 查询所有商品接口
      * @param storeId
-     * @param brandId
-     * @param typeId
+     * @param id
      * @param barCode
-     * @param code
+     * @param typeId
      * @param putaway
      * @param page
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查找所有商品", notes = "可筛选、分页查找")
+    @ApiOperation(value = "查询所有商品", notes = "筛选、分页查询")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "brandId", value = "品牌id", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "typeId", value = "类型id", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "商品货号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "barCode", value = "条码", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "code", value = "货号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "typeId", value = "类型id", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "putaway", value = "上架状态，0：未上架，1：已上架", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
     @GetMapping(value = "/goods")
     public CommonResponse<CommonResult<GoodsVo>> findAll(@RequestParam(value = "storeId") Integer storeId,
-                                                @RequestParam(value = "brandId", required = false) Integer brandId,
-                                                @RequestParam(value = "typeId", required = false) Integer typeId,
-                                                @RequestParam(value = "barCode", required = false) String barCode,
-                                                @RequestParam(value = "code", required = false) String code,
-                                                @RequestParam(value = "putaway", required = false) Integer putaway,
-                                                @RequestParam(value = "page", required = false) Integer page,
-                                                @RequestParam(value = "pageSize", required = false) Integer pageSize) {
-        return goodsService.findAll(new GoodsVo(storeId, code, barCode, typeId, brandId, putaway), new PageVo(page, pageSize));
+                                                         @RequestParam(value = "id", required = false) String id,
+                                                         @RequestParam(value = "barCode", required = false) String barCode,
+                                                         @RequestParam(value = "typeId", required = false) Integer typeId,
+                                                         @RequestParam(value = "putaway", required = false) Byte putaway,
+                                                         @RequestParam(value = "page", required = true) Integer page,
+                                                         @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return goodsService.findAll(new GoodsVo(storeId, id, barCode, typeId, putaway), new PageVo(page, pageSize));
     }
 
     /**
-     * 根据id查询商品接口
+     * 根据商品货号查询商品及sku
      * @param storeId
-     * @param goodsId
+     * @param id
+     * @param page
+     * @param pageSize
      * @return
      */
-    @ApiOperation(value = "根据id查找商品")
+    @ApiOperation(value = "根据商品货号查询商品及规格", notes = "分页查找")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "goodsId", value = "商品id", required = true, paramType = "path", dataType = "int")
+            @ApiImplicitParam(name = "id", value = "商品货号", required = true, paramType = "path", dataType = "String"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
-    @GetMapping(value = "/goods/{goodsId}")
-    public CommonResponse findAll(@RequestParam(value = "storeId") Integer storeId,
-                                  @PathVariable(value = "goodsId") String goodsId) {
-        return goodsService.findById(new GoodsVo(storeId, goodsId));
+    @GetMapping(value = "/goods/skus/{id}")
+    public CommonResponse<CommonResult<List<GoodsVo>>> findSkuById(@RequestParam(value = "storeId") Integer storeId,
+                                                                   @PathVariable(value = "id") String id,
+                                                                   @RequestParam(value = "page") Integer page,
+                                                                   @RequestParam(value = "pageSize") Integer pageSize) {
+        return goodsService.findSkuById(new GoodsVo(storeId, id), new PageVo(page, pageSize));
     }
 
     /**
      * 导出商品接口
      * @param storeId
-     * @param brandId
-     * @param typeId
+     * @param id
      * @param barCode
-     * @param code
+     * @param typeId
      * @param putaway
      * @param response
      * @throws IOException
@@ -467,21 +475,47 @@ public class GoodsController {
     @ApiOperation(value = "导出商品", notes = "可筛选导出")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "brandId", value = "品牌id", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "typeId", value = "类型id", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "商品货号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "barCode", value = "条码", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "code", value = "货号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "typeId", value = "类型id", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "putaway", value = "上架状态，0：未上架，1：已上架", required = false, paramType = "query", dataType = "int")
     })
     @GetMapping(value = "/goods/export")
     public void exportGoods(@RequestParam(value = "storeId") Integer storeId,
-                         @RequestParam(value = "brandId", required = false) Integer brandId,
-                         @RequestParam(value = "typeId", required = false) Integer typeId,
-                         @RequestParam(value = "barCode", required = false) String barCode,
-                         @RequestParam(value = "code", required = false) String code,
-                         @RequestParam(value = "putaway", required = false) Integer putaway,
+                            @RequestParam(value = "id", required = false) String id,
+                            @RequestParam(value = "barCode", required = false) String barCode,
+                            @RequestParam(value = "typeId", required = false) Integer typeId,
+                            @RequestParam(value = "putaway", required = false) Byte putaway,
                          HttpServletResponse response) throws IOException {
-        goodsService.exportGoods(new GoodsVo(storeId, code, barCode, typeId, brandId, putaway), response);
+        goodsService.exportGoods(new GoodsVo(storeId, id, barCode, typeId, putaway), response);
+    }
+
+    /**
+     * 导出商品及sku接口
+     * @param storeId
+     * @param id
+     * @param barCode
+     * @param typeId
+     * @param putaway
+     * @param response
+     * @throws IOException
+     */
+    @ApiOperation(value = "导出商品", notes = "可筛选导出")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "商品货号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "barCode", value = "条码", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "typeId", value = "类型id", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "putaway", value = "上架状态，0：未上架，1：已上架", required = false, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/goods/export/skus")
+    public void exportGoodsSku(@RequestParam(value = "storeId") Integer storeId,
+                               @RequestParam(value = "id", required = false) String id,
+                               @RequestParam(value = "barCode", required = false) String barCode,
+                               @RequestParam(value = "typeId", required = false) Integer typeId,
+                               @RequestParam(value = "putaway", required = false) Byte putaway,
+                               HttpServletResponse response) throws IOException {
+        goodsService.exportGoodsSku(new GoodsVo(storeId, id, barCode, typeId, putaway), response);
     }
 
     /**

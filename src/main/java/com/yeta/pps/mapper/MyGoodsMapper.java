@@ -8,21 +8,7 @@ import java.util.List;
 
 public interface MyGoodsMapper {
 
-    int addBrand(GoodsBrandVo goodsBrandVo);
-
-    int deleteBrand(GoodsBrandVo goodsBrandVo);
-
-    int updateBrand(GoodsBrandVo goodsBrandVo);
-
-    int findCountBrand(GoodsBrandVo goodsBrandVo);
-
-    List<GoodsBrand> findAllBrand(GoodsBrandVo goodsBrandVo);
-
-    List<GoodsBrand> findAllPagedBrand(@Param(value = "goodsBrandVo") GoodsBrandVo goodsBrandVo, @Param(value = "pageVo") PageVo pageVo);
-
-    GoodsBrand findBrand(GoodsBrandVo goodsBrandVo);
-
-    //
+    //商品标签
 
     int addLabel(GoodsLabelVo goodsLabelVo);
 
@@ -32,13 +18,23 @@ public interface MyGoodsMapper {
 
     int findCountLabel(GoodsLabelVo goodsLabelVo);
 
-    List<GoodsLabel> findAllLabel(GoodsLabelVo goodsLabelVo);
+    List<GoodsLabel> findAllPagedLabel(@Param(value = "goodsLabelVo") GoodsLabelVo goodsLabelVo,
+                                       @Param(value = "pageVo") PageVo pageVo);
 
-    List<GoodsLabel> findAllPagedLabel(@Param(value = "goodsLabelVo") GoodsLabelVo goodsLabelVo, @Param(value = "pageVo") PageVo pageVo);
+    List<GoodsLabel> findAllLabel(GoodsLabelVo goodsLabelVo);
 
     GoodsLabel findLabel(GoodsLabelVo goodsLabelVo);
 
-    //
+    //商品/商品标签关系
+
+    int addGoodsLabel(GoodsGoodsLabelVo goodsGoodsLabelVo);
+
+    int deleteGoodsLabel(GoodsGoodsLabelVo goodsGoodsLabelVo);
+
+    List<GoodsGoodsLabel> findGoodsLabel(GoodsGoodsLabelVo goodsGoodsLabelVo);
+
+
+    //商品类型
 
     int addType(GoodsTypeVo goodsTypeVo);
 
@@ -48,29 +44,61 @@ public interface MyGoodsMapper {
 
     int findCountType(GoodsTypeVo goodsTypeVo);
 
-    List<GoodsType> findAllType(GoodsTypeVo goodsTypeVo);
+    List<GoodsType> findAllPagedType(@Param(value = "goodsTypeVo") GoodsTypeVo goodsTypeVo,
+                                     @Param(value = "pageVo") PageVo pageVo);
 
-    List<GoodsType> findAllPagedType(@Param(value = "goodsTypeVo") GoodsTypeVo goodsTypeVo, @Param(value = "pageVo") PageVo pageVo);
+    List<GoodsType> findAllType(GoodsTypeVo goodsTypeVo);
 
     GoodsType findType(GoodsTypeVo goodsTypeVo);
 
-    //
 
-    int addUnit(GoodsUnitVo goodsUnitVo);
+    //商品属性名
 
-    int deleteUnit(GoodsUnitVo goodsUnitVo);
+    int addPropertyKey(GoodsPropertyKeyVo goodsPropertyKeyVo);
 
-    int updateUnit(GoodsUnitVo goodsUnitVo);
+    int deletePropertyKeyByTypeId(GoodsPropertyKeyVo goodsPropertyKeyVo);
 
-    int findCountUnit(GoodsUnitVo goodsUnitVo);
+    int deletePropertyKeyById(GoodsPropertyKeyVo goodsPropertyKeyVo);
 
-    List<GoodsUnit> findAllUnit(GoodsUnitVo goodsUnitVo);
+    int updatePropertyKey(GoodsPropertyKeyVo goodsPropertyKeyVo);
 
-    List<GoodsUnit> findAllPagedUnit(@Param(value = "goodsUnitVo") GoodsUnitVo goodsUnitVo, @Param(value = "pageVo") PageVo pageVo);
+    int findCountPropertyKey(GoodsPropertyKeyVo goodsPropertyKeyVo);
 
-    GoodsUnit findUnit(GoodsUnitVo goodsUnitVo);
+    List<GoodsPropertyKeyVo> findAllPagedPropertyKey(@Param(value = "goodsPropertyKeyVo") GoodsPropertyKeyVo goodsPropertyKeyVo,
+                                                     @Param(value = "pageVo") PageVo pageVo);
 
-    //
+    List<GoodsPropertyKey> findAllPropertyKey(GoodsPropertyKeyVo goodsPropertyKeyVo);
+
+    List<GoodsPropertyKeyVo> findPropertyKey(GoodsPropertyKeyVo goodsPropertyKeyVo);
+
+    //商品属性值
+
+    int addPropertyValue(GoodsPropertyValueVo goodsPropertyValueVo);
+
+    int deletePropertyValueByPropertyKeyId(GoodsPropertyValueVo goodsPropertyValueVo);
+
+    int deletePropertyValueById(GoodsPropertyValueVo goodsPropertyValueVo);
+
+    int updatePropertyValue(GoodsPropertyValueVo goodsPropertyValueVo);
+
+    int findCountPropertyValue(GoodsPropertyValueVo goodsPropertyValueVo);
+
+    List<GoodsPropertyValueVo> findAllPagedPropertyValue(@Param(value = "goodsPropertyValueVo") GoodsPropertyValueVo goodsPropertyValueVo,
+                                                         @Param(value = "pageVo") PageVo pageVo);
+
+    List<GoodsPropertyValueVo> findPropertyValue(GoodsPropertyValueVo goodsPropertyValueVo);
+
+    //商品类型/商品属性名/商品属性值
+
+    List<GoodsTypeVo> findAllProperties(GoodsTypeVo goodsTypeVo);
+
+    //商品规格
+
+    int addGoodsSku(GoodsSkuVo goodsSkuVo);
+
+    int deleteGoodsSku(GoodsSkuVo goodsSkuVo);
+
+    //商品
 
     int add(GoodsVo goodsVo);
 
@@ -84,7 +112,11 @@ public interface MyGoodsMapper {
 
     List<GoodsVo> findAll(GoodsVo goodsVo);
 
-    GoodsVo findById(GoodsVo goodsVo);
+    int findCountSkuById(GoodsVo goodsVo);
 
-    GoodsVo findBrandLabelTypeUnit(GoodsVo goodsVo);
+    GoodsVo findAllPagedSkuById(@Param(value = "goodsVo") GoodsVo goodsVo, @Param(value = "pageVo") PageVo page);
+
+    List<GoodsVo> findAllSku(GoodsVo goodsVo);
+
+    List<Goods> findByTypeId(GoodsVo goodsVo);
 }

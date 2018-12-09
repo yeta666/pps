@@ -474,7 +474,11 @@ public class ClientService {
         //文件名
         String fileName = "【客户导出】_" + System.currentTimeMillis() + ".xls";
         //输出excel
-        CommonUtil.outputExcel(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
+        List<List<String>> titleRowCells = new ArrayList<>();
+        titleRowCells.add(titleRowCell);
+        List<List<List<String>>> dataRowCellss = new ArrayList<>();
+        dataRowCellss.add(dataRowCells);
+        CommonUtil.outputExcel(remark, titleRowCells, lastRequiredCol, dataRowCellss, fileName, response);
     }
 
     /**
@@ -497,7 +501,9 @@ public class ClientService {
         //文件名
         String fileName = "【客户导入模版】_" + System.currentTimeMillis() + ".xls";
         //输出excel
-        CommonUtil.outputExcel(remark, titleRowCell, lastRequiredCol, new ArrayList<>(), fileName, response);
+        List<List<String>> titleRowCells = new ArrayList<>();
+        titleRowCells.add(titleRowCell);
+        CommonUtil.outputExcel(remark, titleRowCells, lastRequiredCol, new ArrayList<>(), fileName, response);
     }
 
     /**
@@ -536,7 +542,6 @@ public class ClientService {
             if (!integral.equals("")) {
                 clientVo.setIntegral(Integer.valueOf(integral));
             }
-
             String birthday = CommonUtil.getCellValue(row.getCell(7));
             if (!birthday.equals("")) {
                 clientVo.setBirthday(sdf.parse(birthday));

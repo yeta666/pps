@@ -2,48 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.yeta.pps.mapper.MyGoodsMapper" >
 
-    <insert id="addBrand" parameterType="com.yeta.pps.vo.GoodsBrandVo" useGeneratedKeys="true" keyProperty="id">
-        insert into goods_brand_${storeId} (name) values (#{name});
-    </insert>
-
-    <delete id="deleteBrand" parameterType="com.yeta.pps.vo.GoodsBrandVo">
-        delete from goods_brand_${storeId} where id = #{id};
-    </delete>
-
-    <update id="updateBrand" parameterType="com.yeta.pps.vo.GoodsBrandVo">
-        update goods_brand_${storeId} set name = #{name} where id = #{id};
-    </update>
-
-    <select id="findCountBrand" parameterType="com.yeta.pps.vo.GoodsBrandVo" resultType="java.lang.Integer">
-        select count(0) from goods_brand_${storeId};
-    </select>
-
-    <select id="findAllBrand" parameterType="com.yeta.pps.vo.GoodsBrandVo" resultType="com.yeta.pps.po.GoodsBrand">
-        select id, name from goods_brand_${storeId};
-    </select>
-
-    <select id="findAllPagedBrand" resultType="com.yeta.pps.po.GoodsBrand">
-        select id, name from goods_brand_${goodsBrandVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
-    </select>
-
-    <select id="findBrand" parameterType="com.yeta.pps.vo.GoodsBrandVo" resultType="com.yeta.pps.po.GoodsBrand">
-        select
-            id, name
-        from
-            goods_brand_${storeId}
-        where
-            1 = 1
-        <if test="id != null">
-        and
-            id = #{id}
-        </if>
-        <if test="name != null">
-        and
-            name = #{name}
-        </if>
-    </select>
-
-    <!---->
+    <!--商品标签-->
 
     <insert id="addLabel" parameterType="com.yeta.pps.vo.GoodsLabelVo" useGeneratedKeys="true" keyProperty="id">
         insert into goods_label_${storeId} (name) values (#{name});
@@ -61,12 +20,12 @@
         select count(0) from goods_label_${storeId};
     </select>
 
-    <select id="findAllLabel" parameterType="com.yeta.pps.vo.GoodsLabelVo" resultType="com.yeta.pps.po.GoodsLabel">
-        select id, name from goods_label_${storeId};
-    </select>
-
     <select id="findAllPagedLabel" resultType="com.yeta.pps.po.GoodsLabel">
         select id, name from goods_label_${goodsLabelVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllLabel" parameterType="com.yeta.pps.vo.GoodsLabelVo" resultType="com.yeta.pps.po.GoodsLabel">
+        select id, name from goods_label_${storeId};
     </select>
 
     <select id="findLabel" parameterType="com.yeta.pps.vo.GoodsLabelVo" resultType="com.yeta.pps.po.GoodsLabel">
@@ -86,7 +45,21 @@
         </if>
     </select>
 
-    <!---->
+    <!--商品/商品标签关系-->
+
+    <insert id="addGoodsLabel" parameterType="com.yeta.pps.vo.GoodsGoodsLabelVo">
+        insert into goods_goods_label_${storeId} (goods_id, label_id) values (#{goodsId}, #{labelId});
+    </insert>
+
+    <delete id="deleteGoodsLabel" parameterType="com.yeta.pps.vo.GoodsGoodsLabelVo">
+        delete from goods_goods_label_${storeId} where goods_id = #{goodsId};
+    </delete>
+
+    <select id="findGoodsLabel" parameterType="com.yeta.pps.vo.GoodsGoodsLabelVo" resultType="com.yeta.pps.po.GoodsGoodsLabel">
+        select id, goods_id, label_id from goods_goods_label_${storeId} where label_id = #{labelId};
+    </select>
+
+    <!--商品类型-->
 
     <insert id="addType" parameterType="com.yeta.pps.vo.GoodsTypeVo" useGeneratedKeys="true" keyProperty="id">
         insert into goods_type_${storeId} (name) values (#{name});
@@ -104,12 +77,12 @@
         select count(0) from goods_type_${storeId};
     </select>
 
-    <select id="findAllType" parameterType="com.yeta.pps.vo.GoodsTypeVo" resultType="com.yeta.pps.po.GoodsType">
-        select id, name from goods_type_${storeId};
-    </select>
-
     <select id="findAllPagedType" resultType="com.yeta.pps.po.GoodsType">
         select id, name from goods_type_${goodsTypeVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllType" parameterType="com.yeta.pps.vo.GoodsTypeVo" resultType="com.yeta.pps.po.GoodsType">
+        select id, name from goods_type_${storeId};
     </select>
 
     <select id="findType" parameterType="com.yeta.pps.vo.GoodsTypeVo" resultType="com.yeta.pps.po.GoodsType">
@@ -129,56 +102,223 @@
         </if>
     </select>
 
-    <!---->
+    <!--商品属性名-->
 
-    <insert id="addUnit" parameterType="com.yeta.pps.vo.GoodsUnitVo" useGeneratedKeys="true" keyProperty="id">
-        insert into goods_unit_${storeId} (name) values (#{name});
+    <insert id="addPropertyKey" parameterType="com.yeta.pps.vo.GoodsPropertyKeyVo">
+        insert into goods_property_key_${storeId} (name, type_id) values (#{name}, #{typeId});
     </insert>
-
-    <delete id="deleteUnit" parameterType="com.yeta.pps.vo.GoodsUnitVo">
-        delete from goods_unit_${storeId} where id = #{id};
+    
+    <delete id="deletePropertyKeyByTypeId" parameterType="com.yeta.pps.vo.GoodsPropertyKeyVo">
+        delete from goods_property_key_${storeId} where type_id = #{typeId};
     </delete>
 
-    <update id="updateUnit" parameterType="com.yeta.pps.vo.GoodsUnitVo">
-        update goods_unit_${storeId} set name = #{name} where id = #{id};
+    <delete id="deletePropertyKeyById" parameterType="com.yeta.pps.vo.GoodsPropertyKeyVo">
+        delete from goods_property_key_${storeId} where id = #{id};
+    </delete>
+
+    <update id="updatePropertyKey" parameterType="com.yeta.pps.vo.GoodsPropertyKeyVo">
+        update goods_property_key_${storeId} set name = #{name}, type_id = #{typeId} where id = #{id};
     </update>
 
-    <select id="findCountUnit" parameterType="com.yeta.pps.vo.GoodsUnitVo" resultType="java.lang.Integer">
-        select count(0) from goods_unit_${storeId};
-    </select>
-
-    <select id="findAllUnit" parameterType="com.yeta.pps.vo.GoodsUnitVo" resultType="com.yeta.pps.po.GoodsUnit">
-        select id, name from goods_unit_${storeId};
-    </select>
-
-    <select id="findAllPagedUnit" resultType="com.yeta.pps.po.GoodsUnit">
-        select id, name from goods_unit_${goodsUnitVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
-    </select>
-
-    <select id="findUnit" parameterType="com.yeta.pps.vo.GoodsUnitVo" resultType="com.yeta.pps.po.GoodsUnit">
+    <select id="findCountPropertyKey" parameterType="com.yeta.pps.vo.GoodsPropertyKeyVo" resultType="java.lang.Integer">
         select
-            id, name
+            count(0)
         from
-            goods_unit_${storeId}
+            goods_property_key_${storeId} as gpk,
+            goods_type_${storeId} as gt
         where
-            1 = 1
+            gpk.type_id = gt.id;
+    </select>
+
+    <select id="findAllPagedPropertyKey" resultType="com.yeta.pps.vo.GoodsPropertyKeyVo">
+        select
+            gpk.id,
+            gpk.name,
+            gpk.type_id,
+            gt.name as type_name
+        from
+            goods_property_key_${goodsPropertyKeyVo.storeId} as gpk,
+            goods_type_${goodsPropertyKeyVo.storeId} as gt
+        where
+            gpk.type_id = gt.id
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllPropertyKey" parameterType="com.yeta.pps.vo.GoodsPropertyKeyVo" resultType="com.yeta.pps.po.GoodsPropertyKey">
+        select id, name, type_id from goods_property_key_${storeId};
+    </select>
+
+    <select id="findPropertyKey" parameterType="com.yeta.pps.vo.GoodsPropertyKeyVo" resultType="com.yeta.pps.vo.GoodsPropertyKeyVo">
+        select
+            gpk.id,
+            gpk.name,
+            gpk.type_id,
+            gt.name as type_name
+        from
+            goods_property_key_${storeId} as gpk,
+            goods_type_${storeId} as gt
+        where
+            gpk.type_id = gt.id
         <if test="id != null">
         and
-            id = #{id}
+            gpk.id = #{id}
         </if>
         <if test="name != null">
         and
-            name = #{name}
+            gpk.name = #{name}
+        </if>
+        <if test="typeId != null">
+        and
+            gpk.type_id = #{typeId}
         </if>
     </select>
 
-    <!---->
+    <!--商品属性值-->
+
+    <insert id="addPropertyValue" parameterType="com.yeta.pps.vo.GoodsPropertyValueVo">
+        insert into goods_property_value_${storeId} (name, property_key_id) values (#{name}, #{propertyKeyId});
+    </insert>
+
+    <delete id="deletePropertyValueByPropertyKeyId" parameterType="com.yeta.pps.vo.GoodsPropertyValueVo">
+        delete from goods_property_value_${storeId} where property_key_id = #{propertyKeyId};
+    </delete>
+
+    <delete id="deletePropertyValueById" parameterType="com.yeta.pps.vo.GoodsPropertyValueVo">
+        delete from goods_property_value_${storeId} where id = #{id};
+    </delete>
+
+    <update id="updatePropertyValue" parameterType="com.yeta.pps.vo.GoodsPropertyValueVo">
+        update goods_property_value_${storeId} set name = #{name}, property_key_id = #{propertyKeyId} where id = #{id};
+    </update>
+
+    <select id="findCountPropertyValue" parameterType="com.yeta.pps.vo.GoodsPropertyValueVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            goods_property_value_${storeId} as gpv,
+            goods_property_key_${storeId} as gpk,
+            goods_type_${storeId} as gt
+        where
+            gpv.property_key_id = gpk.id
+        and
+            gpk.type_id = gt.id;
+    </select>
+
+    <select id="findAllPagedPropertyValue" resultType="com.yeta.pps.vo.GoodsPropertyValueVo">
+        select
+            gpv.id,
+            gpv.name,
+            gpv.property_key_id,
+            gpk.name as propertyKeyName,
+            gt.name as typeName
+        from
+            goods_property_value_${goodsPropertyValueVo.storeId} as gpv,
+            goods_property_key_${goodsPropertyValueVo.storeId} as gpk,
+            goods_type_${goodsPropertyValueVo.storeId} as gt
+        where
+            gpv.property_key_id = gpk.id
+        and
+            gpk.type_id = gt.id
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findPropertyValue" parameterType="com.yeta.pps.vo.GoodsPropertyValueVo" resultType="com.yeta.pps.vo.GoodsPropertyValueVo">
+        select
+            gpv.id,
+            gpv.name,
+            gpv.property_key_id,
+            gpk.name as propertyKeyName,
+            gt.name as typeName
+        from
+            goods_property_value_${storeId} as gpv,
+            goods_property_key_${storeId} as gpk,
+            goods_type_${storeId} as gt
+        where
+            gpv.property_key_id = gpk.id
+        and
+            gpk.type_id = gt.id
+        <if test="id != null">
+        and
+            gpv.id = #{id}
+        </if>
+        <if test="name != null">
+        and
+            gpv.name = #{name}
+        </if>
+        <if test="propertyKeyId != null">
+        and
+            gpv.property_key_id = #{propertyKeyId}
+        </if>
+    </select>
+
+    <!--商品类型/商品属性名/商品属性值-->
+
+    <resultMap id="goodsTypeVoMap" type="com.yeta.pps.vo.GoodsTypeVo">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <collection property="goodsPropertyKeyVos" ofType="com.yeta.pps.vo.GoodsPropertyKeyVo">
+            <id column="gpk_id" property="id" />
+            <result column="gpk_name" property="name" />
+            <result column="gpk_type_id" property="typeId" />
+            <collection property="goodsPropertyValues" ofType="com.yeta.pps.po.GoodsPropertyValue">
+                <id column="gpv_id" property="id" />
+                <result column="gpv_name" property="name" />
+                <result column="gpv_property_key_id" property="propertyKeyId" />
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="findAllProperties" parameterType="com.yeta.pps.vo.GoodsTypeVo" resultMap="goodsTypeVoMap">
+        select
+            gt.id,
+            gt.name,
+            gpk.id as gpk_id,
+            gpk.`name` as gpk_name,
+            gpk.type_id as gpk_type_id,
+            gpv.id as gpv_id,
+            gpv.`name` as gpv_name,
+            gpv.property_key_id as gpv_property_key_id
+        from
+            goods_type_${storeId} as gt,
+            goods_property_key_${storeId} as gpk,
+            goods_property_value_${storeId} as gpv
+        where
+            gt.id = gpk.type_id
+        and
+            gpk.id = gpv.property_key_id;
+    </select>
+
+    <!--商品规格-->
+
+    <insert id="addGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
+        insert into
+            goods_sku_${storeId} (goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral)
+        values
+            (#{goodsId}, #{sku}, #{purchasePrice}, #{retailPrice}, #{vipPrice}, #{inventory}, #{integral});
+    </insert>
+
+    <delete id="deleteGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
+        delete from goods_sku_${storeId} where goods_id = #{goodsId};
+    </delete>
+
+    <update id="updateGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
+        update
+            goods_sku_${storeId}
+        set
+            sku = #{sku}, purchase_price = #{purchasePrice}, retail_price = #{retailPrice}, vip_price = #{vipPrice}, inventory = #{inventory}, integral = #{integral}
+        where
+            id = #{id};
+    </update>
+
+    <!--商品-->
 
     <insert id="add" parameterType="com.yeta.pps.vo.GoodsVo">
-        insert into goods_${storeId}
-            (id, name, code, bar_code, type_id, brand_id, unit_id, label_id, retail_price, purchase_price, vip_price, inventory, origin, image, oder_type, degree, net_content, integral, remark, putaway)
+        insert into
+            goods_${storeId} (id, name, bar_code, type_id, putaway, skus, origin, image, remark, create_time)
         VALUES
-            (#{id}, #{name}, #{code}, #{barCode}, #{typeId}, #{brandId}, #{unitId}, #{labelId}, #{retailPrice}, #{purchasePrice}, #{vipPrice}, #{inventory}, #{origin}, #{image}, #{oderType}, #{degree}, #{netContent}, #{integral}, #{remark}, #{putaway});
+            (#{id}, #{name}, #{barCode}, #{typeId}, #{putaway}, #{skus}, #{origin}, #{image}, #{remark}, #{createTime});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.GoodsVo">
@@ -189,7 +329,7 @@
         update
             goods_${storeId}
         set
-            name = #{name}, code = #{name}, bar_code = #{barCode}, type_id = #{typeId}, brand_id = #{brandId}, unit_id = #{unitId}, label_id = #{labelId}, retail_price = #{retailPrice}, purchase_price = #{purchasePrice}, vip_price = #{vipPrice}, inventory = #{inventory}, origin = #{origin}, image = #{image}, oder_type = #{oderType}, degree = #{degree}, net_content = #{netContent}, integral = #{integral}, remark = #{remark}, putaway = #{putaway}
+            name = #{name}, bar_code = #{barCode}, type_id = #{typeId}, putaway = #{putaway}, skus = #{skus}, origin = #{origin}, image = #{image}, remark = #{remark}
         where
             id = #{id};
     </update>
@@ -198,218 +338,246 @@
         select
             count(0)
         from
-            goods_${storeId} as g,
-            goods_brand_${storeId} as gb,
-            goods_label_${storeId} as gl,
-            goods_type_${storeId} as gt,
-            goods_unit_${storeId} as gu
+            (
+                (
+                    goods_${storeId} as g
+                    inner join goods_type_${storeId} as gt on g.type_id = gt.id
+                )
+                left join goods_goods_label_${storeId} as ggl on g.id = ggl.goods_id
+            )
+            left join goods_label_${storeId} as gl on gl.id = ggl.label_id
         where
-            g.brand_id = gb.id
-        and g.label_id = gl.id
-        and g.type_id = gt.id
-        and g.unit_id = gu.id;
-    </select>
-
-    <select id="findAllPaged" resultType="com.yeta.pps.vo.GoodsVo">
-        select
-            g.id,
-            g.name,
-            g.code,
-            g.bar_code,
-            g.retail_price,
-            g.purchase_price,
-            g.vip_price,
-            g.inventory,
-            g.origin,
-            g.image,
-            g.oder_type,
-            g.degree,
-            g.net_content,
-            g.integral,
-            g.remark,
-            g.putaway,
-            gb.id as brand_id,
-            gb.name as brand_name,
-            gl.id label_id,
-            gl.name as label_name,
-            gt.id as type_id,
-            gt.name as type_name,
-            gu.id as unit_id,
-            gu.name as unit_name
-        from
-            goods_${goodsVo.storeId} as g,
-            goods_brand_${goodsVo.storeId} as gb,
-            goods_label_${goodsVo.storeId} as gl,
-            goods_type_${goodsVo.storeId} as gt,
-            goods_unit_${goodsVo.storeId} as gu
-        where
-            g.brand_id = gb.id
-        and g.label_id = gl.id
-        and g.type_id = gt.id
-        and g.unit_id = gu.id
-        <if test="goodsVo.typeId!=null">
-            and g.type_id = #{goodsVo.typeId}
-        </if>
-        <if test="goodsVo.brandId!=null">
-            and g.brand_id = #{goodsVo.brandId}
-        </if>
-        <if test="goodsVo.code!=null">
-            and g.code = #{goodsVo.code}
-        </if>
-        <if test="goodsVo.barCode!=null">
-            and g.bar_code = #{goodsVo.barCode}
-        </if>
-        <if test="goodsVo.putaway!=null">
-            and g.putaway = #{goodsVo.putaway}
-        </if>
-        limit
-            #{pageVo.start}, #{pageVo.pageSize};
-    </select>
-
-    <select id="findAll" parameterType="com.yeta.pps.vo.GoodsVo" resultType="com.yeta.pps.vo.GoodsVo">
-        select
-            g.id,
-            g.name,
-            g.code,
-            g.bar_code,
-            g.retail_price,
-            g.purchase_price,
-            g.vip_price,
-            g.inventory,
-            g.origin,
-            g.image,
-            g.oder_type,
-            g.degree,
-            g.net_content,
-            g.integral,
-            g.remark,
-            g.putaway,
-            gb.id as brand_id,
-            gb.name as brand_name,
-            gl.id label_id,
-            gl.name as label_name,
-            gt.id as type_id,
-            gt.name as type_name,
-            gu.id as unit_id,
-            gu.name as unit_name
-        from
-            goods_${storeId} as g,
-            goods_brand_${storeId} as gb,
-            goods_label_${storeId} as gl,
-            goods_type_${storeId} as gt,
-            goods_unit_${storeId} as gu
-        where
-            g.brand_id = gb.id
+            1 = 1
+        <if test="id != null">
         and
-            g.label_id = gl.id
-        and
-            g.type_id = gt.id
-        and
-            g.unit_id = gu.id
-        <if test="typeId!=null">
-        and
-            g.type_id = #{typeId}
+            g.id = #{id}
         </if>
-        <if test="brandId!=null">
-        and
-            g.brand_id = #{brandId}
-        </if>
-        <if test="code!=null">
-        and
-            g.code = #{code}
-        </if>
-        <if test="barCode!=null">
+        <if test="barCode != null">
         and
             g.bar_code = #{barCode}
         </if>
-        <if test="putaway!=null">
+        <if test="typeId != null">
+        and
+            g.type_id = #{typeId}
+        </if>
+        <if test="putaway != null">
         and
             g.putaway = #{putaway}
         </if>
     </select>
 
-    <select id="findById" parameterType="com.yeta.pps.vo.GoodsVo" resultType="com.yeta.pps.vo.GoodsVo">
+    <resultMap id="goodsVoMap1" type="com.yeta.pps.vo.GoodsVo">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="bar_code" property="barCode" />
+        <result column="type_id" property="typeId" />
+        <result column="putaway" property="putaway" />
+        <result column="skus" property="skus" />
+        <result column="origin" property="origin" />
+        <result column="image" property="image" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="type_name" property="typeName" />
+        <collection property="goodsLabels" ofType="com.yeta.pps.po.GoodsLabel">
+            <id column="label_id" property="id" />
+            <result column="label_name" property="name" />
+        </collection>
+    </resultMap>
+
+    <select id="findAllPaged" resultMap="goodsVoMap1">
         select
             g.id,
             g.name,
-            g.code,
             g.bar_code,
-            g.retail_price,
-            g.purchase_price,
-            g.vip_price,
-            g.inventory,
+            g.type_id,
+            g.putaway,
+            g.skus,
             g.origin,
             g.image,
-            g.oder_type,
-            g.degree,
-            g.net_content,
-            g.integral,
             g.remark,
-            g.putaway,
-            gb.id as brand_id,
-            gb.name as brand_name,
-            gl.id label_id,
-            gl.name as label_name,
-            gt.id as type_id,
+            g.create_time,
             gt.name as type_name,
-            gu.id as unit_id,
-            gu.name as unit_name
+            gl.id as label_id,
+            gl.name as label_name
         from
-            goods_${storeId} as g,
-            goods_brand_${storeId} as gb,
-            goods_label_${storeId} as gl,
-            goods_type_${storeId} as gt,
-            goods_unit_${storeId} as gu
-        where
-            g.brand_id = gb.id
-        and g.label_id = gl.id
-        and g.type_id = gt.id
-        and g.unit_id = gu.id
-        and g.id = #{id};
-    </select>
-
-    <select id="findBrandLabelTypeUnit" parameterType="com.yeta.pps.vo.GoodsVo" resultType="com.yeta.pps.vo.GoodsVo">
-        select
-            id,
-            name,
-            code,
-            bar_code,
-            retail_price,
-            purchase_price,
-            vip_price,
-            inventory,
-            origin,
-            image,
-            oder_type,
-            degree,
-            net_content,
-            integral,
-            remark,
-            putaway,
-            brand_id,
-            label_id,,
-            type_id,
-            unit_id
-        from
-            goods_${storeId}
+            (
+                (
+                    goods_${goodsVo.storeId} as g
+                    inner join goods_type_${goodsVo.storeId} as gt on g.type_id = gt.id
+                )
+                left join goods_goods_label_${goodsVo.storeId} as ggl on g.id = ggl.goods_id
+                )
+            left join goods_label_${goodsVo.storeId} as gl on gl.id = ggl.label_id
         where
             1 = 1
+        <if test="goodsVo.id != null">
+        and
+            g.id = #{goodsVo.id}
+        </if>
+        <if test="goodsVo.barCode != null">
+        and
+            g.bar_code = #{goodsVo.barCode}
+        </if>
+        <if test="goodsVo.typeId != null">
+        and
+            g.type_id = #{goodsVo.typeId}
+        </if>
+        <if test="goodsVo.putaway != null">
+        and
+            g.putaway = #{goodsVo.putaway}
+        </if>
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAll" parameterType="com.yeta.pps.vo.GoodsVo" resultMap="goodsVoMap1">
+        select
+            g.id,
+            g.name,
+            g.bar_code,
+            g.type_id,
+            g.putaway,
+            g.skus,
+            g.origin,
+            g.image,
+            g.remark,
+            g.create_time,
+            gt.name as type_name,
+            gl.id as label_id,
+            gl.name as label_name
+        from
+            (
+                (
+                    goods_${storeId} as g
+                    inner join goods_type_${storeId} as gt on g.type_id = gt.id
+                )
+                left join goods_goods_label_${storeId} as ggl on g.id = ggl.goods_id
+            )
+            left join goods_label_${storeId} as gl on gl.id = ggl.label_id
+        where
+            1 = 1
+        <if test="id != null">
+        and
+            g.id = #{id}
+        </if>
+        <if test="barCode != null">
+        and
+            g.bar_code = #{barCode}
+        </if>
         <if test="typeId != null">
         and
             g.type_id = #{typeId}
         </if>
-        <if test="brandId != null">
+        <if test="putaway != null">
         and
-            g.brand_id = #{brandId}
-        </if>
-        <if test="labelId != null">
-            and
-            g.brand_id = #{labelId}
-        </if>
-        <if test="unitId != null">
-            and
-            g.unit_id = #{unitId}
+            g.putaway = #{putaway}
         </if>
     </select>
 
+    <select id="findCountSkuById" parameterType="com.yeta.pps.vo.GoodsVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                goods_${storeId} as g
+                inner join goods_type_${storeId} as gt on g.type_id = gt.id
+            )
+            left join goods_sku_${storeId} as gsku on g.id = gsku.goods_id
+        where
+            g.id = #{id};
+    </select>
+
+    <resultMap id="goodsVoMap2" type="com.yeta.pps.vo.GoodsVo">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="bar_code" property="barCode" />
+        <result column="type_id" property="typeId" />
+        <result column="putaway" property="putaway" />
+        <result column="skus" property="skus" />
+        <result column="origin" property="origin" />
+        <result column="image" property="image" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="type_name" property="typeName" />
+        <collection property="goodsLabels" ofType="com.yeta.pps.po.GoodsLabel">
+            <id column="label_id" property="id" />
+            <result column="label_name" property="name" />
+        </collection>
+        <collection property="goodsSkuVos" ofType="com.yeta.pps.vo.GoodsSkuVo">
+            <id column="sku_id" property="id" />
+            <result column="sku_goods_id" property="goodsId" />
+            <result column="sku_sku" property="sku" />
+            <result column="sku_purchase_price" property="purchasePrice" />
+            <result column="sku_retail_price" property="retailPrice" />
+            <result column="sku_vip_price" property="vipPrice" />
+            <result column="sku_inventory" property="inventory" />
+            <result column="sku_integral" property="integral" />
+        </collection>
+    </resultMap>
+
+    <select id="findAllPagedSkuById" resultMap="goodsVoMap2">
+        select
+            g.id,
+            g.name,
+            g.bar_code,
+            g.type_id,
+            g.putaway,
+            g.skus,
+            g.origin,
+            g.image,
+            g.remark,
+            g.create_time,
+            gt.name as type_name,
+            gsku.id as sku_id,
+            gsku.goods_id as sku_goods_id,
+            gsku.sku as sku_sku,
+            gsku.purchase_price as sku_purchase_price,
+            gsku.retail_price as sku_retail_price,
+            gsku.vip_price as sku_vip_price,
+            gsku.inventory as sku_inventory,
+            gsku.integral as sku_integral
+        from
+            (
+                goods_${goodsVo.storeId} as g
+                inner join goods_type_${goodsVo.storeId} as gt on g.type_id = gt.id
+            )
+            left join goods_sku_${goodsVo.storeId} as gsku on g.id = gsku.goods_id
+        where
+            g.id = #{goodsVo.id}
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllSku" parameterType="com.yeta.pps.vo.GoodsVo" resultMap="goodsVoMap2">
+        select
+            g.id,
+            g.name,
+            g.bar_code,
+            g.type_id,
+            g.putaway,
+            g.skus,
+            g.origin,
+            g.image,
+            g.remark,
+            g.create_time,
+            gt.name as type_name,
+            gsku.id as sku_id,
+            gsku.goods_id as sku_goods_id,
+            gsku.sku as sku_sku,
+            gsku.purchase_price as sku_purchase_price,
+            gsku.retail_price as sku_retail_price,
+            gsku.vip_price as sku_vip_price,
+            gsku.inventory as sku_inventory,
+            gsku.integral as sku_integral
+        from
+            (
+                goods_${storeId} as g
+                inner join goods_type_${storeId} as gt on g.type_id = gt.id
+            )
+            left join goods_sku_${storeId} as gsku on g.id = gsku.goods_id;
+    </select>
+
+    <select id="findByTypeId" parameterType="com.yeta.pps.vo.GoodsVo" resultType="com.yeta.pps.po.Goods">
+        select id, name, bar_code, type_id, putaway, skus, origin, image, remark, create_time from goods_${storeId} where type_id = #{typeId};
+    </select>
 </mapper>

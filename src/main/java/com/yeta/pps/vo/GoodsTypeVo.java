@@ -4,6 +4,7 @@ import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class GoodsTypeVo {
 
@@ -12,6 +13,8 @@ public class GoodsTypeVo {
      */
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
+
+    private List<GoodsPropertyKeyVo> goodsPropertyKeyVos;
 
     /**
      * 商品分类id
@@ -27,11 +30,11 @@ public class GoodsTypeVo {
     public GoodsTypeVo() {
     }
 
-    public GoodsTypeVo(Integer storeId) {
+    public GoodsTypeVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
         this.storeId = storeId;
     }
 
-    public GoodsTypeVo(Integer storeId, Integer id) {
+    public GoodsTypeVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer id) {
         this.storeId = storeId;
         this.id = id;
     }
@@ -47,6 +50,14 @@ public class GoodsTypeVo {
 
     public void setStoreId(Integer storeId) {
         this.storeId = storeId;
+    }
+
+    public List<GoodsPropertyKeyVo> getGoodsPropertyKeyVos() {
+        return goodsPropertyKeyVos;
+    }
+
+    public void setGoodsPropertyKeyVos(List<GoodsPropertyKeyVo> goodsPropertyKeyVos) {
+        this.goodsPropertyKeyVos = goodsPropertyKeyVos;
     }
 
     public Integer getId() {
@@ -69,6 +80,7 @@ public class GoodsTypeVo {
     public String toString() {
         return "GoodsTypeVo{" +
                 "storeId=" + storeId +
+                ", goodsPropertyKeyVos=" + goodsPropertyKeyVos +
                 ", id=" + id +
                 ", name='" + name + '\'' +
                 '}';

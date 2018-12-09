@@ -8,7 +8,7 @@ public class GoodsLabel {
     private Integer id;
 
     /**
-     * 商品便签名
+     * 商品标签名
      */
     private String name;
 
@@ -34,18 +34,18 @@ public class GoodsLabel {
     }
 
     /**
-     * 获取商品便签名
+     * 获取商品标签名
      *
-     * @return name - 商品便签名
+     * @return name - 商品标签名
      */
     public String getName() {
         return name;
     }
 
     /**
-     * 设置商品便签名
+     * 设置商品标签名
      *
-     * @param name 商品便签名
+     * @param name 商品标签名
      */
     public void setName(String name) {
         this.name = name;

@@ -19,7 +19,7 @@ public interface MyUserMapper {
 
     int findCount(UserVo userVo);
 
-    List<UserVo> findAll(@Param(value = "userVo") UserVo userVo, @Param(value = "pageVo") PageVo pageVo);
+    List<UserVo> findAllPaged(@Param(value = "userVo") UserVo userVo, @Param(value = "pageVo") PageVo pageVo);
 
     UserVo findById(UserVo userVo);
 
@@ -29,11 +29,9 @@ public interface MyUserMapper {
 
     int addUserRole(UserRoleVo userRoleVo);
 
+    int deleteAllUserRole(UserRoleVo userRoleVo);
+
     int deleteUserRole(UserRoleVo userRoleVo);
 
-    int deleteRoleUser(UserRoleVo userRoleVo);
-
-    int updateUserRole(UserRoleVo userRoleVo);
-
-    Role findUserRole(UserRoleVo userRoleVo);
+    List<Role> findUserRole(UserRoleVo userRoleVo);
 }

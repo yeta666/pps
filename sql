@@ -10,22 +10,22 @@ insert into store(name, user_id) values ('总店', '9ba15c62-f2ef-11e8-bbaf-0015
 
 drop table user_1;
 create table user_1(
-  id varchar(50) NOT NULL COMMENT '用户id',
+  id varchar(50) NOT NULL primary key COMMENT '用户id',
   name varchar(10) NOT NULL COMMENT '用户姓名',
   username varchar(50) not null unique comment '用户名',
   password varchar(50) not null comment '密码',
   phone varchar(20) not null comment '电话',
-  remark varchar(200) comment '备注',
+  warehouse_id int not null comment '仓库id',
   disabled tinyint not null comment '是否禁用，0：不禁用，1：禁用',
-  PRIMARY KEY (id)
+  remark varchar(200) comment '备注'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into user_1(id, name, username, password, phone, disabled) values ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '总店老板', 'lb', 'lb', '17760041487', 0);
-insert into user_1(id, name, username, password, phone, disabled) values ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '总店销售经理', 'xsjl', 'xsjl', '17760041487', 0);
-insert into user_1(id, name, username, password, phone, disabled) values ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '总店销售', 'xs', 'xs', '17760041487', 0);
-insert into user_1(id, name, username, password, phone, disabled) values ('dcc00d94-f384-11e8-b25b-54ee75c0f47a', '总店采购', 'cg', 'cg', '17760041487', 0);
-insert into user_1(id, name, username, password, phone, disabled) values ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '总店库管', 'kg', 'kg', '17760041487', 0);
-insert into user_1(id, name, username, password, phone, disabled) values ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '总店财务', 'cw', 'cw', '17760041487', 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '总店老板', 'lb', 'lb', '17760041487', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '总店销售经理', 'xsjl', 'xsjl', '17760041487', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '总店销售', 'xs', 'xs', '17760041487', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc00d94-f384-11e8-b25b-54ee75c0f47a', '总店采购', 'cg', 'cg', '17760041487', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '总店库管', 'kg', 'kg', '17760041487', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '总店财务', 'cw', 'cw', '17760041487', 1, 0);
 
 drop table role_1;
 create table role_2(
@@ -280,7 +280,7 @@ create table department_user_1(
 insert into department_user_1 (department_id, user_id) VALUES (1, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a');
 insert into department_user_1 (department_id, user_id) VALUES (1, 'dcb9fa13-f384-11e8-b25b-54ee75c0f47a');
 
-drop table warehouse;
+drop table warehouse_1;
 create table warehouse_1(
   id int not null primary key auto_increment comment '仓库id',
   name varchar(20) not null null unique comment '仓库名',
@@ -293,82 +293,93 @@ create table warehouse_1(
 
 insert into warehouse_1 (name) values ('第一个仓库');
 
-drop table warehouse_user;
-create table warehouse_user_1(
-  id int not null primary key auto_increment comment '仓库用户id',
-  warehouse_id int not null comment '仓库id',
-  user_id varchar(50) not null comment '用户id'
-) engine InnoDB default charset=utf8;
-
-insert into warehouse_user_1 (warehouse_id, user_id) VALUES (1, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a');
-insert into warehouse_user_1 (warehouse_id, user_id) VALUES (1, 'dcb9fa13-f384-11e8-b25b-54ee75c0f47a');
+drop table warehouse_user_1;
 
 
-drop table goods_1;
+drop table if exists goods_1;
 create table goods_1(
-  id varchar(50) not null primary key comment '商品id',
+  id varchar(50) not null primary key comment '商品货号',
   name varchar(200) not null unique comment '商品名',
-  code varchar(50) not null comment '货号',
   bar_code varchar(50) not null comment '条码',
   type_id int not null comment '分类id',
-  brand_id int not null comment '品牌id',
-  unit_id int not null comment '单位id',
-  label_id int not null comment '标签id',
-  purchase_price decimal(10, 2) not null comment '进价',
-  retail_price decimal(10, 2) not null comment '零售价',
-  vip_price decimal(10, 2) not null comment 'vip售价',
-  inventory int not null comment '可用库存',
-  origin varchar(100) comment '产地',
+  putaway tinyint not null comment '上架状态，0：未上架，1：已上架',
+  skus MEDIUMTEXT comment '商品规格',
+  origin varchar(200) comment '产地',
   image varchar(200) comment '图片',
-  oder_type varchar(10) comment '香型',
-  degree varchar(10) comment '度数',
-  net_content varchar(10) comment '净含量',
-  integral int comment '商品积分',
   remark varchar(200) comment '备注',
-  putaway tinyint not null comment '上架状态，0：未上架，1：已上架'
+  create_time datetime not null comment '创建时间'
 ) engine InnoDB default charset=utf8;
+insert into goods_1 (id, name, bar_code, type_id, putaway, skus, origin, image, remark, create_time)
+VALUES ('sp001', '舍得典藏款', '176', 1, 1, '', '四川', '/upload/goods/123123.jpg', '', now());
+insert into goods_1 (id, name, bar_code, type_id, putaway, skus, origin, image, remark, create_time)
+VALUES ('sp002', '美的电压力锅', '177', 2, 1, '', '浙江', '/upload/goods/123123.jpg', '', now());
 
-insert into goods_1 (id, name, code, bar_code, type_id, brand_id, unit_id, label_id, purchase_price, retail_price, vip_price, inventory, origin, image, oder_type, degree, net_content, integral, remark, putaway)
-VALUES (uuid(), '商品1', 'sp001', '176', 1, 1, 1, 1, 150, 180, 300, 666, '产地', '/upload/goods/123123.jpg', '浓香型', '43%', '500ml', 0, '', 1);
-
-
-drop table goods_type_1;
+drop table if exists goods_type_1;
 create table goods_type_1(
-  id int not null primary key auto_increment comment '商品分类id',
-  name varchar(10) not null unique comment '商品分类名'
+  id int primary key auto_increment comment '商品分类id',
+  name varchar(20) not null unique comment '商品分类名'
 ) engine InnoDB default charset=utf8;
+insert into goods_type_1 (name) values ('酒类');
+insert into goods_type_1 (name) values ('锅类');
 
-insert into goods_type_1 (name) values ('分类1');
-insert into goods_type_1 (name) values ('分类2');
-
-drop table goods_brand_1;
-create table goods_brand_1(
-  id int not null primary key auto_increment comment '商品品牌id',
-  name varchar(50) not null unique comment '商品品牌名'
-) engine InnoDB default charset=utf8;
-
-insert into goods_brand_1 (name) values ('舍得');
-insert into goods_brand_1 (name) values ('茅台');
-
-drop table goods_unit_1;
-create table goods_unit_1(
-  id int not null primary key auto_increment comment '商品单位id',
-  name varchar(10) not null unique comment '商品单位名'
-) engine InnoDB default charset=utf8;
-
-insert into goods_unit_1 (name) values ('瓶');
-insert into goods_unit_1 (name) values ('箱');
-
-drop table goods_label_1;
+drop table if exists goods_label_1;
 create table goods_label_1(
-  id int not null primary key auto_increment comment '商品标签id',
-  name varchar(10) not null unique comment '商品标签名'
+  id int primary key auto_increment comment '商品标签id',
+  name varchar(20) not null unique comment '商品标签名'
 ) engine InnoDB default charset=utf8;
-
 insert into goods_label_1 (name) values ('新品');
 insert into goods_label_1 (name) values ('推荐');
 insert into goods_label_1 (name) values ('促销');
 insert into goods_label_1 (name) values ('清仓');
+
+drop table if exists goods_goods_label_1;
+create table goods_goods_label_1(
+  id int primary key auto_increment comment '商品/商品标签关系id',
+  goods_id varchar(50) not null comment '商品货号',
+  label_id int not null comment '商品标签id'
+) engine InnoDB default charset=utf8;
+insert into goods_goods_label_1 (goods_id, label_id) values ('sp001', 1);
+insert into goods_goods_label_1 (goods_id, label_id) values ('sp001', 2);
+insert into goods_goods_label_1 (goods_id, label_id) values ('sp002', 3);
+insert into goods_goods_label_1 (goods_id, label_id) values ('sp002', 4);
+
+drop table if exists goods_property_key_1;
+create table goods_property_key_1 (
+  id int primary key auto_increment comment '商品属性名id',
+  name varchar(20) not null comment '商品属性名',
+  type_id int not null comment '商品分类id'
+) engine InnoDB default charset=utf8;
+insert into goods_property_key_1 (name, type_id) values ('品牌', 1);
+insert into goods_property_key_1 (name, type_id) values ('单位', 1);
+insert into goods_property_key_1 (name, type_id) values ('品牌', 2);
+
+drop table if exists goods_property_value_1;
+create table goods_property_value_1(
+  id int primary key auto_increment comment '商品属性值id',
+  name varchar(20) not null comment '商品属性值',
+  property_key_id int not null comment '商品属性名id'
+) engine InnoDB default charset=utf8;
+insert into goods_property_value_1 (name, property_key_id) values ('舍得', 1);
+insert into goods_property_value_1 (name, property_key_id) values ('二锅头', 1);
+insert into goods_property_value_1 (name, property_key_id) values ('瓶', 2);
+insert into goods_property_value_1 (name, property_key_id) values ('件', 2);
+insert into goods_property_value_1 (name, property_key_id) values ('美的', 3);
+insert into goods_property_value_1 (name, property_key_id) values ('个', 3);
+
+drop table if exists goods_sku_1;
+create table goods_sku_1(
+  id int primary key auto_increment comment '商品规格id',
+  goods_id varchar(50) not null comment '商品货号',
+  sku MEDIUMTEXT not null comment '商品规格',
+  purchase_price decimal(10, 2) not null comment '进价',
+  retail_price decimal(10, 2) not null comment '零售价',
+  vip_price decimal(10, 2) not null comment 'vip售价',
+  inventory int not null comment '可用库存',
+  integral int not null comment '商品积分'
+) engine InnoDB default charset=utf8;
+insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral) values ('sp001', '{"品牌":"舍得","单位":"瓶"}', 555, 777, 666, 20, 0);
+insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral) values ('sp001', '{"品牌":"舍得","单位":"件"}', 5550, 7770, 6660, 40, 0);
+insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral) values ('sp002', '{"品牌":"美的","单位":"个"}', 200, 380, 300, 10, 0);
 
 
 drop table bank_account_1;

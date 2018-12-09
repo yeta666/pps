@@ -113,6 +113,8 @@ public class RoleController {
     @GetMapping(value = "/roles/functions/search/roleId/{roleId}")
     public CommonResponse findRoleFunction(@PathVariable(value = "roleId") Integer roleId,
                                         @RequestParam(value = "storeId") Integer storeId) {
-        return roleService.findRoleFunction(new FunctionMapVo(storeId, roleId));
+
+        //TODO
+        return roleService.findRoleFunction(new FunctionMapVo());
     }
 }

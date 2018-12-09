@@ -6,7 +6,6 @@ import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
 import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.WarehouseUserVo;
 import com.yeta.pps.vo.WarehouseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,11 +44,7 @@ public class WarehouseService {
      */
     public CommonResponse delete(WarehouseVo warehouseVo) {
         //判断仓库是否使用
-        WarehouseUserVo warehouseUserVo = new WarehouseUserVo(warehouseVo.getStoreId(), warehouseVo.getId());
-        warehouseUserVo = myWarehouseMapper.findWarehouseUser(warehouseUserVo);
-        if (warehouseUserVo != null) {
-            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
-        }
+        //TODO
         //删除仓库
         if (myWarehouseMapper.delete(warehouseVo) != 1) {
             return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);

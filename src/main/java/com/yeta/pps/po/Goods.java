@@ -1,11 +1,11 @@
 package com.yeta.pps.po;
 
-import java.math.BigDecimal;
+import java.util.Date;
 
 public class Goods {
 
     /**
-     * 商品id
+     * 商品货号
      */
     private String id;
 
@@ -15,54 +15,21 @@ public class Goods {
     private String name;
 
     /**
-     * 货号
-     */
-    private String code;
-
-    /**
      * 条码
      */
     private String barCode;
 
     /**
-     * 分类
+     * 分类id
      */
     private Integer typeId;
 
     /**
-     * 品牌
+     * 上架状态，0：未上架，1：已上架
      */
-    private Integer brandId;
+    private Byte putaway;
 
-    /**
-     * 单位
-     */
-    private Integer unitId;
-
-    /**
-     * 标签
-     */
-    private Integer labelId;
-
-    /**
-     * 进价
-     */
-    private BigDecimal purchasePrice;
-
-    /**
-     * 零售价
-     */
-    private BigDecimal retailPrice;
-
-    /**
-     * vip售价
-     */
-    private BigDecimal vipPrice;
-
-    /**
-     * 可用库存
-     */
-    private Integer inventory;
+    private String skus;
 
     /**
      * 产地
@@ -75,196 +42,186 @@ public class Goods {
     private String image;
 
     /**
-     * 香型
-     */
-    private String oderType;
-
-    /**
-     * 度数
-     */
-    private String degree;
-
-    /**
-     * 净含量
-     */
-    private String netContent;
-
-    /**
-     * 商品积分
-     */
-    private Integer integral;
-
-    /**
      * 备注
      */
     private String remark;
 
     /**
-     * 上架状态
+     * 创建时间
      */
-    private Integer putaway;
+    private Date createTime;
 
     public Goods() {
     }
 
+    /**
+     * 获取商品货号
+     *
+     * @return id - 商品货号
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * 设置商品货号
+     *
+     * @param id 商品货号
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * 获取商品名
+     *
+     * @return name - 商品名
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * 设置商品名
+     *
+     * @param name 商品名
+     */
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
+    /**
+     * 获取条码
+     *
+     * @return bar_code - 条码
+     */
     public String getBarCode() {
         return barCode;
     }
 
+    /**
+     * 设置条码
+     *
+     * @param barCode 条码
+     */
     public void setBarCode(String barCode) {
         this.barCode = barCode;
     }
 
+    /**
+     * 获取分类id
+     *
+     * @return type_id - 分类id
+     */
     public Integer getTypeId() {
         return typeId;
     }
 
+    /**
+     * 设置分类id
+     *
+     * @param typeId 分类id
+     */
     public void setTypeId(Integer typeId) {
         this.typeId = typeId;
     }
 
-    public Integer getBrandId() {
-        return brandId;
+    /**
+     * 获取上架状态，0：未上架，1：已上架
+     *
+     * @return putaway - 上架状态，0：未上架，1：已上架
+     */
+    public Byte getPutaway() {
+        return putaway;
     }
 
-    public void setBrandId(Integer brandId) {
-        this.brandId = brandId;
+    /**
+     * 设置上架状态，0：未上架，1：已上架
+     *
+     * @param putaway 上架状态，0：未上架，1：已上架
+     */
+    public void setPutaway(Byte putaway) {
+        this.putaway = putaway;
     }
 
-    public Integer getUnitId() {
-        return unitId;
+    public String getSkus() {
+        return skus;
     }
 
-    public void setUnitId(Integer unitId) {
-        this.unitId = unitId;
+    public void setSkus(String skus) {
+        this.skus = skus;
     }
 
-    public Integer getLabelId() {
-        return labelId;
-    }
-
-    public void setLabelId(Integer labelId) {
-        this.labelId = labelId;
-    }
-
-    public BigDecimal getPurchasePrice() {
-        return purchasePrice;
-    }
-
-    public void setPurchasePrice(BigDecimal purchasePrice) {
-        this.purchasePrice = purchasePrice;
-    }
-
-    public BigDecimal getRetailPrice() {
-        return retailPrice;
-    }
-
-    public void setRetailPrice(BigDecimal retailPrice) {
-        this.retailPrice = retailPrice;
-    }
-
-    public BigDecimal getVipPrice() {
-        return vipPrice;
-    }
-
-    public void setVipPrice(BigDecimal vipPrice) {
-        this.vipPrice = vipPrice;
-    }
-
-    public Integer getInventory() {
-        return inventory;
-    }
-
-    public void setInventory(Integer inventory) {
-        this.inventory = inventory;
-    }
-
+    /**
+     * 获取产地
+     *
+     * @return origin - 产地
+     */
     public String getOrigin() {
         return origin;
     }
 
+    /**
+     * 设置产地
+     *
+     * @param origin 产地
+     */
     public void setOrigin(String origin) {
         this.origin = origin;
     }
 
+    /**
+     * 获取图片
+     *
+     * @return image - 图片
+     */
     public String getImage() {
         return image;
     }
 
+    /**
+     * 设置图片
+     *
+     * @param image 图片
+     */
     public void setImage(String image) {
         this.image = image;
     }
 
-    public String getOderType() {
-        return oderType;
-    }
-
-    public void setOderType(String oderType) {
-        this.oderType = oderType;
-    }
-
-    public String getDegree() {
-        return degree;
-    }
-
-    public void setDegree(String degree) {
-        this.degree = degree;
-    }
-
-    public String getNetContent() {
-        return netContent;
-    }
-
-    public void setNetContent(String netContent) {
-        this.netContent = netContent;
-    }
-
-    public Integer getIntegral() {
-        return integral;
-    }
-
-    public void setIntegral(Integer integral) {
-        this.integral = integral;
-    }
-
+    /**
+     * 获取备注
+     *
+     * @return remark - 备注
+     */
     public String getRemark() {
         return remark;
     }
 
+    /**
+     * 设置备注
+     *
+     * @param remark 备注
+     */
     public void setRemark(String remark) {
         this.remark = remark;
     }
 
-    public Integer getPutaway() {
-        return putaway;
+    /**
+     * 获取创建时间
+     *
+     * @return create_time - 创建时间
+     */
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setPutaway(Integer putaway) {
-        this.putaway = putaway;
+    /**
+     * 设置创建时间
+     *
+     * @param createTime 创建时间
+     */
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     @Override
@@ -272,24 +229,14 @@ public class Goods {
         return "Goods{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", code='" + code + '\'' +
                 ", barCode='" + barCode + '\'' +
                 ", typeId=" + typeId +
-                ", brandId=" + brandId +
-                ", unitId=" + unitId +
-                ", labelId=" + labelId +
-                ", purchasePrice=" + purchasePrice +
-                ", retailPrice=" + retailPrice +
-                ", vipPrice=" + vipPrice +
-                ", inventory=" + inventory +
+                ", putaway=" + putaway +
+                ", skus='" + skus + '\'' +
                 ", origin='" + origin + '\'' +
                 ", image='" + image + '\'' +
-                ", oderType='" + oderType + '\'' +
-                ", degree='" + degree + '\'' +
-                ", netContent='" + netContent + '\'' +
-                ", integral=" + integral +
                 ", remark='" + remark + '\'' +
-                ", putaway=" + putaway +
+                ", createTime=" + createTime +
                 '}';
     }
 }

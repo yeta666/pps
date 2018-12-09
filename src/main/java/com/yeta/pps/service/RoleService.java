@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 角色相关逻辑处理
@@ -54,6 +56,8 @@ public class RoleService {
      */
     @Transactional
     public CommonResponse delete(RoleVo roleVo) {
+        /*//判断角色是否使用
+
         //删除角色
         if (myRoleMapper.delete(roleVo) != 1) {
             throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
@@ -63,7 +67,7 @@ public class RoleService {
         myUserMapper.deleteRoleUser(userRoleVo);
         //删除角色功能关系
         RoleFunctionVo roleFunctionVo = new RoleFunctionVo(roleVo.getStoreId(), roleVo.getId());
-        myRoleMapper.deleteRoleFunction(roleFunctionVo);
+        myRoleMapper.deleteRoleFunction(roleFunctionVo);*/
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -129,36 +133,14 @@ public class RoleService {
      */
     @Transactional
     public CommonResponse updateRoleFunction(FunctionMapVo functionMapVo) {
+        //判断参数
+        List<Integer> roleIds = functionMapVo.getRoleIds();
+        if (roleIds.size() != 1) {
+            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
         //删除该角色对应的功能
-        myRoleMapper.deleteRoleFunction(new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId()));
-        //增加该角色对应的一级功能
-        /*if (functionMapVo.getLevel1() != null) {
-            for (Function function : functionMapVo.getLevel1()) {
-                roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId(), function.getId());
-                if (myRoleMapper.addRoleFunction(roleFunctionVo) != 1) {
-                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-                }
-            }
-        }
-        //增加该角色对应的二级功能
-        if (functionMapVo.getLevel1() != null) {
-            for (Function function : functionMapVo.getLevel2()) {
-                roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId(), function.getId());
-                if (myRoleMapper.addRoleFunction(roleFunctionVo) != 1) {
-                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-                }
-            }
-        }
-        //增加该角色对应的三级功能
-        if (functionMapVo.getLevel1() != null) {
-            for (Function function : functionMapVo.getLevel3()) {
-                roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId(), function.getId());
-                if (myRoleMapper.addRoleFunction(roleFunctionVo) != 1) {
-                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-                }
-            }
-        }*/
-        RoleFunctionVo roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId());
+        myRoleMapper.deleteRoleFunction(new RoleFunctionVo(functionMapVo.getStoreId(), roleIds.get(0)));
+        RoleFunctionVo roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), roleIds.get(0));
         functionMapVo.getIds().stream().forEach(integer -> {
             roleFunctionVo.setFunctionId(integer);
             if (myRoleMapper.addRoleFunction(roleFunctionVo) != 1) {
@@ -174,11 +156,15 @@ public class RoleService {
      * @return
      */
     public CommonResponse findRoleFunction(UserRoleVo userRoleVo) {
-        Role role = myUserMapper.findUserRole(userRoleVo);
-        if (role == null || role.getId() == null) {
+        List<Role> roles = myUserMapper.findUserRole(userRoleVo);
+        if (roles.size() == 0) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
-        return findRoleFunction(new FunctionMapVo(userRoleVo.getStoreId(), role.getId()));
+        List<Integer> roleIds = new ArrayList<>();
+        roles.stream().forEach(role -> {
+            roleIds.add(role.getId());
+        });
+        return findRoleFunction(new FunctionMapVo(userRoleVo.getStoreId(), roleIds));
     }
 
     /**
@@ -187,22 +173,18 @@ public class RoleService {
      * @return
      */
     public CommonResponse findRoleFunction(FunctionMapVo functionMapVo) {
-        //根据用户id查询所有功能
-        RoleFunctionVo roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), functionMapVo.getRoleId());
-        List<Function> functions = myRoleMapper.findRoleFunction(roleFunctionVo);
-        /*//过滤一级功能
-        List<Function> level1 = functions.stream().filter(function -> function.getLevel().toString().equals("1")).collect(Collectors.toList());
-        //过滤二级功能
-        List<Function> level2 = functions.stream().filter(function -> function.getLevel().toString().equals("2")).collect(Collectors.toList());
-        //过滤三级功能
-        List<Function> level3 = functions.stream().filter(function -> function.getLevel().toString().equals("3")).collect(Collectors.toList());
-        //封装返回结果
-        functionMapVo.setLevel1(level1);
-        functionMapVo.setLevel2(level2);
-        functionMapVo.setLevel3(level3);
-        return new CommonResponse(CommonResponse.CODE1, functionMapVo, CommonResponse.MESSAGE1);*/
-        List<Integer> ids = new ArrayList<>();
-        functions.stream().forEach(function -> ids.add(function.getId()));
+        //判断参数
+        List<Integer> roleIds = functionMapVo.getRoleIds();
+        if (roleIds.size() == 0) {
+            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
+        Set<Integer> ids = new HashSet<>();
+        roleIds.stream().forEach(integer -> {
+            //根据角色id查询所有功能
+            RoleFunctionVo roleFunctionVo = new RoleFunctionVo(functionMapVo.getStoreId(), integer);
+            List<Function> functions = myRoleMapper.findRoleFunction(roleFunctionVo);
+            functions.stream().forEach(function -> ids.add(function.getId()));
+        });
         return new CommonResponse(CommonResponse.CODE1, ids, CommonResponse.MESSAGE1);
     }
 }

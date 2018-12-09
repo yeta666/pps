@@ -29,23 +29,5 @@
     <select id="findById" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="com.yeta.pps.po.Warehouse">
         select id, name, contacts, contact_number, address, postcode, remark from warehouse_${storeId} where id = #{id};
     </select>
-
-    <!---->
-
-    <insert id="addWarehouseUser" parameterType="com.yeta.pps.vo.WarehouseUserVo">
-        insert into warehouse_user_${storeId} (warehouse_id, user_id) values (#{warehouseId}, #{userId});
-    </insert>
-
-    <delete id="deleteWarehouseUser" parameterType="com.yeta.pps.vo.WarehouseUserVo">
-        delete from warehouse_user_${storeId} where warehouse_id = #{warehouseId};
-    </delete>
-
-    <delete id="deleteUserWarehouse" parameterType="com.yeta.pps.vo.WarehouseUserVo">
-        delete from warehouse_user_${storeId} where user_id = #{userId};
-    </delete>
-
-    <select id="findWarehouseUser" parameterType="com.yeta.pps.vo.WarehouseUserVo" resultType="com.yeta.pps.vo.WarehouseUserVo">
-        select id, warehouse_id, user_id from warehouse_user_${storeId} where warehouse_id = #{warehouseId};
-    </select>
     
 </mapper>

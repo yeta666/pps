@@ -27,17 +27,26 @@ import java.util.Random;
  */
 public class CommonUtil {
 
-    private static final String SLAT = "aslkdjf0923irlksadmnf092!2r2093#$^$^%&";
+    /////////////////////////////////////////////////////////加密方法
 
-    //使用到Algerian字体，系统里没有的话需要安装字体，字体只显示大写，去掉了1,0,i,o几个容易混淆的字符
-    //public static final String VERIFY_CODES = "23456789ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz";
-    public static final String VERIFY_CODES = "0123456789";
-    private static Random random = new Random();
-
+    /**
+     * md5加密方法
+     * @param message
+     * @return
+     */
     public static String getMd5(String message) {
         String base = message + "/" + SLAT;
         return DigestUtils.md5DigestAsHex(base.getBytes());
     }
+
+    /////////////////////////////////////////////////////////验证码相关
+
+    //盐值
+    private static final String SLAT = "aslkdjf0923irlksadmnf092!2r2093#$^$^%&";
+    //使用到Algerian字体，系统里没有的话需要安装字体，字体只显示大写，去掉了1,0,i,o几个容易混淆的字符
+    private static final String VERIFY_CODES = "23456789ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz";
+    //随机数
+    private static Random random = new Random();
 
     /**
      * 使用系统默认字符源生成验证码
@@ -47,6 +56,7 @@ public class CommonUtil {
     public static String generateVerifyCode(int verifySize){
         return generateVerifyCode(verifySize, VERIFY_CODES);
     }
+
     /**
      * 使用指定源生成验证码
      * @param verifySize    验证码长度
@@ -122,7 +132,7 @@ public class CommonUtil {
         }
     }
 
-    public static BufferedImage getImage(int w, int h, String code){
+    private static BufferedImage getImage(int w, int h, String code){
         int verifySize = code.length();
         BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         Random rand = new Random();
@@ -278,56 +288,68 @@ public class CommonUtil {
 
     }
 
-    //EXCEL相关
+    /////////////////////////////////////////////////////////EXCEL相关
 
     /**
      * 输出excel
      * @param remark
-     * @param titleRowCell
+     * @param titleRowCells
      * @param lastRequiredCol
+     * @param dataRowCellss
      * @param fileName
      * @param response
      * @throws IOException
      */
-    public static void outputExcel(String remark, List<String> titleRowCell, int lastRequiredCol, List<List<String>> dataRowCells, String fileName, HttpServletResponse response) throws IOException {
+    public static void outputExcel(String remark, List<List<String>> titleRowCells, int lastRequiredCol, List<List<List<String>>> dataRowCellss, String fileName, HttpServletResponse response) throws IOException {
         //创建Excel工作簿
         HSSFWorkbook workbook = new HSSFWorkbook();
-        //创建一个工作表sheet
-        HSSFSheet sheet = workbook.createSheet();
-        //设置备注行
-        HSSFRow remarkRow = sheet.createRow(1);
-        remarkRow.createCell(0).setCellValue(remark);
-        CellRangeAddress region = new CellRangeAddress(1, 1, 0, titleRowCell.size() - 1);
-        sheet.addMergedRegion(region);
-        remarkRow.setHeightInPoints(30);
-        //创建标题行
-        HSSFRow titleRow = sheet.createRow(2);
-        for (int i = 0; i < titleRowCell.size(); i++) {
-            titleRow.createCell(i).setCellValue(titleRowCell.get(i));
-        }
-        //设置标题行单元格样式
-        HSSFCellStyle titleCellStyle1 = workbook.createCellStyle();
-        HSSFFont font1 = workbook.createFont();
-        font1.setBold(true);
-        titleCellStyle1.setFont(font1);
-        HSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
-        HSSFFont font2 = workbook.createFont();
-        font2.setBold(true);
-        font2.setColor(HSSFColor.RED.index);
-        titleCellStyle2.setFont(font2);
-        for (int i = 0; i < titleRowCell.size(); i++) {
-            if (i <= lastRequiredCol) {
-                titleRow.getCell(i).setCellStyle(titleCellStyle2);
+        for (int num = 0; num < titleRowCells.size(); num++) {
+            List<String> titleRowCell = titleRowCells.get(num);
+            //创建一个工作表sheet
+            HSSFSheet sheet;
+            if (titleRowCells.size() == 1) {
+                sheet = workbook.createSheet();
             } else {
-                titleRow.getCell(i).setCellStyle(titleCellStyle1);
+                sheet = workbook.createSheet(dataRowCellss.get(num).get(0).get(1));
             }
-        }
-        //创建数据行
-        for (int i = 3; i < dataRowCells.size() + 3; i++) {
-            List<String> dataRowCell = dataRowCells.get(i - 3);
-            HSSFRow row = sheet.createRow(i);
-            for (int j = 0; j < dataRowCell.size(); j++) {
-                row.createCell(j).setCellValue(dataRowCell.get(j));
+            //设置备注行
+            HSSFRow remarkRow = sheet.createRow(1);
+            remarkRow.createCell(0).setCellValue(remark);
+            CellRangeAddress region = new CellRangeAddress(1, 1, 0, titleRowCell.size() - 1);
+            sheet.addMergedRegion(region);
+            remarkRow.setHeightInPoints(30);
+            //创建标题行
+            HSSFRow titleRow = sheet.createRow(2);
+            for (int i = 0; i < titleRowCell.size(); i++) {
+                titleRow.createCell(i).setCellValue(titleRowCell.get(i));
+            }
+            //设置标题行单元格样式
+            HSSFCellStyle titleCellStyle1 = workbook.createCellStyle();
+            HSSFFont font1 = workbook.createFont();
+            font1.setBold(true);
+            titleCellStyle1.setFont(font1);
+            HSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
+            HSSFFont font2 = workbook.createFont();
+            font2.setBold(true);
+            font2.setColor(HSSFColor.RED.index);
+            titleCellStyle2.setFont(font2);
+            for (int i = 0; i < titleRowCell.size(); i++) {
+                if (i <= lastRequiredCol) {
+                    titleRow.getCell(i).setCellStyle(titleCellStyle2);
+                } else {
+                    titleRow.getCell(i).setCellStyle(titleCellStyle1);
+                }
+            }
+            //创建数据行
+            if (dataRowCellss.size() > 0) {
+                List<List<String>> dataRowCells = dataRowCellss.get(num);
+                for (int i = 3; i < dataRowCells.size() + 3; i++) {
+                    List<String> dataRowCell = dataRowCells.get(i - 3);
+                    HSSFRow row = sheet.createRow(i);
+                    for (int j = 0; j < dataRowCell.size(); j++) {
+                        row.createCell(j).setCellValue(dataRowCell.get(j));
+                    }
+                }
             }
         }
         //强制下载

@@ -1,58 +1,55 @@
 package com.yeta.pps.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yeta.pps.po.Role;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class UserVo {
 
     /**
      * 店铺id
+     * 用于接收参数
      */
     @NotNull(message = CommonResponse.MESSAGE3)
+    @JsonIgnore
     private Integer storeId;
 
     /**
      * 验证码
+     * 用于接收参数
      */
     @JsonIgnore
     private String identifyingCode;
 
     /**
+     * 角色id
+     * 用于接收参数，查询的时候
+     */
+    @JsonIgnore
+    private Integer roleId;
+
+    /**
      * 凭证
+     * 用于返回数据
      */
     private String token;
 
     /**
-     * 部门id
-     */
-    //private Integer departmentId;
-
-    /**
-     * 部门名
-     */
-    //private String departmentName;
-
-    /**
-     * 仓库id
-     */
-    private Integer warehouseId;
-
-    /**
      * 仓库名
+     * 用于返回数据
      */
     private String warehouseName;
 
     /**
-     * 角色id
+     * 角色
+     * 用于返回数据和接收参数
      */
-    private Integer roleId;
+    List<Role> roles;
 
-    /**
-     * 角色名
-     */
-    private String roleName;
+    /////////////////////////////////////////
 
     /**
      * 用户id
@@ -80,22 +77,25 @@ public class UserVo {
     private String phone;
 
     /**
-     * 备注
+     * 仓库id
      */
-    private String remark;
+    private Integer warehouseId;
 
     /**
      * 是否禁用，0：不禁用，1：禁用
      */
     private Integer disabled;
 
+    /**
+     * 备注
+     */
+    private String remark;
+
     public UserVo() {
     }
 
-    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer roleId, String name) {
+    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
         this.storeId = storeId;
-        this.roleId = roleId;
-        this.name = name;
     }
 
     public UserVo(String id) {
@@ -105,6 +105,12 @@ public class UserVo {
     public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
+    }
+
+    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer roleId, String name) {
+        this.storeId = storeId;
+        this.roleId = roleId;
+        this.name = name;
     }
 
     public Integer getStoreId() {
@@ -123,36 +129,20 @@ public class UserVo {
         this.identifyingCode = identifyingCode;
     }
 
+    public Integer getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
+    }
+
     public String getToken() {
         return token;
     }
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    /*public Integer getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(Integer departmentId) {
-        this.departmentId = departmentId;
-    }
-
-    public String getDepartmentName() {
-        return departmentName;
-    }
-
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
-    }*/
-
-    public Integer getWarehouseId() {
-        return warehouseId;
-    }
-
-    public void setWarehouseId(Integer warehouseId) {
-        this.warehouseId = warehouseId;
     }
 
     public String getWarehouseName() {
@@ -163,20 +153,12 @@ public class UserVo {
         this.warehouseName = warehouseName;
     }
 
-    public Integer getRoleId() {
-        return roleId;
+    public List<Role> getRoles() {
+        return roles;
     }
 
-    public void setRoleId(Integer roleId) {
-        this.roleId = roleId;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 
     public String getId() {
@@ -219,12 +201,12 @@ public class UserVo {
         this.phone = phone;
     }
 
-    public String getRemark() {
-        return remark;
+    public Integer getWarehouseId() {
+        return warehouseId;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setWarehouseId(Integer warehouseId) {
+        this.warehouseId = warehouseId;
     }
 
     public Integer getDisabled() {
@@ -235,25 +217,31 @@ public class UserVo {
         this.disabled = disabled;
     }
 
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
     @Override
     public String toString() {
         return "UserVo{" +
                 "storeId=" + storeId +
                 ", identifyingCode='" + identifyingCode + '\'' +
-                ", token='" + token + '\'' +
-                /*", departmentId=" + departmentId +
-                ", departmentName='" + departmentName + '\'' +*/
-                ", warehouseId=" + warehouseId +
-                ", warehouseName='" + warehouseName + '\'' +
                 ", roleId=" + roleId +
-                ", roleName='" + roleName + '\'' +
+                ", token='" + token + '\'' +
+                ", warehouseName='" + warehouseName + '\'' +
+                ", roles=" + roles +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
-                ", remark='" + remark + '\'' +
+                ", warehouseId=" + warehouseId +
                 ", disabled=" + disabled +
+                ", remark='" + remark + '\'' +
                 '}';
     }
 }

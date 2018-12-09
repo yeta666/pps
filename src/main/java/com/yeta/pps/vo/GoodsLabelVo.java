@@ -19,7 +19,7 @@ public class GoodsLabelVo {
     private Integer id;
 
     /**
-     * 商品便签名
+     * 商品标签名
      */
     @NotBlank(message = CommonResponse.MESSAGE3)
     private String name;
