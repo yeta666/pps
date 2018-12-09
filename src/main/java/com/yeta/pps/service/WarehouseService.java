@@ -1,14 +1,18 @@
 package com.yeta.pps.service;
 
+import com.yeta.pps.exception.CommonException;
+import com.yeta.pps.mapper.MyUserMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
 import com.yeta.pps.vo.PageVo;
+import com.yeta.pps.vo.UserVo;
 import com.yeta.pps.vo.WarehouseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +27,9 @@ public class WarehouseService {
 
     @Autowired
     private MyWarehouseMapper myWarehouseMapper;
+
+    @Autowired
+    private MyUserMapper myUserMapper;
 
     /**
      * 新增仓库
@@ -39,16 +46,21 @@ public class WarehouseService {
 
     /**
      * 删除仓库
-     * @param warehouseVo
+     * @param warehouseVos
      * @return
      */
-    public CommonResponse delete(WarehouseVo warehouseVo) {
-        //判断仓库是否使用
-        //TODO
-        //删除仓库
-        if (myWarehouseMapper.delete(warehouseVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
-        }
+    @Transactional
+    public CommonResponse delete(List<WarehouseVo> warehouseVos) {
+        warehouseVos.stream().forEach(warehouseVo -> {
+            //判断仓库是否使用
+            if (myUserMapper.findAll(new UserVo(warehouseVo.getStoreId(), warehouseVo.getId())).size() > 0) {
+                throw new CommonException(CommonResponse.CODE18, CommonResponse.MESSAGE18);
+            }
+            //删除仓库
+            if (myWarehouseMapper.delete(warehouseVo) != 1) {
+                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            }
+        });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -104,10 +116,10 @@ public class WarehouseService {
      */
     public CommonResponse findById(WarehouseVo warehouseVo) {
         //根据仓库id查询仓库
-        Warehouse department = myWarehouseMapper.findById(warehouseVo);
-        if (department == null) {
+        Warehouse warehouse = myWarehouseMapper.findById(warehouseVo);
+        if (warehouse == null) {
             return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
-        return new CommonResponse(CommonResponse.CODE1, department, CommonResponse.MESSAGE1);
+        return new CommonResponse(CommonResponse.CODE1, warehouse, CommonResponse.MESSAGE1);
     }
 }

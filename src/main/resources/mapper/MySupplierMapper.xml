@@ -15,15 +15,38 @@
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.SupplierVo" resultType="java.lang.Integer">
-        select COUNT(0) from supplier_${storeId};
-    </select>
-
-    <select id="findAll" parameterType="com.yeta.pps.vo.SupplierVo" resultType="com.yeta.pps.po.Supplier">
-        select id, name, contacts, contact_number, contact_address, fax, remark from supplier_${storeId};
+        select
+            COUNT(0)
+        from
+            supplier_${storeId}
+        where
+            1 = 1
+        <if test="name != null">
+        and
+            name like concat('%', #{name}, '%');
+        </if>
     </select>
 
     <select id="findAllPaged" resultType="com.yeta.pps.po.Supplier">
-        select id, name, contacts, contact_number, contact_address, fax, remark from supplier_${supplierVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
+        select
+            id, name, contacts, contact_number, contact_address, fax, remark
+        from
+            supplier_${supplierVo.storeId}
+        where
+            1 = 1
+        <if test="supplierVo.name != null">
+        and
+            name like concat('%', #{supplierVo.name}, '%')
+        </if>
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAll" parameterType="com.yeta.pps.vo.SupplierVo" resultType="com.yeta.pps.po.Supplier">
+        select
+            id, name, contacts, contact_number, contact_address, fax, remark
+        from
+            supplier_${storeId};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.SupplierVo" resultType="com.yeta.pps.po.Supplier">

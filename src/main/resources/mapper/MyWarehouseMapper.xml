@@ -15,15 +15,35 @@
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="java.lang.Integer">
-        select COUNT(0) from warehouse_${storeId};
+        select
+            COUNT(0)
+        from
+            warehouse_${storeId}
+        where
+            1 = 1
+        <if test="name != null">
+        and
+            name like concat('%', #{name}, '%')
+        </if>
+    </select>
+
+    <select id="findAllPaged" resultType="com.yeta.pps.po.Warehouse">
+        select
+            id, name, contacts, contact_number, address, postcode, remark
+        from
+            warehouse_${warehouseVo.storeId}
+        where
+            1 = 1
+        <if test="warehouseVo.name != null">
+        and
+            name like concat('%', #{warehouseVo.name}, '%')
+        </if>
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findAll" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="com.yeta.pps.po.Warehouse">
         select id, name, contacts, contact_number, address, postcode, remark from warehouse_${storeId};
-    </select>
-
-    <select id="findAllPaged" resultType="com.yeta.pps.po.Warehouse">
-        select id, name, contacts, contact_number, address, postcode, remark from warehouse_${warehouseVo.storeId} limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.WarehouseVo" resultType="com.yeta.pps.po.Warehouse">

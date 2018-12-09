@@ -50,19 +50,22 @@ public class GoodsService {
     /**
      * 删除商品标签
      * 已经使用的商品标签不能删除，未使用的商品标签没有商品/商品标签关系，无需操作中间表
-     * @param goodsLabelVo
+     * @param goodsLabelVos
      * @return
      */
-    public CommonResponse deleteLabel(GoodsLabelVo goodsLabelVo) {
-        //判断商品标签是否使用
-        GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(goodsLabelVo.getStoreId(), goodsLabelVo.getId());
-        if (myGoodsMapper.findGoodsLabel(goodsGoodsLabelVo).size() > 0) {
-            return new CommonResponse(CommonResponse.CODE18, null, CommonResponse.MESSAGE18);
-        }
-        //删除商品标签
-        if (myGoodsMapper.deleteLabel(goodsLabelVo) != 1) {
-            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
-        }
+    @Transactional
+    public CommonResponse deleteLabel(List<GoodsLabelVo> goodsLabelVos) {
+        goodsLabelVos.stream().forEach(goodsLabelVo -> {
+            //判断商品标签是否使用
+            GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(goodsLabelVo.getStoreId(), goodsLabelVo.getId());
+            if (myGoodsMapper.findGoodsLabel(goodsGoodsLabelVo).size() > 0) {
+                throw new CommonException(CommonResponse.CODE18, CommonResponse.MESSAGE18);
+            }
+            //删除商品标签
+            if (myGoodsMapper.deleteLabel(goodsLabelVo) != 1) {
+                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            }
+        });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -136,30 +139,32 @@ public class GoodsService {
 
     /**
      * 删除商品类型
-     * @param goodsTypeVo
+     * @param goodsTypeVos
      * @return
      */
     @Transactional
-    public CommonResponse deleteType(GoodsTypeVo goodsTypeVo) {
-        //判断商品类型是否使用
-        GoodsVo goodsVo = new GoodsVo(goodsTypeVo.getStoreId(), goodsTypeVo.getId());
-        if (myGoodsMapper.findByTypeId(goodsVo).size() > 0) {
-            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
-        }
-        //删除商品类型
-        if (myGoodsMapper.deleteType(goodsTypeVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
-        }
-        //获取该商品类型对应的商品属性名
-        GoodsPropertyKeyVo goodsPropertyKeyVo = new GoodsPropertyKeyVo(goodsTypeVo.getStoreId(), null, goodsTypeVo.getId());
-        List<GoodsPropertyKeyVo> goodsPropertyKeyVos = myGoodsMapper.findPropertyKey(goodsPropertyKeyVo);
-        goodsPropertyKeyVos.stream().forEach(vo -> {
-            //删除该商品属性名对应的商品属性值
-            GoodsPropertyValueVo goodsPropertyValueVo = new GoodsPropertyValueVo(goodsTypeVo.getStoreId(), null, vo.getId());
-            myGoodsMapper.deletePropertyValueByPropertyKeyId(goodsPropertyValueVo);
+    public CommonResponse deleteType(List<GoodsTypeVo> goodsTypeVos) {
+        goodsTypeVos.stream().forEach(goodsTypeVo -> {
+            //判断商品类型是否使用
+            GoodsVo goodsVo = new GoodsVo(goodsTypeVo.getStoreId(), goodsTypeVo.getId());
+            if (myGoodsMapper.findByTypeId(goodsVo).size() > 0) {
+                throw new CommonException(CommonResponse.CODE18, CommonResponse.MESSAGE18);
+            }
+            //删除商品类型
+            if (myGoodsMapper.deleteType(goodsTypeVo) != 1) {
+                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            }
+            //获取该商品类型对应的商品属性名
+            GoodsPropertyKeyVo goodsPropertyKeyVo = new GoodsPropertyKeyVo(goodsTypeVo.getStoreId(), null, goodsTypeVo.getId());
+            List<GoodsPropertyKeyVo> goodsPropertyKeyVos = myGoodsMapper.findPropertyKey(goodsPropertyKeyVo);
+            goodsPropertyKeyVos.stream().forEach(vo -> {
+                //删除该商品属性名对应的商品属性值
+                GoodsPropertyValueVo goodsPropertyValueVo = new GoodsPropertyValueVo(goodsTypeVo.getStoreId(), null, vo.getId());
+                myGoodsMapper.deletePropertyValueByPropertyKeyId(goodsPropertyValueVo);
+            });
+            //删除该商品类型对应的商品属性名
+            myGoodsMapper.deletePropertyKeyByTypeId(goodsPropertyKeyVo);
         });
-        //删除该商品类型对应的商品属性名
-        myGoodsMapper.deletePropertyKeyByTypeId(goodsPropertyKeyVo);
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -235,18 +240,20 @@ public class GoodsService {
      * 删除商品属性名
      * //TODO
      * 是否要做删除商品属性名功能，删除商品属性名之后，有的商品规格可能还存在该商品属性名？？
-     * @param goodsPropertyKeyVo
+     * @param goodsPropertyKeyVos
      * @return
      */
     @Transactional
-    public CommonResponse deletePropertyKey(GoodsPropertyKeyVo goodsPropertyKeyVo) {
-        //删除商品属性名
-        if (myGoodsMapper.deletePropertyKeyById(goodsPropertyKeyVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
-        }
-        //删除该商品属性名对应的商品属性值
-        GoodsPropertyValueVo goodsPropertyValueVo = new GoodsPropertyValueVo(goodsPropertyKeyVo.getStoreId(), null, goodsPropertyKeyVo.getId());
-        myGoodsMapper.deletePropertyValueByPropertyKeyId(goodsPropertyValueVo);
+    public CommonResponse deletePropertyKey(List<GoodsPropertyKeyVo> goodsPropertyKeyVos) {
+        goodsPropertyKeyVos.stream().forEach(goodsPropertyKeyVo -> {
+            //删除商品属性名
+            if (myGoodsMapper.deletePropertyKeyById(goodsPropertyKeyVo) != 1) {
+                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            }
+            //删除该商品属性名对应的商品属性值
+            GoodsPropertyValueVo goodsPropertyValueVo = new GoodsPropertyValueVo(goodsPropertyKeyVo.getStoreId(), null, goodsPropertyKeyVo.getId());
+            myGoodsMapper.deletePropertyValueByPropertyKeyId(goodsPropertyValueVo);
+        });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -326,14 +333,17 @@ public class GoodsService {
      * 删除商品属性值
      * //TODO
      * 是否要做删除商品属性值功能，删除商品属性值之后，有的商品规格可能还存在该商品属性值？？
-     * @param goodsPropertyValueVo
+     * @param goodsPropertyValueVos
      * @return
      */
-    public CommonResponse deletePropertyValue(GoodsPropertyValueVo goodsPropertyValueVo) {
-        //删除商品属性值
-        if (myGoodsMapper.deletePropertyValueById(goodsPropertyValueVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
-        }
+    @Transactional
+    public CommonResponse deletePropertyValue(List<GoodsPropertyValueVo> goodsPropertyValueVos) {
+        goodsPropertyValueVos.stream().forEach(goodsPropertyValueVo -> {
+            //删除商品属性值
+            if (myGoodsMapper.deletePropertyValueById(goodsPropertyValueVo) != 1) {
+                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            }
+        });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -454,21 +464,23 @@ public class GoodsService {
 
     /**
      * 删除商品
-     * @param goodsVo
+     * @param goodsVos
      * @return
      */
     @Transactional
-    public CommonResponse delete(GoodsVo goodsVo) {
-        //删除商品
-        if (myGoodsMapper.delete(goodsVo) != 1) {
-            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
-        }
-        //删除商品/商品标签关系
-        GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(goodsVo.getStoreId(), goodsVo.getId());
-        myGoodsMapper.deleteGoodsLabel(goodsGoodsLabelVo);
-        //删除该商品对应的商品规格
-        GoodsSkuVo goodsSkuVo = new GoodsSkuVo(goodsVo.getStoreId(), goodsVo.getId());
-        myGoodsMapper.deleteGoodsSku(goodsSkuVo);
+    public CommonResponse delete(List<GoodsVo> goodsVos) {
+        goodsVos.stream().forEach(goodsVo -> {
+            //删除商品
+            if (myGoodsMapper.delete(goodsVo) != 1) {
+                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            }
+            //删除商品/商品标签关系
+            GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(goodsVo.getStoreId(), goodsVo.getId());
+            myGoodsMapper.deleteGoodsLabel(goodsGoodsLabelVo);
+            //删除该商品对应的商品规格
+            GoodsSkuVo goodsSkuVo = new GoodsSkuVo(goodsVo.getStoreId(), goodsVo.getId());
+            myGoodsMapper.deleteGoodsSku(goodsSkuVo);
+        });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -797,7 +809,7 @@ public class GoodsService {
             GoodsTypeVo goodsTypeVo = new GoodsTypeVo(storeId, CommonUtil.getCellValue(row.getCell(2)));
             GoodsType goodsType = myGoodsMapper.findType(goodsTypeVo);
             if (goodsType == null) {
-                return new CommonResponse(CommonResponse.CODE17, null, CommonResponse.MESSAGE17);
+                throw new CommonException(CommonResponse.CODE17, CommonResponse.MESSAGE17);
             }
             goodsVo.setTypeId(goodsType.getId());
             String putaway = CommonUtil.getCellValue(row.getCell(3));
@@ -815,7 +827,7 @@ public class GoodsService {
                     GoodsLabelVo goodsLabelVo = new GoodsLabelVo(storeId, labels[i]);
                     GoodsLabel goodsLabel = myGoodsMapper.findLabel(goodsLabelVo);
                     if (goodsLabel == null) {
-                        return new CommonResponse(CommonResponse.CODE17, null, CommonResponse.MESSAGE17);
+                        throw new CommonException(CommonResponse.CODE17, CommonResponse.MESSAGE17);
                     }
                     //新增商品/商品标签关系
                     GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(storeId, goodsVo.getId(), goodsLabel.getId());

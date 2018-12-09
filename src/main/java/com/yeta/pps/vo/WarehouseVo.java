@@ -61,6 +61,11 @@ public class WarehouseVo {
         this.id = id;
     }
 
+    public WarehouseVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotBlank(message = CommonResponse.MESSAGE3) String name) {
+        this.storeId = storeId;
+        this.name = name;
+    }
+
     public Integer getStoreId() {
         return storeId;
     }

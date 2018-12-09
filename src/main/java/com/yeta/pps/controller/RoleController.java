@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -44,18 +46,22 @@ public class RoleController {
     /**
      * 删除角色接口
      * @param storeId
-     * @param roleId
+     * @param ids
      * @return
      */
     @ApiOperation(value = "删除角色")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "roleId", value = "角色id", required = true, paramType = "path", dataType = "int")
+            @ApiImplicitParam(name = "ids", value = "角色id，英文逗号隔开", required = true, paramType = "query", dataType = "String")
     })
-    @DeleteMapping(value = "/roles/{roleId}")
+    @DeleteMapping(value = "/roles")
     public CommonResponse delete(@RequestParam(value = "storeId") Integer storeId,
-                                 @PathVariable(value = "roleId") Integer roleId) {
-        return roleService.delete(new RoleVo(storeId, roleId));
+                                 @RequestParam(value = "ids") String ids) {
+        List<RoleVo> roleVos = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> {
+            roleVos.add(new RoleVo(storeId, Integer.valueOf(id)));
+        });
+        return roleService.delete(roleVos);
     }
 
     /**

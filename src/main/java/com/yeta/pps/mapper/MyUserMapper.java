@@ -21,6 +21,8 @@ public interface MyUserMapper {
 
     List<UserVo> findAllPaged(@Param(value = "userVo") UserVo userVo, @Param(value = "pageVo") PageVo pageVo);
 
+    List<UserVo> findAll(UserVo userVo);
+
     UserVo findById(UserVo userVo);
 
     User findByUsernameAndPassword(UserVo userVo);

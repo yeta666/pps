@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -47,18 +49,22 @@ public class GoodsController {
     /**
      * 删除商品标签接口
      * @param storeId
-     * @param labelId
+     * @param ids
      * @return
      */
     @ApiOperation(value = "删除商品标签")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "labelId", value = "标签id", required = true, paramType = "path", dataType = "int")
+            @ApiImplicitParam(name = "ids", value = "标签id，英文逗号隔开", required = true, paramType = "query", dataType = "String")
     })
-    @DeleteMapping(value = "/goods/labels/{labelId}")
+    @DeleteMapping(value = "/goods/labels")
     public CommonResponse deleteLabel(@RequestParam(value = "storeId") Integer storeId,
-                                      @PathVariable(value = "labelId") Integer labelId) {
-        return goodsService.deleteLabel(new GoodsLabelVo(storeId, labelId));
+                                      @RequestParam(value = "ids") String ids) {
+        List<GoodsLabelVo> goodsLabelVos = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> {
+            goodsLabelVos.add(new GoodsLabelVo(storeId, Integer.valueOf(id)));
+        });
+        return goodsService.deleteLabel(goodsLabelVos);
     }
 
     /**
@@ -127,18 +133,22 @@ public class GoodsController {
     /**
      * 删除商品类型接口
      * @param storeId
-     * @param typeId
+     * @param ids
      * @return
      */
     @ApiOperation(value = "删除商品类型")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "typeId", value = "类型id", required = true, paramType = "path", dataType = "int")
+            @ApiImplicitParam(name = "ids", value = "类型id，英文逗号隔开", required = true, paramType = "query", dataType = "String")
     })
-    @DeleteMapping(value = "/goods/types/{typeId}")
+    @DeleteMapping(value = "/goods/types")
     public CommonResponse deleteType(@RequestParam(value = "storeId") Integer storeId,
-                                     @PathVariable(value = "typeId") Integer typeId) {
-        return goodsService.deleteType(new GoodsTypeVo(storeId, typeId));
+                                     @RequestParam(value = "ids") String ids) {
+        List<GoodsTypeVo> goodsTypeVos = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> {
+            goodsTypeVos.add(new GoodsTypeVo(storeId, Integer.valueOf(id)));
+        });
+        return goodsService.deleteType(goodsTypeVos);
     }
 
     /**
@@ -207,18 +217,22 @@ public class GoodsController {
     /**
      * 删除商品属性名接口
      * @param storeId
-     * @param keyId
+     * @param ids
      * @return
      */
     @ApiOperation(value = "删除商品属性名")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "keyId", value = "属性名id", required = true, paramType = "path", dataType = "int")
+            @ApiImplicitParam(name = "ids", value = "属性名id", required = true, paramType = "query", dataType = "String")
     })
-    @DeleteMapping(value = "/goods/types/properties/keys/{keyId}")
+    @DeleteMapping(value = "/goods/types/properties/keys")
     public CommonResponse deletePropertyKey(@RequestParam(value = "storeId") Integer storeId,
-                                            @PathVariable(value = "keyId") Integer keyId) {
-        return goodsService.deletePropertyKey(new GoodsPropertyKeyVo(storeId, keyId, null));
+                                            @RequestParam(value = "ids") String ids) {
+        List<GoodsPropertyKeyVo> goodsPropertyKeyVos = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> {
+            goodsPropertyKeyVos.add(new GoodsPropertyKeyVo(storeId, Integer.valueOf(id), null));
+        });
+        return goodsService.deletePropertyKey(goodsPropertyKeyVos);
     }
 
     /**
@@ -287,18 +301,22 @@ public class GoodsController {
     /**
      * 删除商品属性值接口
      * @param storeId
-     * @param valueId
+     * @param ids
      * @return
      */
     @ApiOperation(value = "删除商品属性值")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "valueId", value = "属性值id", required = true, paramType = "path", dataType = "int")
+            @ApiImplicitParam(name = "ids", value = "属性值id，英文逗号隔开", required = true, paramType = "query", dataType = "String")
     })
-    @DeleteMapping(value = "/goods/types/properties/values/{valueId}")
+    @DeleteMapping(value = "/goods/types/properties/values")
     public CommonResponse deletePropertyValue(@RequestParam(value = "storeId") Integer storeId,
-                                              @PathVariable(value = "valueId") Integer valueId) {
-        return goodsService.deletePropertyValue(new GoodsPropertyValueVo(storeId, valueId, null));
+                                              @RequestParam(value = "ids") String ids) {
+        List<GoodsPropertyValueVo> goodsPropertyValueVos = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> {
+            goodsPropertyValueVos.add(new GoodsPropertyValueVo(storeId, Integer.valueOf(id), null));
+        });
+        return goodsService.deletePropertyValue(goodsPropertyValueVos);
     }
 
     /**
@@ -381,18 +399,22 @@ public class GoodsController {
     /**
      * 删除商品接口
      * @param storeId
-     * @param goodsId
+     * @param ids
      * @return
      */
     @ApiOperation(value = "删除商品")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "goodsId", value = "商品id", required = true, paramType = "path", dataType = "int")
+            @ApiImplicitParam(name = "ids", value = "商品id，英文逗号隔开", required = true, paramType = "query", dataType = "String")
     })
-    @DeleteMapping(value = "/goods/{goodsId}")
+    @DeleteMapping(value = "/goods")
     public CommonResponse delete(@RequestParam(value = "storeId") Integer storeId,
-                                 @PathVariable(value = "goodsId") String goodsId) {
-        return goodsService.delete(new GoodsVo(storeId, goodsId));
+                                 @RequestParam(value = "ids") String ids) {
+        List<GoodsVo> goodsVos = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> {
+            goodsVos.add(new GoodsVo(storeId, id));
+        });
+        return goodsService.delete(goodsVos);
     }
 
     /**

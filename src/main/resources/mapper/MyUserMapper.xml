@@ -29,10 +29,12 @@
         and
             u.warehouse_id = w.id
         <if test="roleId!=null">
-        and r.id = #{roleId}
+        and
+            r.id = #{roleId}
         </if>
         <if test="name!=null">
-        and u.name = #{name}
+        and
+            u.name like concat('%', #{name}, '%')
         </if>
     </select>
 
@@ -77,13 +79,53 @@
         and
             u.warehouse_id = w.id
         <if test="userVo.roleId!=null">
-        and r.id = #{userVo.roleId}
+        and
+            r.id = #{userVo.roleId}
         </if>
         <if test="userVo.name!=null">
-        and u.name = #{userVo.name}
+        and
+            u.name like concat('%', #{userVo.name}, '%')
         </if>
         limit
             #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAll" parameterType="com.yeta.pps.vo.UserVo" resultMap="userVoMap">
+        select
+            u.id,
+            u.name,
+            u.username,
+            u.password,
+            u.phone,
+            u.warehouse_id,
+            u.disabled,
+            u.remark,
+            r.id as role_id,
+            r.name as role_name,
+            w.name as warehouse_name
+        from
+            user_${storeId} as u,
+            role_${storeId} as r,
+            user_role_${storeId} as ur,
+            warehouse_${storeId} as w
+        where
+            u.id = ur.user_id
+        and
+            r.id = ur.role_id
+        and
+            u.warehouse_id = w.id
+        <if test="roleId != null">
+        and
+            r.id = #{roleId}
+        </if>
+        <if test="name != null">
+        and
+            u.name = #{name}
+        </if>
+        <if test="warehouseId != null">
+            and
+            u.warehouse_id = #{warehouseId}
+        </if>
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.UserVo" resultMap="userVoMap">
@@ -117,6 +159,8 @@
     <select id="findByUsernameAndPassword" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.po.User">
         select id, name, username, password, phone, warehouse_id, disabled, remark from user_${storeId} where username = #{username} and password = #{password};
     </select>
+
+
 
     <!---->
 

@@ -109,6 +109,11 @@ public class UserVo {
         this.name = name;
     }
 
+    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer warehouseId) {
+        this.storeId = storeId;
+        this.warehouseId = warehouseId;
+    }
+
     public Integer getStoreId() {
         return storeId;
     }

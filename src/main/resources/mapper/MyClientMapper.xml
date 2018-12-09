@@ -191,19 +191,19 @@
             cl.id = ccl.level_id
         <if test="clientVo.id != null">
         and
-            c.id = #{clientVo.id}
+            c.id like concat('%', #{clientVo.id}, '%')
         </if>
         <if test="clientVo.name != null">
         and
-            c.name = #{clientVo.name}
+            c.name like concat('%', #{clientVo.name}, '%')
         </if>
         <if test="clientVo.phone != null">
         and
-            c.phone = #{clientVo.phone}
+            c.phone like concat('%', #{clientVo.phone}, '%')
         </if>
         <if test="clientVo.membershipNumber != null">
         and
-            c.membership_number = #{clientVo.membershipNumber}
+            c.membership_number like concat('%', #{clientVo.membershipNumber}, '%')
         </if>
         <if test="clientVo.levelId != null">
         and

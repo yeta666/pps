@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -86,18 +88,22 @@ public class UserController {
     /**
      * 删除用户接口
      * @param storeId
-     * @param userId
+     * @param ids
      * @return
      */
     @ApiOperation(value = "删除用户")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "path", dataType = "String"),
+            @ApiImplicitParam(name = "ids", value = "用户id，英文逗号隔开", required = true, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int")
     })
-    @DeleteMapping(value = "/users/{userId}")
+    @DeleteMapping(value = "/users")
     public CommonResponse delete(@RequestParam(value = "storeId") Integer storeId,
-                                 @PathVariable(value = "userId") String userId) {
-        return userService.delete(new UserVo(storeId, userId));
+                                 @RequestParam(value = "ids") String ids) {
+        List<UserVo> userVos = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> {
+            userVos.add(new UserVo(storeId, id));
+        });
+        return userService.delete(userVos);
     }
 
     /**
@@ -121,7 +127,7 @@ public class UserController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查询所有用户", notes = "分页、筛选查询")
+    @ApiOperation(value = "查询所有用户", notes = "分页、筛选查询，姓名模糊查询")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "roleId", value = "角色id", required = false, paramType = "query", dataType = "int"),

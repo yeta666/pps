@@ -175,20 +175,22 @@ public class UserService {
 
     /**
      * 删除用户
-     * @param userVo
+     * @param userVos
      * @return
      */
     @Transactional
-    public CommonResponse delete(UserVo userVo) {
-        //删除用户
-        if (myUserMapper.delete(userVo) != 1) {
-            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
-        }
-        //删除用户角色关系
-        UserRoleVo userRoleVo = new UserRoleVo(userVo.getStoreId(), userVo.getId());
-        if (myUserMapper.deleteAllUserRole(userRoleVo) != 1) {
-            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
-        }
+    public CommonResponse delete(List<UserVo> userVos) {
+        userVos.stream().forEach(userVo -> {
+            //删除用户
+            if (myUserMapper.delete(userVo) != 1) {
+                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            }
+            //删除用户角色关系
+            UserRoleVo userRoleVo = new UserRoleVo(userVo.getStoreId(), userVo.getId());
+            if (myUserMapper.deleteAllUserRole(userRoleVo) != 1) {
+                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            }
+        });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 

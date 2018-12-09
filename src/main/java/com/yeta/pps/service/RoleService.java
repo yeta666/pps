@@ -51,24 +51,26 @@ public class RoleService {
 
     /**
      * 删除角色
-     * @param roleVo
+     * @param roleVos
      * @return
      */
     @Transactional
-    public CommonResponse delete(RoleVo roleVo) {
-        //判断角色是否使用
-        UserRoleVo userRoleVo = new UserRoleVo(roleVo.getStoreId(), roleVo.getId());
-        List<Role> roles = myUserMapper.findUserRole(userRoleVo);
-        if (roles != null && roles.size() > 0) {
-            return new CommonResponse(CommonResponse.CODE8, null, CommonResponse.MESSAGE8);
-        }
-        //删除角色
-        if (myRoleMapper.delete(roleVo) != 1) {
-            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
-        }
-        //删除角色功能关系
-        RoleFunctionVo roleFunctionVo = new RoleFunctionVo(roleVo.getStoreId(), roleVo.getId());
-        myRoleMapper.deleteRoleFunction(roleFunctionVo);
+    public CommonResponse delete(List<RoleVo> roleVos) {
+        roleVos.stream().forEach(roleVo -> {
+            //判断角色是否使用
+            UserRoleVo userRoleVo = new UserRoleVo(roleVo.getStoreId(), roleVo.getId());
+            List<Role> roles = myUserMapper.findUserRole(userRoleVo);
+            if (roles != null && roles.size() > 0) {
+                throw new CommonException(CommonResponse.CODE18, CommonResponse.MESSAGE18);
+            }
+            //删除角色
+            if (myRoleMapper.delete(roleVo) != 1) {
+                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            }
+            //删除角色功能关系
+            RoleFunctionVo roleFunctionVo = new RoleFunctionVo(roleVo.getStoreId(), roleVo.getId());
+            myRoleMapper.deleteRoleFunction(roleFunctionVo);
+        });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 

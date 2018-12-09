@@ -10,6 +10,7 @@ import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.SupplierVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public class SupplierService {
      * @return
      */
     public CommonResponse add(SupplierVo supplierVo) {
+        //TODO
         //新增
         if (mySupplierMapper.add(supplierVo) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
@@ -40,14 +42,17 @@ public class SupplierService {
 
     /**
      * 删除供应商
-     * @param supplierVo
+     * @param supplierVos
      * @return
      */
-    public CommonResponse delete(SupplierVo supplierVo) {
-        //删除供应商
-        if (mySupplierMapper.delete(supplierVo) != 1) {
-            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
-        }
+    @Transactional
+    public CommonResponse delete(List<SupplierVo> supplierVos) {
+        supplierVos.stream().forEach(supplierVo -> {
+            //删除供应商
+            if (mySupplierMapper.delete(supplierVo) != 1) {
+                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+            }
+        });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -78,13 +83,13 @@ public class SupplierService {
             List<Supplier> suppliers = mySupplierMapper.findAllPaged(supplierVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
-            titles.add(new Title("id", "供应商编号"));
-            titles.add(new Title("name", "供应商名称"));
-            titles.add(new Title("contacts", "联系人"));
-            titles.add(new Title("contactNumber", "联系电话"));
-            titles.add(new Title("contactAddress", "联系地址"));
-            titles.add(new Title("fax", "传真"));
-            titles.add(new Title("remark", "备注"));
+            titles.add(new Title("供应商编号", "id"));
+            titles.add(new Title("供应商名称", "name"));
+            titles.add(new Title("联系人", "contacts"));
+            titles.add(new Title("联系电话", "contactNumber"));
+            titles.add(new Title("联系地址", "contactAddress"));
+            titles.add(new Title("传真", "fax"));
+            titles.add(new Title("备注", "remark"));
             CommonResult commonResult = new CommonResult(titles, suppliers, pageVo);
             return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
         }

@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -49,14 +51,18 @@ public class ClientController {
 
     /**
      * 删除会员卡号接口
-     * @param membershipNumberId
+     * @param ids
      * @return
      */
     @ApiOperation(value = "删除会员卡号")
-    @ApiImplicitParam(name = "membershipNumberId", value = "会员卡号id", required = true, paramType = "path", dataType = "int")
-    @DeleteMapping(value = "/clients/membershipNumbers/{membershipNumberId}")
-    public CommonResponse deleteClientMembershipNumber(@PathVariable(value = "membershipNumberId") Integer membershipNumberId) {
-        return clientService.deleteClientMembershipNumber(new ClientMembershipNumber(membershipNumberId));
+    @ApiImplicitParam(name = "ids", value = "会员卡号id", required = true, paramType = "query", dataType = "String")
+    @DeleteMapping(value = "/clients/membershipNumbers")
+    public CommonResponse deleteClientMembershipNumber(@RequestParam(value = "ids") String ids) {
+        List<ClientMembershipNumber> clientMembershipNumbers = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> {
+            clientMembershipNumbers.add(new ClientMembershipNumber(Integer.valueOf(id)));
+        });
+        return clientService.deleteClientMembershipNumber(clientMembershipNumbers);
     }
 
     /**
@@ -119,14 +125,18 @@ public class ClientController {
 
     /**
      * 删除客户级别接口
-     * @param levelId
+     * @param ids
      * @return
      */
     @ApiOperation(value = "删除客户级别")
-    @ApiImplicitParam(name = "levelId", value = "客户级别id", required = true, paramType = "path", dataType = "int")
+    @ApiImplicitParam(name = "ids", value = "客户级别id，英文逗号隔开", required = true, paramType = "query", dataType = "String")
     @DeleteMapping(value = "/clients/levels/{levelId}")
-    public CommonResponse deleteClientLevel(@PathVariable(value = "levelId") Integer levelId) {
-        return clientService.deleteClientLevel(new ClientLevel(levelId));
+    public CommonResponse deleteClientLevel(@RequestParam(value = "ids") String ids) {
+        List<ClientLevel> clientLevels = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> {
+            clientLevels.add(new ClientLevel(Integer.valueOf(id)));
+        });
+        return clientService.deleteClientLevel(clientLevels);
     }
 
     /**
@@ -186,14 +196,18 @@ public class ClientController {
 
     /**
      * 删除客户接口
-     * @param clientId
+     * @param ids
      * @return
      */
     @ApiOperation(value = "删除客户")
-    @ApiImplicitParam(name = "clientId", value = "客户编号", required = true, paramType = "path", dataType = "int")
-    @DeleteMapping(value = "/clients/{clientId}")
-    public CommonResponse delete(@PathVariable(value = "clientId") String clientId) {
-        return clientService.delete(new ClientVo(clientId));
+    @ApiImplicitParam(name = "ids", value = "客户编号", required = true, paramType = "query", dataType = "String")
+    @DeleteMapping(value = "/clients")
+    public CommonResponse delete(@RequestParam(value = "ids") String ids) {
+        List<ClientVo> clientVos = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> {
+            clientVos.add(new ClientVo(id));
+        });
+        return clientService.delete(clientVos);
     }
 
     /**
@@ -232,7 +246,7 @@ public class ClientController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查找所有客户", notes = "分页、筛选查找")
+    @ApiOperation(value = "查找所有客户", notes = "分页、筛选查找，除了客户级别都是模糊查询")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "客户编号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "name", value = "客户姓名", required = false, paramType = "query", dataType = "String"),

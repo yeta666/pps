@@ -55,13 +55,10 @@ public class SupplierVo {
     public SupplierVo() {
     }
 
-    public SupplierVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
-        this.storeId = storeId;
-    }
-
-    public SupplierVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotBlank(message = CommonResponse.MESSAGE3) String id) {
+    public SupplierVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotBlank(message = CommonResponse.MESSAGE3) String id, @NotBlank(message = CommonResponse.MESSAGE3) String name) {
         this.storeId = storeId;
         this.id = id;
+        this.name = name;
     }
 
     public Integer getStoreId() {
