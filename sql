@@ -666,3 +666,69 @@ create table client_integral_detail(
   handled_by varchar(50) comment '经手人',
   remark varchar(200) comment '备注'
 ) engine InnoDB default charset=utf8;
+
+drop table if exists procurement_apply_order_1;
+create table procurement_apply_order_1(
+  id varchar(50) primary key comment '单据编号',
+  type tinyint not null comment '单据类型，1：采购订单，2：采购退货申请，3,：采购换货申请',
+  create_time datetime not null comment '单据日期',
+  order_status tinyint not null comment '单据状态，1：未收，2：已收，3：未发，4：已发，5：未收未发，6：未收已发，7：已收未发，8：已收已发',
+  clear_status tinyint not null comment '结算状态：0：未完成，1：已完成',
+  supplier_id varchar(20) not null comment '供应商编号',
+  in_warehouse_id int comment '入库仓库编号，对应收货',
+  in_total_quantity int comment '收货总数量',
+  out_warehouse_id int comment '出库仓库编号，对应发货',
+  out_total_quantity int comment '发货总数量',
+  total_money decimal(10, 2) not null comment '订单金额',
+  total_discount_money decimal(10, 2) not null comment '总优惠金额',
+  clear_money decimal(10, 2) not null comment '结算金额',
+  user_id varchar(50) not null comment '经手人编号',
+  remark varchar(255) comment '单据备注'
+) engine InnoDB default charset=utf8;
+insert into
+    procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, out_warehouse_id, out_total_quantity, total_money, total_discount_money, clear_money, user_id, remark)
+values ('CGDD_001', 1, now(), 1, 0, 'gys001', 1, 20, null, null, 100, 0, 0, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
+insert into
+procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, out_warehouse_id, out_total_quantity, total_money, total_discount_money, clear_money, user_id, remark)
+values ('CGTHD_001', 2, now(), 3, 0, 'gys001', null, null, 1, 20, 100, 0, 0, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
+insert into
+procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, out_warehouse_id, out_total_quantity, total_money, total_discount_money, clear_money, user_id, remark)
+values ('CGHHD_001', 3, now(), 5, 0, 'gys001', 1, 20, 2, 20, 0, 0, 0, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
+
+drop table if exists procurement_apply_order_goods_sku_1;
+create table procurement_apply_order_goods_sku_1(
+  id int primary key auto_increment comment '采购申请订单/商品规格关系编号',
+  type tinyint not null comment '入库或出库，1：入库，0：出库',
+  apply_order_id varchar(50) not null comment '采购申请订单编号',
+  goods_sku_id int not null comment '商品规格编号',
+  quantity int not null comment '采购数量',
+  money decimal(10, 2) not null comment '金额',
+  discount_money decimal(10, 2) not null comment '优惠金额',
+  remark varchar(255) comment '备注'
+) engine InnoDB default charset=utf8;
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, money, discount_money, remark) values (1, 'CGDD_001', 1, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, money, discount_money, remark) values (1, 'CGDD_001', 2, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, money, discount_money, remark) values (2, 'CGTHD_001', 1, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, money, discount_money, remark) values (2, 'CGTHD_001', 2, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, money, discount_money, remark) values (1, 'CGHHD_001', 1, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, money, discount_money, remark) values (1, 'CGHHD_001', 2, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, money, discount_money, remark) values (2, 'CGHHD_001', 1, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, money, discount_money, remark) values (2, 'CGHHD_001', 2, 10, 50, 0, null);
+
+drop table if exists procurement_result_order_1;
+create table procurement_result_order_1(
+  id varchar(50) primary key comment '单据编号',
+  type tinyint not null comment '单据类型，1：采购入库单，2：采购退货单，3,：采购换货单',
+  create_time datetime not null comment '单据日期',
+  apply_order_id varchar(50) not null comment '来源订单',
+  clear_status tinyint not null comment '结算状态：0：未完成，1：已完成',
+  supplier_id varchar(20) not null comment '供应商编号',
+  in_warehouse_id int comment '入库仓库编号，对应收货',
+  out_warehouse_id int comment '出库仓库编号，对应发货',
+  total_quantity int comment '总商品数量',
+  total_money decimal(10, 2) not null comment '总商品金额',
+  total_discount_money decimal(10, 2) not null comment '总优惠金额',
+  clear_money decimal(10, 2) not null comment '结算金额',
+  user_id varchar(50) not null comment '经手人编号',
+  remark varchar(255) comment '单据备注'
+) engine InnoDB default charset=utf8;

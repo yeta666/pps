@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeta.pps.mapper.MyProcurementMapper" >
+
+    <!--采购申请订单-->
+
+    <insert id="addApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+        insert into
+            procurement_apply_order_${storeId} (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, out_warehouse_id, out_total_quantity, total_money, total_discount_money, clear_money, user_id, remark)
+        values
+            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{clearStatus}, #{supplierId}, #{inWarehouseId}, #{inTotalQuantity}, #{outWarehouseId}, #{outTotalQuantity}, #{totalMoney}, #{totalDiscountMoney}, #{clearMoney}, #{userId}, #{remark});
+    </insert>
+
+    <delete id="deleteApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+        delete from procurement_apply_order_${storeId} where id = #{id};
+    </delete>
+
+    <update id="updateApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+        update
+            procurement_apply_order_${storeId}
+        set create_time = #{createTime}, supplier_id = #{supplierId}, in_warehouse_id = #{inWarehouseId}, in_total_quantity = #{inTotalQuantity}, out_warehouse_id = #{outWarehouseId}, out_total_quantity = #{outTotalQuantity}, total_money = #{totalMoney}, total_discount_money = #{totalDiscountMoney}, remark = #{remark}
+        where
+            id = #{id};
+    </update>
+
+    <update id="updateApplyOrderOrderStatus" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+        update procurement_apply_order_${storeId} set order_status = #{type} where id = #{id};
+    </update>
+
+    <select id="findCountApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                procurement_apply_order_${storeId} as pao
+                left join supplier_${storeId} as s on pao.supplier_id = s.id
+            )
+            left join user_${storeId} as u on pao.user_id = u.id
+        where
+            ${storeId} = ${storeId}
+        <if test="id != null">
+        and
+            pao.id = #{id}
+        </if>
+        <if test="supplierName != null">
+        and
+            s.name like concat('%', #{supplierName}, '%')
+        </if>
+        <if test="startTime != null and endTime != null">
+        and
+            date(pao.create_time) between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <select id="findAllPagedApplyOrder" resultType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+        select 
+            pao.id,
+            pao.type,
+            pao.create_time,
+            pao.order_status,
+            pao.clear_status,
+            s.name as supplier_name,
+            pao.in_warehouse_id,
+            pao.in_total_quantity,
+            pao.out_warehouse_id,
+            pao.out_total_quantity,
+            pao.total_money,
+            pao.total_discount_money,
+            pao.clear_money,
+            u.name as user_name,
+            pao.remark
+        from 
+            (
+                procurement_apply_order_${procurementApplyOrderVo.storeId} as pao
+                left join supplier_${procurementApplyOrderVo.storeId} as s on pao.supplier_id = s.id
+            )
+        left join user_${procurementApplyOrderVo.storeId} as u on pao.user_id = u.id
+        where
+            ${storeId} = ${storeId}
+        <if test="procurementApplyOrderVo.id != null">
+        and
+            pao.id = #{procurementApplyOrderVo.id}
+        </if>
+        <if test="procurementApplyOrderVo.supplierName != null">
+        and
+            s.name like concat('%', #{procurementApplyOrderVo.supplierName}, '%')
+        </if>
+        <if test="procurementApplyOrderVo.startTime != null and procurementApplyOrderVo.endTime != null">
+        and
+            date(pao.create_time) between #{procurementApplyOrderVo.startTime} and #{procurementApplyOrderVo.endTime}
+        </if>
+        order by
+            pao.create_time desc
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findApplyOrderById" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultType="com.yeta.pps.po.ProcurementApplyOrder">
+        select
+            id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, out_warehouse_id, out_total_quantity, total_money, total_discount_money, clear_money, user_id, remark
+        from
+            procurement_apply_order_${storeId}
+        where
+            id = #{id};
+    </select>
+
+    <resultMap id="procurementApplyOrderVoMap" type="com.yeta.pps.vo.ProcurementApplyOrderVo">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="order_status" property="orderStatus" />
+        <result column="clear_status" property="clearStatus" />
+        <result column="supplier_name" property="supplierName" />
+        <result column="in_warehouse_id" property="inWarehouseId" />
+        <result column="in_total_quantity" property="inTotalQuantity" />
+        <result column="out_warehouse_id" property="outWarehouseId" />
+        <result column="out_total_quantity" property="outTotalQuantity" />
+        <result column="total_money" property="totalMoney" />
+        <result column="total_discount_money" property="totalDiscountMoney" />
+        <result column="clear_money" property="clearMoney" />
+        <result column="user_name" property="userName" />
+        <result column="remark" property="remark" />
+        <collection property="details" ofType="com.yeta.pps.vo.ProcurementApplyOrderGoodsSkuVo">
+            <result column="g_name" property="goodsName" />
+            <result column="g_id" property="goodsId" />
+            <result column="g_bar_code" property="goodsBarCode" />
+            <result column="gs_sku" property="goodsSkuSku" />
+            <result column="gs_purchase_price" property="goodsSkuPurchasePrice" />
+            <result column="paogs_quantity" property="quantity" />
+            <result column="paogs_money" property="money" />
+            <result column="paogs_discount_money" property="discountMoney" />
+            <result column="paogs_remark" property="remark" />
+            <result column="paogs_type" property="type" />
+        </collection>
+    </resultMap>
+
+    <select id="findApplyOrderDetailById" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultMap="procurementApplyOrderVoMap">
+        select 
+            pao.id,
+            pao.type,
+            pao.create_time,
+            pao.order_status,
+            pao.clear_status,
+            s.name as supplier_name,
+            pao.in_warehouse_id,
+            pao.in_total_quantity,
+            pao.out_warehouse_id,
+            pao.out_total_quantity,
+            pao.total_money,
+            pao.total_discount_money,
+            pao.clear_money,
+            u.name as user_name,
+            pao.remark,
+            paogs.type as paogs_type,
+            paogs.quantity as paogs_quantity,
+            paogs.money as paogs_money,
+            paogs.discount_money as paogs_discount_money,
+            paogs.remark as paogs_remark,
+            g.name as g_name,
+            g.id as g_id,
+            g.bar_code as g_bar_code,
+            gs.sku as gs_sku,
+            gs.purchase_price as gs_purchase_price
+        from 
+            (
+                (
+                    (
+                        (
+                            procurement_apply_order_${storeId} as pao
+                            left join supplier_${storeId} as s on pao.supplier_id = s.id
+                        )
+                        left join user_${storeId} as u on pao.user_id = u.id
+                    )
+                    left join procurement_apply_order_goods_sku_${storeId} as paogs on pao.id = paogs.apply_order_id
+                )
+                left join goods_sku_${storeId} as gs on paogs.goods_sku_id = gs.id
+            )
+        left join goods_${storeId} as g on gs.goods_id = g.id
+        where
+            pao.id = #{id};
+    </select>
+
+    <!--采购申请订单/商品规格关系-->
+
+    <insert id="addApplyOrderGoodsSku" parameterType="com.yeta.pps.vo.ProcurementApplyOrderGoodsSkuVo">
+        insert into
+            procurement_apply_order_goods_sku_${storeId} (type, apply_order_id, goods_sku_id, quantity, money, discount_money, remark)
+        values
+            (#{type}, #{applyOrderId}, #{goodsSkuId}, #{quantity}, #{money}, #{discountMoney}, #{remark});
+    </insert>
+
+    <delete id="deleteApplyOrderGoodsSku" parameterType="com.yeta.pps.vo.ProcurementApplyOrderGoodsSkuVo">
+        delete from procurement_apply_order_goods_sku_${storeId} where apply_order_id = #{applyOrderId};
+    </delete>
+
+    <!--采购结果订单-->
+
+    <insert id="addResultOrder" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo">
+        insert into
+            procurement_result_order_1 (id, type, create_time, apply_order_id, clear_status, supplier_id, in_warehouse_id, out_warehouse_id, total_quantity, total_money, total_discount_money, clear_money, user_id, remark)
+        values
+            (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{clearStatus}, #{supplierId}, #{inWarehouseId}, #{outWarehouseId}, #{totalQuantity}, #{totalMoney}, #{totalDiscountMoney}, #{clearMoney}, #{userId}, #{remark});
+    </insert>
+
+</mapper>
