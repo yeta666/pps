@@ -5,6 +5,7 @@ import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.ProcurementApplyOrderVo;
+import com.yeta.pps.vo.ProcurementResultOrderVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -39,7 +40,7 @@ public class ProcurementController {
     @ApiOperation(value = "新增采购申请订单", notes = "包括采购订单、采购退货申请、采购换货申请，用type判断。" +
             "details中的ProcurementApplyOrderGoodsSkuVo对象表示订单关联的商品规格，其中type(1：入库，0：出库), goodsSkuId, quantity, money, discountMoney必填")
     @ApiImplicitParam(name = "procurementApplyOrderVo",
-            value = "storeId, details, type(1：采购订单，2：采购退货申请，3,：采购换货申请), createTime, supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, 采购换货申请前面四个都要填, totalMoney, totalDiscountMoney, userId必填",
+            value = "storeId, details, type(1：采购订单，2：采购退货申请，3,：采购换货申请), createTime, supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, 采购换货申请前面四个都要填, totalMoney(采购订单大于0，采购退货申请小于0，采购换货申请入库-出库的价钱), totalDiscountMoney, userId必填",
             required = true,
             paramType = "body",
             dataType = "ProcurementApplyOrderVo"
@@ -71,14 +72,14 @@ public class ProcurementController {
     }
 
     /**
-     * 删除采购申请订单接口
+     * 修改采购申请订单接口
      * @param procurementApplyOrderVo
      * @return
      */
     @ApiOperation(value = "修改采购申请订单", notes = "包括采购订单、采购退货申请、采购换货申请，用type判断。" +
             "details中的ProcurementApplyOrderGoodsSkuVo对象表示订单关联的商品规格，其中type(1：入库，0：出库), goodsSkuId, quantity, money, discountMoney必填")
     @ApiImplicitParam(name = "procurementApplyOrderVo",
-            value = "storeId, id, details, createTime, supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, 采购换货申请前面四个都要填, totalMoney, totalDiscountMoney, userId必填",
+            value = "storeId, id, details, createTime, supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, 采购换货申请前面四个都要填, totalMoney(采购订单大于0，采购退货申请小于0，采购换货申请入库-出库的价钱), totalDiscountMoney, userId必填",
             required = true,
             paramType = "body",
             dataType = "ProcurementApplyOrderVo"
@@ -89,43 +90,23 @@ public class ProcurementController {
     }
 
     /**
-     * 修改采购申请订单单据状态
+     * 修改采购申请订单备注接口
      * @param storeId
      * @param id
-     * @param type
+     * @param remark
      * @return
      */
-    @ApiOperation(value = "修改采购申请订单单据状态", notes = "点击收货或发货按钮")
+    @ApiOperation(value = "修改采购申请订单备注")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "id", value = "采购申请订单编号", required = true, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "1：收货，2：发货", required = true, paramType = "query", dataType = "int")
+            @ApiImplicitParam(name = "id", value = "采购申请订单单据编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "remark", value = "备注", required = true, paramType = "query", dataType = "String")
     })
-    @PutMapping(value = "/orders/apply/status/order")
-    public CommonResponse updateApplyOrderOrderStatus(@RequestParam(value = "storeId") Integer storeId,
-                                                      @RequestParam(value = "id") String id,
-                                                      @RequestParam(value = "type") Byte type) {
-        return procurementService.updateApplyOrderOrderStatus(new ProcurementApplyOrderVo(storeId, id, type));
-    }
-
-    /**
-     * 修改采购申请订单结算状态
-     * @param storeId
-     * @param id
-     * @param type
-     * @return
-     */
-    @ApiOperation(value = "修改采购申请订单结算状态", notes = "点击收款或付款按钮")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "id", value = "采购申请订单编号", required = true, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "1：收款，2：付款", required = true, paramType = "query", dataType = "int")
-    })
-    @PutMapping(value = "/orders/apply/status/check")
-    public CommonResponse updateApplyOrderCheckStatus(@RequestParam(value = "storeId") Integer storeId,
-                                                      @RequestParam(value = "id") String id,
-                                                      @RequestParam(value = "type") Byte type) {
-        return procurementService.updateApplyOrderOrderStatus(new ProcurementApplyOrderVo(storeId, id, type));
+    @PutMapping(value = "/orders/apply/remark")
+    public CommonResponse updateApplyOrderRemark(@RequestParam(value = "storeId") Integer storeId,
+                                                 @RequestParam(value = "id") String id,
+                                                 @RequestParam(value = "remark") String remark) {
+        return procurementService.updateApplyOrderRemark(new ProcurementApplyOrderVo(storeId, id, remark));
     }
 
     /**
@@ -146,6 +127,8 @@ public class ProcurementController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "id", value = "采购申请订单编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "采购申请订单类型(1：采购订单，2：采购退货申请，3,：采购换货申请)", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "orderStatus", value = "采购申请订单状态(1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发)", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
@@ -155,9 +138,11 @@ public class ProcurementController {
                                                                                          @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
                                                                                          @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
                                                                                          @RequestParam(value = "id", required = false) String id,
+                                                                                         @RequestParam(value = "type", required = false) Byte type,
+                                                                                         @RequestParam(value = "orderStatus", required = false) Byte orderStatus,
                                                                                          @RequestParam(value = "page") Integer page,
                                                                                          @RequestParam(value = "pageSize") Integer pageSize) {
-        return procurementService.findAllApplyOrder(new ProcurementApplyOrderVo(storeId, supplierName, startTime, endTime, id), new PageVo(page, pageSize));
+        return procurementService.findAllApplyOrder(new ProcurementApplyOrderVo(storeId, supplierName, startTime, endTime, id, type, orderStatus), new PageVo(page, pageSize));
     }
 
     /**
@@ -175,6 +160,41 @@ public class ProcurementController {
     public CommonResponse<ProcurementApplyOrderVo> findApplyOrderDetailById(@RequestParam(value = "storeId") Integer storeId,
                                                                             @PathVariable(value = "id") String id) {
         return procurementService.findApplyOrderDetailById(new ProcurementApplyOrderVo(storeId, id));
+    }
+
+    //采购结果订单
+
+    /**
+     * 查询所有采购结果订单接口
+     * @param storeId
+     * @param supplierName
+     * @param startTime
+     * @param endTime
+     * @param id
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "查询所有采购结果订单", notes = "分页、筛选查询，其中supplierName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "supplierName", value = "供应商名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "id", value = "采购结果订单编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/orders/result")
+    public CommonResponse<CommonResult<List<ProcurementResultOrderVo>>> findAllResultOrder(@RequestParam(value = "storeId") Integer storeId,
+                                                                                           @RequestParam(value = "supplierName", required = false) String supplierName,
+                                                                                           @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                           @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                           @RequestParam(value = "id", required = false) String id,
+                                                                                           @RequestParam(value = "page") Integer page,
+                                                                                           @RequestParam(value = "pageSize") Integer pageSize) {
+        ProcurementApplyOrderVo procurementApplyOrderVo = new ProcurementApplyOrderVo(supplierName, startTime, endTime);
+        return procurementService.findAllResultOrder(new ProcurementResultOrderVo(storeId, procurementApplyOrderVo, id), new PageVo(page, pageSize));
     }
 
 }

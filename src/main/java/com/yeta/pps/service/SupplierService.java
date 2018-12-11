@@ -32,7 +32,6 @@ public class SupplierService {
      * @return
      */
     public CommonResponse add(SupplierVo supplierVo) {
-        //TODO
         //新增
         if (mySupplierMapper.add(supplierVo) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);

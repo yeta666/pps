@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,7 +42,7 @@ public class ProcurementService {
     @Transactional
     public CommonResponse addApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo) {
         List<ProcurementApplyOrderGoodsSkuVo> paogsvs = procurementApplyOrderVo.getDetails();
-        //判断是采购订单/采购退货申请/采购换货申请
+        //判断是采购订单/采购退货申请单/采购换货申请单
         Byte type = procurementApplyOrderVo.getType();
         switch (type) {
             //采购订单
@@ -54,9 +53,11 @@ public class ProcurementService {
                 }
                 //设置初始属性
                 procurementApplyOrderVo.setId("CGDD_" + UUID.randomUUID().toString());
-                procurementApplyOrderVo.setOrderStatus((byte) 1);
+                procurementApplyOrderVo.setOrderStatus((byte) 1);       //未收
+                procurementApplyOrderVo.setInReceivedQuantity(0);
+                procurementApplyOrderVo.setInNotReceivedQuantity(procurementApplyOrderVo.getInTotalQuantity());
                 break;
-            //采购退货申请
+            //采购退货申请单
             case 2:
                 //判断参数
                 if (paogsvs.size() == 0 || procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null) {
@@ -64,9 +65,11 @@ public class ProcurementService {
                 }
                 //设置初始属性
                 procurementApplyOrderVo.setId("CGTHSQD_" + UUID.randomUUID().toString());
-                procurementApplyOrderVo.setOrderStatus((byte) 3);
+                procurementApplyOrderVo.setOrderStatus((byte) 4);       //未发
+                procurementApplyOrderVo.setOutSentQuantity(0);
+                procurementApplyOrderVo.setOutNotSentQuantity(procurementApplyOrderVo.getOutTotalQuantity());
                 break;
-            //采购换货申请
+            //采购换货申请单
             case 3:
                 //判断参数
                 if (paogsvs.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null ||
@@ -75,17 +78,22 @@ public class ProcurementService {
                 }
                 //设置初始属性
                 procurementApplyOrderVo.setId("CGHHSQD_" + UUID.randomUUID().toString());
-                procurementApplyOrderVo.setOrderStatus((byte) 5);
+                procurementApplyOrderVo.setOrderStatus((byte) 7);       //未收未发
+                procurementApplyOrderVo.setInReceivedQuantity(0);
+                procurementApplyOrderVo.setInNotReceivedQuantity(procurementApplyOrderVo.getInTotalQuantity());
+                procurementApplyOrderVo.setOutSentQuantity(0);
+                procurementApplyOrderVo.setOutNotSentQuantity(procurementApplyOrderVo.getOutTotalQuantity());
             default:
                 return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         procurementApplyOrderVo.setClearStatus((byte) 0);
-        procurementApplyOrderVo.setClearMoney(new BigDecimal(0));
-        //新增采购换货申请
+        procurementApplyOrderVo.setClearedMoney(new BigDecimal(0));
+        procurementApplyOrderVo.setNotClearedMoney(procurementApplyOrderVo.getTotalMoney());
+        //新增采购申请单
         if (myProcurementMapper.addApplyOrder(procurementApplyOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
         }
-        //新增采购申请订单/商品规格关系
+        //新增采购申请单/商品规格关系
         paogsvs.stream().forEach(paogsv -> {
             //判断参数
             if (paogsv.getType() == null || paogsv.getGoodsSkuId() == null || paogsv.getQuantity() == null || paogsv.getMoney() == null || paogsv.getDiscountMoney() == null) {
@@ -94,6 +102,8 @@ public class ProcurementService {
             //设置初始属性
             paogsv.setStoreId(procurementApplyOrderVo.getStoreId());
             paogsv.setApplyOrderId(procurementApplyOrderVo.getId());
+            paogsv.setFinishQuantity(0);
+            paogsv.setNotFinishQuantity(paogsv.getQuantity());
             //新增
             if (myProcurementMapper.addApplyOrderGoodsSku(paogsv) != 1) {
                 throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
@@ -117,7 +127,7 @@ public class ProcurementService {
             }
             //判断单据状态
             Byte orderStatus = pao.getOrderStatus();
-            if (orderStatus != 1 && orderStatus != 3 && orderStatus != 5) {     //1：未收，3：未发，5：未收未发
+            if (orderStatus != 1 && orderStatus != 4 && orderStatus != 7) {     //1：未收，4：未发，7：未收未发
                 throw new CommonException(CommonResponse.CODE19, "【 " + pao.getId() + "】" + CommonResponse.MESSAGE19);
             }
             //判断结算状态
@@ -150,7 +160,7 @@ public class ProcurementService {
         }
         //判断单据状态
         Byte orderStatus = pao.getOrderStatus();
-        if (orderStatus != 1 && orderStatus != 3 && orderStatus != 5) {     //1：未收，3：未发，5：未收未发
+        if (orderStatus != 1 && orderStatus != 4 && orderStatus != 7) {     //1：未收，4：未发，7：未收未发
             return new CommonResponse(CommonResponse.CODE19, null, "【 " + pao.getId() + "】" + CommonResponse.MESSAGE19);
         }
         //判断结算状态
@@ -186,7 +196,7 @@ public class ProcurementService {
             default:
                 return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
-        //修改采购换货申请
+        //修改采购申请订单
         if (myProcurementMapper.updateApplyOrder(procurementApplyOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
@@ -201,6 +211,8 @@ public class ProcurementService {
             //设置初始属性
             paogsv.setStoreId(procurementApplyOrderVo.getStoreId());
             paogsv.setApplyOrderId(procurementApplyOrderVo.getId());
+            paogsv.setFinishQuantity(0);
+            paogsv.setNotFinishQuantity(paogsv.getQuantity());
             //新增
             if (myProcurementMapper.addApplyOrderGoodsSku(paogsv) != 1) {
                 throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
@@ -209,91 +221,20 @@ public class ProcurementService {
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
-    //收货/发货
-
     /**
-     * 修改采购申请订单单据状态
+     * 修改采购申请订单备注
      * @param procurementApplyOrderVo
      * @return
      */
-    @Transactional
-    public CommonResponse updateApplyOrderOrderStatus(ProcurementApplyOrderVo procurementApplyOrderVo){
-        Integer storeId = procurementApplyOrderVo.getStoreId();
-        Byte option = procurementApplyOrderVo.getType();
-        //获取采购申请订单
-        ProcurementApplyOrder procurementApplyOrder = myProcurementMapper.findApplyOrderById(procurementApplyOrderVo);
-        if (procurementApplyOrder == null) {
+    public CommonResponse updateApplyOrderRemark(ProcurementApplyOrderVo procurementApplyOrderVo) {
+        //修改备注
+        if (myProcurementMapper.updateApplyOrderRemark(procurementApplyOrderVo) != 1) {
             return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
-        }
-        Byte type = procurementApplyOrder.getType();
-        Byte orderStatus = procurementApplyOrder.getOrderStatus();
-        Byte status = -1;
-        //判断收货/发货
-        switch (option) {
-            //收货
-            case 1:
-                //判断单据类型和单据状态
-                if (type == 1 && orderStatus == 1) {        //是采购订单且单据状态为未收
-                    status = 2;     //修改单据状态为【已收】
-                } else if (type == 3 && (orderStatus == 5 || orderStatus == 6)) {     //是采购换货申请且单据状态为未收未发或未收已发
-                    if (orderStatus == 5) {     //未收未发
-                        status = 7;     //修改单据状态为【已收未发】
-                    } else {        //未收已发
-                        status = 8;     //修改单据状态为【已收已发】
-                    }
-                }
-                break;
-            //发货
-            case 2:
-                //判断单据类型和单据状态
-                if (type == 2 && orderStatus == 3) {        //是采购退货申请且单据状态为未发
-                    status = 4;     //修改单据状态为【已发】
-                } else if (type == 3 && (orderStatus == 5 || orderStatus == 7)) {     //是采购换货申请且单据状态为未收未发或已收未发
-                    if (orderStatus == 5) {     //未收未发
-                        status = 6;     //修改单据状态为【未收已发】
-                    } else {        //已收未发
-                        status = 8;     //修改单据状态为【已收已发】
-                    }
-                }
-                break;
-            default:
-                return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-        }
-        //新增采购结果单
-        ProcurementResultOrderVo procurementResultOrderVo = new ProcurementResultOrderVo(storeId,
-                new Date(),
-                procurementApplyOrder.getId(),
-                procurementApplyOrder.getClearStatus(),
-                procurementApplyOrder.getSupplierId(),
-                procurementApplyOrder.getInWarehouseId(),
-                procurementApplyOrder.getOutWarehouseId(),
-                (procurementApplyOrder.getInTotalQuantity() == null ? 0 : procurementApplyOrder.getInTotalQuantity()) - (procurementApplyOrder.getOutTotalQuantity() == null ? 0 : procurementApplyOrder.getOutTotalQuantity()),
-                procurementApplyOrder.getTotalMoney(),
-                procurementApplyOrder.getTotalDiscountMoney(),
-                procurementApplyOrder.getClearMoney(),
-                procurementApplyOrder.getUserId(),
-                procurementApplyOrder.getRemark());
-        if (status == 2) {      //新增采购入库单
-            procurementResultOrderVo.setId("CGRKD_" + UUID.randomUUID().toString());
-            procurementResultOrderVo.setType((byte) 1);
-        } else if (status == 4) {       //新增采购退货单
-            procurementResultOrderVo.setId("CGTHD_" + UUID.randomUUID().toString());
-            procurementResultOrderVo.setType((byte) 2);
-        } else if (status == 8) {       //新增采换货单
-            procurementResultOrderVo.setId("CGHHD_" + UUID.randomUUID().toString());
-            procurementResultOrderVo.setType((byte) 3);
-        } else {
-            return new CommonResponse(CommonResponse.CODE19, null, CommonResponse.MESSAGE19);
-        }
-        if (myProcurementMapper.addResultOrder(procurementResultOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-        }
-        //修改单据状态
-        if (myProcurementMapper.updateApplyOrderOrderStatus(new ProcurementApplyOrderVo(storeId, procurementApplyOrder.getId(), status)) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
+
+
 
     //收款/付款
 
@@ -304,7 +245,7 @@ public class ProcurementService {
      */
     @Transactional
     public CommonResponse updateApplyOrderCheckStatus(ProcurementApplyOrderVo procurementApplyOrderVo) {
-        Integer storeId = procurementApplyOrderVo.getStoreId();
+        /*Integer storeId = procurementApplyOrderVo.getStoreId();
         Byte option = procurementApplyOrderVo.getType();
         //获取采购申请订单
         ProcurementApplyOrder procurementApplyOrder = myProcurementMapper.findApplyOrderById(procurementApplyOrderVo);
@@ -318,15 +259,43 @@ public class ProcurementService {
         switch (option) {
             //收款
             case 1:
-
+                //判断单据类型和结算状态
+                if (type == 1 && clearStatus == 0) {        //是采购订单且结算状态为未完成
+                    status = 1;     //修改结算状态为【已完成】
+                } else if (type == 3 && clearStatus == 0) {     //是采购换货申请且结算状态为未完成
+                    if (procurementApplyOrder.getTotalMoney().doubleValue() > 0) {
+                        return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+                    } else {
+                        status = 1;
+                        //新增收款单
+                    }
+                }
                 break;
             //付款
             case 2:
-
+                //判断单据类型和结算状态
+                if (type == 2 && clearStatus == 0) {        //是采购退货申请且结算状态为未完成
+                    status = 1;     //修改结算状态为【已完成】
+                } else if (type == 3 && clearStatus == 0) {     //是采购换货申请且结算状态为未完成
+                    if (procurementApplyOrder.getTotalMoney().doubleValue() < 0) {
+                        return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+                    } else {
+                        status = 1;
+                        //新增收款单
+                    }
+                }
                 break;
             default:
                 return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
+        if (status == -1) {
+            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+        } else if (status == 2) {
+            //修改单据结算状态
+            if (myProcurementMapper.updateApplyOrderClearStatus() != 1) {
+                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            }
+        }*/
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -362,12 +331,17 @@ public class ProcurementService {
         titles.add(new Title("结算状态", "clearStatus"));
         titles.add(new Title("供应商", "supplierName"));
         titles.add(new Title("入库仓库", "inWarehouseName"));
-        titles.add(new Title("入库总商品数量", "inTotalQuantity"));
+        titles.add(new Title("总收货数量", "inTotalQuantity"));
+        titles.add(new Title("已收货数量", "inReceivedQuantity"));
+        titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
         titles.add(new Title("出库仓库", "outWarehouseName"));
-        titles.add(new Title("出库总商品数量", "outTotalQuantity"));
-        titles.add(new Title("总订单金额", "totalMoney"));
+        titles.add(new Title("总发货数量", "outTotalQuantity"));
+        titles.add(new Title("已发货数量", "outSentQuantity"));
+        titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
+        titles.add(new Title("总商品金额", "totalMoney"));
         titles.add(new Title("总优惠金额", "totalDiscountMoney"));
-        titles.add(new Title("已结金额", "clearMoney"));
+        titles.add(new Title("已结金额", "clearedMoney"));
+        titles.add(new Title("未结金额", "notClearedMoney"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, procurementApplyOrderVos, pageVo);
@@ -396,5 +370,51 @@ public class ProcurementService {
             }
         }
         return new CommonResponse(CommonResponse.CODE1, procurementApplyOrderVo, CommonResponse.MESSAGE1);
+    }
+
+    //采购结果订单
+
+    /**
+     * 查询所有采购结果订单
+     * @param procurementResultOrderVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findAllResultOrder(ProcurementResultOrderVo procurementResultOrderVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myProcurementMapper.findCountResultOrder(procurementResultOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ProcurementResultOrderVo> procurementResultOrderVos = myProcurementMapper.findAllPagedResultOrder(procurementResultOrderVo, pageVo);
+        //补上仓库名
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(procurementResultOrderVo.getStoreId()));
+        procurementResultOrderVos.stream().forEach(vo -> {
+            warehouses.stream().forEach(warehouse -> {
+                if (vo.getProcurementApplyOrderVo().getInWarehouseId() == warehouse.getId()) {
+                    vo.getProcurementApplyOrderVo().setInWarehouseName(warehouse.getName());
+                }
+                if (vo.getProcurementApplyOrderVo().getOutWarehouseId() == warehouse.getId()) {
+                    vo.getProcurementApplyOrderVo().setOutWarehouseName(warehouse.getName());
+                }
+            });
+        });
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "id"));
+        titles.add(new Title("单据类型", "type"));
+        titles.add(new Title("单据日期", "createTime"));
+        titles.add(new Title("单据状态", "orderStatus"));
+        titles.add(new Title("来源订单", "applyOrderId"));
+        titles.add(new Title("来源订单单据状态", "procurementApplyOrderVo.orderStatus"));
+        titles.add(new Title("来源订单结算状态", "procurementApplyOrderVo.clearStatus"));
+        titles.add(new Title("供应商", "procurementApplyOrderVo.supplierName"));
+        titles.add(new Title("入库仓库", "procurementApplyOrderVo.inWarehouseName"));
+        titles.add(new Title("出库仓库", "procurementApplyOrderVo.outWarehouseName"));
+        titles.add(new Title("总商品数量", "totalQuantity"));
+        titles.add(new Title("总订单金额", "totalMoney"));
+        titles.add(new Title("总优惠金额", "totalDiscountMoney"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("单据备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, procurementResultOrderVos, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
     }
 }

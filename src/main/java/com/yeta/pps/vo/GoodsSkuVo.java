@@ -57,6 +57,12 @@ public class GoodsSkuVo {
         this.goodsId = goodsId;
     }
 
+    public GoodsSkuVo(Integer storeId, Integer id, Integer inventory) {
+        this.storeId = storeId;
+        this.id = id;
+        this.inventory = inventory;
+    }
+
     public Integer getStoreId() {
         return storeId;
     }

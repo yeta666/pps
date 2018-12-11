@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class ProcurementResultOrderVo {
+public class StorageOrderVo {
 
     /**
      * 店铺id
@@ -17,7 +17,8 @@ public class ProcurementResultOrderVo {
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
 
-    ProcurementApplyOrderVo procurementApplyOrderVo;
+    @NotNull(message = CommonResponse.MESSAGE3)
+    private ProcurementApplyOrderVo procurementApplyOrderVo;
 
     private String userName;
 
@@ -27,8 +28,9 @@ public class ProcurementResultOrderVo {
     private String id;
 
     /**
-     * 单据类型，1：采购入库单，2：采购退货单，3,：采购换货单
+     * 单据类型，1：采购订单收货单，2：退换货申请收货单，3：销售订单发货单，4：退换货申请发货单
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Byte type;
 
     /**
@@ -40,28 +42,13 @@ public class ProcurementResultOrderVo {
     /**
      * 来源订单
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String applyOrderId;
 
     /**
      * 单据状态
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
     private Byte orderStatus;
-
-    /**
-     * 总商品数量
-     */
-    private Integer totalQuantity;
-
-    /**
-     * 总商品金额
-     */
-    private BigDecimal totalMoney;
-
-    /**
-     * 总优惠金额
-     */
-    private BigDecimal totalDiscountMoney;
 
     /**
      * 经手人
@@ -74,26 +61,27 @@ public class ProcurementResultOrderVo {
      */
     private String remark;
 
-    public ProcurementResultOrderVo() {
+    public StorageOrderVo() {
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id) {
+    public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String applyOrderId) {
         this.storeId = storeId;
-        this.procurementApplyOrderVo = procurementApplyOrderVo;
-        this.id = id;
+        this.applyOrderId = applyOrderId;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, @NotNull(message = CommonResponse.MESSAGE3) Byte orderStatus, Integer totalQuantity, BigDecimal totalMoney, BigDecimal totalDiscountMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId) {
+    public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, ProcurementApplyOrderVo procurementApplyOrderVo) {
+        this.storeId = storeId;
+        this.id = id;
+        this.type = type;
+        this.procurementApplyOrderVo = procurementApplyOrderVo;
+    }
+
+    public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
         this.createTime = createTime;
         this.applyOrderId = applyOrderId;
-        this.orderStatus = orderStatus;
-        this.totalQuantity = totalQuantity;
-        this.totalMoney = totalMoney;
-        this.totalDiscountMoney = totalDiscountMoney;
-        this.userId = userId;
     }
 
     public Integer getStoreId() {
@@ -160,30 +148,6 @@ public class ProcurementResultOrderVo {
         this.orderStatus = orderStatus;
     }
 
-    public Integer getTotalQuantity() {
-        return totalQuantity;
-    }
-
-    public void setTotalQuantity(Integer totalQuantity) {
-        this.totalQuantity = totalQuantity;
-    }
-
-    public BigDecimal getTotalMoney() {
-        return totalMoney;
-    }
-
-    public void setTotalMoney(BigDecimal totalMoney) {
-        this.totalMoney = totalMoney;
-    }
-
-    public BigDecimal getTotalDiscountMoney() {
-        return totalDiscountMoney;
-    }
-
-    public void setTotalDiscountMoney(BigDecimal totalDiscountMoney) {
-        this.totalDiscountMoney = totalDiscountMoney;
-    }
-
     public String getUserId() {
         return userId;
     }
@@ -202,7 +166,7 @@ public class ProcurementResultOrderVo {
 
     @Override
     public String toString() {
-        return "ProcurementResultOrderVo{" +
+        return "StorageOrderVo{" +
                 "storeId=" + storeId +
                 ", procurementApplyOrderVo=" + procurementApplyOrderVo +
                 ", userName='" + userName + '\'' +
@@ -211,9 +175,6 @@ public class ProcurementResultOrderVo {
                 ", createTime=" + createTime +
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", orderStatus=" + orderStatus +
-                ", totalQuantity=" + totalQuantity +
-                ", totalMoney=" + totalMoney +
-                ", totalDiscountMoney=" + totalDiscountMoney +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

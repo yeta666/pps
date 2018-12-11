@@ -57,9 +57,12 @@ public class ProcurementApplyOrderVo {
     private Date createTime;
 
     /**
-     * 单据状态，1：未收，2：已收，3：未发，4：已发，5：未收未发，6：未收已发，7：已收未发，8：已收已发
+     * 单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发
      */
     private Byte orderStatus;
+
+    //TODO
+    //来源订单
 
     /**
      * 结算状态：0：未完成，1：已完成
@@ -78,9 +81,19 @@ public class ProcurementApplyOrderVo {
     private Integer inWarehouseId;
 
     /**
-     * 收货总数量
+     * 总收货数量
      */
     private Integer inTotalQuantity;
+
+    /**
+     * 已收货数量
+     */
+    private Integer inReceivedQuantity;
+
+    /**
+     * 未收货数量
+     */
+    private Integer inNotReceivedQuantity;
 
     /**
      * 出库仓库编号，对应发货
@@ -88,12 +101,22 @@ public class ProcurementApplyOrderVo {
     private Integer outWarehouseId;
 
     /**
-     * 发货总数量
+     * 总发货数量
      */
     private Integer outTotalQuantity;
 
     /**
-     * 订单金额
+     * 已发货数量
+     */
+    private Integer outSentQuantity;
+
+    /**
+     * 未发货数量
+     */
+    private Integer outNotSentQuantity;
+
+    /**
+     * 总商品金额
      */
     @NotNull(message = CommonResponse.MESSAGE3)
     private BigDecimal totalMoney;
@@ -105,9 +128,14 @@ public class ProcurementApplyOrderVo {
     private BigDecimal totalDiscountMoney;
 
     /**
-     * 结算金额
+     * 已结算金额
      */
-    private BigDecimal clearMoney;
+    private BigDecimal clearedMoney;
+
+    /**
+     * 未结算金额
+     */
+    private BigDecimal notClearedMoney;
 
     /**
      * 经手人编号
@@ -123,23 +151,41 @@ public class ProcurementApplyOrderVo {
     public ProcurementApplyOrderVo() {
     }
 
+    public ProcurementApplyOrderVo(String supplierName, Date startTime, Date endTime) {
+        this.supplierName = supplierName;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
     public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type) {
+    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, String remark) {
         this.storeId = storeId;
         this.id = id;
-        this.type = type;
+        this.remark = remark;
     }
 
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String supplierName, Date startTime, Date endTime, String id) {
+    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String supplierName, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Byte orderStatus) {
         this.storeId = storeId;
         this.supplierName = supplierName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.id = id;
+        this.type = type;
+        this.orderStatus = orderStatus;
+    }
+
+    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte orderStatus, Integer inReceivedQuantity, Integer inNotReceivedQuantity, Integer outSentQuantity, Integer outNotSentQuantity) {
+        this.storeId = storeId;
+        this.id = id;
+        this.orderStatus = orderStatus;
+        this.inReceivedQuantity = inReceivedQuantity;
+        this.inNotReceivedQuantity = inNotReceivedQuantity;
+        this.outSentQuantity = outSentQuantity;
+        this.outNotSentQuantity = outNotSentQuantity;
     }
 
     public Integer getStoreId() {
@@ -270,6 +316,22 @@ public class ProcurementApplyOrderVo {
         this.inTotalQuantity = inTotalQuantity;
     }
 
+    public Integer getInReceivedQuantity() {
+        return inReceivedQuantity;
+    }
+
+    public void setInReceivedQuantity(Integer inReceivedQuantity) {
+        this.inReceivedQuantity = inReceivedQuantity;
+    }
+
+    public Integer getInNotReceivedQuantity() {
+        return inNotReceivedQuantity;
+    }
+
+    public void setInNotReceivedQuantity(Integer inNotReceivedQuantity) {
+        this.inNotReceivedQuantity = inNotReceivedQuantity;
+    }
+
     public Integer getOutWarehouseId() {
         return outWarehouseId;
     }
@@ -284,6 +346,22 @@ public class ProcurementApplyOrderVo {
 
     public void setOutTotalQuantity(Integer outTotalQuantity) {
         this.outTotalQuantity = outTotalQuantity;
+    }
+
+    public Integer getOutSentQuantity() {
+        return outSentQuantity;
+    }
+
+    public void setOutSentQuantity(Integer outSentQuantity) {
+        this.outSentQuantity = outSentQuantity;
+    }
+
+    public Integer getOutNotSentQuantity() {
+        return outNotSentQuantity;
+    }
+
+    public void setOutNotSentQuantity(Integer outNotSentQuantity) {
+        this.outNotSentQuantity = outNotSentQuantity;
     }
 
     public BigDecimal getTotalMoney() {
@@ -302,12 +380,20 @@ public class ProcurementApplyOrderVo {
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
-    public BigDecimal getClearMoney() {
-        return clearMoney;
+    public BigDecimal getClearedMoney() {
+        return clearedMoney;
     }
 
-    public void setClearMoney(BigDecimal clearMoney) {
-        this.clearMoney = clearMoney;
+    public void setClearedMoney(BigDecimal clearedMoney) {
+        this.clearedMoney = clearedMoney;
+    }
+
+    public BigDecimal getNotClearedMoney() {
+        return notClearedMoney;
+    }
+
+    public void setNotClearedMoney(BigDecimal notClearedMoney) {
+        this.notClearedMoney = notClearedMoney;
     }
 
     public String getUserId() {
@@ -345,11 +431,16 @@ public class ProcurementApplyOrderVo {
                 ", supplierId='" + supplierId + '\'' +
                 ", inWarehouseId=" + inWarehouseId +
                 ", inTotalQuantity=" + inTotalQuantity +
+                ", inReceivedQuantity=" + inReceivedQuantity +
+                ", inNotReceivedQuantity=" + inNotReceivedQuantity +
                 ", outWarehouseId=" + outWarehouseId +
                 ", outTotalQuantity=" + outTotalQuantity +
+                ", outSentQuantity=" + outSentQuantity +
+                ", outNotSentQuantity=" + outNotSentQuantity +
                 ", totalMoney=" + totalMoney +
                 ", totalDiscountMoney=" + totalDiscountMoney +
-                ", clearMoney=" + clearMoney +
+                ", clearedMoney=" + clearedMoney +
+                ", notClearedMoney=" + notClearedMoney +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

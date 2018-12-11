@@ -19,7 +19,9 @@ public interface MyProcurementMapper {
 
     int updateApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
 
-    int updateApplyOrderOrderStatus(ProcurementApplyOrderVo procurementApplyOrderVo);
+    int updateApplyOrderRemark(ProcurementApplyOrderVo procurementApplyOrderVo);
+
+    int updateApplyOrderOrderStatusAndQuantity(ProcurementApplyOrderVo procurementApplyOrderVo);
 
     int findCountApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
 
@@ -36,7 +38,14 @@ public interface MyProcurementMapper {
 
     int deleteApplyOrderGoodsSku(ProcurementApplyOrderGoodsSkuVo procurementApplyOrderGoodsSkuVo);
 
+    int updateApplyOrderGoodsSku(ProcurementApplyOrderGoodsSkuVo procurementApplyOrderGoodsSkuVo);
+
     //采购结果订单
 
     int addResultOrder(ProcurementResultOrderVo procurementResultOrderVo);
+
+    int findCountResultOrder(ProcurementResultOrderVo procurementResultOrderVo);
+
+    List<ProcurementResultOrderVo> findAllPagedResultOrder(@Param("procurementResultOrderVo") ProcurementResultOrderVo procurementResultOrderVo,
+                                                           @Param("pageVo") PageVo pageVo);
 }

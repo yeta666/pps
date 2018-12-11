@@ -44,9 +44,19 @@ public class ProcurementApplyOrderGoodsSkuVo {
     private Integer goodsSkuId;
 
     /**
-     * 采购数量
+     * 总数量
      */
     private Integer quantity;
+
+    /**
+     * 完成数量
+     */
+    private Integer finishQuantity;
+
+    /**
+     * 未完成数量
+     */
+    private Integer notFinishQuantity;
 
     /**
      * 金额
@@ -159,6 +169,22 @@ public class ProcurementApplyOrderGoodsSkuVo {
         this.quantity = quantity;
     }
 
+    public Integer getFinishQuantity() {
+        return finishQuantity;
+    }
+
+    public void setFinishQuantity(Integer finishQuantity) {
+        this.finishQuantity = finishQuantity;
+    }
+
+    public Integer getNotFinishQuantity() {
+        return notFinishQuantity;
+    }
+
+    public void setNotFinishQuantity(Integer notFinishQuantity) {
+        this.notFinishQuantity = notFinishQuantity;
+    }
+
     public BigDecimal getMoney() {
         return money;
     }
@@ -197,6 +223,8 @@ public class ProcurementApplyOrderGoodsSkuVo {
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", goodsSkuId=" + goodsSkuId +
                 ", quantity=" + quantity +
+                ", finishQuantity=" + finishQuantity +
+                ", notFinishQuantity=" + notFinishQuantity +
                 ", money=" + money +
                 ", discountMoney=" + discountMoney +
                 ", remark='" + remark + '\'' +

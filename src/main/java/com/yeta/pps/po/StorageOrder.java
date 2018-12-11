@@ -1,9 +1,8 @@
 package com.yeta.pps.po;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
-public class ProcurementResultOrder {
+public class StorageOrder {
 
     /**
      * 单据编号
@@ -11,7 +10,7 @@ public class ProcurementResultOrder {
     private String id;
 
     /**
-     * 单据类型，1：采购入库单，2：采购退货单，3,：采购换货单
+     * 单据类型，1：采购订单收货单，2：退换货申请收货单，3：销售订单发货单，4：退换货申请发货单
      */
     private Byte type;
 
@@ -31,21 +30,6 @@ public class ProcurementResultOrder {
     private Byte orderStatus;
 
     /**
-     * 总商品数量
-     */
-    private Integer total_quantity;
-
-    /**
-     * 总商品金额
-     */
-    private BigDecimal total_money;
-
-    /**
-     * 总优惠金额
-     */
-    private BigDecimal total_discount_money;
-
-    /**
      * 经手人
      */
     private String userId;
@@ -55,9 +39,8 @@ public class ProcurementResultOrder {
      */
     private String remark;
 
-    public ProcurementResultOrder() {
+    public StorageOrder() {
     }
-
 
     public String getId() {
         return id;
@@ -99,30 +82,6 @@ public class ProcurementResultOrder {
         this.orderStatus = orderStatus;
     }
 
-    public Integer getTotal_quantity() {
-        return total_quantity;
-    }
-
-    public void setTotal_quantity(Integer total_quantity) {
-        this.total_quantity = total_quantity;
-    }
-
-    public BigDecimal getTotal_money() {
-        return total_money;
-    }
-
-    public void setTotal_money(BigDecimal total_money) {
-        this.total_money = total_money;
-    }
-
-    public BigDecimal getTotal_discount_money() {
-        return total_discount_money;
-    }
-
-    public void setTotal_discount_money(BigDecimal total_discount_money) {
-        this.total_discount_money = total_discount_money;
-    }
-
     public String getUserId() {
         return userId;
     }
@@ -141,15 +100,12 @@ public class ProcurementResultOrder {
 
     @Override
     public String toString() {
-        return "ProcurementResultOrder{" +
+        return "StorageOrder{" +
                 "id='" + id + '\'' +
                 ", type=" + type +
                 ", createTime=" + createTime +
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", orderStatus=" + orderStatus +
-                ", total_quantity=" + total_quantity +
-                ", total_money=" + total_money +
-                ", total_discount_money=" + total_discount_money +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

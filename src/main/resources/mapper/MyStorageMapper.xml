@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeta.pps.mapper.MyStorageMapper" >
+
+    <!--收/发货单-->
+
+    <insert id="addStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo">
+        insert into
+            storage_order_${storeId} (id, type, create_time, apply_order_id, order_status)
+        values
+            (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus});
+    </insert>
+
+    <delete id="deleteStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo">
+        delete from storage_order_${storeId} where apply_order_id = #{applyOrderId};
+    </delete>
+
+    <select id="findCountStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                (
+                    storage_order_${storeId} as so
+                    left join procurement_apply_order_${storeId} as pao on so.apply_order_id = pao.id
+                )
+              left join supplier_${storeId} as s on pao.supplier_id = s.id
+            )
+        left join user_${storeId} as u on pao.user_id = u.id
+        where
+            so.type = #{type}
+        <if test="id != null">
+        and
+            pro.id = #{id}
+        </if>
+        <if test="procurementApplyOrderVo.supplierName != null">
+        and
+            s.name like concat('%', #{procurementApplyOrderVo.supplierName}, '%')
+        </if>
+        <if test="procurementApplyOrderVo.startTime != null and procurementApplyOrderVo.endTime != null">
+        and
+            date(so.create_time) between #{procurementApplyOrderVo.startTime} and #{procurementApplyOrderVo.endTime}
+        </if>
+        order by
+            so.create_time desc
+    </select>
+
+    <resultMap id="storageOrderVoMap" type="com.yeta.pps.vo.StorageOrderVo">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="apply_order_id" property="applyOrderId" />
+        <result column="order_status" property="orderStatus" />
+        <result column="user_name" property="userName" />
+        <result column="remark" property="remark" />
+        <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+            <result column="pao_order_status" property="orderStatus" />
+            <result column="supplier_name" property="supplierName" />
+            <result column="in_warehouse_id" property="inWarehouseId" />
+            <result column="in_total_quantity" property="inTotalQuantity" />
+            <result column="in_received_quantity" property="inReceivedQuantity" />
+            <result column="in_not_received_quantity" property="inNotReceivedQuantity" />
+            <result column="out_warehouse_id" property="outWarehouseId" />
+            <result column="out_total_quantity" property="outTotalQuantity" />
+            <result column="out_sent_quantity" property="outSentQuantity" />
+            <result column="out_not_sent_quantity" property="outNotSentQuantity" />
+        </collection>
+    </resultMap>
+
+    <select id="findAllPagedStorageOrder" resultMap="storageOrderVoMap">
+        select
+            so.id,
+            so.type,
+            so.create_time,
+            so.apply_order_id,
+            so.order_status,
+            u.name as user_name,
+            so.remark as remark,
+            pao.order_status as pao_order_status,
+            s.name as supplier_name,
+            pao.in_warehouse_id,
+            pao.in_total_quantity,
+            pao.in_received_quantity,
+            pao.in_not_received_quantity,
+            pao.out_warehouse_id,
+            pao.out_total_quantity,
+            pao.out_sent_quantity,
+            pao.out_not_sent_quantity
+        from
+            (
+                (
+                    storage_order_${storageOrderVo.storeId} as so
+                    left join procurement_apply_order_${storageOrderVo.storeId} as pao on so.apply_order_id = pao.id
+                )
+                left join supplier_${storageOrderVo.storeId} as s on pao.supplier_id = s.id
+            )
+        left join user_${storageOrderVo.storeId} as u on pao.user_id = u.id
+        where
+            so.type = #{storageOrderVo.type}
+        <if test="storageOrderVo.id != null">
+        and
+            pro.id = #{storageOrderVo.id}
+        </if>
+        <if test="storageOrderVo.procurementApplyOrderVo.supplierName != null">
+        and
+            s.name like concat('%', #{storageOrderVo.procurementApplyOrderVo.supplierName}, '%')
+        </if>
+        <if test="storageOrderVo.procurementApplyOrderVo.startTime != null and storageOrderVo.procurementApplyOrderVo.endTime != null">
+        and
+            date(so.create_time) between #{storageOrderVo.procurementApplyOrderVo.startTime} and #{storageOrderVo.procurementApplyOrderVo.endTime}
+        </if>
+        order by
+            so.create_time desc
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+</mapper>

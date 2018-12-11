@@ -303,11 +303,20 @@
         delete from goods_sku_${storeId} where goods_id = #{goodsId};
     </delete>
 
-    <update id="updateGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
+    <update id="increaseGoodsSkuInventory" parameterType="com.yeta.pps.vo.GoodsSkuVo">
         update
             goods_sku_${storeId}
         set
-            sku = #{sku}, purchase_price = #{purchasePrice}, retail_price = #{retailPrice}, vip_price = #{vipPrice}, inventory = #{inventory}, integral = #{integral}
+            inventory = inventory + #{inventory}
+        where
+            id = #{id};
+    </update>
+
+    <update id="decreaseGoodsSkuInventory" parameterType="com.yeta.pps.vo.GoodsSkuVo">
+        update
+            goods_sku_${storeId}
+        set
+            inventory = inventory - #{inventory}
         where
             id = #{id};
     </update>

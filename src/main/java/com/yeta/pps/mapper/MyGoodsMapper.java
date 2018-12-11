@@ -98,6 +98,10 @@ public interface MyGoodsMapper {
 
     int deleteGoodsSku(GoodsSkuVo goodsSkuVo);
 
+    int increaseGoodsSkuInventory(GoodsSkuVo goodsSkuVo);
+
+    int decreaseGoodsSkuInventory(GoodsSkuVo goodsSkuVo);
+
     //商品
 
     int add(GoodsVo goodsVo);

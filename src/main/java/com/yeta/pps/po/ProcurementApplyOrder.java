@@ -21,7 +21,7 @@ public class ProcurementApplyOrder {
     private Date createTime;
 
     /**
-     * 单据状态，1：未收，2：已收，3：未发，4：已发，5：未收未发，6：未收已发，7：已收未发，8：已收已发
+     * 单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发
      */
     private Byte orderStatus;
 
@@ -41,9 +41,19 @@ public class ProcurementApplyOrder {
     private Integer inWarehouseId;
 
     /**
-     * 收货总数量
+     * 总收货数量
      */
     private Integer inTotalQuantity;
+
+    /**
+     * 已收货数量
+     */
+    private Integer inReceivedQuantity;
+
+    /**
+     * 未收货数量
+     */
+    private Integer inNotReceivedQuantity;
 
     /**
      * 出库仓库编号，对应发货
@@ -51,12 +61,22 @@ public class ProcurementApplyOrder {
     private Integer outWarehouseId;
 
     /**
-     * 发货总数量
+     * 总发货数量
      */
     private Integer outTotalQuantity;
 
     /**
-     * 订单金额
+     * 已发货数量
+     */
+    private Integer outSentQuantity;
+
+    /**
+     * 未发货数量
+     */
+    private Integer outNotSentQuantity;
+
+    /**
+     * 总商品金额
      */
     private BigDecimal totalMoney;
 
@@ -66,9 +86,14 @@ public class ProcurementApplyOrder {
     private BigDecimal totalDiscountMoney;
 
     /**
-     * 结算金额
+     * 已结算金额
      */
-    private BigDecimal clearMoney;
+    private BigDecimal clearedMoney;
+
+    /**
+     * 未结算金额
+     */
+    private BigDecimal notClearedMoney;
 
     /**
      * 经手人编号
@@ -147,6 +172,22 @@ public class ProcurementApplyOrder {
         this.inTotalQuantity = inTotalQuantity;
     }
 
+    public Integer getInReceivedQuantity() {
+        return inReceivedQuantity;
+    }
+
+    public void setInReceivedQuantity(Integer inReceivedQuantity) {
+        this.inReceivedQuantity = inReceivedQuantity;
+    }
+
+    public Integer getInNotReceivedQuantity() {
+        return inNotReceivedQuantity;
+    }
+
+    public void setInNotReceivedQuantity(Integer inNotReceivedQuantity) {
+        this.inNotReceivedQuantity = inNotReceivedQuantity;
+    }
+
     public Integer getOutWarehouseId() {
         return outWarehouseId;
     }
@@ -161,6 +202,22 @@ public class ProcurementApplyOrder {
 
     public void setOutTotalQuantity(Integer outTotalQuantity) {
         this.outTotalQuantity = outTotalQuantity;
+    }
+
+    public Integer getOutSentQuantity() {
+        return outSentQuantity;
+    }
+
+    public void setOutSentQuantity(Integer outSentQuantity) {
+        this.outSentQuantity = outSentQuantity;
+    }
+
+    public Integer getOutNotSentQuantity() {
+        return outNotSentQuantity;
+    }
+
+    public void setOutNotSentQuantity(Integer outNotSentQuantity) {
+        this.outNotSentQuantity = outNotSentQuantity;
     }
 
     public BigDecimal getTotalMoney() {
@@ -179,12 +236,20 @@ public class ProcurementApplyOrder {
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
-    public BigDecimal getClearMoney() {
-        return clearMoney;
+    public BigDecimal getClearedMoney() {
+        return clearedMoney;
     }
 
-    public void setClearMoney(BigDecimal clearMoney) {
-        this.clearMoney = clearMoney;
+    public void setClearedMoney(BigDecimal clearedMoney) {
+        this.clearedMoney = clearedMoney;
+    }
+
+    public BigDecimal getNotClearedMoney() {
+        return notClearedMoney;
+    }
+
+    public void setNotClearedMoney(BigDecimal notClearedMoney) {
+        this.notClearedMoney = notClearedMoney;
     }
 
     public String getUserId() {
@@ -211,14 +276,19 @@ public class ProcurementApplyOrder {
                 ", createTime=" + createTime +
                 ", orderStatus=" + orderStatus +
                 ", clearStatus=" + clearStatus +
-                ", supplierId=" + supplierId +
+                ", supplierId='" + supplierId + '\'' +
                 ", inWarehouseId=" + inWarehouseId +
                 ", inTotalQuantity=" + inTotalQuantity +
+                ", inReceivedQuantity=" + inReceivedQuantity +
+                ", inNotReceivedQuantity=" + inNotReceivedQuantity +
                 ", outWarehouseId=" + outWarehouseId +
                 ", outTotalQuantity=" + outTotalQuantity +
+                ", outSentQuantity=" + outSentQuantity +
+                ", outNotSentQuantity=" + outNotSentQuantity +
                 ", totalMoney=" + totalMoney +
                 ", totalDiscountMoney=" + totalDiscountMoney +
-                ", clearMoney=" + clearMoney +
+                ", clearedMoney=" + clearedMoney +
+                ", notClearedMoney=" + notClearedMoney +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

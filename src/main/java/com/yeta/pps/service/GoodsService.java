@@ -238,7 +238,6 @@ public class GoodsService {
 
     /**
      * 删除商品属性名
-     * //TODO
      * 是否要做删除商品属性名功能，删除商品属性名之后，有的商品规格可能还存在该商品属性名？？
      * @param goodsPropertyKeyVos
      * @return
@@ -259,7 +258,6 @@ public class GoodsService {
 
     /**
      * 修改商品属性名
-     * //TODO
      * 是否要做修改商品属性名功能，修改商品属性名之后，有的商品规格可能还存在该商品属性名？？
      * @param goodsPropertyKeyVo
      * @return
@@ -331,7 +329,6 @@ public class GoodsService {
 
     /**
      * 删除商品属性值
-     * //TODO
      * 是否要做删除商品属性值功能，删除商品属性值之后，有的商品规格可能还存在该商品属性值？？
      * @param goodsPropertyValueVos
      * @return
@@ -349,7 +346,6 @@ public class GoodsService {
 
     /**
      * 修改商品属性值
-     * //TODO
      * 是否要做修改商品属性值功能，修改商品属性值之后，有的商品规格可能还存在该商品属性值？？
      * @param goodsPropertyValueVo
      * @return
