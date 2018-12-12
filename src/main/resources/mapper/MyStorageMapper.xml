@@ -6,9 +6,9 @@
 
     <insert id="addStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo">
         insert into
-            storage_order_${storeId} (id, type, create_time, apply_order_id, order_status)
+            storage_order_${storeId} (id, type, create_time, apply_order_id, order_status, quantity, user_id, remark)
         values
-            (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus});
+            (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{quantity}, #{userId}, #{remark});
     </insert>
 
     <delete id="deleteStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo">
@@ -26,7 +26,7 @@
                 )
               left join supplier_${storeId} as s on pao.supplier_id = s.id
             )
-        left join user_${storeId} as u on pao.user_id = u.id
+        left join user_${storeId} as u on so.user_id = u.id
         where
             so.type = #{type}
         <if test="id != null">
@@ -51,19 +51,13 @@
         <result column="create_time" property="createTime" />
         <result column="apply_order_id" property="applyOrderId" />
         <result column="order_status" property="orderStatus" />
+        <result column="quantity" property="quantity" />
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
         <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
-            <result column="pao_order_status" property="orderStatus" />
             <result column="supplier_name" property="supplierName" />
             <result column="in_warehouse_id" property="inWarehouseId" />
-            <result column="in_total_quantity" property="inTotalQuantity" />
-            <result column="in_received_quantity" property="inReceivedQuantity" />
-            <result column="in_not_received_quantity" property="inNotReceivedQuantity" />
             <result column="out_warehouse_id" property="outWarehouseId" />
-            <result column="out_total_quantity" property="outTotalQuantity" />
-            <result column="out_sent_quantity" property="outSentQuantity" />
-            <result column="out_not_sent_quantity" property="outNotSentQuantity" />
         </collection>
     </resultMap>
 
@@ -74,18 +68,12 @@
             so.create_time,
             so.apply_order_id,
             so.order_status,
-            u.name as user_name,
-            so.remark as remark,
-            pao.order_status as pao_order_status,
             s.name as supplier_name,
             pao.in_warehouse_id,
-            pao.in_total_quantity,
-            pao.in_received_quantity,
-            pao.in_not_received_quantity,
             pao.out_warehouse_id,
-            pao.out_total_quantity,
-            pao.out_sent_quantity,
-            pao.out_not_sent_quantity
+            so.quantity,
+            u.name as user_name,
+            so.remark as remark
         from
             (
                 (
@@ -94,7 +82,7 @@
                 )
                 left join supplier_${storageOrderVo.storeId} as s on pao.supplier_id = s.id
             )
-        left join user_${storageOrderVo.storeId} as u on pao.user_id = u.id
+        left join user_${storageOrderVo.storeId} as u on so.user_id = u.id
         where
             so.type = #{storageOrderVo.type}
         <if test="storageOrderVo.id != null">

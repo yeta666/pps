@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,16 +42,14 @@ public class StorageService {
 
     /**
      * 修改商品规格完成情况和修改商品规格库存
-     * @param totalMoney
-     * @param totalDiscountMoney
      * @param storeId
      * @param paogsvs
      */
     @Transactional
-    public void updateGoodsSku(byte type, BigDecimal totalMoney, BigDecimal totalDiscountMoney, Integer storeId, List<ProcurementApplyOrderGoodsSkuVo> paogsvs) {
-        paogsvs.stream().forEach(paogsv -> {
+    public void updateGoodsSku(byte type, int storeId, List<ProcurementApplyOrderGoodsSkuVo> paogsvs) {
+        for (ProcurementApplyOrderGoodsSkuVo paogsv : paogsvs) {
             //判断参数
-            if (paogsv.getId() == null || paogsv.getGoodsSkuId() == null || paogsv.getFinishQuantity() == null || paogsv.getNotFinishQuantity() == null) {
+            if (paogsv.getId() == null || paogsv.getGoodsSkuId() == null || paogsv.getChangeQuantity() == null) {
                 throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
             }
             paogsv.setStoreId(storeId);
@@ -60,20 +57,18 @@ public class StorageService {
             if (myProcurementMapper.updateApplyOrderGoodsSku(paogsv) != 1) {
                 throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
             }
-            if (type == 1 || type == 2) {
+            if ((type == 1 || type == 2) && paogsv.getType() == 1) {        //入库
                 //增加商品规格库存
-                if (myGoodsMapper.increaseGoodsSkuInventory(new GoodsSkuVo(storeId, paogsv.getGoodsSkuId(), paogsv.getFinishQuantity())) != 1) {
+                if (myGoodsMapper.increaseGoodsSkuInventory(new GoodsSkuVo(storeId, paogsv.getGoodsSkuId(), paogsv.getChangeQuantity())) != 1) {
                     throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                 }
-            } else if (type == 3 || type == 4) {
+            } else if ((type == 3 || type == 4) && paogsv.getType() == 0) {     //出库
                 //减少商品规格库存
-                if (myGoodsMapper.decreaseGoodsSkuInventory(new GoodsSkuVo(storeId, paogsv.getGoodsSkuId(), paogsv.getFinishQuantity())) != 1) {
+                if (myGoodsMapper.decreaseGoodsSkuInventory(new GoodsSkuVo(storeId, paogsv.getGoodsSkuId(), paogsv.getChangeQuantity())) != 1) {
                     throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                 }
             }
-            totalMoney.add(paogsv.getMoney().multiply(new BigDecimal(paogsv.getFinishQuantity())));
-            totalDiscountMoney.add(paogsv.getDiscountMoney().multiply(new BigDecimal(paogsv.getFinishQuantity())));
-        });
+        }
     }
 
     /**
@@ -84,29 +79,28 @@ public class StorageService {
     @Transactional
     public CommonResponse addStorageOrder(StorageOrderVo storageOrderVo) {
         //获取参数
-        ProcurementApplyOrderVo procurementApplyOrderVo = storageOrderVo.getProcurementApplyOrderVo();
         Integer storeId = storageOrderVo.getStoreId();
         String applyOrderId = storageOrderVo.getApplyOrderId();
+        Integer quantity = storageOrderVo.getQuantity();
+        ProcurementApplyOrderVo procurementApplyOrderVo = storageOrderVo.getProcurementApplyOrderVo();
         List<ProcurementApplyOrderGoodsSkuVo> paogsvs = procurementApplyOrderVo.getDetails();
         //获取对应的采购申请订单
         ProcurementApplyOrder procurementApplyOrder = myProcurementMapper.findApplyOrderById(new ProcurementApplyOrderVo(storeId, applyOrderId));
-        if (procurementApplyOrder == null || paogsvs.size() == 0) {
+        if (procurementApplyOrder == null || paogsvs.size() == 0 || quantity <= 0 ||
+                procurementApplyOrderVo.getTotalMoney() == null || procurementApplyOrderVo.getTotalDiscountMoney() == null || procurementApplyOrderVo.getOrderMoney() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //单据类型
         byte applyOrderType = procurementApplyOrder.getType();
         //单据状态
         byte orderStatus = procurementApplyOrder.getOrderStatus();
-        byte storageOrderStatus = -1;
         byte applyOrderStatus;
-        Integer inTotalQuantity = procurementApplyOrderVo.getInTotalQuantity();
-        Integer inReceivedQuantity = procurementApplyOrderVo.getInReceivedQuantity();
-        Integer inNotReceivedQuantity = procurementApplyOrderVo.getInNotReceivedQuantity();
-        Integer outTotalQuantity = procurementApplyOrderVo.getOutTotalQuantity();
-        Integer outSentQuantity = procurementApplyOrderVo.getOutSentQuantity();
-        Integer outNotSentQuantity = procurementApplyOrderVo.getOutNotSentQuantity();
-        BigDecimal totalMoney = new BigDecimal(0);
-        BigDecimal totalDiscountMoney = new BigDecimal(0);
+        Integer inTotalQuantity = procurementApplyOrder.getInTotalQuantity();
+        Integer inReceivedQuantity = procurementApplyOrder.getInReceivedQuantity();
+        Integer inNotReceivedQuantity = procurementApplyOrder.getInNotReceivedQuantity();
+        Integer outTotalQuantity = procurementApplyOrder.getOutTotalQuantity();
+        Integer outSentQuantity = procurementApplyOrder.getOutSentQuantity();
+        Integer outNotSentQuantity = procurementApplyOrder.getOutNotSentQuantity();
         //判断新增收/发货单类型
         Byte type = storageOrderVo.getType();
         switch (type) {
@@ -114,27 +108,26 @@ public class StorageService {
             case 1:
                 storageOrderVo.setId("CGDD_SHD_" + UUID.randomUUID().toString());
                 //判断完成情况
-                if (inNotReceivedQuantity == 0 && inReceivedQuantity == inTotalQuantity) {        //全部完成
+                if (quantity == inNotReceivedQuantity && quantity + inReceivedQuantity == inTotalQuantity) {        //全部完成
                     applyOrderStatus = 3;
-                    storageOrderStatus = 1;
-                } else if (inNotReceivedQuantity > 0 && inReceivedQuantity < inTotalQuantity) {       //部分完成
+                } else if (quantity < inNotReceivedQuantity && quantity + inReceivedQuantity < inTotalQuantity) {      //部分完成
                     applyOrderStatus = 2;
-                    storageOrderStatus = 0;
-                } else {        //未完成
+                } else {        //错误
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改对应的采购订单单据状态和商品完成数量
                 if (applyOrderType == 1 && (orderStatus == 1 || orderStatus == 2)) {
-                    if (myProcurementMapper.updateApplyOrderOrderStatusAndQuantity(new ProcurementApplyOrderVo(storeId, applyOrderId, applyOrderStatus, inReceivedQuantity, inNotReceivedQuantity, null, null)) != 1) {
+                    storageOrderVo.setOrderStatus(applyOrderStatus);
+                    if (myProcurementMapper.updateApplyOrderOrderStatusAndQuantity(storageOrderVo) != 1) {
                         throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                     }
                 } else {
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改商品规格完成情况和修改商品规格库存
-                updateGoodsSku(type, totalMoney, totalDiscountMoney, storeId, paogsvs);
+                updateGoodsSku(type, storeId, paogsvs);
                 //新增采购入库单
-                if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGRKD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, inReceivedQuantity, totalMoney, totalDiscountMoney, storageOrderVo.getUserId())) != 1) {
+                if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGRKD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, quantity, procurementApplyOrderVo.getTotalMoney(), procurementApplyOrderVo.getTotalDiscountMoney(), procurementApplyOrderVo.getOrderMoney(), storageOrderVo.getUserId())) != 1) {
                     throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                 }
                 break;
@@ -142,18 +135,17 @@ public class StorageService {
             case 2:
                 storageOrderVo.setId("THHSQD_SHD_" + UUID.randomUUID().toString());
                 //判断完成情况
-                if (inNotReceivedQuantity == 0 && inReceivedQuantity == inTotalQuantity) {        //全部完成
-                    if (orderStatus == 8 || orderStatus == 10 || orderStatus == 11) {
+                if (quantity == inNotReceivedQuantity && quantity + inReceivedQuantity == inTotalQuantity) {        //全部完成
+                    if (orderStatus == 8 || orderStatus == 11) {
                         applyOrderStatus = 14;
                     } else if (orderStatus == 9 || orderStatus == 12) {
                         applyOrderStatus = 15;
-                    } else if (orderStatus == 7) {
+                    } else if (orderStatus == 7 || orderStatus == 10) {
                         applyOrderStatus = 13;
                     } else {
                         return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                     }
-                    storageOrderStatus = 1;
-                } else if (inNotReceivedQuantity > 0 && inReceivedQuantity < inTotalQuantity) {       //部分完成
+                } else if (quantity < inNotReceivedQuantity && quantity + inReceivedQuantity < inTotalQuantity) {      //部分完成
                     if (orderStatus == 7 || orderStatus == 10) {
                         applyOrderStatus = 10;
                     } else if (orderStatus == 8 || orderStatus == 11) {
@@ -163,23 +155,23 @@ public class StorageService {
                     } else {
                         return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                     }
-                    storageOrderStatus = 0;
-                } else {        //未完成
+                } else {        //错误
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改对应的采购换货单单据状态和商品完成数量
                 if (applyOrderType == 3 && (orderStatus == 7 || orderStatus == 8 || orderStatus == 9 || orderStatus == 10 || orderStatus == 11 || orderStatus == 12)) {
-                    if (myProcurementMapper.updateApplyOrderOrderStatusAndQuantity(new ProcurementApplyOrderVo(storeId, applyOrderId, applyOrderStatus, inReceivedQuantity, inNotReceivedQuantity, null, null)) != 1) {
+                    storageOrderVo.setOrderStatus(applyOrderStatus);
+                    if (myProcurementMapper.updateApplyOrderOrderStatusAndQuantity(storageOrderVo) != 1) {
                         throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                     }
                 } else {
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改商品规格完成情况和增加商品规格库存
-                updateGoodsSku(type, totalMoney, totalDiscountMoney, storeId, paogsvs);
+                updateGoodsSku(type, storeId, paogsvs);
                 if (applyOrderStatus == 15) {
                     //新增采购换货单
-                    if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGHHD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, inReceivedQuantity, totalMoney, totalDiscountMoney, storageOrderVo.getUserId())) != 1) {
+                    if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGHHD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, quantity, procurementApplyOrderVo.getTotalMoney(), procurementApplyOrderVo.getTotalDiscountMoney(), procurementApplyOrderVo.getOrderMoney(), storageOrderVo.getUserId())) != 1) {
                         throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                     }
                 }
@@ -192,7 +184,7 @@ public class StorageService {
             case 4:
                 storageOrderVo.setId("THHSQD_FHD_" + UUID.randomUUID().toString());
                 //判断完成情况
-                if (outNotSentQuantity == 0 && outSentQuantity == outTotalQuantity) {        //全部完成
+                if (quantity == outNotSentQuantity && quantity + outSentQuantity == outTotalQuantity) {        //全部完成
                     if (orderStatus == 4 || orderStatus == 5) {
                         applyOrderStatus = 6;
                     } else if (orderStatus == 7 || orderStatus == 8) {
@@ -204,8 +196,7 @@ public class StorageService {
                     } else {
                         return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                     }
-                    storageOrderStatus = 1;
-                } else if (outNotSentQuantity > 0 && outSentQuantity < outTotalQuantity) {       //部分完成
+                } else if (quantity < outNotSentQuantity && quantity + outSentQuantity < outTotalQuantity) {      //部分完成
                     if (orderStatus == 4 || orderStatus == 5) {
                         applyOrderStatus = 5;
                     } else if (orderStatus == 7 || orderStatus == 8) {
@@ -217,29 +208,29 @@ public class StorageService {
                     } else {
                         return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                     }
-                    storageOrderStatus = 0;
-                } else {        //未完成
+                } else {        //错误
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改对应的采购换货单单据状态和商品完成数量
                 if ((applyOrderType == 2 && (orderStatus == 4 || orderStatus == 5)) ||
                         (applyOrderType == 3 && (orderStatus == 7 || orderStatus == 8 || orderStatus == 10 || orderStatus == 11 || orderStatus == 13 || orderStatus == 14))) {
-                    if (myProcurementMapper.updateApplyOrderOrderStatusAndQuantity(new ProcurementApplyOrderVo(storeId, applyOrderId, applyOrderStatus, null, null, inReceivedQuantity, inNotReceivedQuantity)) != 1) {
+                    storageOrderVo.setOrderStatus(applyOrderStatus);
+                    if (myProcurementMapper.updateApplyOrderOrderStatusAndQuantity(storageOrderVo) != 1) {
                         throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                     }
                 } else {
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改商品规格完成情况和增加商品规格库存
-                updateGoodsSku(type, totalMoney, totalDiscountMoney, storeId, paogsvs);
+                updateGoodsSku(type, storeId, paogsvs);
                 if (applyOrderStatus == 15) {
                     //新增采购换货单
-                    if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGHHD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, inReceivedQuantity, totalMoney, totalDiscountMoney, storageOrderVo.getUserId())) != 1) {
+                    if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGHHD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, procurementApplyOrder.getInTotalQuantity() - procurementApplyOrder.getOutTotalQuantity(), procurementApplyOrder.getTotalMoney(), procurementApplyOrder.getTotalDiscountMoney(), procurementApplyOrder.getOrderMoney(), storageOrderVo.getUserId())) != 1) {
                         throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                     }
-                } else if (applyOrderStatus == 6) {
+                } else if (applyOrderStatus == 5 || applyOrderStatus == 6) {
                     //新增采购退货单
-                    if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGTHD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, inReceivedQuantity, totalMoney, totalDiscountMoney, storageOrderVo.getUserId())) != 1) {
+                    if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGTHD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, -quantity, procurementApplyOrderVo.getTotalMoney(), procurementApplyOrderVo.getTotalDiscountMoney(), procurementApplyOrderVo.getOrderMoney(), storageOrderVo.getUserId())) != 1) {
                         throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                     }
                 }
@@ -248,7 +239,7 @@ public class StorageService {
                 return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         storageOrderVo.setCreateTime(new Date());
-        storageOrderVo.setOrderStatus(storageOrderStatus);
+        storageOrderVo.setOrderStatus((byte) 0);
         //新增收货单
         if (myStorageMapper.addStorageOrder(storageOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
@@ -289,16 +280,13 @@ public class StorageService {
         titles.add(new Title("单据日期", "createTime"));
         titles.add(new Title("单据状态", "orderStatus"));
         titles.add(new Title("来源订单", "applyOrderId"));
-        titles.add(new Title("来源订单单据状态", "procurementApplyOrderVo.orderStatus"));
         titles.add(new Title("供应商", "procurementApplyOrderVo.supplierName"));
-        titles.add(new Title("入库仓库", "procurementApplyOrderVo.inWarehouseName"));
-        titles.add(new Title("总收货数量", "procurementApplyOrderVo.inTotalQuantity"));
-        titles.add(new Title("已收货数量", "procurementApplyOrderVo.inReceivedQuantity"));
-        titles.add(new Title("未收货数量", "procurementApplyOrderVo.inNotReceivedQuantity"));
-        titles.add(new Title("出库仓库", "procurementApplyOrderVo.outWarehouseName"));
-        titles.add(new Title("总发货数量", "procurementApplyOrderVo.outTotalQuantity"));
-        titles.add(new Title("已发货数量", "procurementApplyOrderVo.outSentQuantity"));
-        titles.add(new Title("未发货数量", "procurementApplyOrderVo.outNotSentQuantity"));
+        if (storageOrderVo.getType() == 1 || storageOrderVo.getType() == 2) {
+            titles.add(new Title("入库仓库", "procurementApplyOrderVo.inWarehouseName"));
+        } else if (storageOrderVo.getType() == 3 || storageOrderVo.getType() == 4) {
+            titles.add(new Title("出库仓库", "procurementApplyOrderVo.outWarehouseName"));
+        }
+        titles.add(new Title("本单数量", "quantity"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, storageOrderVos, pageVo);

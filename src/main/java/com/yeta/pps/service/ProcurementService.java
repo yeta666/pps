@@ -1,6 +1,7 @@
 package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
+import com.yeta.pps.mapper.MyGoodsMapper;
 import com.yeta.pps.mapper.MyProcurementMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.ProcurementApplyOrder;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +33,9 @@ public class ProcurementService {
 
     @Autowired
     private MyWarehouseMapper myWarehouseMapper;
+
+    @Autowired
+    private MyGoodsMapper myGoodsMapper;
 
     //采购申请订单
 
@@ -340,6 +345,7 @@ public class ProcurementService {
         titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
         titles.add(new Title("总商品金额", "totalMoney"));
         titles.add(new Title("总优惠金额", "totalDiscountMoney"));
+        titles.add(new Title("本单金额", "orderMoney"));
         titles.add(new Title("已结金额", "clearedMoney"));
         titles.add(new Title("未结金额", "notClearedMoney"));
         titles.add(new Title("经手人", "userName"));
@@ -412,9 +418,42 @@ public class ProcurementService {
         titles.add(new Title("总商品数量", "totalQuantity"));
         titles.add(new Title("总订单金额", "totalMoney"));
         titles.add(new Title("总优惠金额", "totalDiscountMoney"));
+        titles.add(new Title("本单金额", "orderMoney"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, procurementResultOrderVos, pageVo);
         return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 红冲采购结果订单
+     * @param procurementResultOrderVo
+     * @return
+     */
+    @Transactional
+    public CommonResponse updateResultOrder(ProcurementResultOrderVo procurementResultOrderVo) {
+        //判断参数
+        if (procurementResultOrderVo.getId() == null || procurementResultOrderVo.getUserId() == null) {
+            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
+        Integer storeId = procurementResultOrderVo.getStoreId();
+        //修改单据状态
+        if (myProcurementMapper.updateResultOrder(procurementResultOrderVo) != 1) {
+            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        }
+        procurementResultOrderVo = myProcurementMapper.findResultOrderById(procurementResultOrderVo);
+        //新增红冲单
+        procurementResultOrderVo.setStoreId(storeId);
+        procurementResultOrderVo.setId("HC_" + procurementResultOrderVo.getId());
+        procurementResultOrderVo.setCreateTime(new Date());
+        procurementResultOrderVo.setOrderStatus((byte) -2);
+        procurementResultOrderVo.setTotalQuantity(-procurementResultOrderVo.getTotalQuantity());
+        procurementResultOrderVo.setTotalMoney(new BigDecimal(-procurementResultOrderVo.getTotalMoney().doubleValue()));
+        procurementResultOrderVo.setTotalDiscountMoney(new BigDecimal(-procurementResultOrderVo.getTotalDiscountMoney().doubleValue()));
+        procurementResultOrderVo.setOrderMoney(new BigDecimal(-procurementResultOrderVo.getOrderMoney().doubleValue()));
+        if (myProcurementMapper.addResultOrder(procurementResultOrderVo) != 1) {
+            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        }
+        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 }

@@ -567,4 +567,17 @@ public class GoodsController {
                                       @RequestParam(value = "storeId") Integer storeId) throws IOException {
         return goodsService.importGoods(file, storeId);
     }
+
+
+    /**
+     * 用于下单的时候选择商品分类、商品、商品规格接口
+     * @param storeId
+     * @return
+     */
+    @ApiOperation(value = "用于下单的时候选择商品分类、商品、商品规格", notes = "返回格式是分类包商品，商品包规格")
+    @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int")
+    @GetMapping(value = "/types/goods/skus")
+    public CommonResponse<List<GoodsTypeVo>> findTypeGoodsSku(@RequestParam(value = "storeId") Integer storeId) {
+        return goodsService.findTypeGoodsSku(new GoodsTypeVo(storeId));
+    }
 }

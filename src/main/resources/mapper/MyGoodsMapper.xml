@@ -318,7 +318,9 @@
         set
             inventory = inventory - #{inventory}
         where
-            id = #{id};
+            id = #{id}
+        and
+            inventory - #{inventory} &gt;= 0;
     </update>
 
     <!--商品-->
@@ -589,4 +591,66 @@
     <select id="findByTypeId" parameterType="com.yeta.pps.vo.GoodsVo" resultType="com.yeta.pps.po.Goods">
         select id, name, bar_code, type_id, putaway, skus, origin, image, remark, create_time from goods_${storeId} where type_id = #{typeId};
     </select>
+
+
+
+    <!--商品分类包商品，商品包商品规格，用于下单的时候-->
+    
+    <resultMap id="goodsTypeVoMap2" type="com.yeta.pps.vo.GoodsTypeVo">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <collection property="goodsVos" ofType="com.yeta.pps.vo.GoodsVo">
+            <id column="g_id" property="id" />
+            <result column="g_name" property="name" />
+            <result column="g_bar_code" property="barCode" />
+            <result column="g_type_id" property="typeId" />
+            <result column="g_putaway" property="putaway" />
+            <result column="g_skus" property="skus" />
+            <result column="g_origin" property="origin" />
+            <result column="g_image" property="image" />
+            <result column="g_remark" property="remark" />
+            <result column="g_create_time" property="createTime" />
+            <collection property="goodsSkuVos" ofType="com.yeta.pps.vo.GoodsSkuVo">
+                <id column="gs_id" property="id" />
+                <result column="gs_goods_id" property="goodsId" />
+                <result column="gs_sku" property="sku" />
+                <result column="gs_purchase_price" property="purchasePrice" />
+                <result column="gs_retail_price" property="retailPrice" />
+                <result column="gs_vip_price" property="vipPrice" />
+                <result column="gs_inventory" property="inventory" />
+                <result column="gs_integral" property="integral" />
+            </collection>
+        </collection>
+    </resultMap>
+    
+    <select id="findTypeGoodsSku" parameterType="com.yeta.pps.vo.GoodsTypeVo" resultMap="goodsTypeVoMap2">
+        select 
+            gt.id,
+            gt.name,
+            g.id as g_id,
+            g.`name` as g_name,
+            g.bar_code as g_bar_code,
+            g.type_id as g_type_id,
+            g.putaway as g_putaway,
+            g.skus as g_skus,
+            g.origin as g_origin,
+            g.image as g_image,
+            g.remark as g_remark,
+            g.create_time as g_create_time,
+            gs.id as gs_id,
+            gs.goods_id as gs_goods_id,
+            gs.sku as gs_sku,
+            gs.purchase_price as gs_purchase_price,
+            gs.retail_price as gs_retail_price,
+            gs.vip_price as gs_vip_price,
+            gs.inventory as gs_inventory,
+            gs.integral as gs_integral
+        from 
+            (
+                goods_type_${storeId} as gt
+                left join goods_${storeId} as g on gt.id = g.type_id
+            )
+        left join goods_sku_${storeId} as gs on g.id = gs.goods_id;
+    </select>
+
 </mapper>

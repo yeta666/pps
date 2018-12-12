@@ -486,7 +486,7 @@ public class GoodsService {
      * @param goodsVo
      * @return
      */
-     @Transactional
+    @Transactional
     public CommonResponse update(GoodsVo goodsVo) {
          //判断参数
          if (goodsVo.getId() == null) {
@@ -838,5 +838,19 @@ public class GoodsService {
             }
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+    }
+
+
+
+    //商品分类包商品，商品包商品规格，用于下单的时候
+
+    /**
+     * 用于下单的时候选择商品分类、商品、商品规格
+     * @param goodsTypeVo
+     * @return
+     */
+    public CommonResponse findTypeGoodsSku(GoodsTypeVo goodsTypeVo) {
+        List<GoodsTypeVo> goodsTypeVos = myGoodsMapper.findTypeGoodsSku(goodsTypeVo);
+        return new CommonResponse(CommonResponse.CODE1, goodsTypeVos, CommonResponse.MESSAGE1);
     }
 }

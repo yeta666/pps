@@ -40,7 +40,7 @@ public class ProcurementController {
     @ApiOperation(value = "新增采购申请订单", notes = "包括采购订单、采购退货申请、采购换货申请，用type判断。" +
             "details中的ProcurementApplyOrderGoodsSkuVo对象表示订单关联的商品规格，其中type(1：入库，0：出库), goodsSkuId, quantity, money, discountMoney必填")
     @ApiImplicitParam(name = "procurementApplyOrderVo",
-            value = "storeId, details, type(1：采购订单，2：采购退货申请，3,：采购换货申请), createTime, supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, 采购换货申请前面四个都要填, totalMoney(采购订单大于0，采购退货申请小于0，采购换货申请入库-出库的价钱), totalDiscountMoney, userId必填",
+            value = "storeId, details, type(1：采购订单，2：采购退货申请，3,：采购换货申请), createTime, supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, applyOrderId(来源订单), 采购换货申请前面四个都要填, totalMoney(采购订单大于0，采购退货申请小于0，采购换货申请入库-出库的价钱), totalDiscountMoney, userId必填",
             required = true,
             paramType = "body",
             dataType = "ProcurementApplyOrderVo"
@@ -163,6 +163,18 @@ public class ProcurementController {
     }
 
     //采购结果订单
+
+    /**
+     * 红冲采购结果订单接口
+     * @param procurementResultOrderVo
+     * @return
+     */
+    @ApiOperation(value = "红冲采购结果订单")
+    @ApiImplicitParam(name = "procurementResultOrderVo", value = "storeId, id, userId必填，remark选填", required = true, paramType = "body", dataType = "ProcurementResultOrderVo")
+    @PutMapping(value = "/orders/result")
+    public CommonResponse updateResultOrder(@RequestBody @Valid ProcurementResultOrderVo procurementResultOrderVo) {
+        return procurementService.updateResultOrder(procurementResultOrderVo);
+    }
 
     /**
      * 查询所有采购结果订单接口

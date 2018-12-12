@@ -45,7 +45,6 @@ public class ProcurementResultOrderVo {
     /**
      * 单据状态
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
     private Byte orderStatus;
 
     /**
@@ -62,6 +61,11 @@ public class ProcurementResultOrderVo {
      * 总优惠金额
      */
     private BigDecimal totalDiscountMoney;
+
+    /**
+     * 本单金额
+     */
+    private BigDecimal orderMoney;
 
     /**
      * 经手人
@@ -83,7 +87,7 @@ public class ProcurementResultOrderVo {
         this.id = id;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, @NotNull(message = CommonResponse.MESSAGE3) Byte orderStatus, Integer totalQuantity, BigDecimal totalMoney, BigDecimal totalDiscountMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId) {
+    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, BigDecimal totalMoney, BigDecimal totalDiscountMoney, BigDecimal orderMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
@@ -93,6 +97,7 @@ public class ProcurementResultOrderVo {
         this.totalQuantity = totalQuantity;
         this.totalMoney = totalMoney;
         this.totalDiscountMoney = totalDiscountMoney;
+        this.orderMoney = orderMoney;
         this.userId = userId;
     }
 
@@ -184,6 +189,14 @@ public class ProcurementResultOrderVo {
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
+    public BigDecimal getOrderMoney() {
+        return orderMoney;
+    }
+
+    public void setOrderMoney(BigDecimal orderMoney) {
+        this.orderMoney = orderMoney;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -214,6 +227,7 @@ public class ProcurementResultOrderVo {
                 ", totalQuantity=" + totalQuantity +
                 ", totalMoney=" + totalMoney +
                 ", totalDiscountMoney=" + totalDiscountMoney +
+                ", orderMoney=" + orderMoney +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

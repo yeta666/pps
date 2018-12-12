@@ -36,15 +36,12 @@ public class StorageController {
      * @param storageOrderVo
      * @return
      */
-    @ApiOperation(value = "新增收/发货单接口", notes = "通过type判断，其中applyOrderId代表对应采购申请订单的单据编号，procurementApplyOrderVo就是该对象，其中采购订单和采购换货申请单必填inTotalQuantity, inReceivedQuantity, inNotReceivedQuantity，采购退货申请单和采购换货申请单必填outTotalQuantity, outSentQuantity, outNotSentQuantity，该对象中的details代表具体的商品规格，其中goodsSkuId, finishQuantity, notFinishQuantity, money, discountMoney必填")
-    @ApiImplicitParam(name = "storageOrderVo", value = "storeId, procurementApplyOrderVo, type(1：采购订单收货单，2：退换货申请收货单，3：销售订单发货单，4：退换货申请发货单), applyOrderId, userId必填", required = true, paramType = "body", dataType = "StorageOrderVo")
+    @ApiOperation(value = "新增收/发货单接口", notes = "通过type判断，其中applyOrderId代表对应采购申请订单的单据编号，procurementApplyOrderVo就是该对象，其中totalMoney(收/发货商品总金额), totalDiscountMoney(收/发货商品总优惠金额), orderMoney(收/发货订单金额)必填，采购换货申请不填，采购订单和采购退货申请才填，都是收货>0，发货<0，该对象中的details代表具体的商品规格，其中id, type, goodsSkuId, changeQuantity必填")
+    @ApiImplicitParam(name = "storageOrderVo", value = "storeId, procurementApplyOrderVo, type(1：采购订单收货单，2：退换货申请收货单，3：销售订单发货单，4：退换货申请发货单), applyOrderId, quantity(不管收发货都传>0的过来), userId必填", required = true, paramType = "body", dataType = "StorageOrderVo")
     @PostMapping(value = "/orders/storage")
     public CommonResponse addStorageOrder(@RequestBody @Valid StorageOrderVo storageOrderVo) {
         return storageService.addStorageOrder(storageOrderVo);
     }
-
-    //TODO
-    //接口测试
 
     /**
      * 根据type查询所有收/发货单接口

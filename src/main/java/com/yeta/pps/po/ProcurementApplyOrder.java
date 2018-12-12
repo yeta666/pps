@@ -21,6 +21,11 @@ public class ProcurementApplyOrder {
     private Date createTime;
 
     /**
+     * 来源订单
+     */
+    private String applyOrderId;
+
+    /**
      * 单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发
      */
     private Byte orderStatus;
@@ -86,6 +91,11 @@ public class ProcurementApplyOrder {
     private BigDecimal totalDiscountMoney;
 
     /**
+     * 本单金额
+     */
+    private BigDecimal orderMoney;
+
+    /**
      * 已结算金额
      */
     private BigDecimal clearedMoney;
@@ -130,6 +140,14 @@ public class ProcurementApplyOrder {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public String getApplyOrderId() {
+        return applyOrderId;
+    }
+
+    public void setApplyOrderId(String applyOrderId) {
+        this.applyOrderId = applyOrderId;
     }
 
     public Byte getOrderStatus() {
@@ -236,6 +254,14 @@ public class ProcurementApplyOrder {
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
+    public BigDecimal getOrderMoney() {
+        return orderMoney;
+    }
+
+    public void setOrderMoney(BigDecimal orderMoney) {
+        this.orderMoney = orderMoney;
+    }
+
     public BigDecimal getClearedMoney() {
         return clearedMoney;
     }
@@ -274,6 +300,7 @@ public class ProcurementApplyOrder {
                 "id='" + id + '\'' +
                 ", type=" + type +
                 ", createTime=" + createTime +
+                ", applyOrderId='" + applyOrderId + '\'' +
                 ", orderStatus=" + orderStatus +
                 ", clearStatus=" + clearStatus +
                 ", supplierId='" + supplierId + '\'' +
@@ -287,6 +314,7 @@ public class ProcurementApplyOrder {
                 ", outNotSentQuantity=" + outNotSentQuantity +
                 ", totalMoney=" + totalMoney +
                 ", totalDiscountMoney=" + totalDiscountMoney +
+                ", orderMoney=" + orderMoney +
                 ", clearedMoney=" + clearedMoney +
                 ", notClearedMoney=" + notClearedMoney +
                 ", userId='" + userId + '\'' +

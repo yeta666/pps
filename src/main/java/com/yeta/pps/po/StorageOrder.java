@@ -30,6 +30,11 @@ public class StorageOrder {
     private Byte orderStatus;
 
     /**
+     * 数量
+     */
+    private Integer quantity;
+
+    /**
      * 经手人
      */
     private String userId;
@@ -82,6 +87,14 @@ public class StorageOrder {
         this.orderStatus = orderStatus;
     }
 
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -106,6 +119,7 @@ public class StorageOrder {
                 ", createTime=" + createTime +
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", orderStatus=" + orderStatus +
+                ", quantity=" + quantity +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

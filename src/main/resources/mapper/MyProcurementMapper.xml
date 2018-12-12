@@ -6,9 +6,9 @@
 
     <insert id="addApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo">
       insert into
-            procurement_apply_order_${storeId} (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, cleared_money, not_cleared_money, user_id, remark)
+            procurement_apply_order_${storeId} (id, type, create_time, apply_order_id, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark)
         values
-            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{clearStatus}, #{supplierId}, #{inWarehouseId}, #{inTotalQuantity}, #{inReceivedQuantity}, #{inNotReceivedQuantity}, #{outWarehouseId}, #{outTotalQuantity}, #{outSentQuantity}, #{outNotSentQuantity}, #{totalMoney}, #{totalDiscountMoney}, #{clearedMoney}, #{notClearedMoney}, #{userId}, #{remark});
+            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{applyOrderId}, #{clearStatus}, #{supplierId}, #{inWarehouseId}, #{inTotalQuantity}, #{inReceivedQuantity}, #{inNotReceivedQuantity}, #{outWarehouseId}, #{outTotalQuantity}, #{outSentQuantity}, #{outNotSentQuantity}, #{totalMoney}, #{totalDiscountMoney}, #{orderMoney}, #{clearedMoney}, #{notClearedMoney}, #{userId}, #{remark});
     </insert>
 
     <delete id="deleteApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo">
@@ -19,7 +19,7 @@
         update
             procurement_apply_order_${storeId}
         set
-            create_time = #{createTime}, supplier_id = #{supplierId}, in_warehouse_id = #{inWarehouseId}, in_total_quantity = #{inTotalQuantity}, out_warehouse_id = #{outWarehouseId}, out_total_quantity = #{outTotalQuantity}, total_money = #{totalMoney}, total_discount_money = #{totalDiscountMoney}
+            create_time = #{createTime}, supplier_id = #{supplierId}, in_warehouse_id = #{inWarehouseId}, in_total_quantity = #{inTotalQuantity}, out_warehouse_id = #{outWarehouseId}, out_total_quantity = #{outTotalQuantity}, total_money = #{totalMoney}, total_discount_money = #{totalDiscountMoney}, order_money = #{orderMoney}
         where
             id = #{id};
     </update>
@@ -28,19 +28,19 @@
         update procurement_apply_order_${storeId} set remark = #{remark} where id = #{id};
     </update>
 
-    <update id="updateApplyOrderOrderStatusAndQuantity" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+    <update id="updateApplyOrderOrderStatusAndQuantity" parameterType="com.yeta.pps.vo.StorageOrderVo">
         update
             procurement_apply_order_${storeId}
         set
             order_status = #{orderStatus}
-        <if test="inReceivedQuantity != null and inNotReceivedQuantity != null">
-            , in_received_quantity = #{inReceivedQuantity}, inNotReceivedQuantity = #{inNotReceivedQuantity}
+        <if test="type == 1 or type == 2">
+            , in_received_quantity = in_received_quantity + #{quantity}, in_not_received_quantity = in_not_received_quantity - #{quantity}
         </if>
-        <if test="outSentQuantity != null and outNotSentQuantity != null">
-            , out_sent_quantity = #{outSentQuantity}, out_not_sent_quantity = #{outNotSentQuantity}
+        <if test="type == 3 or type == 4">
+            , out_sent_quantity = out_sent_quantity + #{quantity}, out_not_sent_quantity = out_not_sent_quantity - #{quantity}
         </if>
         where
-            id = #{id};
+            id = #{applyOrderId}
     </update>
 
     <select id="findCountApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultType="java.lang.Integer">
@@ -81,6 +81,7 @@
             pao.id,
             pao.type,
             pao.create_time,
+            pao.apply_order_id,
             pao.order_status,
             pao.clear_status,
             s.name as supplier_name,
@@ -94,6 +95,7 @@
             pao.out_not_sent_quantity,
             pao.total_money,
             pao.total_discount_money,
+            pao.order_money,
             pao.cleared_money,
             pao.not_cleared_money,
             u.name as user_name,
@@ -134,7 +136,7 @@
 
     <select id="findApplyOrderById" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultType="com.yeta.pps.po.ProcurementApplyOrder">
         select
-            id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, out_warehouse_id, out_total_quantity, total_money, total_discount_money, clear_money, user_id, remark
+            id, type, create_time, apply_order_id, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark
         from
             procurement_apply_order_${storeId}
         where
@@ -145,6 +147,7 @@
         <id column="id" property="id" />
         <result column="type" property="type" />
         <result column="create_time" property="createTime" />
+        <result column="apply_order_id" property="applyOrderId" />
         <result column="order_status" property="orderStatus" />
         <result column="clear_status" property="clearStatus" />
         <result column="supplier_name" property="supplierName" />
@@ -156,23 +159,26 @@
         <result column="out_total_quantity" property="outTotalQuantity" />
         <result column="total_money" property="totalMoney" />
         <result column="total_discount_money" property="totalDiscountMoney" />
+        <result column="order_money" property="orderMoney" />
         <result column="cleared_money" property="clearedMoney" />
         <result column="not_cleared_money" property="notClearedMoney" />
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
         <collection property="details" ofType="com.yeta.pps.vo.ProcurementApplyOrderGoodsSkuVo">
-            <result column="g_name" property="goodsName" />
-            <result column="g_id" property="goodsId" />
-            <result column="g_bar_code" property="goodsBarCode" />
-            <result column="gs_sku" property="goodsSkuSku" />
-            <result column="gs_purchase_price" property="goodsSkuPurchasePrice" />
+            <result column="paogs_id" property="id" />
+            <result column="paogs_type" property="type" />
+            <result column="paogs_goods_sku_id" property="goodsSkuId" />
             <result column="paogs_quantity" property="quantity" />
             <result column="paogs_finish_quantity" property="finishQuantity" />
             <result column="paogs_not_finish_quantity" property="notFinishQuantity" />
             <result column="paogs_money" property="money" />
             <result column="paogs_discount_money" property="discountMoney" />
             <result column="paogs_remark" property="remark" />
-            <result column="paogs_type" property="type" />
+            <result column="g_name" property="goodsName" />
+            <result column="g_id" property="goodsId" />
+            <result column="g_bar_code" property="goodsBarCode" />
+            <result column="gs_sku" property="goodsSkuSku" />
+            <result column="gs_purchase_price" property="goodsSkuPurchasePrice" />
         </collection>
     </resultMap>
 
@@ -181,6 +187,7 @@
             pao.id,
             pao.type,
             pao.create_time,
+            pao.apply_order_id,
             pao.order_status,
             pao.clear_status,
             s.name as supplier_name,
@@ -194,11 +201,14 @@
             pao.out_not_sent_quantity,
             pao.total_money,
             pao.total_discount_money,
+            pao.order_money,
             pao.cleared_money,
             pao.not_cleared_money,
             u.name as user_name,
             pao.remark,
+            paogs.id as paogs_id,
             paogs.type as paogs_type,
+            paogs.goods_sku_id as paogs_goods_sku_id,
             paogs.quantity as paogs_quantity,
             paogs.finish_quantity as paogs_finish_quantity,
             paogs.not_finish_quantity as paogs_not_finish_quantity,
@@ -243,17 +253,35 @@
     </delete>
 
     <update id="updateApplyOrderGoodsSku" parameterType="com.yeta.pps.vo.ProcurementApplyOrderGoodsSkuVo">
-        update procurement_apply_order_goods_sku_${storeId} set finish_quantity = #{finishQuantity}, not_finish_quantity = #{notFinishQuantity} where id = #{id};
+        update
+            procurement_apply_order_goods_sku_${storeId}
+        set
+            finish_quantity = finish_quantity + #{changeQuantity},
+            not_finish_quantity = not_finish_quantity - #{changeQuantity}
+        where
+            id = #{id}
+        and
+            #{changeQuantity} &lt;= not_finish_quantity
+        and
+            #{changeQuantity} + finish_quantity &lt;= quantity;
     </update>
+
+    <select id="findAllApplyOrderGoodsSku" parameterType="com.yeta.pps.vo.ProcurementApplyOrderGoodsSkuVo" resultType="com.yeta.pps.po.ProcurementApplyOrderGoodsSku">
+        select id, type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark from procurement_apply_order_goods_sku_${storeId} where apply_order_id = #{applyOrderId};
+    </select>
 
     <!--采购结果订单-->
 
     <insert id="addResultOrder" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo">
         insert into
-            procurement_result_order_${storeId} (id, type, create_time, apply_order_id, order_status, user_id)
+            procurement_result_order_${storeId} (id, type, create_time, apply_order_id, order_status, total_quantity, total_money, total_discount_money, order_money, user_id, remark)
         values
-            (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{userId});
+            (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{totalQuantity}, #{totalMoney}, #{totalDiscountMoney}, #{orderMoney}, #{userId}, #{remark});
     </insert>
+
+    <update id="updateResultOrder" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo">
+        update procurement_result_order_${storeId} set order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+    </update>
 
     <select id="findCountResultOrder" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo" resultType="java.lang.Integer">
         select
@@ -294,6 +322,7 @@
         <result column="total_quantity" property="totalQuantity" />
         <result column="total_money" property="totalMoney" />
         <result column="total_discountMoney" property="totalDiscountMoney" />
+        <result column="order_money" property="orderMoney" />
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
         <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
@@ -315,6 +344,7 @@
             pro.total_quantity,
             pro.total_money,
             pro.total_discount_money,
+            pro.order_money,
             u.name as user_name,
             pro.remark,
             pao.order_status as pao_order_status,
@@ -349,6 +379,15 @@
             pro.create_time desc
         limit
             #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+    
+    <select id="findResultOrderById" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo" resultType="com.yeta.pps.vo.ProcurementResultOrderVo">
+        select
+            id, type, create_time, apply_order_id, order_status, total_quantity, total_money, total_discount_money, order_money, user_id, remark
+        from
+            procurement_result_order_${storeId}
+        where
+            id = #{id};
     </select>
 
 </mapper>

@@ -51,6 +51,12 @@ public class StorageOrderVo {
     private Byte orderStatus;
 
     /**
+     * 数量
+     */
+    @NotNull(message = CommonResponse.MESSAGE3)
+    private Integer quantity;
+
+    /**
      * 经手人
      */
     @NotBlank(message = CommonResponse.MESSAGE3)
@@ -148,6 +154,14 @@ public class StorageOrderVo {
         this.orderStatus = orderStatus;
     }
 
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -175,6 +189,7 @@ public class StorageOrderVo {
                 ", createTime=" + createTime +
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", orderStatus=" + orderStatus +
+                ", quantity=" + quantity +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

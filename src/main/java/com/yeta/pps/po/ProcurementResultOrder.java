@@ -33,17 +33,22 @@ public class ProcurementResultOrder {
     /**
      * 总商品数量
      */
-    private Integer total_quantity;
+    private Integer totalQuantity;
 
     /**
      * 总商品金额
      */
-    private BigDecimal total_money;
+    private BigDecimal totalMoney;
 
     /**
      * 总优惠金额
      */
-    private BigDecimal total_discount_money;
+    private BigDecimal totalDiscountMoney;
+
+    /**
+     * 本单金额
+     */
+    private BigDecimal orderMoney;
 
     /**
      * 经手人
@@ -99,28 +104,36 @@ public class ProcurementResultOrder {
         this.orderStatus = orderStatus;
     }
 
-    public Integer getTotal_quantity() {
-        return total_quantity;
+    public Integer getTotalQuantity() {
+        return totalQuantity;
     }
 
-    public void setTotal_quantity(Integer total_quantity) {
-        this.total_quantity = total_quantity;
+    public void setTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 
-    public BigDecimal getTotal_money() {
-        return total_money;
+    public BigDecimal getTotalMoney() {
+        return totalMoney;
     }
 
-    public void setTotal_money(BigDecimal total_money) {
-        this.total_money = total_money;
+    public void setTotalMoney(BigDecimal totalMoney) {
+        this.totalMoney = totalMoney;
     }
 
-    public BigDecimal getTotal_discount_money() {
-        return total_discount_money;
+    public BigDecimal getTotalDiscountMoney() {
+        return totalDiscountMoney;
     }
 
-    public void setTotal_discount_money(BigDecimal total_discount_money) {
-        this.total_discount_money = total_discount_money;
+    public void setTotalDiscountMoney(BigDecimal totalDiscountMoney) {
+        this.totalDiscountMoney = totalDiscountMoney;
+    }
+
+    public BigDecimal getOrderMoney() {
+        return orderMoney;
+    }
+
+    public void setOrderMoney(BigDecimal orderMoney) {
+        this.orderMoney = orderMoney;
     }
 
     public String getUserId() {
@@ -147,9 +160,10 @@ public class ProcurementResultOrder {
                 ", createTime=" + createTime +
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", orderStatus=" + orderStatus +
-                ", total_quantity=" + total_quantity +
-                ", total_money=" + total_money +
-                ", total_discount_money=" + total_discount_money +
+                ", totalQuantity=" + totalQuantity +
+                ", totalMoney=" + totalMoney +
+                ", totalDiscountMoney=" + totalDiscountMoney +
+                ", orderMoney=" + orderMoney +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

@@ -123,4 +123,11 @@ public interface MyGoodsMapper {
     List<GoodsVo> findAllSku(GoodsVo goodsVo);
 
     List<Goods> findByTypeId(GoodsVo goodsVo);
+
+
+
+
+    //商品分类包商品，商品包商品规格，用于下单的时候
+
+    List<GoodsTypeVo> findTypeGoodsSku(GoodsTypeVo goodsTypeVo);
 }

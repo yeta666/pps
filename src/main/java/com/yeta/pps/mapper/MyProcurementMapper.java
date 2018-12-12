@@ -1,10 +1,8 @@
 package com.yeta.pps.mapper;
 
 import com.yeta.pps.po.ProcurementApplyOrder;
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.ProcurementApplyOrderGoodsSkuVo;
-import com.yeta.pps.vo.ProcurementApplyOrderVo;
-import com.yeta.pps.vo.ProcurementResultOrderVo;
+import com.yeta.pps.po.ProcurementApplyOrderGoodsSku;
+import com.yeta.pps.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -21,7 +19,7 @@ public interface MyProcurementMapper {
 
     int updateApplyOrderRemark(ProcurementApplyOrderVo procurementApplyOrderVo);
 
-    int updateApplyOrderOrderStatusAndQuantity(ProcurementApplyOrderVo procurementApplyOrderVo);
+    int updateApplyOrderOrderStatusAndQuantity(StorageOrderVo storageOrderVo);
 
     int findCountApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
 
@@ -40,12 +38,18 @@ public interface MyProcurementMapper {
 
     int updateApplyOrderGoodsSku(ProcurementApplyOrderGoodsSkuVo procurementApplyOrderGoodsSkuVo);
 
+    List<ProcurementApplyOrderGoodsSku> findAllApplyOrderGoodsSku(ProcurementApplyOrderGoodsSkuVo procurementApplyOrderGoodsSkuVo);
+
     //采购结果订单
 
     int addResultOrder(ProcurementResultOrderVo procurementResultOrderVo);
+
+    int updateResultOrder(ProcurementResultOrderVo procurementResultOrderVo);
 
     int findCountResultOrder(ProcurementResultOrderVo procurementResultOrderVo);
 
     List<ProcurementResultOrderVo> findAllPagedResultOrder(@Param("procurementResultOrderVo") ProcurementResultOrderVo procurementResultOrderVo,
                                                            @Param("pageVo") PageVo pageVo);
+
+    ProcurementResultOrderVo findResultOrderById(ProcurementResultOrderVo procurementResultOrderVo);
 }

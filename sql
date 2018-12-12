@@ -673,6 +673,7 @@ create table procurement_apply_order_1(
   id varchar(50) primary key comment '单据编号',
   type tinyint not null comment '单据类型，1：采购订单，2：采购退货申请，3,：采购换货申请',
   create_time datetime not null comment '单据日期',
+  apply_order_id varchar(50) comment '来源订单',
   order_status tinyint not null comment '单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发',
   clear_status tinyint not null comment '结算状态：9：未完成，1：已完成',
   supplier_id varchar(20) not null comment '供应商编号',
@@ -686,26 +687,21 @@ create table procurement_apply_order_1(
   out_not_sent_quantity int comment '未发货数量',
   total_money decimal(10, 2) not null comment '总商品金额',
   total_discount_money decimal(10, 2) not null comment '总优惠金额',
+  order_money decimal(10, 2) not null comment '本单金额',
   cleared_money decimal(10, 2) not null comment '已结算金额',
   not_cleared_money decimal(10, 2) not null comment '未结算金额',
   user_id varchar(50) not null comment '经手人编号',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
 insert into
-procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, cleared_money, not_cleared_money, user_id, remark)
-values ('CGDD_001', 1, now(), 1, 0, 'gys001', 1, 20, 0, 20, null, null, null, null, 100, 0, 0, 100, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
+procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark)
+values ('CGDD_001', 1, now(), 1, 0, 'gys001', 1, 20, 0, 20, null, null, null, null, 100, 0, 100, 0, 100, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
 insert into
-procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, cleared_money, not_cleared_money, user_id, remark)
-values ('CGTHD_001', 1, now(), 1, 0, 'gys001', null, null, null, null, 1, 20, 0, 20, -100, 0, 0, -100, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
+procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark)
+values ('CGTHSQD_001', 2, now(), 4, 0, 'gys001', null, null, null, null, 1, 20, 0, 20, -100, 0, -100, 0, -100, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
 insert into
-procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, cleared_money, not_cleared_money, user_id, remark)
-values ('CGHHD_001', 1, now(), 1, 0, 'gys001', 1, 20, 0, 20, 2, 10, 0, 10, 100, 0, 0, 100, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
-insert into
-procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, cleared_money, not_cleared_money, user_id, remark)
-values ('CGHHD_002', 1, now(), 1, 0, 'gys001', 1, 10, 0, 10, 2, 20, 0, 20, -100, 0, 0, -100, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
-insert into
-procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, cleared_money, not_cleared_money, user_id, remark)
-values ('CGHHD_003', 1, now(), 1, 0, 'gys001', 1, 10, 0, 10, 2, 10, 0, 10, 0, 0, 0, 0, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
+procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark)
+values ('CGHHSQD_001', 3, now(), 7, 0, 'gys001', 1, 20, 0, 20, 2, 10, 0, 10, 50, 0, 50, 0, 50, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
 
 drop table if exists procurement_apply_order_goods_sku_1;
 create table procurement_apply_order_goods_sku_1(
@@ -722,12 +718,12 @@ create table procurement_apply_order_goods_sku_1(
 ) engine InnoDB default charset=utf8;
 insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (1, 'CGDD_001', 1, 10, 0, 10, 50, 0, null);
 insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (1, 'CGDD_001', 2, 10, 0, 10, 50, 0, null);
-insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (2, 'CGTHD_001', 1, 10, 0, 10, 50, 0, null);
-insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (2, 'CGTHD_001', 2, 10, 0, 10, 50, 0, null);
-insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (1, 'CGHHD_001', 1, 10, 0, 10, 50, 0, null);
-insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (1, 'CGHHD_001', 2, 10, 0, 10, 50, 0, null);
-insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (2, 'CGHHD_001', 1, 10, 0, 10, 50, 0, null);
-insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (2, 'CGHHD_001', 2, 10, 0, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (0, 'CGTHSQD_001', 1, 10, 0, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (0, 'CGTHSQD_001', 2, 10, 0, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (1, 'CGHHSQD_001', 1, 10, 0, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (1, 'CGHHSQD_001', 2, 10, 0, 10, 50, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (0, 'CGHHSQD_001', 1, 6, 0, 6, 30, 0, null);
+insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (0, 'CGHHSQD_001', 2, 4, 0, 4, 20, 0, null);
 
 drop table if exists storage_order_1;
 create table storage_order_1(
@@ -735,18 +731,11 @@ create table storage_order_1(
   type tinyint not null comment '单据类型，1：采购订单收货单，2：退换货申请收货单，3：销售订单发货单，4：退换货申请发货单',
   create_time datetime not null comment '单据日期',
   apply_order_id varchar(50) not null comment '来源订单',
-  order_status tinyint not null comment '单据状态：0，未完成，1：已完成',
+  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  quantity int not null comment '数量',
   user_id varchar(50) comment '经手人',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
-insert into storage_order_1 (id, type, create_time, apply_order_id, order_status, user_id, remark) values ('CGDD_SHD_001', 1, now(), 'CGDD_001', 0, null, null);
-insert into storage_order_1 (id, type, create_time, apply_order_id, order_status, user_id, remark) values ('CGTHD_FHD_001', 4, now(), 'CGTHD_001', 0, null, null);
-insert into storage_order_1 (id, type, create_time, apply_order_id, order_status, user_id, remark) values ('CGHHD_SHD_001', 2, now(), 'CGHHD_001', 0, null, null);
-insert into storage_order_1 (id, type, create_time, apply_order_id, order_status, user_id, remark) values ('CGHHD_FHD_001', 4, now(), 'CGHHD_001', 0, null, null);
-insert into storage_order_1 (id, type, create_time, apply_order_id, order_status, user_id, remark) values ('CGHHD_SHD_002', 2, now(), 'CGHHD_002', 0, null, null);
-insert into storage_order_1 (id, type, create_time, apply_order_id, order_status, user_id, remark) values ('CGHHD_FHD_002', 4, now(), 'CGHHD_002', 0, null, null);
-insert into storage_order_1 (id, type, create_time, apply_order_id, order_status, user_id, remark) values ('CGHHD_SHD_003', 2, now(), 'CGHHD_003', 0, null, null);
-insert into storage_order_1 (id, type, create_time, apply_order_id, order_status, user_id, remark) values ('CGHHD_FHD_003', 4, now(), 'CGHHD_003', 0, null, null);
 
 drop table if exists procurement_result_order_1;
 create table procurement_result_order_1(
@@ -754,10 +743,11 @@ create table procurement_result_order_1(
   type tinyint not null comment '单据类型，1：采购入库单，2：采购退货单，3,：采购换货单',
   create_time datetime not null comment '单据日期',
   apply_order_id varchar(50) not null comment '来源订单',
-  order_status tinyint not null comment '单据状态：0，红冲，1：未红冲',
+  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
   total_quantity int not null comment '总商品数量',
   total_money decimal(10, 2) not null comment '总商品金额',
   total_discount_money decimal(10, 2) not null comment '总优惠金额',
+  order_money decimal(10, 2) not null comment '本单金额',
   user_id varchar(50) comment '经手人',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;

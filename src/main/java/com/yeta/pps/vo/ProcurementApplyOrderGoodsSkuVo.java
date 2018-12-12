@@ -13,6 +13,8 @@ public class ProcurementApplyOrderGoodsSkuVo {
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
 
+    private Integer changeQuantity;
+
     private String goodsName;
 
     private String goodsId;
@@ -87,6 +89,14 @@ public class ProcurementApplyOrderGoodsSkuVo {
 
     public void setStoreId(Integer storeId) {
         this.storeId = storeId;
+    }
+
+    public Integer getChangeQuantity() {
+        return changeQuantity;
+    }
+
+    public void setChangeQuantity(Integer changeQuantity) {
+        this.changeQuantity = changeQuantity;
     }
 
     public String getGoodsName() {
@@ -213,6 +223,7 @@ public class ProcurementApplyOrderGoodsSkuVo {
     public String toString() {
         return "ProcurementApplyOrderGoodsSkuVo{" +
                 "storeId=" + storeId +
+                ", changeQuantity=" + changeQuantity +
                 ", goodsName='" + goodsName + '\'' +
                 ", goodsId='" + goodsId + '\'' +
                 ", goodsBarCode='" + goodsBarCode + '\'' +

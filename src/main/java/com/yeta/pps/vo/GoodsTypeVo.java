@@ -16,6 +16,8 @@ public class GoodsTypeVo {
 
     private List<GoodsPropertyKeyVo> goodsPropertyKeyVos;
 
+    private List<GoodsVo> goodsVos;
+
     /**
      * 商品分类id
      */
@@ -60,6 +62,14 @@ public class GoodsTypeVo {
         this.goodsPropertyKeyVos = goodsPropertyKeyVos;
     }
 
+    public List<GoodsVo> getGoodsVos() {
+        return goodsVos;
+    }
+
+    public void setGoodsVos(List<GoodsVo> goodsVos) {
+        this.goodsVos = goodsVos;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -81,6 +91,7 @@ public class GoodsTypeVo {
         return "GoodsTypeVo{" +
                 "storeId=" + storeId +
                 ", goodsPropertyKeyVos=" + goodsPropertyKeyVos +
+                ", goodsVos=" + goodsVos +
                 ", id=" + id +
                 ", name='" + name + '\'' +
                 '}';
