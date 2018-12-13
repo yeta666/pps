@@ -43,6 +43,15 @@
             id = #{applyOrderId}
     </update>
 
+    <update id="updateApplyOrderClearStatusAndMoney" parameterType="com.yeta.pps.vo.FundOrderVo">
+        update
+            procurement_apply_order_${storeId}
+        set
+            clear_status = #{orderStatus}, cleared_money = cleared_money + #{money}, not_cleared_money = not_cleared_money - #{money}
+        where
+            id = #{applyOrderId}
+    </update>
+
     <select id="findCountApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultType="java.lang.Integer">
         select
             count(0)
@@ -65,6 +74,10 @@
         <if test="orderStatus != null">
         and
             pao.orderStatus = #{orderStatus}
+        </if>
+        <if test="procurementApplyOrderVo.orderStatus != null">
+        and
+            pao.clearStatus = #{procurementApplyOrderVo.clearStatus}
         </if>
         <if test="supplierName != null">
         and
@@ -119,6 +132,10 @@
         <if test="procurementApplyOrderVo.orderStatus != null">
         and
             pao.orderStatus = #{procurementApplyOrderVo.orderStatus}
+        </if>
+        <if test="procurementApplyOrderVo.orderStatus != null">
+        and
+            pao.clearStatus = #{procurementApplyOrderVo.clearStatus}
         </if>
         <if test="procurementApplyOrderVo.supplierName != null">
         and

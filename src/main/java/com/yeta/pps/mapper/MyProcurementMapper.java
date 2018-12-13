@@ -21,6 +21,8 @@ public interface MyProcurementMapper {
 
     int updateApplyOrderOrderStatusAndQuantity(StorageOrderVo storageOrderVo);
 
+    int updateApplyOrderClearStatusAndMoney(FundOrderVo fundOrderVo);
+
     int findCountApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
 
     List<ProcurementApplyOrderVo> findAllPagedApplyOrder(@Param("procurementApplyOrderVo") ProcurementApplyOrderVo procurementApplyOrderVo,

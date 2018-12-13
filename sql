@@ -675,7 +675,7 @@ create table procurement_apply_order_1(
   create_time datetime not null comment '单据日期',
   apply_order_id varchar(50) comment '来源订单',
   order_status tinyint not null comment '单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发',
-  clear_status tinyint not null comment '结算状态：9：未完成，1：已完成',
+  clear_status tinyint not null comment '结算状态：0：未完成，1：已完成',
   supplier_id varchar(20) not null comment '供应商编号',
   in_warehouse_id int comment '入库仓库编号，对应收货',
   in_total_quantity int comment '总收货数量',
@@ -703,6 +703,7 @@ insert into
 procurement_apply_order_1 (id, type, create_time, order_status, clear_status, supplier_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark)
 values ('CGHHSQD_001', 3, now(), 7, 0, 'gys001', 1, 20, 0, 20, 2, 10, 0, 10, 50, 0, 50, 0, 50, 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
 
+
 drop table if exists procurement_apply_order_goods_sku_1;
 create table procurement_apply_order_goods_sku_1(
   id int primary key auto_increment comment '采购申请订单/商品规格关系编号',
@@ -725,6 +726,7 @@ insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku
 insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (0, 'CGHHSQD_001', 1, 6, 0, 6, 30, 0, null);
 insert into procurement_apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark) values (0, 'CGHHSQD_001', 2, 4, 0, 4, 20, 0, null);
 
+
 drop table if exists storage_order_1;
 create table storage_order_1(
   id varchar(50) primary key comment '单据编号',
@@ -736,6 +738,7 @@ create table storage_order_1(
   user_id varchar(50) comment '经手人',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
+
 
 drop table if exists procurement_result_order_1;
 create table procurement_result_order_1(
@@ -752,3 +755,16 @@ create table procurement_result_order_1(
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
 
+
+drop table if exists fund_order_1;
+create table fund_order_1(
+  id varchar(50) primary key comment '单据编号',
+  type tinyint not null comment '单据类型，1：付款单，2：收款单',
+  create_time datetime not null comment '单据日期',
+  apply_order_id varchar(50) not null comment '来源订单',
+  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  bank_account_id varchar(20) not null comment '银行账户编号',
+  money decimal(10, 2) not null comment '金额',
+  user_id varchar(50) comment '经手人',
+  remark varchar(255) comment '单据备注'
+) engine InnoDB default charset=utf8;

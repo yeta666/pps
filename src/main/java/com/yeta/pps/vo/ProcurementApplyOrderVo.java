@@ -51,7 +51,6 @@ public class ProcurementApplyOrderVo {
     /**
      * 单据日期
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
@@ -132,6 +131,7 @@ public class ProcurementApplyOrderVo {
     /**
      * 本单金额
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private BigDecimal orderMoney;
 
     /**
@@ -175,7 +175,7 @@ public class ProcurementApplyOrderVo {
         this.remark = remark;
     }
 
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String supplierName, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Byte orderStatus) {
+    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String supplierName, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Byte orderStatus, Byte clearStatus) {
         this.storeId = storeId;
         this.supplierName = supplierName;
         this.startTime = startTime;
@@ -183,16 +183,7 @@ public class ProcurementApplyOrderVo {
         this.id = id;
         this.type = type;
         this.orderStatus = orderStatus;
-    }
-
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte orderStatus, Integer inReceivedQuantity, Integer inNotReceivedQuantity, Integer outSentQuantity, Integer outNotSentQuantity) {
-        this.storeId = storeId;
-        this.id = id;
-        this.orderStatus = orderStatus;
-        this.inReceivedQuantity = inReceivedQuantity;
-        this.inNotReceivedQuantity = inNotReceivedQuantity;
-        this.outSentQuantity = outSentQuantity;
-        this.outNotSentQuantity = outNotSentQuantity;
+        this.clearStatus = clearStatus;
     }
 
     public Integer getStoreId() {

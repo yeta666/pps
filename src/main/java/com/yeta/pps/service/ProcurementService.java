@@ -91,6 +91,7 @@ public class ProcurementService {
             default:
                 return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
+        procurementApplyOrderVo.setCreateTime(new Date());
         procurementApplyOrderVo.setClearStatus((byte) 0);
         procurementApplyOrderVo.setClearedMoney(new BigDecimal(0));
         procurementApplyOrderVo.setNotClearedMoney(procurementApplyOrderVo.getTotalMoney());
@@ -333,21 +334,28 @@ public class ProcurementService {
         titles.add(new Title("单据类型", "type"));
         titles.add(new Title("单据日期", "createTime"));
         titles.add(new Title("单据状态", "orderStatus"));
-        titles.add(new Title("结算状态", "clearStatus"));
         titles.add(new Title("供应商", "supplierName"));
-        titles.add(new Title("入库仓库", "inWarehouseName"));
-        titles.add(new Title("总收货数量", "inTotalQuantity"));
-        titles.add(new Title("已收货数量", "inReceivedQuantity"));
-        titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
-        titles.add(new Title("出库仓库", "outWarehouseName"));
-        titles.add(new Title("总发货数量", "outTotalQuantity"));
-        titles.add(new Title("已发货数量", "outSentQuantity"));
-        titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
-        titles.add(new Title("总商品金额", "totalMoney"));
-        titles.add(new Title("总优惠金额", "totalDiscountMoney"));
-        titles.add(new Title("本单金额", "orderMoney"));
-        titles.add(new Title("已结金额", "clearedMoney"));
-        titles.add(new Title("未结金额", "notClearedMoney"));
+        byte type = procurementApplyOrderVo.getType();
+        if (type == 1 || type == 3) {
+            titles.add(new Title("入库仓库", "inWarehouseName"));
+            titles.add(new Title("总收货数量", "inTotalQuantity"));
+            titles.add(new Title("已收货数量", "inReceivedQuantity"));
+            titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
+        } else if (type == 2 || type == 3) {
+            titles.add(new Title("出库仓库", "outWarehouseName"));
+            titles.add(new Title("总发货数量", "outTotalQuantity"));
+            titles.add(new Title("已发货数量", "outSentQuantity"));
+            titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
+        }
+        //仓库收货不关心金额
+        if (procurementApplyOrderVo.getOrderStatus() == null) {
+            titles.add(new Title("总商品金额", "totalMoney"));
+            titles.add(new Title("总优惠金额", "totalDiscountMoney"));
+            titles.add(new Title("本单金额", "orderMoney"));
+            titles.add(new Title("结算状态", "clearStatus"));
+            titles.add(new Title("已结金额", "clearedMoney"));
+            titles.add(new Title("未结金额", "notClearedMoney"));
+        }
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, procurementApplyOrderVos, pageVo);

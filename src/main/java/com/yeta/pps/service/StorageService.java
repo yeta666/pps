@@ -278,7 +278,7 @@ public class StorageService {
         titles.add(new Title("单据编号", "id"));
         titles.add(new Title("单据类型", "type"));
         titles.add(new Title("单据日期", "createTime"));
-        titles.add(new Title("单据状态", "orderStatus"));
+        /*titles.add(new Title("单据状态", "orderStatus"));*/
         titles.add(new Title("来源订单", "applyOrderId"));
         titles.add(new Title("供应商", "procurementApplyOrderVo.supplierName"));
         if (storageOrderVo.getType() == 1 || storageOrderVo.getType() == 2) {

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50544
 File Encoding         : 65001
 
-Date: 2018-12-06 16:47:51
+Date: 2018-12-13 16:09:14
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -75,6 +75,9 @@ INSERT INTO `client` VALUES ('054774c2-f784-11e8-9dc7-54ee75c0f47a', '客户1', 
 INSERT INTO `client` VALUES ('054b1e2c-f784-11e8-9dc7-54ee75c0f47a', '客户2', 'kh2', 'kh2', '17360034523', '2018-12-05 14:44:36', '', '', '0', '', '', '002', '2018-12-05 14:44:36', '2018-12-05 14:44:36', '0', '');
 INSERT INTO `client` VALUES ('054e2add-f784-11e8-9dc7-54ee75c0f47a', '客户3', 'kh3', 'kh3', '17360034524', '2018-12-05 14:44:36', '', '', '100', '', '', '003', '2018-12-05 14:44:36', '2018-12-05 14:44:36', '0', '');
 INSERT INTO `client` VALUES ('05510d52-f784-11e8-9dc7-54ee75c0f47a', '客户4', 'kh4', 'kh4', '17360034525', '2018-12-05 14:44:36', '', '', '0', '', '', null, '2018-12-05 14:44:36', '2018-12-05 14:44:36', '0', '');
+INSERT INTO `client` VALUES ('kh001', '测试', 'username', 'password', '17760041487', '1995-05-25 00:00:00', null, null, '0', '', '', null, null, '2018-12-06 18:14:37', '0', '');
+INSERT INTO `client` VALUES ('kh002', '测试2', 'username2', 'password', '17760041488', '1995-05-25 00:00:00', '05510d52-f784-11e8-9dc7-54ee75c0f47a', '客户4', '0', '', '', null, null, '2018-12-06 18:20:54', '0', '');
+INSERT INTO `client` VALUES ('kh003', '测试3', 'username3', 'password', '17760041489', '1995-05-25 00:00:00', '05510d52-f784-11e8-9dc7-54ee75c0f47a', '客户4', '0', '', '', '600', null, '2018-12-06 18:23:24', '0', '');
 
 -- ----------------------------
 -- Table structure for client_client_level
@@ -86,7 +89,7 @@ CREATE TABLE `client_client_level` (
   `level_id` int(11) NOT NULL COMMENT '客户级别id',
   PRIMARY KEY (`id`),
   UNIQUE KEY `client_id` (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of client_client_level
@@ -95,6 +98,9 @@ INSERT INTO `client_client_level` VALUES ('1', '054774c2-f784-11e8-9dc7-54ee75c0
 INSERT INTO `client_client_level` VALUES ('2', '054b1e2c-f784-11e8-9dc7-54ee75c0f47a', '2');
 INSERT INTO `client_client_level` VALUES ('3', '054e2add-f784-11e8-9dc7-54ee75c0f47a', '3');
 INSERT INTO `client_client_level` VALUES ('4', '05510d52-f784-11e8-9dc7-54ee75c0f47a', '4');
+INSERT INTO `client_client_level` VALUES ('5', 'kh001', '4');
+INSERT INTO `client_client_level` VALUES ('6', 'kh002', '4');
+INSERT INTO `client_client_level` VALUES ('7', 'kh003', '4');
 
 -- ----------------------------
 -- Table structure for client_integral_detail
@@ -150,7 +156,7 @@ CREATE TABLE `client_membership_number` (
   `number` varchar(100) NOT NULL COMMENT '会员卡号',
   PRIMARY KEY (`id`),
   UNIQUE KEY `number` (`number`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of client_membership_number
@@ -160,8 +166,8 @@ INSERT INTO `client_membership_number` VALUES ('2', '002');
 INSERT INTO `client_membership_number` VALUES ('3', '003');
 INSERT INTO `client_membership_number` VALUES ('4', '004');
 INSERT INTO `client_membership_number` VALUES ('5', '005');
-INSERT INTO `client_membership_number` VALUES ('8', '006');
-INSERT INTO `client_membership_number` VALUES ('7', 'string');
+INSERT INTO `client_membership_number` VALUES ('8', '600');
+INSERT INTO `client_membership_number` VALUES ('9', '6546');
 
 -- ----------------------------
 -- Table structure for department_1
@@ -390,30 +396,43 @@ INSERT INTO `function` VALUES ('173', '系统重建', '3', '41');
 INSERT INTO `function` VALUES ('174', '操作日志', '3', '41');
 
 -- ----------------------------
+-- Table structure for fund_order_1
+-- ----------------------------
+DROP TABLE IF EXISTS `fund_order_1`;
+CREATE TABLE `fund_order_1` (
+  `id` varchar(50) NOT NULL COMMENT '单据编号',
+  `type` tinyint(4) NOT NULL COMMENT '单据类型，1：付款单，2：收款单',
+  `create_time` datetime NOT NULL COMMENT '单据日期',
+  `apply_order_id` varchar(50) NOT NULL COMMENT '来源订单',
+  `order_status` tinyint(4) NOT NULL COMMENT '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  `bank_account_id` varchar(20) NOT NULL COMMENT '银行账户编号',
+  `money` decimal(10,2) NOT NULL COMMENT '金额',
+  `user_id` varchar(50) DEFAULT NULL COMMENT '经手人',
+  `remark` varchar(255) DEFAULT NULL COMMENT '单据备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of fund_order_1
+-- ----------------------------
+INSERT INTO `fund_order_1` VALUES ('FKD_5e41b1c3-756d-4ad1-a423-29d7353cc21f', '2', '2018-12-13 15:43:19', 'CGDD_001', '1', '1001', '40.00', 'string', 'remark');
+INSERT INTO `fund_order_1` VALUES ('FKD_6d26ed67-d23e-4fee-ba22-dbe03f85013c', '2', '2018-12-13 15:36:57', 'CGDD_001', '1', '1001', '60.00', 'string', 'remark');
+
+-- ----------------------------
 -- Table structure for goods_1
 -- ----------------------------
 DROP TABLE IF EXISTS `goods_1`;
 CREATE TABLE `goods_1` (
-  `id` varchar(50) NOT NULL COMMENT '商品id',
+  `id` varchar(50) NOT NULL COMMENT '商品货号',
   `name` varchar(200) NOT NULL COMMENT '商品名',
-  `code` varchar(50) NOT NULL COMMENT '货号',
   `bar_code` varchar(50) NOT NULL COMMENT '条码',
   `type_id` int(11) NOT NULL COMMENT '分类id',
-  `brand_id` int(11) NOT NULL COMMENT '品牌id',
-  `unit_id` int(11) NOT NULL COMMENT '单位id',
-  `label_id` int(11) NOT NULL COMMENT '标签id',
-  `purchase_price` decimal(10,2) NOT NULL COMMENT '进价',
-  `retail_price` decimal(10,2) NOT NULL COMMENT '零售价',
-  `vip_price` decimal(10,2) NOT NULL COMMENT 'vip售价',
-  `inventory` int(11) NOT NULL COMMENT '可用库存',
-  `origin` varchar(100) DEFAULT NULL COMMENT '产地',
-  `image` varchar(200) DEFAULT NULL COMMENT '图片',
-  `oder_type` varchar(10) DEFAULT NULL COMMENT '香型',
-  `degree` varchar(10) DEFAULT NULL COMMENT '度数',
-  `net_content` varchar(10) DEFAULT NULL COMMENT '净含量',
-  `integral` int(11) DEFAULT NULL COMMENT '商品积分',
-  `remark` varchar(200) DEFAULT NULL COMMENT '备注',
   `putaway` tinyint(4) NOT NULL COMMENT '上架状态，0：未上架，1：已上架',
+  `skus` mediumtext COMMENT '商品规格',
+  `origin` varchar(200) DEFAULT NULL COMMENT '产地',
+  `image` varchar(200) DEFAULT NULL COMMENT '图片',
+  `remark` varchar(200) DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -421,25 +440,32 @@ CREATE TABLE `goods_1` (
 -- ----------------------------
 -- Records of goods_1
 -- ----------------------------
-INSERT INTO `goods_1` VALUES ('528dc57f-f930-11e8-bf1a-54ee75c0f47a', '商品1', 'sp001', '176', '1', '1', '1', '1', '150.00', '180.00', '300.00', '666', '产地', '/upload/goods/123123.jpg', '浓香型', '43%', '500ml', '0', '', '1');
-INSERT INTO `goods_1` VALUES ('ff223335-bb58-4d26-b887-355c582ef2d0', '商品2', 'sp002', '234', '2', '1', '1', '3', '520.00', '700.00', '600.00', '65', '', '', '', '', '', null, '', '1');
+INSERT INTO `goods_1` VALUES ('00ffd356-d220-4fd6-8fe7-77d5b8f77493', '测试商品1', 'kjasdlkj', '1', '1', null, '', '', '', '2018-12-09 16:24:24');
+INSERT INTO `goods_1` VALUES ('bf7299c6-ec0c-4d97-b122-281b89bf9c32', '测试商品', 'kjasdlkj', '1', '1', null, '', '', '', '2018-12-09 16:23:15');
+INSERT INTO `goods_1` VALUES ('e6e94cae-a08d-4164-a25f-77ac55d3d540', '舍得典藏款1', '176', '1', '1', '', '四川', '/upload/goods/123123.jpg', '', '2018-12-09 14:14:04');
+INSERT INTO `goods_1` VALUES ('sp001', '舍得典藏款', '176', '1', '1', '[{\"key\":\"品牌\",\"value\":[\"舍得\"]},{\"key\":\"单位\",\"value\":[\"件\", \"瓶\"]}]', '四川', '/upload/goods/123123.jpg', '', '2018-12-09 03:54:11');
+INSERT INTO `goods_1` VALUES ('sp002', '美的电压力锅', '177', '2', '1', '[{\"key\":\"品牌\",\"value\":[\"美的\"]},{\"key\":\"单位\",\"value\":[\"个\"]}]', '浙江', '/upload/goods/123123.jpg', '', '2018-12-09 03:54:11');
 
 -- ----------------------------
--- Table structure for goods_brand_1
+-- Table structure for goods_goods_label_1
 -- ----------------------------
-DROP TABLE IF EXISTS `goods_brand_1`;
-CREATE TABLE `goods_brand_1` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '商品品牌id',
-  `name` varchar(50) NOT NULL COMMENT '商品品牌名',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `goods_goods_label_1`;
+CREATE TABLE `goods_goods_label_1` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '商品/商品标签关系id',
+  `goods_id` varchar(50) NOT NULL COMMENT '商品货号',
+  `label_id` int(11) NOT NULL COMMENT '商品标签id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
--- Records of goods_brand_1
+-- Records of goods_goods_label_1
 -- ----------------------------
-INSERT INTO `goods_brand_1` VALUES ('1', '舍得');
-INSERT INTO `goods_brand_1` VALUES ('2', '茅台');
+INSERT INTO `goods_goods_label_1` VALUES ('1', 'sp001', '1');
+INSERT INTO `goods_goods_label_1` VALUES ('2', 'sp001', '2');
+INSERT INTO `goods_goods_label_1` VALUES ('3', 'sp002', '3');
+INSERT INTO `goods_goods_label_1` VALUES ('4', 'sp002', '4');
+INSERT INTO `goods_goods_label_1` VALUES ('23', '00ffd356-d220-4fd6-8fe7-77d5b8f77493', '1');
+INSERT INTO `goods_goods_label_1` VALUES ('24', '00ffd356-d220-4fd6-8fe7-77d5b8f77493', '3');
 
 -- ----------------------------
 -- Table structure for goods_label_1
@@ -447,7 +473,7 @@ INSERT INTO `goods_brand_1` VALUES ('2', '茅台');
 DROP TABLE IF EXISTS `goods_label_1`;
 CREATE TABLE `goods_label_1` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '商品标签id',
-  `name` varchar(10) NOT NULL COMMENT '商品标签名',
+  `name` varchar(20) NOT NULL COMMENT '商品标签名',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
@@ -461,12 +487,75 @@ INSERT INTO `goods_label_1` VALUES ('1', '新品');
 INSERT INTO `goods_label_1` VALUES ('4', '清仓');
 
 -- ----------------------------
+-- Table structure for goods_property_key_1
+-- ----------------------------
+DROP TABLE IF EXISTS `goods_property_key_1`;
+CREATE TABLE `goods_property_key_1` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '商品属性名id',
+  `name` varchar(20) NOT NULL COMMENT '商品属性名',
+  `type_id` int(11) NOT NULL COMMENT '商品分类id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of goods_property_key_1
+-- ----------------------------
+INSERT INTO `goods_property_key_1` VALUES ('1', '品牌', '1');
+INSERT INTO `goods_property_key_1` VALUES ('2', '单位', '1');
+INSERT INTO `goods_property_key_1` VALUES ('3', '品牌', '2');
+
+-- ----------------------------
+-- Table structure for goods_property_value_1
+-- ----------------------------
+DROP TABLE IF EXISTS `goods_property_value_1`;
+CREATE TABLE `goods_property_value_1` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '商品属性值id',
+  `name` varchar(20) NOT NULL COMMENT '商品属性值',
+  `property_key_id` int(11) NOT NULL COMMENT '商品属性名id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of goods_property_value_1
+-- ----------------------------
+INSERT INTO `goods_property_value_1` VALUES ('1', '舍得', '1');
+INSERT INTO `goods_property_value_1` VALUES ('2', '二锅头', '1');
+INSERT INTO `goods_property_value_1` VALUES ('3', '瓶', '2');
+INSERT INTO `goods_property_value_1` VALUES ('4', '件', '2');
+INSERT INTO `goods_property_value_1` VALUES ('5', '美的', '3');
+INSERT INTO `goods_property_value_1` VALUES ('6', '个', '3');
+
+-- ----------------------------
+-- Table structure for goods_sku_1
+-- ----------------------------
+DROP TABLE IF EXISTS `goods_sku_1`;
+CREATE TABLE `goods_sku_1` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '商品规格id',
+  `goods_id` varchar(50) NOT NULL COMMENT '商品货号',
+  `sku` mediumtext NOT NULL COMMENT '商品规格',
+  `purchase_price` decimal(10,2) NOT NULL COMMENT '进价',
+  `retail_price` decimal(10,2) NOT NULL COMMENT '零售价',
+  `vip_price` decimal(10,2) NOT NULL COMMENT 'vip售价',
+  `inventory` int(11) NOT NULL COMMENT '可用库存',
+  `integral` int(11) NOT NULL COMMENT '商品积分',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of goods_sku_1
+-- ----------------------------
+INSERT INTO `goods_sku_1` VALUES ('1', 'sp001', '[{\"key\":\"品牌\",\"value\":\"舍得\"},{\"key\":\"单位\",\"value\":\"瓶\"}]', '555.00', '777.00', '666.00', '34', '0');
+INSERT INTO `goods_sku_1` VALUES ('2', 'sp001', '[{\"key\":\"品牌\",\"value\":\"舍得\"},{\"key\":\"单位\",\"value\":\"件\"}]', '5550.00', '7770.00', '6660.00', '36', '0');
+INSERT INTO `goods_sku_1` VALUES ('3', 'sp002', '[{\"key\":\"品牌\",\"value\":\"美的\"},{\"key\":\"单位\",\"value\":\"个\"}]', '200.00', '380.00', '300.00', '10', '0');
+INSERT INTO `goods_sku_1` VALUES ('4', 'sp002', '[{\"key\":\"品牌\",\"value\":\"美的\"}]', '220.00', '400.00', '320.00', '5', '0');
+
+-- ----------------------------
 -- Table structure for goods_type_1
 -- ----------------------------
 DROP TABLE IF EXISTS `goods_type_1`;
 CREATE TABLE `goods_type_1` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '商品分类id',
-  `name` varchar(10) NOT NULL COMMENT '商品分类名',
+  `name` varchar(20) NOT NULL COMMENT '商品分类名',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
@@ -474,25 +563,8 @@ CREATE TABLE `goods_type_1` (
 -- ----------------------------
 -- Records of goods_type_1
 -- ----------------------------
-INSERT INTO `goods_type_1` VALUES ('1', '分类1');
-INSERT INTO `goods_type_1` VALUES ('2', '分类2');
-
--- ----------------------------
--- Table structure for goods_unit_1
--- ----------------------------
-DROP TABLE IF EXISTS `goods_unit_1`;
-CREATE TABLE `goods_unit_1` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '商品单位id',
-  `name` varchar(10) NOT NULL COMMENT '商品单位名',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
-
--- ----------------------------
--- Records of goods_unit_1
--- ----------------------------
-INSERT INTO `goods_unit_1` VALUES ('1', '瓶');
-INSERT INTO `goods_unit_1` VALUES ('2', '箱');
+INSERT INTO `goods_type_1` VALUES ('1', '酒类');
+INSERT INTO `goods_type_1` VALUES ('2', '锅类');
 
 -- ----------------------------
 -- Table structure for income_expenses_1
@@ -557,6 +629,98 @@ INSERT INTO `income_expenses_1` VALUES ('6801', '所得税费用', null, '2', '2
 INSERT INTO `income_expenses_1` VALUES ('6901', '以前年度损益调整', null, '2', '2');
 
 -- ----------------------------
+-- Table structure for procurement_apply_order_1
+-- ----------------------------
+DROP TABLE IF EXISTS `procurement_apply_order_1`;
+CREATE TABLE `procurement_apply_order_1` (
+  `id` varchar(50) NOT NULL COMMENT '单据编号',
+  `type` tinyint(4) NOT NULL COMMENT '单据类型，1：采购订单，2：采购退货申请，3,：采购换货申请',
+  `create_time` datetime NOT NULL COMMENT '单据日期',
+  `apply_order_id` varchar(50) DEFAULT NULL COMMENT '来源订单',
+  `order_status` tinyint(4) NOT NULL COMMENT '单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发',
+  `clear_status` tinyint(4) NOT NULL COMMENT '结算状态：0：未完成，1：已完成',
+  `supplier_id` varchar(20) NOT NULL COMMENT '供应商编号',
+  `in_warehouse_id` int(11) DEFAULT NULL COMMENT '入库仓库编号，对应收货',
+  `in_total_quantity` int(11) DEFAULT NULL COMMENT '总收货数量',
+  `in_received_quantity` int(11) DEFAULT NULL COMMENT '已收货数量',
+  `in_not_received_quantity` int(11) DEFAULT NULL COMMENT '未收货数量',
+  `out_warehouse_id` int(11) DEFAULT NULL COMMENT '出库仓库编号，对应发货',
+  `out_total_quantity` int(11) DEFAULT NULL COMMENT '总发货数量',
+  `out_sent_quantity` int(11) DEFAULT NULL COMMENT '已发货数量',
+  `out_not_sent_quantity` int(11) DEFAULT NULL COMMENT '未发货数量',
+  `total_money` decimal(10,2) NOT NULL COMMENT '总商品金额',
+  `total_discount_money` decimal(10,2) NOT NULL COMMENT '总优惠金额',
+  `order_money` decimal(10,2) NOT NULL COMMENT '本单金额',
+  `cleared_money` decimal(10,2) NOT NULL COMMENT '已结算金额',
+  `not_cleared_money` decimal(10,2) NOT NULL COMMENT '未结算金额',
+  `user_id` varchar(50) NOT NULL COMMENT '经手人编号',
+  `remark` varchar(255) DEFAULT NULL COMMENT '单据备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of procurement_apply_order_1
+-- ----------------------------
+INSERT INTO `procurement_apply_order_1` VALUES ('CGDD_001', '1', '2018-12-13 14:37:09', null, '1', '1', 'gys001', '1', '20', '0', '20', null, null, null, null, '100.00', '0.00', '100.00', '100.00', '0.00', 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
+INSERT INTO `procurement_apply_order_1` VALUES ('CGHHSQD_001', '3', '2018-12-13 14:37:09', null, '7', '0', 'gys001', '1', '20', '0', '20', '2', '10', '0', '10', '50.00', '0.00', '50.00', '0.00', '50.00', 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
+INSERT INTO `procurement_apply_order_1` VALUES ('CGTHSQD_001', '2', '2018-12-13 14:37:09', null, '4', '0', 'gys001', null, null, null, null, '1', '20', '0', '20', '-100.00', '0.00', '-100.00', '0.00', '-100.00', 'dcb71baa-f384-11e8-b25b-54ee75c0f47a', null);
+
+-- ----------------------------
+-- Table structure for procurement_apply_order_goods_sku_1
+-- ----------------------------
+DROP TABLE IF EXISTS `procurement_apply_order_goods_sku_1`;
+CREATE TABLE `procurement_apply_order_goods_sku_1` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '采购申请订单/商品规格关系编号',
+  `type` tinyint(4) NOT NULL COMMENT '入库或出库，1：入库，0：出库',
+  `apply_order_id` varchar(50) NOT NULL COMMENT '采购申请订单编号',
+  `goods_sku_id` int(11) NOT NULL COMMENT '商品规格编号',
+  `quantity` int(11) NOT NULL COMMENT '总数量',
+  `finish_quantity` int(11) DEFAULT NULL COMMENT '完成数量',
+  `not_finish_quantity` int(11) DEFAULT NULL COMMENT '未完成数量',
+  `money` decimal(10,2) NOT NULL COMMENT '金额',
+  `discount_money` decimal(10,2) NOT NULL COMMENT '优惠金额',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of procurement_apply_order_goods_sku_1
+-- ----------------------------
+INSERT INTO `procurement_apply_order_goods_sku_1` VALUES ('1', '1', 'CGDD_001', '1', '10', '10', '0', '50.00', '0.00', null);
+INSERT INTO `procurement_apply_order_goods_sku_1` VALUES ('2', '1', 'CGDD_001', '2', '10', '10', '0', '50.00', '0.00', null);
+INSERT INTO `procurement_apply_order_goods_sku_1` VALUES ('3', '0', 'CGTHSQD_001', '1', '10', '0', '10', '50.00', '0.00', null);
+INSERT INTO `procurement_apply_order_goods_sku_1` VALUES ('4', '0', 'CGTHSQD_001', '2', '10', '0', '10', '50.00', '0.00', null);
+INSERT INTO `procurement_apply_order_goods_sku_1` VALUES ('5', '1', 'CGHHSQD_001', '1', '10', '0', '10', '50.00', '0.00', null);
+INSERT INTO `procurement_apply_order_goods_sku_1` VALUES ('6', '1', 'CGHHSQD_001', '2', '10', '0', '10', '50.00', '0.00', null);
+INSERT INTO `procurement_apply_order_goods_sku_1` VALUES ('7', '0', 'CGHHSQD_001', '1', '6', '0', '6', '30.00', '0.00', null);
+INSERT INTO `procurement_apply_order_goods_sku_1` VALUES ('8', '0', 'CGHHSQD_001', '2', '4', '0', '4', '20.00', '0.00', null);
+
+-- ----------------------------
+-- Table structure for procurement_result_order_1
+-- ----------------------------
+DROP TABLE IF EXISTS `procurement_result_order_1`;
+CREATE TABLE `procurement_result_order_1` (
+  `id` varchar(50) NOT NULL COMMENT '单据编号',
+  `type` tinyint(4) NOT NULL COMMENT '单据类型，1：采购入库单，2：采购退货单，3,：采购换货单',
+  `create_time` datetime NOT NULL COMMENT '单据日期',
+  `apply_order_id` varchar(50) NOT NULL COMMENT '来源订单',
+  `order_status` tinyint(4) NOT NULL COMMENT '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  `total_quantity` int(11) NOT NULL COMMENT '总商品数量',
+  `total_money` decimal(10,2) NOT NULL COMMENT '总商品金额',
+  `total_discount_money` decimal(10,2) NOT NULL COMMENT '总优惠金额',
+  `order_money` decimal(10,2) NOT NULL COMMENT '本单金额',
+  `user_id` varchar(50) DEFAULT NULL COMMENT '经手人',
+  `remark` varchar(255) DEFAULT NULL COMMENT '单据备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of procurement_result_order_1
+-- ----------------------------
+INSERT INTO `procurement_result_order_1` VALUES ('CGRKD_5bdebf6f-4b28-4b1c-90c1-2b0ca210cdd6', '1', '2018-12-12 23:49:03', 'CGDD_001', '-1', '20', '100.00', '0.00', '100.00', 'string', null);
+INSERT INTO `procurement_result_order_1` VALUES ('HC_CGRKD_5bdebf6f-4b28-4b1c-90c1-2b0ca210cdd6', '1', '2018-12-13 00:11:32', 'CGDD_001', '-2', '-20', '-100.00', '0.00', '-100.00', 'string', null);
+
+-- ----------------------------
 -- Table structure for role_1
 -- ----------------------------
 DROP TABLE IF EXISTS `role_1`;
@@ -585,185 +749,206 @@ CREATE TABLE `role_function_1` (
   `role_id` int(11) NOT NULL COMMENT '角色id',
   `function_id` int(11) NOT NULL COMMENT '功能id',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=349 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=175 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of role_function_1
 -- ----------------------------
-INSERT INTO `role_function_1` VALUES ('175', '1', '1');
-INSERT INTO `role_function_1` VALUES ('176', '1', '2');
-INSERT INTO `role_function_1` VALUES ('177', '1', '3');
-INSERT INTO `role_function_1` VALUES ('178', '1', '4');
-INSERT INTO `role_function_1` VALUES ('179', '1', '5');
-INSERT INTO `role_function_1` VALUES ('180', '1', '6');
-INSERT INTO `role_function_1` VALUES ('181', '1', '7');
-INSERT INTO `role_function_1` VALUES ('182', '1', '8');
-INSERT INTO `role_function_1` VALUES ('183', '1', '9');
-INSERT INTO `role_function_1` VALUES ('184', '1', '10');
-INSERT INTO `role_function_1` VALUES ('185', '1', '11');
-INSERT INTO `role_function_1` VALUES ('186', '1', '12');
-INSERT INTO `role_function_1` VALUES ('187', '1', '13');
-INSERT INTO `role_function_1` VALUES ('188', '1', '14');
-INSERT INTO `role_function_1` VALUES ('189', '1', '15');
-INSERT INTO `role_function_1` VALUES ('190', '1', '16');
-INSERT INTO `role_function_1` VALUES ('191', '1', '17');
-INSERT INTO `role_function_1` VALUES ('192', '1', '18');
-INSERT INTO `role_function_1` VALUES ('193', '1', '19');
-INSERT INTO `role_function_1` VALUES ('194', '1', '20');
-INSERT INTO `role_function_1` VALUES ('195', '1', '21');
-INSERT INTO `role_function_1` VALUES ('196', '1', '22');
-INSERT INTO `role_function_1` VALUES ('197', '1', '23');
-INSERT INTO `role_function_1` VALUES ('198', '1', '24');
-INSERT INTO `role_function_1` VALUES ('199', '1', '25');
-INSERT INTO `role_function_1` VALUES ('200', '1', '26');
-INSERT INTO `role_function_1` VALUES ('201', '1', '27');
-INSERT INTO `role_function_1` VALUES ('202', '1', '28');
-INSERT INTO `role_function_1` VALUES ('203', '1', '29');
-INSERT INTO `role_function_1` VALUES ('204', '1', '30');
-INSERT INTO `role_function_1` VALUES ('205', '1', '31');
-INSERT INTO `role_function_1` VALUES ('206', '1', '32');
-INSERT INTO `role_function_1` VALUES ('207', '1', '33');
-INSERT INTO `role_function_1` VALUES ('208', '1', '34');
-INSERT INTO `role_function_1` VALUES ('209', '1', '35');
-INSERT INTO `role_function_1` VALUES ('210', '1', '36');
-INSERT INTO `role_function_1` VALUES ('211', '1', '37');
-INSERT INTO `role_function_1` VALUES ('212', '1', '38');
-INSERT INTO `role_function_1` VALUES ('213', '1', '39');
-INSERT INTO `role_function_1` VALUES ('214', '1', '40');
-INSERT INTO `role_function_1` VALUES ('215', '1', '41');
-INSERT INTO `role_function_1` VALUES ('216', '1', '42');
-INSERT INTO `role_function_1` VALUES ('217', '1', '43');
-INSERT INTO `role_function_1` VALUES ('218', '1', '44');
-INSERT INTO `role_function_1` VALUES ('219', '1', '45');
-INSERT INTO `role_function_1` VALUES ('220', '1', '46');
-INSERT INTO `role_function_1` VALUES ('221', '1', '47');
-INSERT INTO `role_function_1` VALUES ('222', '1', '48');
-INSERT INTO `role_function_1` VALUES ('223', '1', '49');
-INSERT INTO `role_function_1` VALUES ('224', '1', '50');
-INSERT INTO `role_function_1` VALUES ('225', '1', '51');
-INSERT INTO `role_function_1` VALUES ('226', '1', '52');
-INSERT INTO `role_function_1` VALUES ('227', '1', '53');
-INSERT INTO `role_function_1` VALUES ('228', '1', '54');
-INSERT INTO `role_function_1` VALUES ('229', '1', '55');
-INSERT INTO `role_function_1` VALUES ('230', '1', '56');
-INSERT INTO `role_function_1` VALUES ('231', '1', '57');
-INSERT INTO `role_function_1` VALUES ('232', '1', '58');
-INSERT INTO `role_function_1` VALUES ('233', '1', '59');
-INSERT INTO `role_function_1` VALUES ('234', '1', '60');
-INSERT INTO `role_function_1` VALUES ('235', '1', '61');
-INSERT INTO `role_function_1` VALUES ('236', '1', '62');
-INSERT INTO `role_function_1` VALUES ('237', '1', '63');
-INSERT INTO `role_function_1` VALUES ('238', '1', '64');
-INSERT INTO `role_function_1` VALUES ('239', '1', '65');
-INSERT INTO `role_function_1` VALUES ('240', '1', '66');
-INSERT INTO `role_function_1` VALUES ('241', '1', '67');
-INSERT INTO `role_function_1` VALUES ('242', '1', '68');
-INSERT INTO `role_function_1` VALUES ('243', '1', '69');
-INSERT INTO `role_function_1` VALUES ('244', '1', '70');
-INSERT INTO `role_function_1` VALUES ('245', '1', '71');
-INSERT INTO `role_function_1` VALUES ('246', '1', '72');
-INSERT INTO `role_function_1` VALUES ('247', '1', '73');
-INSERT INTO `role_function_1` VALUES ('248', '1', '74');
-INSERT INTO `role_function_1` VALUES ('249', '1', '75');
-INSERT INTO `role_function_1` VALUES ('250', '1', '76');
-INSERT INTO `role_function_1` VALUES ('251', '1', '77');
-INSERT INTO `role_function_1` VALUES ('252', '1', '78');
-INSERT INTO `role_function_1` VALUES ('253', '1', '79');
-INSERT INTO `role_function_1` VALUES ('254', '1', '80');
-INSERT INTO `role_function_1` VALUES ('255', '1', '81');
-INSERT INTO `role_function_1` VALUES ('256', '1', '82');
-INSERT INTO `role_function_1` VALUES ('257', '1', '83');
-INSERT INTO `role_function_1` VALUES ('258', '1', '84');
-INSERT INTO `role_function_1` VALUES ('259', '1', '85');
-INSERT INTO `role_function_1` VALUES ('260', '1', '86');
-INSERT INTO `role_function_1` VALUES ('261', '1', '87');
-INSERT INTO `role_function_1` VALUES ('262', '1', '88');
-INSERT INTO `role_function_1` VALUES ('263', '1', '89');
-INSERT INTO `role_function_1` VALUES ('264', '1', '90');
-INSERT INTO `role_function_1` VALUES ('265', '1', '91');
-INSERT INTO `role_function_1` VALUES ('266', '1', '92');
-INSERT INTO `role_function_1` VALUES ('267', '1', '93');
-INSERT INTO `role_function_1` VALUES ('268', '1', '94');
-INSERT INTO `role_function_1` VALUES ('269', '1', '95');
-INSERT INTO `role_function_1` VALUES ('270', '1', '96');
-INSERT INTO `role_function_1` VALUES ('271', '1', '97');
-INSERT INTO `role_function_1` VALUES ('272', '1', '98');
-INSERT INTO `role_function_1` VALUES ('273', '1', '99');
-INSERT INTO `role_function_1` VALUES ('274', '1', '100');
-INSERT INTO `role_function_1` VALUES ('275', '1', '101');
-INSERT INTO `role_function_1` VALUES ('276', '1', '102');
-INSERT INTO `role_function_1` VALUES ('277', '1', '103');
-INSERT INTO `role_function_1` VALUES ('278', '1', '104');
-INSERT INTO `role_function_1` VALUES ('279', '1', '105');
-INSERT INTO `role_function_1` VALUES ('280', '1', '106');
-INSERT INTO `role_function_1` VALUES ('281', '1', '107');
-INSERT INTO `role_function_1` VALUES ('282', '1', '108');
-INSERT INTO `role_function_1` VALUES ('283', '1', '109');
-INSERT INTO `role_function_1` VALUES ('284', '1', '110');
-INSERT INTO `role_function_1` VALUES ('285', '1', '111');
-INSERT INTO `role_function_1` VALUES ('286', '1', '112');
-INSERT INTO `role_function_1` VALUES ('287', '1', '113');
-INSERT INTO `role_function_1` VALUES ('288', '1', '114');
-INSERT INTO `role_function_1` VALUES ('289', '1', '115');
-INSERT INTO `role_function_1` VALUES ('290', '1', '116');
-INSERT INTO `role_function_1` VALUES ('291', '1', '117');
-INSERT INTO `role_function_1` VALUES ('292', '1', '118');
-INSERT INTO `role_function_1` VALUES ('293', '1', '119');
-INSERT INTO `role_function_1` VALUES ('294', '1', '120');
-INSERT INTO `role_function_1` VALUES ('295', '1', '121');
-INSERT INTO `role_function_1` VALUES ('296', '1', '122');
-INSERT INTO `role_function_1` VALUES ('297', '1', '123');
-INSERT INTO `role_function_1` VALUES ('298', '1', '124');
-INSERT INTO `role_function_1` VALUES ('299', '1', '125');
-INSERT INTO `role_function_1` VALUES ('300', '1', '126');
-INSERT INTO `role_function_1` VALUES ('301', '1', '127');
-INSERT INTO `role_function_1` VALUES ('302', '1', '128');
-INSERT INTO `role_function_1` VALUES ('303', '1', '129');
-INSERT INTO `role_function_1` VALUES ('304', '1', '130');
-INSERT INTO `role_function_1` VALUES ('305', '1', '131');
-INSERT INTO `role_function_1` VALUES ('306', '1', '132');
-INSERT INTO `role_function_1` VALUES ('307', '1', '133');
-INSERT INTO `role_function_1` VALUES ('308', '1', '134');
-INSERT INTO `role_function_1` VALUES ('309', '1', '135');
-INSERT INTO `role_function_1` VALUES ('310', '1', '136');
-INSERT INTO `role_function_1` VALUES ('311', '1', '137');
-INSERT INTO `role_function_1` VALUES ('312', '1', '138');
-INSERT INTO `role_function_1` VALUES ('313', '1', '139');
-INSERT INTO `role_function_1` VALUES ('314', '1', '140');
-INSERT INTO `role_function_1` VALUES ('315', '1', '141');
-INSERT INTO `role_function_1` VALUES ('316', '1', '142');
-INSERT INTO `role_function_1` VALUES ('317', '1', '143');
-INSERT INTO `role_function_1` VALUES ('318', '1', '144');
-INSERT INTO `role_function_1` VALUES ('319', '1', '145');
-INSERT INTO `role_function_1` VALUES ('320', '1', '146');
-INSERT INTO `role_function_1` VALUES ('321', '1', '147');
-INSERT INTO `role_function_1` VALUES ('322', '1', '148');
-INSERT INTO `role_function_1` VALUES ('323', '1', '149');
-INSERT INTO `role_function_1` VALUES ('324', '1', '150');
-INSERT INTO `role_function_1` VALUES ('325', '1', '151');
-INSERT INTO `role_function_1` VALUES ('326', '1', '152');
-INSERT INTO `role_function_1` VALUES ('327', '1', '153');
-INSERT INTO `role_function_1` VALUES ('328', '1', '154');
-INSERT INTO `role_function_1` VALUES ('329', '1', '155');
-INSERT INTO `role_function_1` VALUES ('330', '1', '156');
-INSERT INTO `role_function_1` VALUES ('331', '1', '157');
-INSERT INTO `role_function_1` VALUES ('332', '1', '158');
-INSERT INTO `role_function_1` VALUES ('333', '1', '159');
-INSERT INTO `role_function_1` VALUES ('334', '1', '160');
-INSERT INTO `role_function_1` VALUES ('335', '1', '161');
-INSERT INTO `role_function_1` VALUES ('336', '1', '162');
-INSERT INTO `role_function_1` VALUES ('337', '1', '163');
-INSERT INTO `role_function_1` VALUES ('338', '1', '164');
-INSERT INTO `role_function_1` VALUES ('339', '1', '165');
-INSERT INTO `role_function_1` VALUES ('340', '1', '166');
-INSERT INTO `role_function_1` VALUES ('341', '1', '167');
-INSERT INTO `role_function_1` VALUES ('342', '1', '168');
-INSERT INTO `role_function_1` VALUES ('343', '1', '169');
-INSERT INTO `role_function_1` VALUES ('344', '1', '170');
-INSERT INTO `role_function_1` VALUES ('345', '1', '171');
-INSERT INTO `role_function_1` VALUES ('346', '1', '172');
-INSERT INTO `role_function_1` VALUES ('347', '1', '173');
-INSERT INTO `role_function_1` VALUES ('348', '1', '174');
+INSERT INTO `role_function_1` VALUES ('1', '1', '1');
+INSERT INTO `role_function_1` VALUES ('2', '1', '2');
+INSERT INTO `role_function_1` VALUES ('3', '1', '3');
+INSERT INTO `role_function_1` VALUES ('4', '1', '4');
+INSERT INTO `role_function_1` VALUES ('5', '1', '5');
+INSERT INTO `role_function_1` VALUES ('6', '1', '6');
+INSERT INTO `role_function_1` VALUES ('7', '1', '7');
+INSERT INTO `role_function_1` VALUES ('8', '1', '8');
+INSERT INTO `role_function_1` VALUES ('9', '1', '9');
+INSERT INTO `role_function_1` VALUES ('10', '1', '10');
+INSERT INTO `role_function_1` VALUES ('11', '1', '11');
+INSERT INTO `role_function_1` VALUES ('12', '1', '12');
+INSERT INTO `role_function_1` VALUES ('13', '1', '13');
+INSERT INTO `role_function_1` VALUES ('14', '1', '14');
+INSERT INTO `role_function_1` VALUES ('15', '1', '15');
+INSERT INTO `role_function_1` VALUES ('16', '1', '16');
+INSERT INTO `role_function_1` VALUES ('17', '1', '17');
+INSERT INTO `role_function_1` VALUES ('18', '1', '18');
+INSERT INTO `role_function_1` VALUES ('19', '1', '19');
+INSERT INTO `role_function_1` VALUES ('20', '1', '20');
+INSERT INTO `role_function_1` VALUES ('21', '1', '21');
+INSERT INTO `role_function_1` VALUES ('22', '1', '22');
+INSERT INTO `role_function_1` VALUES ('23', '1', '23');
+INSERT INTO `role_function_1` VALUES ('24', '1', '24');
+INSERT INTO `role_function_1` VALUES ('25', '1', '25');
+INSERT INTO `role_function_1` VALUES ('26', '1', '26');
+INSERT INTO `role_function_1` VALUES ('27', '1', '27');
+INSERT INTO `role_function_1` VALUES ('28', '1', '28');
+INSERT INTO `role_function_1` VALUES ('29', '1', '29');
+INSERT INTO `role_function_1` VALUES ('30', '1', '30');
+INSERT INTO `role_function_1` VALUES ('31', '1', '31');
+INSERT INTO `role_function_1` VALUES ('32', '1', '32');
+INSERT INTO `role_function_1` VALUES ('33', '1', '33');
+INSERT INTO `role_function_1` VALUES ('34', '1', '34');
+INSERT INTO `role_function_1` VALUES ('35', '1', '35');
+INSERT INTO `role_function_1` VALUES ('36', '1', '36');
+INSERT INTO `role_function_1` VALUES ('37', '1', '37');
+INSERT INTO `role_function_1` VALUES ('38', '1', '38');
+INSERT INTO `role_function_1` VALUES ('39', '1', '39');
+INSERT INTO `role_function_1` VALUES ('40', '1', '40');
+INSERT INTO `role_function_1` VALUES ('41', '1', '41');
+INSERT INTO `role_function_1` VALUES ('42', '1', '42');
+INSERT INTO `role_function_1` VALUES ('43', '1', '43');
+INSERT INTO `role_function_1` VALUES ('44', '1', '44');
+INSERT INTO `role_function_1` VALUES ('45', '1', '45');
+INSERT INTO `role_function_1` VALUES ('46', '1', '46');
+INSERT INTO `role_function_1` VALUES ('47', '1', '47');
+INSERT INTO `role_function_1` VALUES ('48', '1', '48');
+INSERT INTO `role_function_1` VALUES ('49', '1', '49');
+INSERT INTO `role_function_1` VALUES ('50', '1', '50');
+INSERT INTO `role_function_1` VALUES ('51', '1', '51');
+INSERT INTO `role_function_1` VALUES ('52', '1', '52');
+INSERT INTO `role_function_1` VALUES ('53', '1', '53');
+INSERT INTO `role_function_1` VALUES ('54', '1', '54');
+INSERT INTO `role_function_1` VALUES ('55', '1', '55');
+INSERT INTO `role_function_1` VALUES ('56', '1', '56');
+INSERT INTO `role_function_1` VALUES ('57', '1', '57');
+INSERT INTO `role_function_1` VALUES ('58', '1', '58');
+INSERT INTO `role_function_1` VALUES ('59', '1', '59');
+INSERT INTO `role_function_1` VALUES ('60', '1', '60');
+INSERT INTO `role_function_1` VALUES ('61', '1', '61');
+INSERT INTO `role_function_1` VALUES ('62', '1', '62');
+INSERT INTO `role_function_1` VALUES ('63', '1', '63');
+INSERT INTO `role_function_1` VALUES ('64', '1', '64');
+INSERT INTO `role_function_1` VALUES ('65', '1', '65');
+INSERT INTO `role_function_1` VALUES ('66', '1', '66');
+INSERT INTO `role_function_1` VALUES ('67', '1', '67');
+INSERT INTO `role_function_1` VALUES ('68', '1', '68');
+INSERT INTO `role_function_1` VALUES ('69', '1', '69');
+INSERT INTO `role_function_1` VALUES ('70', '1', '70');
+INSERT INTO `role_function_1` VALUES ('71', '1', '71');
+INSERT INTO `role_function_1` VALUES ('72', '1', '72');
+INSERT INTO `role_function_1` VALUES ('73', '1', '73');
+INSERT INTO `role_function_1` VALUES ('74', '1', '74');
+INSERT INTO `role_function_1` VALUES ('75', '1', '75');
+INSERT INTO `role_function_1` VALUES ('76', '1', '76');
+INSERT INTO `role_function_1` VALUES ('77', '1', '77');
+INSERT INTO `role_function_1` VALUES ('78', '1', '78');
+INSERT INTO `role_function_1` VALUES ('79', '1', '79');
+INSERT INTO `role_function_1` VALUES ('80', '1', '80');
+INSERT INTO `role_function_1` VALUES ('81', '1', '81');
+INSERT INTO `role_function_1` VALUES ('82', '1', '82');
+INSERT INTO `role_function_1` VALUES ('83', '1', '83');
+INSERT INTO `role_function_1` VALUES ('84', '1', '84');
+INSERT INTO `role_function_1` VALUES ('85', '1', '85');
+INSERT INTO `role_function_1` VALUES ('86', '1', '86');
+INSERT INTO `role_function_1` VALUES ('87', '1', '87');
+INSERT INTO `role_function_1` VALUES ('88', '1', '88');
+INSERT INTO `role_function_1` VALUES ('89', '1', '89');
+INSERT INTO `role_function_1` VALUES ('90', '1', '90');
+INSERT INTO `role_function_1` VALUES ('91', '1', '91');
+INSERT INTO `role_function_1` VALUES ('92', '1', '92');
+INSERT INTO `role_function_1` VALUES ('93', '1', '93');
+INSERT INTO `role_function_1` VALUES ('94', '1', '94');
+INSERT INTO `role_function_1` VALUES ('95', '1', '95');
+INSERT INTO `role_function_1` VALUES ('96', '1', '96');
+INSERT INTO `role_function_1` VALUES ('97', '1', '97');
+INSERT INTO `role_function_1` VALUES ('98', '1', '98');
+INSERT INTO `role_function_1` VALUES ('99', '1', '99');
+INSERT INTO `role_function_1` VALUES ('100', '1', '100');
+INSERT INTO `role_function_1` VALUES ('101', '1', '101');
+INSERT INTO `role_function_1` VALUES ('102', '1', '102');
+INSERT INTO `role_function_1` VALUES ('103', '1', '103');
+INSERT INTO `role_function_1` VALUES ('104', '1', '104');
+INSERT INTO `role_function_1` VALUES ('105', '1', '105');
+INSERT INTO `role_function_1` VALUES ('106', '1', '106');
+INSERT INTO `role_function_1` VALUES ('107', '1', '107');
+INSERT INTO `role_function_1` VALUES ('108', '1', '108');
+INSERT INTO `role_function_1` VALUES ('109', '1', '109');
+INSERT INTO `role_function_1` VALUES ('110', '1', '110');
+INSERT INTO `role_function_1` VALUES ('111', '1', '111');
+INSERT INTO `role_function_1` VALUES ('112', '1', '112');
+INSERT INTO `role_function_1` VALUES ('113', '1', '113');
+INSERT INTO `role_function_1` VALUES ('114', '1', '114');
+INSERT INTO `role_function_1` VALUES ('115', '1', '115');
+INSERT INTO `role_function_1` VALUES ('116', '1', '116');
+INSERT INTO `role_function_1` VALUES ('117', '1', '117');
+INSERT INTO `role_function_1` VALUES ('118', '1', '118');
+INSERT INTO `role_function_1` VALUES ('119', '1', '119');
+INSERT INTO `role_function_1` VALUES ('120', '1', '120');
+INSERT INTO `role_function_1` VALUES ('121', '1', '121');
+INSERT INTO `role_function_1` VALUES ('122', '1', '122');
+INSERT INTO `role_function_1` VALUES ('123', '1', '123');
+INSERT INTO `role_function_1` VALUES ('124', '1', '124');
+INSERT INTO `role_function_1` VALUES ('125', '1', '125');
+INSERT INTO `role_function_1` VALUES ('126', '1', '126');
+INSERT INTO `role_function_1` VALUES ('127', '1', '127');
+INSERT INTO `role_function_1` VALUES ('128', '1', '128');
+INSERT INTO `role_function_1` VALUES ('129', '1', '129');
+INSERT INTO `role_function_1` VALUES ('130', '1', '130');
+INSERT INTO `role_function_1` VALUES ('131', '1', '131');
+INSERT INTO `role_function_1` VALUES ('132', '1', '132');
+INSERT INTO `role_function_1` VALUES ('133', '1', '133');
+INSERT INTO `role_function_1` VALUES ('134', '1', '134');
+INSERT INTO `role_function_1` VALUES ('135', '1', '135');
+INSERT INTO `role_function_1` VALUES ('136', '1', '136');
+INSERT INTO `role_function_1` VALUES ('137', '1', '137');
+INSERT INTO `role_function_1` VALUES ('138', '1', '138');
+INSERT INTO `role_function_1` VALUES ('139', '1', '139');
+INSERT INTO `role_function_1` VALUES ('140', '1', '140');
+INSERT INTO `role_function_1` VALUES ('141', '1', '141');
+INSERT INTO `role_function_1` VALUES ('142', '1', '142');
+INSERT INTO `role_function_1` VALUES ('143', '1', '143');
+INSERT INTO `role_function_1` VALUES ('144', '1', '144');
+INSERT INTO `role_function_1` VALUES ('145', '1', '145');
+INSERT INTO `role_function_1` VALUES ('146', '1', '146');
+INSERT INTO `role_function_1` VALUES ('147', '1', '147');
+INSERT INTO `role_function_1` VALUES ('148', '1', '148');
+INSERT INTO `role_function_1` VALUES ('149', '1', '149');
+INSERT INTO `role_function_1` VALUES ('150', '1', '150');
+INSERT INTO `role_function_1` VALUES ('151', '1', '151');
+INSERT INTO `role_function_1` VALUES ('152', '1', '152');
+INSERT INTO `role_function_1` VALUES ('153', '1', '153');
+INSERT INTO `role_function_1` VALUES ('154', '1', '154');
+INSERT INTO `role_function_1` VALUES ('155', '1', '155');
+INSERT INTO `role_function_1` VALUES ('156', '1', '156');
+INSERT INTO `role_function_1` VALUES ('157', '1', '157');
+INSERT INTO `role_function_1` VALUES ('158', '1', '158');
+INSERT INTO `role_function_1` VALUES ('159', '1', '159');
+INSERT INTO `role_function_1` VALUES ('160', '1', '160');
+INSERT INTO `role_function_1` VALUES ('161', '1', '161');
+INSERT INTO `role_function_1` VALUES ('162', '1', '162');
+INSERT INTO `role_function_1` VALUES ('163', '1', '163');
+INSERT INTO `role_function_1` VALUES ('164', '1', '164');
+INSERT INTO `role_function_1` VALUES ('165', '1', '165');
+INSERT INTO `role_function_1` VALUES ('166', '1', '166');
+INSERT INTO `role_function_1` VALUES ('167', '1', '167');
+INSERT INTO `role_function_1` VALUES ('168', '1', '168');
+INSERT INTO `role_function_1` VALUES ('169', '1', '169');
+INSERT INTO `role_function_1` VALUES ('170', '1', '170');
+INSERT INTO `role_function_1` VALUES ('171', '1', '171');
+INSERT INTO `role_function_1` VALUES ('172', '1', '172');
+INSERT INTO `role_function_1` VALUES ('173', '1', '173');
+INSERT INTO `role_function_1` VALUES ('174', '1', '174');
+
+-- ----------------------------
+-- Table structure for storage_order_1
+-- ----------------------------
+DROP TABLE IF EXISTS `storage_order_1`;
+CREATE TABLE `storage_order_1` (
+  `id` varchar(50) NOT NULL COMMENT '单据编号',
+  `type` tinyint(4) NOT NULL COMMENT '单据类型，1：采购订单收货单，2：退换货申请收货单，3：销售订单发货单，4：退换货申请发货单',
+  `create_time` datetime NOT NULL COMMENT '单据日期',
+  `apply_order_id` varchar(50) NOT NULL COMMENT '来源订单',
+  `order_status` tinyint(4) NOT NULL COMMENT '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  `quantity` int(11) NOT NULL COMMENT '数量',
+  `user_id` varchar(50) DEFAULT NULL COMMENT '经手人',
+  `remark` varchar(255) DEFAULT NULL COMMENT '单据备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of storage_order_1
+-- ----------------------------
+INSERT INTO `storage_order_1` VALUES ('CGDD_SHD_fc06241f-1c0a-4e33-84c6-33111109a559', '1', '2018-12-12 23:49:03', 'CGDD_001', '0', '20', 'userId', 'remark');
 
 -- ----------------------------
 -- Table structure for store
@@ -819,8 +1004,9 @@ CREATE TABLE `user_1` (
   `username` varchar(50) NOT NULL COMMENT '用户名',
   `password` varchar(50) NOT NULL COMMENT '密码',
   `phone` varchar(20) NOT NULL COMMENT '电话',
-  `remark` varchar(200) DEFAULT NULL COMMENT '备注',
+  `warehouse_id` int(11) NOT NULL COMMENT '仓库id',
   `disabled` tinyint(4) NOT NULL COMMENT '是否禁用，0：不禁用，1：禁用',
+  `remark` varchar(200) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -828,12 +1014,12 @@ CREATE TABLE `user_1` (
 -- ----------------------------
 -- Records of user_1
 -- ----------------------------
-INSERT INTO `user_1` VALUES ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '总店老板', 'lb', 'lb', '17760041487', null, '0');
-INSERT INTO `user_1` VALUES ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '总店销售经理', 'xsjl', 'xsjl', '17760041487', null, '0');
-INSERT INTO `user_1` VALUES ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '总店销售', 'xs', 'xs', '17760041487', null, '0');
-INSERT INTO `user_1` VALUES ('dcc00d94-f384-11e8-b25b-54ee75c0f47a', '总店采购', 'cg', 'cg', '17760041487', null, '0');
-INSERT INTO `user_1` VALUES ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '总店库管', 'kg', 'kg', '17760041487', null, '0');
-INSERT INTO `user_1` VALUES ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '总店财务', 'cw', 'cw', '17760041487', null, '0');
+INSERT INTO `user_1` VALUES ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '总店老板', 'lb', 'lb', '17760041487', '1', '0', null);
+INSERT INTO `user_1` VALUES ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '总店销售经理', 'xsjl', 'xsjl', '17760041487', '1', '0', null);
+INSERT INTO `user_1` VALUES ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '总店销售', 'xs', 'xs', '17760041487', '1', '0', null);
+INSERT INTO `user_1` VALUES ('dcc00d94-f384-11e8-b25b-54ee75c0f47a', '总店采购', 'cg', 'cg', '17760041487', '1', '0', null);
+INSERT INTO `user_1` VALUES ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '总店库管', 'kg', 'kg', '17760041487', '1', '0', null);
+INSERT INTO `user_1` VALUES ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '总店财务', 'cw', 'cw', '17760041487', '1', '0', null);
 
 -- ----------------------------
 -- Table structure for user_role_1
@@ -844,7 +1030,7 @@ CREATE TABLE `user_role_1` (
   `user_id` varchar(50) NOT NULL COMMENT '用户id',
   `role_id` int(11) NOT NULL COMMENT '角色id',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of user_role_1
@@ -855,6 +1041,7 @@ INSERT INTO `user_role_1` VALUES ('3', 'dcbd0207-f384-11e8-b25b-54ee75c0f47a', '
 INSERT INTO `user_role_1` VALUES ('4', 'dcc00d94-f384-11e8-b25b-54ee75c0f47a', '4');
 INSERT INTO `user_role_1` VALUES ('5', 'dcc30169-f384-11e8-b25b-54ee75c0f47a', '5');
 INSERT INTO `user_role_1` VALUES ('6', 'dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '6');
+INSERT INTO `user_role_1` VALUES ('7', 'dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '3');
 
 -- ----------------------------
 -- Table structure for warehouse_1
@@ -870,27 +1057,10 @@ CREATE TABLE `warehouse_1` (
   `remark` varchar(200) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of warehouse_1
 -- ----------------------------
-INSERT INTO `warehouse_1` VALUES ('1', '仓库11', '联系人11', '17360034522', '四川省成都市', '621000', '备注11');
-INSERT INTO `warehouse_1` VALUES ('2', '第二个仓库', '小强', '17760041487', '四川省成都市', '610001', '备注');
-INSERT INTO `warehouse_1` VALUES ('3', '仓库1', '联系人1', '17360034522', '四川省成都市', '621000', '备注1');
-
--- ----------------------------
--- Table structure for warehouse_user_1
--- ----------------------------
-DROP TABLE IF EXISTS `warehouse_user_1`;
-CREATE TABLE `warehouse_user_1` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '仓库用户id',
-  `warehouse_id` int(11) NOT NULL COMMENT '仓库id',
-  `user_id` varchar(50) NOT NULL COMMENT '用户id',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
-
--- ----------------------------
--- Records of warehouse_user_1
--- ----------------------------
-INSERT INTO `warehouse_user_1` VALUES ('1', '1', 'dcb71baa-f384-11e8-b25b-54ee75c0f47a');
+INSERT INTO `warehouse_1` VALUES ('1', '第一个仓库', null, null, null, null, null);
+INSERT INTO `warehouse_1` VALUES ('2', '第二个仓库', null, null, null, null, null);

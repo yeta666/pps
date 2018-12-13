@@ -16,8 +16,6 @@ public interface MyStorageMapper {
 
     int addStorageOrder(StorageOrderVo storageOrderVo);
 
-    int deleteStorageOrder(StorageOrderVo storageOrderVo);
-
     int findCountStorageOrder(StorageOrderVo storageOrderVo);
 
     List<StorageOrderVo> findAllPagedStorageOrder(@Param(value = "storageOrderVo") StorageOrderVo storageOrderVo,

@@ -11,10 +11,6 @@
             (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{quantity}, #{userId}, #{remark});
     </insert>
 
-    <delete id="deleteStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo">
-        delete from storage_order_${storeId} where apply_order_id = #{applyOrderId};
-    </delete>
-
     <select id="findCountStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo" resultType="java.lang.Integer">
         select
             count(0)
