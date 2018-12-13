@@ -281,13 +281,11 @@
             gpv.`name` as gpv_name,
             gpv.property_key_id as gpv_property_key_id
         from
-            goods_type_${storeId} as gt,
-            goods_property_key_${storeId} as gpk,
-            goods_property_value_${storeId} as gpv
-        where
-            gt.id = gpk.type_id
-        and
-            gpk.id = gpv.property_key_id;
+            (
+                goods_type_${storeId} as gt left join
+                goods_property_key_${storeId} as gpk on gt.id = gpk.type_id
+            )
+            left join goods_property_value_${storeId} as gpv on gpk.id = gpv.property_key_id;
     </select>
 
     <!--商品规格-->

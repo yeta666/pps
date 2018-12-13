@@ -53,6 +53,8 @@ public class FundService {
                 return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //查询来源订单
+        //TODO
+        //销售订单查询来源订单？？？
         ProcurementApplyOrder procurementApplyOrder = myProcurementMapper.findApplyOrderById(new ProcurementApplyOrderVo(fundOrderVo.getStoreId(), fundOrderVo.getApplyOrderId()));
         if (procurementApplyOrder == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
@@ -61,13 +63,13 @@ public class FundService {
         double notClearedMoney = procurementApplyOrder.getNotClearedMoney().doubleValue();
         double clearedMoney = procurementApplyOrder.getClearedMoney().doubleValue();
         double orderMoney = procurementApplyOrder.getOrderMoney().doubleValue();
-        if (procurementApplyOrder.getClearStatus() != 0 || notClearedMoney <= 0 || clearedMoney >= orderMoney) {
+        if (procurementApplyOrder.getClearStatus() != 0) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         double changeMoney = fundOrderVo.getMoney().doubleValue();
         if (changeMoney == notClearedMoney && changeMoney + clearedMoney == orderMoney) {       //全部完成
             fundOrderVo.setOrderStatus((byte) 1);
-        } else if (changeMoney < notClearedMoney && changeMoney + clearedMoney < orderMoney) {      //部分完成
+        } else if ((changeMoney < 0 ? -changeMoney : changeMoney) < (notClearedMoney < 0 ? -notClearedMoney : notClearedMoney) && (changeMoney < 0 ? -changeMoney : changeMoney) + (clearedMoney < 0 ? -clearedMoney : clearedMoney) < (orderMoney < 0 ? -orderMoney : orderMoney)) {      //部分完成
             fundOrderVo.setOrderStatus((byte) 0);
         } else {        //错误
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);

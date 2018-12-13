@@ -26,6 +26,7 @@ public class CommonResponse<T> {
     public static final Integer CODE17 = 1017;
     public static final Integer CODE18 = 1018;
     public static final Integer CODE19 = 1019;
+    public static final Integer CODE20 = 1020;
 
     //...
 
@@ -48,6 +49,7 @@ public class CommonResponse<T> {
     public static final String MESSAGE17 = "导入失败，填入的关联数据不正确";
     public static final String MESSAGE18 = "已被使用，无法完成操作";
     public static final String MESSAGE19 = "单据状态或结算状态已进入不可删除或修改状态";
+    public static final String MESSAGE20 = "需要先把来源订单进行收/付款操作之后才能申请退货或换货";
 
     private Integer code;
 

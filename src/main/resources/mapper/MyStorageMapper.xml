@@ -6,9 +6,9 @@
 
     <insert id="addStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo">
         insert into
-            storage_order_${storeId} (id, type, create_time, apply_order_id, order_status, quantity, user_id, remark)
+            storage_order_${storeId} (id, type, create_time, apply_order_id, order_status, quantity, logistics_company, waybill_number,  user_id, remark)
         values
-            (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{quantity}, #{userId}, #{remark});
+            (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{quantity}, #{logisticsCompany}, #{waybillNumber}, #{userId}, #{remark});
     </insert>
 
     <select id="findCountStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo" resultType="java.lang.Integer">
@@ -48,6 +48,8 @@
         <result column="apply_order_id" property="applyOrderId" />
         <result column="order_status" property="orderStatus" />
         <result column="quantity" property="quantity" />
+        <result column="logistics_company" property="logisticsCompany" />
+        <result column="waybill_number" property="waybillNumber" />
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
         <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
@@ -68,6 +70,8 @@
             pao.in_warehouse_id,
             pao.out_warehouse_id,
             so.quantity,
+            so.logistics_company,
+            so.waybill_number,
             u.name as user_name,
             so.remark as remark
         from

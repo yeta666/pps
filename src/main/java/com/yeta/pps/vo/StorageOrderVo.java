@@ -57,6 +57,16 @@ public class StorageOrderVo {
     private Integer quantity;
 
     /**
+     * 物流公司
+     */
+    private String logisticsCompany;
+
+    /**
+     * 运单号
+     */
+    private String waybillNumber;
+
+    /**
      * 经手人
      */
     @NotBlank(message = CommonResponse.MESSAGE3)
@@ -162,6 +172,22 @@ public class StorageOrderVo {
         this.quantity = quantity;
     }
 
+    public String getLogisticsCompany() {
+        return logisticsCompany;
+    }
+
+    public void setLogisticsCompany(String logisticsCompany) {
+        this.logisticsCompany = logisticsCompany;
+    }
+
+    public String getWaybillNumber() {
+        return waybillNumber;
+    }
+
+    public void setWaybillNumber(String waybillNumber) {
+        this.waybillNumber = waybillNumber;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -190,6 +216,8 @@ public class StorageOrderVo {
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", orderStatus=" + orderStatus +
                 ", quantity=" + quantity +
+                ", logisticsCompany='" + logisticsCompany + '\'' +
+                ", waybillNumber='" + waybillNumber + '\'' +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

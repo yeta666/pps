@@ -58,7 +58,7 @@ public class ProcurementApplyOrderVo {
     /**
      * 来源订单
      */
-    private String applyOrderId;
+    private String resultOrderId;
 
     /**
      * 单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发
@@ -274,13 +274,12 @@ public class ProcurementApplyOrderVo {
         this.createTime = createTime;
     }
 
-
-    public String getApplyOrderId() {
-        return applyOrderId;
+    public String getResultOrderId() {
+        return resultOrderId;
     }
 
-    public void setApplyOrderId(String applyOrderId) {
-        this.applyOrderId = applyOrderId;
+    public void setResultOrderId(String resultOrderId) {
+        this.resultOrderId = resultOrderId;
     }
 
     public Byte getOrderStatus() {
@@ -441,7 +440,7 @@ public class ProcurementApplyOrderVo {
                 ", id='" + id + '\'' +
                 ", type=" + type +
                 ", createTime=" + createTime +
-                ", applyOrderId='" + applyOrderId + '\'' +
+                ", resultOrderId='" + resultOrderId + '\'' +
                 ", orderStatus=" + orderStatus +
                 ", clearStatus=" + clearStatus +
                 ", supplierId='" + supplierId + '\'' +

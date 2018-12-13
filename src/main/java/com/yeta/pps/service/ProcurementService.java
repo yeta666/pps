@@ -49,6 +49,7 @@ public class ProcurementService {
         List<ProcurementApplyOrderGoodsSkuVo> paogsvs = procurementApplyOrderVo.getDetails();
         //判断是采购订单/采购退货申请单/采购换货申请单
         Byte type = procurementApplyOrderVo.getType();
+        ProcurementApplyOrder procurementApplyOrder;
         switch (type) {
             //采购订单
             case 1:
@@ -65,7 +66,8 @@ public class ProcurementService {
             //采购退货申请单
             case 2:
                 //判断参数
-                if (paogsvs.size() == 0 || procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null) {
+                if (paogsvs.size() == 0 || procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null ||
+                        procurementApplyOrderVo.getResultOrderId() == null) {
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
                 //设置初始属性
@@ -78,7 +80,8 @@ public class ProcurementService {
             case 3:
                 //判断参数
                 if (paogsvs.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null ||
-                        procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null) {
+                        procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null ||
+                        procurementApplyOrderVo.getResultOrderId() == null) {
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
                 //设置初始属性
@@ -88,6 +91,7 @@ public class ProcurementService {
                 procurementApplyOrderVo.setInNotReceivedQuantity(procurementApplyOrderVo.getInTotalQuantity());
                 procurementApplyOrderVo.setOutSentQuantity(0);
                 procurementApplyOrderVo.setOutNotSentQuantity(procurementApplyOrderVo.getOutTotalQuantity());
+                break;
             default:
                 return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
@@ -240,71 +244,6 @@ public class ProcurementService {
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
-
-
-    //收款/付款
-
-    /**
-     * 修改采购申请订单结算状态
-     * @param procurementApplyOrderVo
-     * @return
-     */
-    @Transactional
-    public CommonResponse updateApplyOrderCheckStatus(ProcurementApplyOrderVo procurementApplyOrderVo) {
-        /*Integer storeId = procurementApplyOrderVo.getStoreId();
-        Byte option = procurementApplyOrderVo.getType();
-        //获取采购申请订单
-        ProcurementApplyOrder procurementApplyOrder = myProcurementMapper.findApplyOrderById(procurementApplyOrderVo);
-        if (procurementApplyOrder == null) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
-        }
-        Byte type = procurementApplyOrder.getType();
-        Byte clearStatus = procurementApplyOrder.getClearStatus();
-        Byte status = -1;
-        //判断收款/付款
-        switch (option) {
-            //收款
-            case 1:
-                //判断单据类型和结算状态
-                if (type == 1 && clearStatus == 0) {        //是采购订单且结算状态为未完成
-                    status = 1;     //修改结算状态为【已完成】
-                } else if (type == 3 && clearStatus == 0) {     //是采购换货申请且结算状态为未完成
-                    if (procurementApplyOrder.getTotalMoney().doubleValue() > 0) {
-                        return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
-                    } else {
-                        status = 1;
-                        //新增收款单
-                    }
-                }
-                break;
-            //付款
-            case 2:
-                //判断单据类型和结算状态
-                if (type == 2 && clearStatus == 0) {        //是采购退货申请且结算状态为未完成
-                    status = 1;     //修改结算状态为【已完成】
-                } else if (type == 3 && clearStatus == 0) {     //是采购换货申请且结算状态为未完成
-                    if (procurementApplyOrder.getTotalMoney().doubleValue() < 0) {
-                        return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
-                    } else {
-                        status = 1;
-                        //新增收款单
-                    }
-                }
-                break;
-            default:
-                return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-        }
-        if (status == -1) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
-        } else if (status == 2) {
-            //修改单据结算状态
-            if (myProcurementMapper.updateApplyOrderClearStatus() != 1) {
-                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
-            }
-        }*/
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
-    }
-
     /**
      * 查询所有采购申请订单
      * @param procurementApplyOrderVo
@@ -342,13 +281,14 @@ public class ProcurementService {
             titles.add(new Title("已收货数量", "inReceivedQuantity"));
             titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
         } else if (type == 2 || type == 3) {
+            titles.add(new Title("来源订单", "resultOrderId"));
             titles.add(new Title("出库仓库", "outWarehouseName"));
             titles.add(new Title("总发货数量", "outTotalQuantity"));
             titles.add(new Title("已发货数量", "outSentQuantity"));
             titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
         }
-        //仓库收货不关心金额
-        if (procurementApplyOrderVo.getOrderStatus() == null) {
+        //仓库收发货不关心金额
+        if (procurementApplyOrderVo.getOrderStatus() == null && procurementApplyOrderVo.getClearStatus() != null) {
             titles.add(new Title("总商品金额", "totalMoney"));
             titles.add(new Title("总优惠金额", "totalDiscountMoney"));
             titles.add(new Title("本单金额", "orderMoney"));

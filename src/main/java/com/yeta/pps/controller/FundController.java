@@ -35,7 +35,7 @@ public class FundController {
      * @param fundOrderVo
      * @return
      */
-    @ApiOperation(value = "新增收/付款单")
+    @ApiOperation(value = "新增收/付款单", notes = "采购申请订单都是付款，销售申请订单都是收款")
     @ApiImplicitParam(name = "fundOrderVo",
             value = "storeId, type(1：收款单，2：付款单), applyOrderId(来源订单), bankAccountId(银行账户编号), money(金额，注意大于0还是小于0), userId(经手人编号)必填，remark选填",
             required = true,

@@ -239,7 +239,7 @@ public class StorageService {
                 return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         storageOrderVo.setCreateTime(new Date());
-        storageOrderVo.setOrderStatus((byte) 0);
+        storageOrderVo.setOrderStatus((byte) 1);
         //新增收货单
         if (myStorageMapper.addStorageOrder(storageOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
@@ -287,6 +287,8 @@ public class StorageService {
             titles.add(new Title("出库仓库", "procurementApplyOrderVo.outWarehouseName"));
         }
         titles.add(new Title("本单数量", "quantity"));
+        titles.add(new Title("物流公司", "logisticsCompany"));
+        titles.add(new Title("运单号", "waybillNumber"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, storageOrderVos, pageVo);

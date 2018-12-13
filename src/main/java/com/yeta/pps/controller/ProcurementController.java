@@ -40,7 +40,7 @@ public class ProcurementController {
     @ApiOperation(value = "新增采购申请订单", notes = "包括采购订单、采购退货申请、采购换货申请，用type判断。" +
             "details中的ProcurementApplyOrderGoodsSkuVo对象表示订单关联的商品规格，其中type(1：入库，0：出库), goodsSkuId, quantity, money, discountMoney必填, remark选填")
     @ApiImplicitParam(name = "procurementApplyOrderVo",
-            value = "storeId, details, type(1：采购订单，2：采购退货申请，3,：采购换货申请), supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, applyOrderId(来源订单), 采购换货申请前面四个都要填, totalMoney(采购订单大于0，采购退货申请小于0，采购换货申请入库-出库的价钱), totalDiscountMoney, orderMoney userId必填",
+            value = "storeId, details, type(1：采购订单，2：采购退货申请，3,：采购换货申请), supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, resultOrderId(来源订单，应该是某一个采购结果订单), 采购换货申请前面五个都要填, totalMoney(采购订单大于0，采购退货申请小于0，采购换货申请入库-出库的价钱), totalDiscountMoney, orderMoney, userId必填",
             required = true,
             paramType = "body",
             dataType = "ProcurementApplyOrderVo"
@@ -79,7 +79,7 @@ public class ProcurementController {
     @ApiOperation(value = "修改采购申请订单", notes = "包括采购订单、采购退货申请、采购换货申请，用type判断。" +
             "details中的ProcurementApplyOrderGoodsSkuVo对象表示订单关联的商品规格，其中type(1：入库，0：出库), goodsSkuId, quantity, money, discountMoney必填, remark选填")
     @ApiImplicitParam(name = "procurementApplyOrderVo",
-            value = "storeId, id, details, supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, applyOrderId(来源订单), 采购换货申请前面四个都要填, totalMoney(采购订单大于0，采购退货申请小于0，采购换货申请入库-出库的价钱), totalDiscountMoney, orderMoney, userId必填",
+            value = "storeId, id, details, supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, 采购换货申请前面四个都要填, totalMoney(采购订单大于0，采购退货申请小于0，采购换货申请入库-出库的价钱), totalDiscountMoney, orderMoney, userId必填",
             required = true,
             paramType = "body",
             dataType = "ProcurementApplyOrderVo"
@@ -120,7 +120,7 @@ public class ProcurementController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查询所有采购申请订单", notes = "分页、筛选查询，其中supplierName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiOperation(value = "查询所有采购申请订单", notes = "分页、筛选查询，其中supplierName为模糊查询，startTime和endTime要么都传，要么都不传，仓库查未收/发货传type和ordersStatus，资金查未收/付款传type和clearStatus")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "supplierName", value = "供应商名", required = false, paramType = "query", dataType = "String"),
