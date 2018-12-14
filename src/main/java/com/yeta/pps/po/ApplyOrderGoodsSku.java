@@ -1,29 +1,8 @@
-package com.yeta.pps.vo;
+package com.yeta.pps.po;
 
-import com.yeta.pps.util.CommonResponse;
-
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
-public class ProcurementApplyOrderGoodsSkuVo {
-
-    /**
-     * 店铺id
-     */
-    @NotNull(message = CommonResponse.MESSAGE3)
-    private Integer storeId;
-
-    private Integer changeQuantity;
-
-    private String goodsName;
-
-    private String goodsId;
-
-    private String goodsBarCode;
-
-    private String goodsSkuSku;
-
-    private BigDecimal goodsSkuPurchasePrice;
+public class ApplyOrderGoodsSku {
 
     /**
      * 采购申请订单/商品规格关系编号
@@ -75,68 +54,7 @@ public class ProcurementApplyOrderGoodsSkuVo {
      */
     private String remark;
 
-    public ProcurementApplyOrderGoodsSkuVo() {
-    }
-
-    public ProcurementApplyOrderGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String applyOrderId) {
-        this.storeId = storeId;
-        this.applyOrderId = applyOrderId;
-    }
-
-    public Integer getStoreId() {
-        return storeId;
-    }
-
-    public void setStoreId(Integer storeId) {
-        this.storeId = storeId;
-    }
-
-    public Integer getChangeQuantity() {
-        return changeQuantity;
-    }
-
-    public void setChangeQuantity(Integer changeQuantity) {
-        this.changeQuantity = changeQuantity;
-    }
-
-    public String getGoodsName() {
-        return goodsName;
-    }
-
-    public void setGoodsName(String goodsName) {
-        this.goodsName = goodsName;
-    }
-
-    public String getGoodsId() {
-        return goodsId;
-    }
-
-    public void setGoodsId(String goodsId) {
-        this.goodsId = goodsId;
-    }
-
-    public String getGoodsBarCode() {
-        return goodsBarCode;
-    }
-
-    public void setGoodsBarCode(String goodsBarCode) {
-        this.goodsBarCode = goodsBarCode;
-    }
-
-    public String getGoodsSkuSku() {
-        return goodsSkuSku;
-    }
-
-    public void setGoodsSkuSku(String goodsSkuSku) {
-        this.goodsSkuSku = goodsSkuSku;
-    }
-
-    public BigDecimal getGoodsSkuPurchasePrice() {
-        return goodsSkuPurchasePrice;
-    }
-
-    public void setGoodsSkuPurchasePrice(BigDecimal goodsSkuPurchasePrice) {
-        this.goodsSkuPurchasePrice = goodsSkuPurchasePrice;
+    public ApplyOrderGoodsSku() {
     }
 
     public Integer getId() {
@@ -221,15 +139,8 @@ public class ProcurementApplyOrderGoodsSkuVo {
 
     @Override
     public String toString() {
-        return "ProcurementApplyOrderGoodsSkuVo{" +
-                "storeId=" + storeId +
-                ", changeQuantity=" + changeQuantity +
-                ", goodsName='" + goodsName + '\'' +
-                ", goodsId='" + goodsId + '\'' +
-                ", goodsBarCode='" + goodsBarCode + '\'' +
-                ", goodsSkuSku='" + goodsSkuSku + '\'' +
-                ", goodsSkuPurchasePrice=" + goodsSkuPurchasePrice +
-                ", id=" + id +
+        return "ApplyOrderGoodsSku{" +
+                "id=" + id +
                 ", type=" + type +
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", goodsSkuId=" + goodsSkuId +

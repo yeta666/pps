@@ -1,7 +1,6 @@
 package com.yeta.pps.mapper;
 
 import com.yeta.pps.po.ProcurementApplyOrder;
-import com.yeta.pps.po.ProcurementApplyOrderGoodsSku;
 import com.yeta.pps.vo.*;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,16 +30,6 @@ public interface MyProcurementMapper {
     ProcurementApplyOrder findApplyOrderById(ProcurementApplyOrderVo procurementApplyOrderVo);
 
     ProcurementApplyOrderVo findApplyOrderDetailById(ProcurementApplyOrderVo procurementApplyOrderVo);
-
-    //采购申请订单/商品规格关系
-
-    int addApplyOrderGoodsSku(ProcurementApplyOrderGoodsSkuVo procurementApplyOrderGoodsSkuVo);
-
-    int deleteApplyOrderGoodsSku(ProcurementApplyOrderGoodsSkuVo procurementApplyOrderGoodsSkuVo);
-
-    int updateApplyOrderGoodsSku(ProcurementApplyOrderGoodsSkuVo procurementApplyOrderGoodsSkuVo);
-
-    List<ProcurementApplyOrderGoodsSku> findAllApplyOrderGoodsSku(ProcurementApplyOrderGoodsSkuVo procurementApplyOrderGoodsSkuVo);
 
     //采购结果订单
 

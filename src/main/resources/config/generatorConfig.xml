@@ -55,8 +55,12 @@
         <table tableName="client_client_level" catalog="pps"></table>
         <table tableName="client_membership_number" catalog="pps"></table>
         <table tableName="client_integral_detail" catalog="pps"></table>-->
-        <table tableName="procurement_apply_order" catalog="pps"></table>
-        <table tableName="procurement_apply_order_goods_sku" catalog="pps"></table>
-        <table tableName="procurement_result_order" catalog="pps"></table>
+        <!--<table tableName="procurement_apply_order" catalog="pps"></table>
+        <table tableName="procurement_result_order" catalog="pps"></table>-->
+        <table tableName="sell_apply_order" catalog="pps"></table>
+        <table tableName="sell_result_order" catalog="pps"></table>
+        <!--<table tableName="apply_order_goods_sku" catalog="pps"></table>-->
+        <!--<table tableName="storage_order" catalog="pps"></table>-->
+        <!--<table tableName="fund_order" catalog="pps"></table>-->
     </context>
 </generatorConfiguration>

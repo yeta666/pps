@@ -1,6 +1,7 @@
 package com.yeta.pps.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.yeta.pps.po.Client;
 import com.yeta.pps.util.CommonResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -10,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-public class ProcurementApplyOrderVo {
+public class SellApplyOrderVo {
 
     /**
      * 店铺id
@@ -20,8 +21,6 @@ public class ProcurementApplyOrderVo {
 
     @NotNull(message = CommonResponse.MESSAGE3)
     List<ApplyOrderGoodsSkuVo> details;
-
-    private String supplierName;
 
     private String inWarehouseName;
 
@@ -43,7 +42,7 @@ public class ProcurementApplyOrderVo {
     private String id;
 
     /**
-     * 单据类型，1：采购订单，2：采购退货申请，3,：采购换货申请
+     * 单据类型，1：零售单，2：销售订单，3：销售退货申请单，4：销售换货申请单
      */
     @NotNull(message = CommonResponse.MESSAGE3)
     private Byte type;
@@ -56,9 +55,14 @@ public class ProcurementApplyOrderVo {
     private Date createTime;
 
     /**
-     * 来源订单
+     * 来源订单，销售退货申请单和销售换货申请单应该有该字段
      */
     private String resultOrderId;
+
+    /**
+     * 产生方式，1：线下录单，2：线上下单
+     */
+    private Byte prodcingWay;
 
     /**
      * 单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发
@@ -71,10 +75,11 @@ public class ProcurementApplyOrderVo {
     private Byte clearStatus;
 
     /**
-     * 供应商编号
+     * 客户编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
-    private String supplierId;
+    private String clientId;
+
+    private Client client;
 
     /**
      * 入库仓库编号，对应收货
@@ -123,6 +128,17 @@ public class ProcurementApplyOrderVo {
     private BigDecimal totalMoney;
 
     /**
+     * 直接优惠金额
+     */
+    @NotNull(message = CommonResponse.MESSAGE3)
+    private BigDecimal discountMoney;
+
+    /**
+     * 优惠券编号
+     */
+    private Integer discountCouponId;
+
+    /**
      * 总优惠金额
      */
     @NotNull(message = CommonResponse.MESSAGE3)
@@ -155,35 +171,7 @@ public class ProcurementApplyOrderVo {
      */
     private String remark;
 
-    public ProcurementApplyOrderVo() {
-    }
-
-    public ProcurementApplyOrderVo(String supplierName, Date startTime, Date endTime) {
-        this.supplierName = supplierName;
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
-
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
-        this.storeId = storeId;
-        this.id = id;
-    }
-
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, String remark) {
-        this.storeId = storeId;
-        this.id = id;
-        this.remark = remark;
-    }
-
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String supplierName, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Byte orderStatus, Byte clearStatus) {
-        this.storeId = storeId;
-        this.supplierName = supplierName;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.id = id;
-        this.type = type;
-        this.orderStatus = orderStatus;
-        this.clearStatus = clearStatus;
+    public SellApplyOrderVo() {
     }
 
     public Integer getStoreId() {
@@ -200,14 +188,6 @@ public class ProcurementApplyOrderVo {
 
     public void setDetails(List<ApplyOrderGoodsSkuVo> details) {
         this.details = details;
-    }
-
-    public String getSupplierName() {
-        return supplierName;
-    }
-
-    public void setSupplierName(String supplierName) {
-        this.supplierName = supplierName;
     }
 
     public String getInWarehouseName() {
@@ -282,6 +262,14 @@ public class ProcurementApplyOrderVo {
         this.resultOrderId = resultOrderId;
     }
 
+    public Byte getProdcingWay() {
+        return prodcingWay;
+    }
+
+    public void setProdcingWay(Byte prodcingWay) {
+        this.prodcingWay = prodcingWay;
+    }
+
     public Byte getOrderStatus() {
         return orderStatus;
     }
@@ -298,12 +286,20 @@ public class ProcurementApplyOrderVo {
         this.clearStatus = clearStatus;
     }
 
-    public String getSupplierId() {
-        return supplierId;
+    public String getClientId() {
+        return clientId;
     }
 
-    public void setSupplierId(String supplierId) {
-        this.supplierId = supplierId;
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     public Integer getInWarehouseId() {
@@ -378,6 +374,22 @@ public class ProcurementApplyOrderVo {
         this.totalMoney = totalMoney;
     }
 
+    public BigDecimal getDiscountMoney() {
+        return discountMoney;
+    }
+
+    public void setDiscountMoney(BigDecimal discountMoney) {
+        this.discountMoney = discountMoney;
+    }
+
+    public Integer getDiscountCouponId() {
+        return discountCouponId;
+    }
+
+    public void setDiscountCouponId(Integer discountCouponId) {
+        this.discountCouponId = discountCouponId;
+    }
+
     public BigDecimal getTotalDiscountMoney() {
         return totalDiscountMoney;
     }
@@ -428,10 +440,9 @@ public class ProcurementApplyOrderVo {
 
     @Override
     public String toString() {
-        return "ProcurementApplyOrderVo{" +
+        return "SellApplyOrderVo{" +
                 "storeId=" + storeId +
                 ", details=" + details +
-                ", supplierName='" + supplierName + '\'' +
                 ", inWarehouseName='" + inWarehouseName + '\'' +
                 ", outWarehouseName='" + outWarehouseName + '\'' +
                 ", userName='" + userName + '\'' +
@@ -441,9 +452,11 @@ public class ProcurementApplyOrderVo {
                 ", type=" + type +
                 ", createTime=" + createTime +
                 ", resultOrderId='" + resultOrderId + '\'' +
+                ", prodcingWay=" + prodcingWay +
                 ", orderStatus=" + orderStatus +
                 ", clearStatus=" + clearStatus +
-                ", supplierId='" + supplierId + '\'' +
+                ", clientId='" + clientId + '\'' +
+                ", client=" + client +
                 ", inWarehouseId=" + inWarehouseId +
                 ", inTotalQuantity=" + inTotalQuantity +
                 ", inReceivedQuantity=" + inReceivedQuantity +
@@ -453,6 +466,8 @@ public class ProcurementApplyOrderVo {
                 ", outSentQuantity=" + outSentQuantity +
                 ", outNotSentQuantity=" + outNotSentQuantity +
                 ", totalMoney=" + totalMoney +
+                ", discountMoney=" + discountMoney +
+                ", discountCouponId=" + discountCouponId +
                 ", totalDiscountMoney=" + totalDiscountMoney +
                 ", orderMoney=" + orderMoney +
                 ", clearedMoney=" + clearedMoney +

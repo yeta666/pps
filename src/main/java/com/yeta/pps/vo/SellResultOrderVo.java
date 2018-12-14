@@ -2,14 +2,13 @@ package com.yeta.pps.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yeta.pps.util.CommonResponse;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class ProcurementResultOrderVo {
+public class SellResultOrderVo {
 
     /**
      * 店铺id
@@ -17,7 +16,7 @@ public class ProcurementResultOrderVo {
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
 
-    private ProcurementApplyOrderVo procurementApplyOrderVo;
+    private SellApplyOrderVo sellApplyOrderVo;
 
     private String userName;
 
@@ -27,7 +26,7 @@ public class ProcurementResultOrderVo {
     private String id;
 
     /**
-     * 单据类型，1：采购入库单，2：采购退货单，3,：采购换货单
+     * 单据类型，1：零售单，2：销售出库单，3：销售退货单，4：销售换货单
      */
     private Byte type;
 
@@ -43,7 +42,7 @@ public class ProcurementResultOrderVo {
     private String applyOrderId;
 
     /**
-     * 单据状态
+     * 单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲
      */
     private Byte orderStatus;
 
@@ -68,6 +67,16 @@ public class ProcurementResultOrderVo {
     private BigDecimal orderMoney;
 
     /**
+     * 成本
+     */
+    private BigDecimal costMoney;
+
+    /**
+     * 毛利
+     */
+    private BigDecimal grossMarginMoney;
+
+    /**
      * 经手人
      */
     @NotBlank(message = CommonResponse.MESSAGE3)
@@ -78,27 +87,7 @@ public class ProcurementResultOrderVo {
      */
     private String remark;
 
-    public ProcurementResultOrderVo() {
-    }
-
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id) {
-        this.storeId = storeId;
-        this.procurementApplyOrderVo = procurementApplyOrderVo;
-        this.id = id;
-    }
-
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, BigDecimal totalMoney, BigDecimal totalDiscountMoney, BigDecimal orderMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId) {
-        this.storeId = storeId;
-        this.id = id;
-        this.type = type;
-        this.createTime = createTime;
-        this.applyOrderId = applyOrderId;
-        this.orderStatus = orderStatus;
-        this.totalQuantity = totalQuantity;
-        this.totalMoney = totalMoney;
-        this.totalDiscountMoney = totalDiscountMoney;
-        this.orderMoney = orderMoney;
-        this.userId = userId;
+    public SellResultOrderVo() {
     }
 
     public Integer getStoreId() {
@@ -109,12 +98,12 @@ public class ProcurementResultOrderVo {
         this.storeId = storeId;
     }
 
-    public ProcurementApplyOrderVo getProcurementApplyOrderVo() {
-        return procurementApplyOrderVo;
+    public SellApplyOrderVo getSellApplyOrderVo() {
+        return sellApplyOrderVo;
     }
 
-    public void setProcurementApplyOrderVo(ProcurementApplyOrderVo procurementApplyOrderVo) {
-        this.procurementApplyOrderVo = procurementApplyOrderVo;
+    public void setSellApplyOrderVo(SellApplyOrderVo sellApplyOrderVo) {
+        this.sellApplyOrderVo = sellApplyOrderVo;
     }
 
     public String getUserName() {
@@ -197,6 +186,22 @@ public class ProcurementResultOrderVo {
         this.orderMoney = orderMoney;
     }
 
+    public BigDecimal getCostMoney() {
+        return costMoney;
+    }
+
+    public void setCostMoney(BigDecimal costMoney) {
+        this.costMoney = costMoney;
+    }
+
+    public BigDecimal getGrossMarginMoney() {
+        return grossMarginMoney;
+    }
+
+    public void setGrossMarginMoney(BigDecimal grossMarginMoney) {
+        this.grossMarginMoney = grossMarginMoney;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -215,9 +220,9 @@ public class ProcurementResultOrderVo {
 
     @Override
     public String toString() {
-        return "ProcurementResultOrderVo{" +
+        return "SellResultOrderVo{" +
                 "storeId=" + storeId +
-                ", procurementApplyOrderVo=" + procurementApplyOrderVo +
+                ", sellApplyOrderVo=" + sellApplyOrderVo +
                 ", userName='" + userName + '\'' +
                 ", id='" + id + '\'' +
                 ", type=" + type +
@@ -228,6 +233,8 @@ public class ProcurementResultOrderVo {
                 ", totalMoney=" + totalMoney +
                 ", totalDiscountMoney=" + totalDiscountMoney +
                 ", orderMoney=" + orderMoney +
+                ", costMoney=" + costMoney +
+                ", grossMarginMoney=" + grossMarginMoney +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

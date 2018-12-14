@@ -1,16 +1,15 @@
 package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
-import com.yeta.pps.mapper.MyGoodsMapper;
-import com.yeta.pps.mapper.MyProcurementMapper;
-import com.yeta.pps.mapper.MyStorageMapper;
-import com.yeta.pps.mapper.MyWarehouseMapper;
+import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.ProcurementApplyOrder;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
 import com.yeta.pps.vo.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,11 +27,16 @@ import java.util.UUID;
 @Service
 public class StorageService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(StorageService.class);
+
     @Autowired
     private MyStorageMapper myStorageMapper;
 
     @Autowired
     private MyProcurementMapper myProcurementMapper;
+
+    @Autowired
+    private MyApplyOrderGoodsSkuMapper myApplyOrderGoodsSkuMapper;
 
     @Autowired
     private MyWarehouseMapper myWarehouseMapper;
@@ -43,30 +47,33 @@ public class StorageService {
     /**
      * 修改商品规格完成情况和修改商品规格库存
      * @param storeId
-     * @param paogsvs
+     * @param aogsvs
      */
     @Transactional
-    public void updateGoodsSku(byte type, int storeId, List<ProcurementApplyOrderGoodsSkuVo> paogsvs) {
-        for (ProcurementApplyOrderGoodsSkuVo paogsv : paogsvs) {
+    public void updateGoodsSku(byte type, int storeId, List<ApplyOrderGoodsSkuVo> aogsvs) {
+        for (ApplyOrderGoodsSkuVo aogsv : aogsvs) {
             //判断参数
-            if (paogsv.getId() == null || paogsv.getGoodsSkuId() == null || paogsv.getChangeQuantity() == null) {
+            if (aogsv.getId() == null || aogsv.getGoodsSkuId() == null || aogsv.getChangeQuantity() == null) {
                 throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
             }
-            paogsv.setStoreId(storeId);
+            aogsv.setStoreId(storeId);
             //修改商品规格完成情况
-            if (myProcurementMapper.updateApplyOrderGoodsSku(paogsv) != 1) {
+            if (myApplyOrderGoodsSkuMapper.updateApplyOrderGoodsSku(aogsv) != 1) {
                 throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
             }
-            if ((type == 1 || type == 2) && paogsv.getType() == 1) {        //入库
+            if ((type == 1 || type == 2) && aogsv.getType() == 1) {        //入库
                 //增加商品规格库存
-                if (myGoodsMapper.increaseGoodsSkuInventory(new GoodsSkuVo(storeId, paogsv.getGoodsSkuId(), paogsv.getChangeQuantity())) != 1) {
+                if (myGoodsMapper.increaseGoodsSkuInventory(new GoodsSkuVo(storeId, aogsv.getGoodsSkuId(), aogsv.getChangeQuantity())) != 1) {
                     throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                 }
-            } else if ((type == 3 || type == 4) && paogsv.getType() == 0) {     //出库
+            } else if ((type == 3 || type == 4) && aogsv.getType() == 0) {     //出库
                 //减少商品规格库存
-                if (myGoodsMapper.decreaseGoodsSkuInventory(new GoodsSkuVo(storeId, paogsv.getGoodsSkuId(), paogsv.getChangeQuantity())) != 1) {
+                if (myGoodsMapper.decreaseGoodsSkuInventory(new GoodsSkuVo(storeId, aogsv.getGoodsSkuId(), aogsv.getChangeQuantity())) != 1) {
                     throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                 }
+            } else {
+                LOG.info("商品规格类型不正确【{}】", aogsv.getType());
+                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
             }
         }
     }
@@ -83,13 +90,15 @@ public class StorageService {
         String applyOrderId = storageOrderVo.getApplyOrderId();
         Integer quantity = storageOrderVo.getQuantity();
         ProcurementApplyOrderVo procurementApplyOrderVo = storageOrderVo.getProcurementApplyOrderVo();
-        List<ProcurementApplyOrderGoodsSkuVo> paogsvs = procurementApplyOrderVo.getDetails();
+        List<ApplyOrderGoodsSkuVo> aogsvs = procurementApplyOrderVo.getDetails();
         //获取对应的采购申请订单
         ProcurementApplyOrder procurementApplyOrder = myProcurementMapper.findApplyOrderById(new ProcurementApplyOrderVo(storeId, applyOrderId));
-        if (procurementApplyOrder == null || paogsvs.size() == 0 || quantity <= 0 ||
+        if (procurementApplyOrder == null || aogsvs.size() == 0 || quantity <= 0 ||
                 procurementApplyOrderVo.getTotalMoney() == null || procurementApplyOrderVo.getTotalDiscountMoney() == null || procurementApplyOrderVo.getOrderMoney() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
+        //TODO
+        //来源订单是销售订单？？？
         //单据类型
         byte applyOrderType = procurementApplyOrder.getType();
         //单据状态
@@ -113,6 +122,7 @@ public class StorageService {
                 } else if (quantity < inNotReceivedQuantity && quantity + inReceivedQuantity < inTotalQuantity) {      //部分完成
                     applyOrderStatus = 2;
                 } else {        //错误
+                    LOG.info("新增采购订单收货单，收货数量不正确【{}】", quantity);
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改对应的采购订单单据状态和商品完成数量
@@ -122,10 +132,11 @@ public class StorageService {
                         throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                     }
                 } else {
+                    LOG.info("新增采购订单收货单，来源订单类型或状态不正确【{}】, 【{}】, 【{}】", applyOrderId, applyOrderType, applyOrderStatus);
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改商品规格完成情况和修改商品规格库存
-                updateGoodsSku(type, storeId, paogsvs);
+                updateGoodsSku(type, storeId, aogsvs);
                 //新增采购入库单
                 if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGRKD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, quantity, procurementApplyOrderVo.getTotalMoney(), procurementApplyOrderVo.getTotalDiscountMoney(), procurementApplyOrderVo.getOrderMoney(), storageOrderVo.getUserId())) != 1) {
                     throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
@@ -156,19 +167,22 @@ public class StorageService {
                         return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                     }
                 } else {        //错误
+                    LOG.info("新增退换货申请单收货单，收货数量不正确【{}】", quantity);
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改对应的采购换货单单据状态和商品完成数量
+                //TODO
                 if (applyOrderType == 3 && (orderStatus == 7 || orderStatus == 8 || orderStatus == 9 || orderStatus == 10 || orderStatus == 11 || orderStatus == 12)) {
                     storageOrderVo.setOrderStatus(applyOrderStatus);
                     if (myProcurementMapper.updateApplyOrderOrderStatusAndQuantity(storageOrderVo) != 1) {
                         throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                     }
                 } else {
+                    LOG.info("新增退换货申请单收货单，来源订单类型或状态不正确【{}】, 【{}】, 【{}】", applyOrderId, applyOrderType, applyOrderStatus);
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改商品规格完成情况和增加商品规格库存
-                updateGoodsSku(type, storeId, paogsvs);
+                updateGoodsSku(type, storeId, aogsvs);
                 if (applyOrderStatus == 15) {
                     //新增采购换货单
                     if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGHHD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, quantity, procurementApplyOrderVo.getTotalMoney(), procurementApplyOrderVo.getTotalDiscountMoney(), procurementApplyOrderVo.getOrderMoney(), storageOrderVo.getUserId())) != 1) {
@@ -209,6 +223,7 @@ public class StorageService {
                         return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                     }
                 } else {        //错误
+                    LOG.info("新增退换货申请单发货单，发货数量不正确【{}】", quantity);
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改对应的采购换货单单据状态和商品完成数量
@@ -219,10 +234,11 @@ public class StorageService {
                         throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
                     }
                 } else {
+                    LOG.info("新增退换货申请单发货单，来源订单类型或状态不正确【{}】, 【{}】, 【{}】", applyOrderId, applyOrderType, applyOrderStatus);
                     return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
                 }
                 //修改商品规格完成情况和增加商品规格库存
-                updateGoodsSku(type, storeId, paogsvs);
+                updateGoodsSku(type, storeId, aogsvs);
                 if (applyOrderStatus == 15) {
                     //新增采购换货单
                     if (myProcurementMapper.addResultOrder(new ProcurementResultOrderVo(storeId, "CGHHD_" + UUID.randomUUID().toString(), applyOrderType, new Date(), applyOrderId, (byte) 1, procurementApplyOrder.getInTotalQuantity() - procurementApplyOrder.getOutTotalQuantity(), procurementApplyOrder.getTotalMoney(), procurementApplyOrder.getTotalDiscountMoney(), procurementApplyOrder.getOrderMoney(), storageOrderVo.getUserId())) != 1) {

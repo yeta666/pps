@@ -4,7 +4,6 @@ import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyFundMapper;
 import com.yeta.pps.mapper.MyProcurementMapper;
 import com.yeta.pps.po.ProcurementApplyOrder;
-import com.yeta.pps.po.ProcurementResultOrder;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;

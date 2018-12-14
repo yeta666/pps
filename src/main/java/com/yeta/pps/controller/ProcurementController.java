@@ -38,7 +38,7 @@ public class ProcurementController {
      * @return
      */
     @ApiOperation(value = "新增采购申请订单", notes = "包括采购订单、采购退货申请、采购换货申请，用type判断。" +
-            "details中的ProcurementApplyOrderGoodsSkuVo对象表示订单关联的商品规格，其中type(1：入库，0：出库), goodsSkuId, quantity, money, discountMoney必填, remark选填")
+            "details中的ApplyOrderGoodsSkuVo对象表示订单关联的商品规格，其中type(1：入库，0：出库), goodsSkuId, quantity, money, discountMoney必填, remark选填")
     @ApiImplicitParam(name = "procurementApplyOrderVo",
             value = "storeId, details, type(1：采购订单，2：采购退货申请，3,：采购换货申请), supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, resultOrderId(来源订单，应该是某一个采购结果订单), 采购换货申请前面五个都要填, totalMoney(采购订单大于0，采购退货申请小于0，采购换货申请入库-出库的价钱), totalDiscountMoney, orderMoney, userId必填",
             required = true,
@@ -77,7 +77,7 @@ public class ProcurementController {
      * @return
      */
     @ApiOperation(value = "修改采购申请订单", notes = "包括采购订单、采购退货申请、采购换货申请，用type判断。" +
-            "details中的ProcurementApplyOrderGoodsSkuVo对象表示订单关联的商品规格，其中type(1：入库，0：出库), goodsSkuId, quantity, money, discountMoney必填, remark选填")
+            "details中的ApplyOrderGoodsSkuVo对象表示订单关联的商品规格，其中type(1：入库，0：出库), goodsSkuId, quantity, money, discountMoney必填, remark选填")
     @ApiImplicitParam(name = "procurementApplyOrderVo",
             value = "storeId, id, details, supplierId, 采购订单填inWarehouseId, inTotalQuantity, 采购退货申请填outWarehouseId, outTotalQuantity, 采购换货申请前面四个都要填, totalMoney(采购订单大于0，采购退货申请小于0，采购换货申请入库-出库的价钱), totalDiscountMoney, orderMoney, userId必填",
             required = true,
