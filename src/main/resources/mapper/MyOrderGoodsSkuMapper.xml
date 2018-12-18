@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeta.pps.mapper.MyOrderGoodsSkuMapper" >
+
+    <!--采购申请单、销售申请单/商品规格关系-->
+
+    <insert id="addOrderGoodsSku" parameterType="com.yeta.pps.vo.OrderGoodsSkuVo">
+        insert into
+            order_goods_sku_${storeId} (type, order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, operated_quantity, remark)
+        values
+            (#{type}, #{orderId}, #{goodsSkuId}, #{quantity}, #{finishQuantity}, #{notFinishQuantity}, #{money}, #{discountMoney}, #{operatedQuantity}, #{remark});
+    </insert>
+
+    <delete id="deleteOrderGoodsSku" parameterType="com.yeta.pps.vo.OrderGoodsSkuVo">
+        delete from order_goods_sku_${storeId} where order_id = #{orderId};
+    </delete>
+
+    <update id="updateOrderGoodsSku" parameterType="com.yeta.pps.vo.OrderGoodsSkuVo">
+        update
+            order_goods_sku_${storeId}
+        set
+            finish_quantity = finish_quantity + #{changeQuantity},
+            not_finish_quantity = not_finish_quantity - #{changeQuantity}
+        where
+            id = #{id}
+        and
+            #{changeQuantity} &lt;= not_finish_quantity
+        and
+            #{changeQuantity} + finish_quantity &lt;= quantity;
+    </update>
+
+    <update id="updateOperatedQuantity" parameterType="com.yeta.pps.vo.OrderGoodsSkuVo">
+        update
+            order_goods_sku_${storeId}
+        set
+            operated_quantity = operated_quantity + #{operatedQuantity}
+        where
+            id = #{id}
+        and
+            operated_quantity + #{operatedQuantity} &lt;= quantity
+        and
+            operated_quantity + #{operatedQuantity} &gt;= 0
+        and
+            goods_sku_id = #{goodsSkuId};
+    </update>
+
+    <select id="findAllOrderGoodsSku" parameterType="com.yeta.pps.vo.OrderGoodsSkuVo" resultType="com.yeta.pps.po.OrderGoodsSku">
+        select id, type, order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, operated_quantity, remark from order_goods_sku_${storeId} where order_id = #{orderId};
+    </select>
+
+</mapper>

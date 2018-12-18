@@ -87,6 +87,12 @@ public class Client {
     public Client() {
     }
 
+    public Client(String name, String phone, String membershipNumber) {
+        this.name = name;
+        this.phone = phone;
+        this.membershipNumber = membershipNumber;
+    }
+
     public Client(String id) {
         this.id = id;
     }

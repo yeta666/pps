@@ -1,6 +1,7 @@
 package com.yeta.pps.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.yeta.pps.po.SellApplyOrder;
 import com.yeta.pps.util.CommonResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -16,11 +17,6 @@ public class StorageOrderVo {
      */
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
-
-    @NotNull(message = CommonResponse.MESSAGE3)
-    private ProcurementApplyOrderVo procurementApplyOrderVo;
-
-    private String userName;
 
     /**
      * 单据编号
@@ -44,6 +40,10 @@ public class StorageOrderVo {
      */
     @NotBlank(message = CommonResponse.MESSAGE3)
     private String applyOrderId;
+
+    private ProcurementApplyOrderVo procurementApplyOrderVo;
+
+    private SellApplyOrderVo sellApplyOrderVo;
 
     /**
      * 单据状态
@@ -72,6 +72,8 @@ public class StorageOrderVo {
     @NotBlank(message = CommonResponse.MESSAGE3)
     private String userId;
 
+    private String userName;
+
     /**
      * 单据备注
      */
@@ -80,24 +82,12 @@ public class StorageOrderVo {
     public StorageOrderVo() {
     }
 
-    public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String applyOrderId) {
-        this.storeId = storeId;
-        this.applyOrderId = applyOrderId;
-    }
-
-    public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, ProcurementApplyOrderVo procurementApplyOrderVo) {
+    public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, ProcurementApplyOrderVo procurementApplyOrderVo, SellApplyOrderVo sellApplyOrderVo) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
         this.procurementApplyOrderVo = procurementApplyOrderVo;
-    }
-
-    public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId) {
-        this.storeId = storeId;
-        this.id = id;
-        this.type = type;
-        this.createTime = createTime;
-        this.applyOrderId = applyOrderId;
+        this.sellApplyOrderVo = sellApplyOrderVo;
     }
 
     public Integer getStoreId() {
@@ -114,6 +104,14 @@ public class StorageOrderVo {
 
     public void setProcurementApplyOrderVo(ProcurementApplyOrderVo procurementApplyOrderVo) {
         this.procurementApplyOrderVo = procurementApplyOrderVo;
+    }
+
+    public SellApplyOrderVo getSellApplyOrderVo() {
+        return sellApplyOrderVo;
+    }
+
+    public void setSellApplyOrderVo(SellApplyOrderVo sellApplyOrderVo) {
+        this.sellApplyOrderVo = sellApplyOrderVo;
     }
 
     public String getUserName() {
@@ -209,6 +207,7 @@ public class StorageOrderVo {
         return "StorageOrderVo{" +
                 "storeId=" + storeId +
                 ", procurementApplyOrderVo=" + procurementApplyOrderVo +
+                ", sellApplyOrderVo=" + sellApplyOrderVo +
                 ", userName='" + userName + '\'' +
                 ", id='" + id + '\'' +
                 ", type=" + type +

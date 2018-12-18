@@ -19,7 +19,7 @@ public class ProcurementApplyOrderVo {
     private Integer storeId;
 
     @NotNull(message = CommonResponse.MESSAGE3)
-    List<ApplyOrderGoodsSkuVo> details;
+    List<OrderGoodsSkuVo> details;
 
     private String supplierName;
 
@@ -169,9 +169,10 @@ public class ProcurementApplyOrderVo {
         this.id = id;
     }
 
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, String remark) {
+    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
+        this.userId = userId;
         this.remark = remark;
     }
 
@@ -194,11 +195,11 @@ public class ProcurementApplyOrderVo {
         this.storeId = storeId;
     }
 
-    public List<ApplyOrderGoodsSkuVo> getDetails() {
+    public List<OrderGoodsSkuVo> getDetails() {
         return details;
     }
 
-    public void setDetails(List<ApplyOrderGoodsSkuVo> details) {
+    public void setDetails(List<OrderGoodsSkuVo> details) {
         this.details = details;
     }
 

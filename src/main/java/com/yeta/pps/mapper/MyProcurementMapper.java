@@ -43,4 +43,6 @@ public interface MyProcurementMapper {
                                                            @Param("pageVo") PageVo pageVo);
 
     ProcurementResultOrderVo findResultOrderById(ProcurementResultOrderVo procurementResultOrderVo);
+
+    ProcurementResultOrderVo findResultOrderDetailById(ProcurementResultOrderVo procurementResultOrderVo);
 }

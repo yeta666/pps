@@ -20,7 +20,7 @@ public class SellApplyOrderVo {
     private Integer storeId;
 
     @NotNull(message = CommonResponse.MESSAGE3)
-    List<ApplyOrderGoodsSkuVo> details;
+    List<OrderGoodsSkuVo> details;
 
     private String inWarehouseName;
 
@@ -62,6 +62,7 @@ public class SellApplyOrderVo {
     /**
      * 产生方式，1：线下录单，2：线上下单
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Byte prodcingWay;
 
     /**
@@ -77,6 +78,7 @@ public class SellApplyOrderVo {
     /**
      * 客户编号
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String clientId;
 
     private Client client;
@@ -174,6 +176,35 @@ public class SellApplyOrderVo {
     public SellApplyOrderVo() {
     }
 
+    public SellApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+        this.storeId = storeId;
+        this.id = id;
+    }
+
+    public SellApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+        this.storeId = storeId;
+        this.id = id;
+        this.userId = userId;
+        this.remark = remark;
+    }
+
+    public SellApplyOrderVo(Date startTime, Date endTime, Client client) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.client = client;
+    }
+
+    public SellApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Byte orderStatus, Byte clearStatus, Client client) {
+        this.storeId = storeId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.id = id;
+        this.type = type;
+        this.orderStatus = orderStatus;
+        this.clearStatus = clearStatus;
+        this.client = client;
+    }
+
     public Integer getStoreId() {
         return storeId;
     }
@@ -182,11 +213,11 @@ public class SellApplyOrderVo {
         this.storeId = storeId;
     }
 
-    public List<ApplyOrderGoodsSkuVo> getDetails() {
+    public List<OrderGoodsSkuVo> getDetails() {
         return details;
     }
 
-    public void setDetails(List<ApplyOrderGoodsSkuVo> details) {
+    public void setDetails(List<OrderGoodsSkuVo> details) {
         this.details = details;
     }
 

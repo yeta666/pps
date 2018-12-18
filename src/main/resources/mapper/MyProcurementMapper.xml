@@ -19,13 +19,13 @@
         update
             procurement_apply_order_${storeId}
         set
-            create_time = #{createTime}, supplier_id = #{supplierId}, in_warehouse_id = #{inWarehouseId}, in_total_quantity = #{inTotalQuantity}, out_warehouse_id = #{outWarehouseId}, out_total_quantity = #{outTotalQuantity}, total_money = #{totalMoney}, total_discount_money = #{totalDiscountMoney}, order_money = #{orderMoney}
+            supplier_id = #{supplierId}, in_warehouse_id = #{inWarehouseId}, in_total_quantity = #{inTotalQuantity}, out_warehouse_id = #{outWarehouseId}, out_total_quantity = #{outTotalQuantity}, total_money = #{totalMoney}, total_discount_money = #{totalDiscountMoney}, order_money = #{orderMoney}
         where
             id = #{id};
     </update>
 
     <update id="updateApplyOrderRemark" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo">
-        update procurement_apply_order_${storeId} set remark = #{remark} where id = #{id};
+        update procurement_apply_order_${storeId} set user_id = #{userId}, remark = #{remark} where id = #{id};
     </update>
 
     <update id="updateApplyOrderOrderStatusAndQuantity" parameterType="com.yeta.pps.vo.StorageOrderVo">
@@ -36,7 +36,7 @@
         <if test="type == 1 or type == 2">
             , in_received_quantity = in_received_quantity + #{quantity}, in_not_received_quantity = in_not_received_quantity - #{quantity}
         </if>
-        <if test="type == 3 or type == 4">
+        <if test="type == 4">
             , out_sent_quantity = out_sent_quantity + #{quantity}, out_not_sent_quantity = out_not_sent_quantity - #{quantity}
         </if>
         where
@@ -75,9 +75,9 @@
         and
             pao.orderStatus = #{orderStatus}
         </if>
-        <if test="procurementApplyOrderVo.orderStatus != null">
+        <if test="clearStatus != null">
         and
-            pao.clearStatus = #{procurementApplyOrderVo.clearStatus}
+            pao.clearStatus = #{clearStatus}
         </if>
         <if test="supplierName != null">
         and
@@ -133,7 +133,7 @@
         and
             pao.orderStatus = #{procurementApplyOrderVo.orderStatus}
         </if>
-        <if test="procurementApplyOrderVo.orderStatus != null">
+        <if test="procurementApplyOrderVo.clearStatus != null">
         and
             pao.clearStatus = #{procurementApplyOrderVo.clearStatus}
         </if>
@@ -181,16 +181,16 @@
         <result column="not_cleared_money" property="notClearedMoney" />
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
-        <collection property="details" ofType="com.yeta.pps.vo.ApplyOrderGoodsSkuVo">
-            <result column="aogs_id" property="id" />
-            <result column="aogs_type" property="type" />
-            <result column="aogs_goods_sku_id" property="goodsSkuId" />
-            <result column="aogs_quantity" property="quantity" />
-            <result column="aogs_finish_quantity" property="finishQuantity" />
-            <result column="aogs_not_finish_quantity" property="notFinishQuantity" />
-            <result column="aogs_money" property="money" />
-            <result column="aogs_discount_money" property="discountMoney" />
-            <result column="aogs_remark" property="remark" />
+        <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
+            <result column="ogs_id" property="id" />
+            <result column="ogs_type" property="type" />
+            <result column="ogs_goods_sku_id" property="goodsSkuId" />
+            <result column="ogs_quantity" property="quantity" />
+            <result column="ogs_finish_quantity" property="finishQuantity" />
+            <result column="ogs_not_finish_quantity" property="notFinishQuantity" />
+            <result column="ogs_money" property="money" />
+            <result column="ogs_discount_money" property="discountMoney" />
+            <result column="ogs_remark" property="remark" />
             <result column="g_name" property="goodsName" />
             <result column="g_id" property="goodsId" />
             <result column="g_bar_code" property="goodsBarCode" />
@@ -223,15 +223,15 @@
             pao.not_cleared_money,
             u.name as user_name,
             pao.remark,
-            aogs.id as aogs_id,
-            aogs.type as aogs_type,
-            aogs.goods_sku_id as aogs_goods_sku_id,
-            aogs.quantity as aogs_quantity,
-            aogs.finish_quantity as aogs_finish_quantity,
-            aogs.not_finish_quantity as aogs_not_finish_quantity,
-            aogs.money as aogs_money,
-            aogs.discount_money as aogs_discount_money,
-            aogs.remark as aogs_remark,
+            ogs.id as ogs_id,
+            ogs.type as ogs_type,
+            ogs.goods_sku_id as ogs_goods_sku_id,
+            ogs.quantity as ogs_quantity,
+            ogs.finish_quantity as ogs_finish_quantity,
+            ogs.not_finish_quantity as ogs_not_finish_quantity,
+            ogs.money as ogs_money,
+            ogs.discount_money as ogs_discount_money,
+            ogs.remark as ogs_remark,
             g.name as g_name,
             g.id as g_id,
             g.bar_code as g_bar_code,
@@ -247,9 +247,9 @@
                         )
                         left join user_${storeId} as u on pao.user_id = u.id
                     )
-                    left join apply_order_goods_sku_${storeId} as aogs on pao.id = aogs.apply_order_id
+                    left join order_goods_sku_${storeId} as ogs on pao.id = ogs.order_id
                 )
-                left join goods_sku_${storeId} as gs on aogs.goods_sku_id = gs.id
+                left join goods_sku_${storeId} as gs on ogs.goods_sku_id = gs.id
             )
         left join goods_${storeId} as g on gs.goods_id = g.id
         where
@@ -346,7 +346,7 @@
                 )
                 left join supplier_${procurementResultOrderVo.storeId} as s on pao.supplier_id = s.id
             )
-        left join user_${procurementResultOrderVo.storeId} as u on pao.user_id = u.id
+        left join user_${procurementResultOrderVo.storeId} as u on pro.user_id = u.id
         where
             1 = 1
         <if test="procurementResultOrderVo.id != null">
@@ -374,6 +374,95 @@
             procurement_result_order_${storeId}
         where
             id = #{id};
+    </select>
+
+    <resultMap id="procurementResultOrderVoMap2" type="com.yeta.pps.vo.ProcurementResultOrderVo">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="apply_order_id" property="applyOrderId" />
+        <result column="order_status" property="orderStatus" />
+        <result column="total_quantity" property="totalQuantity" />
+        <result column="total_money" property="totalMoney" />
+        <result column="total_discountMoney" property="totalDiscountMoney" />
+        <result column="order_money" property="orderMoney" />
+        <result column="user_name" property="userName" />
+        <result column="remark" property="remark" />
+        <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+            <result column="supplier_name" property="supplierName" />
+            <result column="in_warehouse_id" property="inWarehouseId" />
+            <result column="out_warehouse_id" property="outWarehouseId" />
+        </collection>
+        <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
+            <result column="ogs_id" property="id" />
+            <result column="ogs_type" property="type" />
+            <result column="ogs_goods_sku_id" property="goodsSkuId" />
+            <result column="ogs_quantity" property="quantity" />
+            <result column="ogs_finish_quantity" property="finishQuantity" />
+            <result column="ogs_not_finish_quantity" property="notFinishQuantity" />
+            <result column="ogs_money" property="money" />
+            <result column="ogs_discount_money" property="discountMoney" />
+            <result column="ogs_operated_quantity" property="operatedQuantity" />
+            <result column="ogs_remark" property="remark" />
+            <result column="g_name" property="goodsName" />
+            <result column="g_id" property="goodsId" />
+            <result column="g_bar_code" property="goodsBarCode" />
+            <result column="gs_sku" property="goodsSkuSku" />
+            <result column="gs_purchase_price" property="goodsSkuPurchasePrice" />
+        </collection>
+    </resultMap>
+
+    <select id="findResultOrderDetailById" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo" resultMap="procurementResultOrderVoMap2">
+        select
+            pro.id,
+            pro.type,
+            pro.create_time,
+            pro.apply_order_id,
+            pro.order_status,
+            pro.total_quantity,
+            pro.total_money,
+            pro.total_discount_money,
+            pro.order_money,
+            u.name as user_name,
+            pro.remark,
+            s.name as supplier_name,
+            pao.in_warehouse_id,
+            pao.out_warehouse_id,
+            ogs.id as ogs_id,
+            ogs.type as ogs_type,
+            ogs.goods_sku_id as ogs_goods_sku_id,
+            ogs.quantity as ogs_quantity,
+            ogs.finish_quantity as ogs_finish_quantity,
+            ogs.not_finish_quantity as ogs_not_finish_quantity,
+            ogs.money as ogs_money,
+            ogs.discount_money as ogs_discount_money,
+            ogs.operated_quantity as ogs_operated_quantity,
+            ogs.remark as ogs_remark,
+            g.name as g_name,
+            g.id as g_id,
+            g.bar_code as g_bar_code,
+            gs.sku as gs_sku,
+            gs.purchase_price as gs_purchase_price
+        from
+            (
+                (
+                    (
+                        (
+                            (
+                                procurement_result_order_${storeId} as pro
+                                left join procurement_apply_order_${storeId} as pao on pro.apply_order_id = pao.id
+                            )
+                            left join supplier_${storeId} as s on pao.supplier_id = s.id
+                        )
+                      left join user_${storeId} as u on pro.user_id = u.id
+                    )
+                    left join order_goods_sku_${storeId} as ogs on ogs.order_id = pro.id
+                )
+                left join goods_sku_${storeId} as gs on ogs.goods_sku_id = gs.id
+            )
+        left join goods_${storeId} as g on gs.goods_id = g.id
+        where
+            pro.id = #{id};
     </select>
 
 </mapper>

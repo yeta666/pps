@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeta.pps.mapper.MySellMapper" >
+
+    <!--销售申请订单-->
+
+    <insert id="addApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo">
+      insert into
+            sell_apply_order_${storeId} (id, type, create_time, result_order_id, prodcing_way, order_status, clear_status, client_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, discount_money, discount_coupon_id, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark)
+        values
+            (#{id}, #{type}, #{createTime}, #{resultOrderId}, #{prodcingWay}, #{orderStatus}, #{clearStatus}, #{clientId}, #{inWarehouseId}, #{inTotalQuantity}, #{inReceivedQuantity}, #{inNotReceivedQuantity}, #{outWarehouseId}, #{outTotalQuantity}, #{outSentQuantity}, #{outNotSentQuantity}, #{totalMoney}, #{discountMoney}, #{discountCouponId}, #{totalDiscountMoney}, #{orderMoney}, #{clearedMoney}, #{notClearedMoney}, #{userId}, #{remark});
+    </insert>
+
+    <delete id="deleteApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo">
+        delete from sell_apply_order_${storeId} where id = #{id};
+    </delete>
+
+    <update id="updateApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo">
+        update
+            sell_apply_order_${storeId}
+        set
+            client_id = #{clientId}, in_warehouse_id = #{inWarehouseId}, in_total_quantity = #{inTotalQuantity}, out_warehouse_id = #{outWarehouseId}, out_total_quantity = #{outTotalQuantity}, total_money = #{totalMoney}, discount_money = #{discountMoney}, discount_coupon_id = #{discountCouponId}, total_discount_money = #{totalDiscountMoney}, order_money = #{orderMoney}
+        where
+            id = #{id};
+    </update>
+
+    <update id="updateApplyOrderRemark" parameterType="com.yeta.pps.vo.SellApplyOrderVo">
+        update sell_apply_order_${storeId} set user_id = #{userId}, remark = #{remark} where id = #{id};
+    </update>
+
+    <update id="updateApplyOrderOrderStatusAndQuantity" parameterType="com.yeta.pps.vo.StorageOrderVo">
+        update
+            sell_apply_order_${storeId}
+        set
+            order_status = #{orderStatus}
+        <if test="type == 2">
+            , in_received_quantity = in_received_quantity + #{quantity}, in_not_received_quantity = in_not_received_quantity - #{quantity}
+        </if>
+        <if test="type == 3 or type == 4">
+            , out_sent_quantity = out_sent_quantity + #{quantity}, out_not_sent_quantity = out_not_sent_quantity - #{quantity}
+        </if>
+        where
+            id = #{applyOrderId}
+    </update>
+
+    <update id="updateApplyOrderClearStatusAndMoney" parameterType="com.yeta.pps.vo.FundOrderVo">
+        update
+            sell_apply_order_${storeId}
+        set
+            clear_status = #{orderStatus}, cleared_money = cleared_money + #{money}, not_cleared_money = not_cleared_money - #{money}
+        where
+            id = #{applyOrderId}
+    </update>
+
+    <select id="findCountApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                sell_apply_order_${storeId} as sao
+                left join client as c on sao.client_id = c.id
+            )
+            left join user_${storeId} as u on sao.user_id = u.id
+        where
+            1 = 1
+        <if test="id != null">
+        and
+            sao.id = #{id}
+        </if>
+        <if test="type != null">
+        and
+            sao.type = #{type}
+        </if>
+        <if test="orderStatus != null">
+        and
+            sao.orderStatus = #{orderStatus}
+        </if>
+        <if test="clearStatus != null">
+        and
+            sao.clearStatus = #{clearStatus}
+        </if>
+        <if test="client.name != null">
+        and
+            c.name like concat('%', #{client.name}, '%')
+        </if>
+        <if test="client.phone != null">
+        and
+            c.phone like concat('%', #{client.phone}, '%')
+        </if>
+        <if test="client.membershipNumber != null">
+        and
+            c.membershipNumber like concat('%', #{client.membershipNumber}, '%')
+        </if>
+        <if test="startTime != null and endTime != null">
+        and
+            date(sao.create_time) between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <resultMap id="sellApplyOrderVoMap1" type="com.yeta.pps.vo.SellApplyOrderVo">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="result_order_id" property="resultOrderId" />
+        <result column="prodcing_way" property="prodcingWay" />
+        <result column="order_status" property="orderStatus" />
+        <result column="clear_status" property="clearStatus" />
+        <result column="in_warehouse_id" property="inWarehouseId" />
+        <result column="in_total_quantity" property="inTotalQuantity" />
+        <result column="in_received_quantity" property="inReceivedQuantity" />
+        <result column="in_not_received_quantity" property="inNotReceivedQuantity" />
+        <result column="out_warehouse_id" property="outWarehouseId" />
+        <result column="out_total_quantity" property="outTotalQuantity" />
+        <result column="total_money" property="totalMoney" />
+        <result column="discount_money" property="discountMoney" />
+        <result column="discount_coupon_id" property="discountCouponId" />
+        <result column="total_discount_money" property="totalDiscountMoney" />
+        <result column="order_money" property="orderMoney" />
+        <result column="cleared_money" property="clearedMoney" />
+        <result column="not_cleared_money" property="notClearedMoney" />
+        <result column="user_name" property="userName" />
+        <result column="remark" property="remark" />
+        <collection property="client" ofType="com.yeta.pps.po.Client">
+            <result column="client_name" property="name" />
+            <result column="client_phone" property="phone" />
+            <result column="client_membership_number" property="membershipNumber" />
+        </collection>
+    </resultMap>
+
+    <select id="findAllPagedApplyOrder" resultMap="sellApplyOrderVoMap1">
+        select
+            sao.id,
+            sao.type,
+            sao.create_time,
+            sao.result_order_id,
+            sao.prodcing_way,
+            sao.order_status,
+            sao.clear_status,
+            c.name as client_name,
+            c.phone as client_phone,
+            c.membership_number as client_membership_number,
+            sao.in_warehouse_id,
+            sao.in_total_quantity,
+            sao.in_received_quantity,
+            sao.in_not_received_quantity,
+            sao.out_warehouse_id,
+            sao.out_total_quantity,
+            sao.out_sent_quantity,
+            sao.out_not_sent_quantity,
+            sao.total_money,
+            sao.discount_money,
+            sao.discount_coupon_id,
+            /*查出优惠券金额*/
+            sao.total_discount_money,
+            sao.order_money,
+            sao.cleared_money,
+            sao.not_cleared_money,
+            u.name as user_name,
+            sao.remark
+        from
+            (
+                sell_apply_order_${sellApplyOrderVo.storeId} as sao
+                left join client as c on sao.client_id = c.id
+            )
+        left join user_${sellApplyOrderVo.storeId} as u on sao.user_id = u.id
+        where
+            1 = 1
+        <if test="sellApplyOrderVo.id != null">
+        and
+            sao.id = #{sellApplyOrderVo.id}
+        </if>
+        <if test="sellApplyOrderVo.type != null">
+        and
+            sao.type = #{sellApplyOrderVo.type}
+        </if>
+        <if test="sellApplyOrderVo.orderStatus != null">
+        and
+            sao.orderStatus = #{sellApplyOrderVo.orderStatus}
+        </if>
+        <if test="sellApplyOrderVo.clearStatus != null">
+        and
+            sao.clearStatus = #{sellApplyOrderVo.clearStatus}
+        </if>
+        <if test="sellApplyOrderVo.client.name != null">
+        and
+            c.name like concat('%', #{sellApplyOrderVo.client.name}, '%')
+        </if>
+        <if test="sellApplyOrderVo.client.phone != null">
+        and
+            c.phone like concat('%', #{sellApplyOrderVo.client.phone}, '%')
+        </if>
+        <if test="sellApplyOrderVo.client.membershipNumber != null">
+        and
+            c.membershipNumber like concat('%', #{sellApplyOrderVo.client.membershipNumber}, '%')
+        </if>
+        <if test="sellApplyOrderVo.startTime != null and sellApplyOrderVo.endTime != null">
+        and
+            date(sao.create_time) between #{sellApplyOrderVo.startTime} and #{sellApplyOrderVo.endTime}
+        </if>
+        order by
+            sao.create_time desc
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findApplyOrderById" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultType="com.yeta.pps.po.SellApplyOrder">
+        select
+            id, type, create_time, result_order_id, prodcing_way, order_status, clear_status, client_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, discount_money, discount_coupon_id, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark
+        from
+            sell_apply_order_${storeId}
+        where
+            id = #{id};
+    </select>
+
+    <resultMap id="sellApplyOrderVoMap2" type="com.yeta.pps.vo.SellApplyOrderVo">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="result_order_id" property="resultOrderId" />
+        <result column="prodcing_way" property="prodcingWay" />
+        <result column="order_status" property="orderStatus" />
+        <result column="clear_status" property="clearStatus" />
+        <result column="in_warehouse_id" property="inWarehouseId" />
+        <result column="in_total_quantity" property="inTotalQuantity" />
+        <result column="in_received_quantity" property="inReceivedQuantity" />
+        <result column="in_not_received_quantity" property="inNotReceivedQuantity" />
+        <result column="out_warehouse_id" property="outWarehouseId" />
+        <result column="out_total_quantity" property="outTotalQuantity" />
+        <result column="total_money" property="totalMoney" />
+        <result column="discount_money" property="discountMoney" />
+        <result column="discount_coupon_id" property="discountCouponId" />
+        <result column="total_discount_money" property="totalDiscountMoney" />
+        <result column="order_money" property="orderMoney" />
+        <result column="cleared_money" property="clearedMoney" />
+        <result column="not_cleared_money" property="notClearedMoney" />
+        <result column="user_name" property="userName" />
+        <result column="remark" property="remark" />
+        <collection property="client" ofType="com.yeta.pps.po.Client">
+            <result column="client_name" property="name" />
+            <result column="client_phone" property="phone" />
+            <result column="client_membership_number" property="membershipNumber" />
+        </collection>
+        <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
+            <result column="ogs_id" property="id" />
+            <result column="ogs_type" property="type" />
+            <result column="ogs_goods_sku_id" property="goodsSkuId" />
+            <result column="ogs_quantity" property="quantity" />
+            <result column="ogs_finish_quantity" property="finishQuantity" />
+            <result column="ogs_not_finish_quantity" property="notFinishQuantity" />
+            <result column="ogs_money" property="money" />
+            <result column="ogs_discount_money" property="discountMoney" />
+            <result column="ogs_remark" property="remark" />
+            <result column="g_name" property="goodsName" />
+            <result column="g_id" property="goodsId" />
+            <result column="g_bar_code" property="goodsBarCode" />
+            <result column="gs_sku" property="goodsSkuSku" />
+            <result column="gs_purchase_price" property="goodsSkuPurchasePrice" />
+        </collection>
+    </resultMap>
+
+    <select id="findApplyOrderDetailById" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultMap="sellApplyOrderVoMap2">
+        select
+            sao.id,
+            sao.type,
+            sao.create_time,
+            sao.result_order_id,
+            sao.prodcing_way,
+            sao.order_status,
+            sao.clear_status,
+            c.name as client_name,
+            c.phone as client_phone,
+            c.membership_number as client_membership_number,
+            sao.in_warehouse_id,
+            sao.in_total_quantity,
+            sao.in_received_quantity,
+            sao.in_not_received_quantity,
+            sao.out_warehouse_id,
+            sao.out_total_quantity,
+            sao.out_sent_quantity,
+            sao.out_not_sent_quantity,
+            sao.total_money,
+            sao.discount_money,
+            sao.discount_coupon_id,
+            /*查出优惠券金额*/
+            sao.total_discount_money,
+            sao.order_money,
+            sao.cleared_money,
+            sao.not_cleared_money,
+            u.name as user_name,
+            sao.remark,
+            ogs.id as ogs_id,
+            ogs.type as ogs_type,
+            ogs.goods_sku_id as ogs_goods_sku_id,
+            ogs.quantity as ogs_quantity,
+            ogs.finish_quantity as ogs_finish_quantity,
+            ogs.not_finish_quantity as ogs_not_finish_quantity,
+            ogs.money as ogs_money,
+            ogs.discount_money as ogs_discount_money,
+            ogs.remark as ogs_remark,
+            g.name as g_name,
+            g.id as g_id,
+            g.bar_code as g_bar_code,
+            gs.sku as gs_sku,
+            gs.purchase_price as gs_purchase_price
+        from
+            (
+                (
+                    (
+                        (
+                            sell_apply_order_${storeId} as sao
+                            left join client as c on sao.client_id = c.id
+                        )
+                        left join user_${storeId} as u on sao.user_id = u.id
+                    )
+                    left join order_goods_sku_${storeId} as ogs on sao.id = ogs.order_id
+                )
+                left join goods_sku_${storeId} as gs on ogs.goods_sku_id = gs.id
+            )
+        left join goods_${storeId} as g on gs.goods_id = g.id
+        where
+            sao.id = #{id};
+    </select>
+
+    <!--销售结果订单-->
+
+    <insert id="addResultOrder" parameterType="com.yeta.pps.vo.SellResultOrderVo">
+        insert into
+            sell_result_order_${storeId} (id, type, create_time, apply_order_id, order_status, total_quantity, total_money, total_discount_money, order_money, cost_money, gross_margin_money, user_id, remark)
+        values
+            (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{totalQuantity}, #{totalMoney}, #{totalDiscountMoney}, #{orderMoney}, #{costMoney}, #{grossMarginMoney}, #{userId}, #{remark});
+    </insert>
+
+    <update id="updateResultOrder" parameterType="com.yeta.pps.vo.SellResultOrderVo">
+        update sell_result_order_${storeId} set order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+    </update>
+
+    <select id="findCountResultOrder" parameterType="com.yeta.pps.vo.SellResultOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                (
+                    sell_result_order_${storeId} as sro
+                    left join sell_apply_order_${storeId} as sao on sro.apply_order_id = sao.id
+                )
+                left join client as c on sao.client_id = c.id
+            )
+        left join user_${storeId} as u on sro.user_id = u.id
+        where
+            1 = 1
+        <if test="id != null">
+        and
+            sro.id = #{id}
+        </if>
+        <if test="sellApplyOrderVo.client.name != null">
+        and
+            c.name like concat('%', #{sellApplyOrderVo.client.name}, '%')
+        </if>
+        <if test="sellApplyOrderVo.client.phone != null">
+        and
+            c.phone like concat('%', #{sellApplyOrderVo.client.phone}, '%')
+        </if>
+        <if test="sellApplyOrderVo.client.membershipNumber != null">
+        and
+            c.membershipNumber like concat('%', #{sellApplyOrderVo.client.membershipNumber}, '%')
+        </if>
+        <if test="sellApplyOrderVo.startTime != null and sellApplyOrderVo.endTime != null">
+        and
+            date(sro.create_time) between #{sellApplyOrderVo.startTime} and #{sellApplyOrderVo.endTime}
+        </if>
+        order by
+        sro.create_time desc;
+    </select>
+
+    <resultMap id="sellResultOrderVoMap" type="com.yeta.pps.vo.SellResultOrderVo">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="apply_order_id" property="applyOrderId" />
+        <result column="order_status" property="orderStatus" />
+        <result column="total_quantity" property="totalQuantity" />
+        <result column="total_money" property="totalMoney" />
+        <result column="total_discountMoney" property="totalDiscountMoney" />
+        <result column="order_money" property="orderMoney" />
+        <result column="cost_money" property="costMoney" />
+        <result column="gross_margin_money" property="grossMarginMoney" />
+        <result column="user_name" property="userName" />
+        <result column="remark" property="remark" />
+        <collection property="sellApplyOrderVo" ofType="com.yeta.pps.vo.SellApplyOrderVo">
+            <result column="sao_order_status" property="orderStatus" />
+            <result column="sao_clear_status" property="clearStatus" />
+            <result column="in_warehouse_id" property="inWarehouseId" />
+            <result column="out_warehouse_id" property="outWarehouseId" />
+            <collection property="client" ofType="com.yeta.pps.po.Client">
+                <result column="client_name" property="name" />
+                <result column="client_phone" property="phone" />
+                <result column="client_membership_number" property="membershipNumber" />
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="findAllPagedResultOrder" resultMap="sellResultOrderVoMap">
+        select
+            sro.id,
+            sro.type,
+            sro.create_time,
+            sro.apply_order_id,
+            sro.order_status,
+            sro.total_quantity,
+            sro.total_money,
+            sro.total_discount_money,
+            sro.order_money,
+            sro.cost_money,
+            sro.gross_margin_money,
+            u.name as user_name,
+            sro.remark,
+            sao.order_status as sao_order_status,
+            sao.clear_status as sao_clear_status,
+            c.name as client_name,
+            c.phone as client_phone,
+            c.membership_number as client_membership_number,
+            sao.in_warehouse_id,
+            sao.out_warehouse_id
+        from 
+            (
+                (
+                    sell_result_order_${sellResultOrderVo.storeId} as sro
+                    left join sell_apply_order_${sellResultOrderVo.storeId} as sao on sro.apply_order_id = sao.id
+                )
+                left join client as c on sao.client_id = c.id
+            )
+        left join user_${sellResultOrderVo.storeId} as u on sro.user_id = u.id
+        where
+            1 = 1
+        <if test="sellResultOrderVo.id != null">
+        and
+            sro.id = #{sellResultOrderVo.id}
+        </if>
+        <if test="sellResultOrderVo.sellApplyOrderVo.client.name != null">
+        and
+            c.name like concat('%', #{sellResultOrderVo.sellApplyOrderVo.client.name}, '%')
+        </if>
+        <if test="sellResultOrderVo.sellApplyOrderVo.client.phone != null">
+        and
+            c.phone like concat('%', #{sellResultOrderVo.sellApplyOrderVo.client.phone}, '%')
+        </if>
+        <if test="sellResultOrderVo.sellApplyOrderVo.client.membershipNumber != null">
+        and
+            c.membershipNumber like concat('%', #{sellResultOrderVo.sellApplyOrderVo.client.membershipNumber}, '%')
+        </if>
+        <if test="sellResultOrderVo.sellApplyOrderVo.startTime != null and sellResultOrderVo.sellApplyOrderVo.endTime != null">
+        and
+            date(sro.create_time) between #{sellResultOrderVo.sellApplyOrderVo.startTime} and #{sellResultOrderVo.sellApplyOrderVo.endTime}
+        </if>
+        order by
+            sro.create_time desc
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+    
+    <select id="findResultOrderById" parameterType="com.yeta.pps.vo.SellResultOrderVo" resultType="com.yeta.pps.vo.SellResultOrderVo">
+        select
+            id, type, create_time, apply_order_id, order_status, total_quantity, total_money, total_discount_money, order_money, cost_money, gross_margin_money, user_id, remark
+        from
+            sell_result_order_${storeId}
+        where
+            id = #{id};
+    </select>
+
+    <resultMap id="sellResultOrderVoMap2" type="com.yeta.pps.vo.SellResultOrderVo">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="apply_order_id" property="applyOrderId" />
+        <result column="order_status" property="orderStatus" />
+        <result column="total_quantity" property="totalQuantity" />
+        <result column="total_money" property="totalMoney" />
+        <result column="total_discountMoney" property="totalDiscountMoney" />
+        <result column="order_money" property="orderMoney" />
+        <result column="cost_money" property="costMoney" />
+        <result column="gross_margin_money" property="grossMarginMoney" />
+        <result column="user_name" property="userName" />
+        <result column="remark" property="remark" />
+        <collection property="sellApplyOrderVo" ofType="com.yeta.pps.vo.SellApplyOrderVo">
+            <result column="in_warehouse_id" property="inWarehouseId" />
+            <result column="out_warehouse_id" property="outWarehouseId" />
+            <collection property="client" ofType="com.yeta.pps.po.Client">
+                <result column="client_name" property="name" />
+                <result column="client_phone" property="phone" />
+                <result column="client_membership_number" property="membershipNumber" />
+            </collection>
+        </collection>
+        <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
+            <result column="ogs_id" property="id" />
+            <result column="ogs_type" property="type" />
+            <result column="ogs_goods_sku_id" property="goodsSkuId" />
+            <result column="ogs_quantity" property="quantity" />
+            <result column="ogs_finish_quantity" property="finishQuantity" />
+            <result column="ogs_not_finish_quantity" property="notFinishQuantity" />
+            <result column="ogs_money" property="money" />
+            <result column="ogs_discount_money" property="discountMoney" />
+            <result column="ogs_operated_quantity" property="operatedQuantity" />
+            <result column="ogs_remark" property="remark" />
+            <result column="g_name" property="goodsName" />
+            <result column="g_id" property="goodsId" />
+            <result column="g_bar_code" property="goodsBarCode" />
+            <result column="gs_sku" property="goodsSkuSku" />
+            <result column="gs_purchase_price" property="goodsSkuPurchasePrice" />
+        </collection>
+    </resultMap>
+
+    <select id="findResultOrderDetailById" parameterType="com.yeta.pps.vo.SellResultOrderVo" resultMap="sellResultOrderVoMap2">
+        select
+            sro.id,
+            sro.type,
+            sro.create_time,
+            sro.apply_order_id,
+            sro.order_status,
+            sro.total_quantity,
+            sro.total_money,
+            sro.total_discount_money,
+            sro.order_money,
+            sro.cost_money,
+            sro.gross_margin_money,
+            u.name as user_name,
+            sro.remark,
+            c.name as client_name,
+            c.phone as client_phone,
+            c.membership_number as client_membership_number,
+            sao.in_warehouse_id,
+            sao.out_warehouse_id,
+            ogs.id as ogs_id,
+            ogs.type as ogs_type,
+            ogs.goods_sku_id as ogs_goods_sku_id,
+            ogs.quantity as ogs_quantity,
+            ogs.finish_quantity as ogs_finish_quantity,
+            ogs.not_finish_quantity as ogs_not_finish_quantity,
+            ogs.money as ogs_money,
+            ogs.discount_money as ogs_discount_money,
+            ogs.operated_quantity as ogs_operated_quantity,
+            ogs.remark as ogs_remark,
+            g.name as g_name,
+            g.id as g_id,
+            g.bar_code as g_bar_code,
+            gs.sku as gs_sku,
+            gs.purchase_price as gs_purchase_price
+        from
+            (
+                (
+                    (
+                        (
+                            (
+                                sell_result_order_${storeId} as sro
+                                left join sell_apply_order_${storeId} as sao on sro.apply_order_id = sao.id
+                            )
+                            left join client as c on sao.client_id = c.id
+                        )
+                      left join user_${storeId} as u on sro.user_id = u.id
+                    )
+                    left join order_goods_sku_${storeId} as ogs on ogs.order_id = sro.id
+                )
+                left join goods_sku_${storeId} as gs on ogs.goods_sku_id = gs.id
+            )
+        left join goods_${storeId} as g on gs.goods_id = g.id
+        where
+            sro.id = #{id};
+    </select>
+
+</mapper>

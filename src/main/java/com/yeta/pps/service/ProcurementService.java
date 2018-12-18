@@ -1,7 +1,7 @@
 package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
-import com.yeta.pps.mapper.MyApplyOrderGoodsSkuMapper;
+import com.yeta.pps.mapper.MyOrderGoodsSkuMapper;
 import com.yeta.pps.mapper.MyProcurementMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.ProcurementApplyOrder;
@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 采购相关逻辑处理
@@ -36,7 +33,7 @@ public class ProcurementService {
     private MyProcurementMapper myProcurementMapper;
 
     @Autowired
-    private MyApplyOrderGoodsSkuMapper myApplyOrderGoodsSkuMapper;
+    private MyOrderGoodsSkuMapper myOrderGoodsSkuMapper;
 
     @Autowired
     private MyWarehouseMapper myWarehouseMapper;
@@ -50,15 +47,14 @@ public class ProcurementService {
      */
     @Transactional
     public CommonResponse addApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo) {
-        List<ApplyOrderGoodsSkuVo> aogsvs = procurementApplyOrderVo.getDetails();
+        List<OrderGoodsSkuVo> orderGoodsSkuVos = procurementApplyOrderVo.getDetails();
         //判断是采购订单/采购退货申请单/采购换货申请单
         Byte type = procurementApplyOrderVo.getType();
-        ProcurementApplyOrder procurementApplyOrder;
         switch (type) {
             //采购订单
             case 1:
                 //判断参数
-                if (aogsvs.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null) {
+                if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null) {
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
                 //设置初始属性
@@ -70,7 +66,7 @@ public class ProcurementService {
             //采购退货申请单
             case 2:
                 //判断参数
-                if (aogsvs.size() == 0 || procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null ||
+                if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null ||
                         procurementApplyOrderVo.getResultOrderId() == null) {
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
@@ -83,7 +79,7 @@ public class ProcurementService {
             //采购换货申请单
             case 3:
                 //判断参数
-                if (aogsvs.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null ||
+                if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null ||
                         procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null ||
                         procurementApplyOrderVo.getResultOrderId() == null) {
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
@@ -102,25 +98,34 @@ public class ProcurementService {
         procurementApplyOrderVo.setCreateTime(new Date());
         procurementApplyOrderVo.setClearStatus((byte) 0);
         procurementApplyOrderVo.setClearedMoney(new BigDecimal(0));
-        procurementApplyOrderVo.setNotClearedMoney(procurementApplyOrderVo.getTotalMoney());
+        procurementApplyOrderVo.setNotClearedMoney(procurementApplyOrderVo.getOrderMoney());
         //新增采购申请单
         if (myProcurementMapper.addApplyOrder(procurementApplyOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
         }
         //新增采购申请单/商品规格关系
-        aogsvs.stream().forEach(aogsv -> {
+        orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
             //判断参数
-            if (aogsv.getType() == null || aogsv.getGoodsSkuId() == null || aogsv.getQuantity() == null || aogsv.getMoney() == null || aogsv.getDiscountMoney() == null) {
+            if (orderGoodsSkuVo.getType() == null || orderGoodsSkuVo.getGoodsSkuId() == null || orderGoodsSkuVo.getQuantity() == null || orderGoodsSkuVo.getMoney() == null || orderGoodsSkuVo.getDiscountMoney() == null) {
                 throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
             }
             //设置初始属性
-            aogsv.setStoreId(procurementApplyOrderVo.getStoreId());
-            aogsv.setApplyOrderId(procurementApplyOrderVo.getId());
-            aogsv.setFinishQuantity(0);
-            aogsv.setNotFinishQuantity(aogsv.getQuantity());
+            orderGoodsSkuVo.setStoreId(procurementApplyOrderVo.getStoreId());
+            orderGoodsSkuVo.setOrderId(procurementApplyOrderVo.getId());
+            orderGoodsSkuVo.setFinishQuantity(0);
+            orderGoodsSkuVo.setNotFinishQuantity(orderGoodsSkuVo.getQuantity());
             //新增
-            if (myApplyOrderGoodsSkuMapper.addApplyOrderGoodsSku(aogsv) != 1) {
+            if (myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo) != 1) {
                 throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+            }
+            //修改采购入库单对应的商品规格已操作数量
+            if (type == 2 || (type == 3 && orderGoodsSkuVo.getType() == 0)) {
+                if (orderGoodsSkuVo.getId() == null) {
+                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                }
+                if (myOrderGoodsSkuMapper.updateOperatedQuantity(new OrderGoodsSkuVo(procurementApplyOrderVo.getStoreId(), orderGoodsSkuVo.getId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity())) != 1) {
+                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                }
             }
         });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
@@ -135,27 +140,44 @@ public class ProcurementService {
     public CommonResponse deleteApplyOrder(List<ProcurementApplyOrderVo> procurementApplyOrderVos) {
         procurementApplyOrderVos.stream().forEach(procurementApplyOrderVo -> {
             //获取采购申请订单
-            ProcurementApplyOrder pao = myProcurementMapper.findApplyOrderById(procurementApplyOrderVo);
-            if (pao == null) {
+            ProcurementApplyOrderVo applyOrderVo =  myProcurementMapper.findApplyOrderDetailById(procurementApplyOrderVo);
+            if (applyOrderVo == null || applyOrderVo.getDetails().size() == 0) {
                 throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
             }
             //判断单据状态
-            Byte orderStatus = pao.getOrderStatus();
+            Byte orderStatus = applyOrderVo.getOrderStatus();
             if (orderStatus != 1 && orderStatus != 4 && orderStatus != 7) {     //1：未收，4：未发，7：未收未发
-                throw new CommonException(CommonResponse.CODE19, "【 " + pao.getId() + "】" + CommonResponse.MESSAGE19);
+                throw new CommonException(CommonResponse.CODE19, "【 " + applyOrderVo.getId() + "】" + CommonResponse.MESSAGE19);
             }
             //判断结算状态
-            Byte clearStatus = pao.getClearStatus();
+            Byte clearStatus = applyOrderVo.getClearStatus();
             if (clearStatus != 0) {     //0：未完成
-                throw new CommonException(CommonResponse.CODE19, "【 " + pao.getId() + "】" + CommonResponse.MESSAGE19);
+                throw new CommonException(CommonResponse.CODE19, "【 " + applyOrderVo.getId() + "】" + CommonResponse.MESSAGE19);
+            }
+            //修改商品规格可操作数量
+            if (applyOrderVo.getType() == 2 || applyOrderVo.getType() == 3) {
+                List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = applyOrderVo.getDetails();
+                ProcurementResultOrderVo resultOrderVo = myProcurementMapper.findResultOrderDetailById(new ProcurementResultOrderVo(procurementApplyOrderVo.getStoreId(), applyOrderVo.getResultOrderId()));
+                List<OrderGoodsSkuVo> resultOrderGoodsSkuVos = resultOrderVo.getDetails();
+                resultOrderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
+                    Optional<OrderGoodsSkuVo> optional = applyOrderGoodsSkuVos.stream().filter(vo -> vo.getGoodsSkuId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst();
+                    if (optional.isPresent()) {
+                        int changeQuantity = optional.get().getQuantity();
+                        orderGoodsSkuVo.setStoreId(procurementApplyOrderVo.getStoreId());
+                        orderGoodsSkuVo.setOperatedQuantity(-changeQuantity);
+                        if (myOrderGoodsSkuMapper.updateOperatedQuantity(orderGoodsSkuVo) != 1) {
+                            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                        }
+                    }
+                });
             }
             //删除采购申请订单
             if (myProcurementMapper.deleteApplyOrder(procurementApplyOrderVo) != 1) {
-                throw new CommonException(CommonResponse.CODE8, "【 " + pao.getId() + "】" + CommonResponse.MESSAGE8);
+                throw new CommonException(CommonResponse.CODE8, "【 " + applyOrderVo.getId() + "】" + CommonResponse.MESSAGE8);
             }
             //删除采购申请订单/商品规格关系
-            ApplyOrderGoodsSkuVo aogsv = new ApplyOrderGoodsSkuVo(procurementApplyOrderVo.getStoreId(), pao.getId());
-            myApplyOrderGoodsSkuMapper.deleteApplyOrderGoodsSku(aogsv);
+            OrderGoodsSkuVo orderGoodsSkuVo = new OrderGoodsSkuVo(procurementApplyOrderVo.getStoreId(), applyOrderVo.getId());
+            myOrderGoodsSkuMapper.deleteOrderGoodsSku(orderGoodsSkuVo);
         });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
@@ -182,28 +204,28 @@ public class ProcurementService {
         if (clearStatus != 0) {     //0：未完成
             return new CommonResponse(CommonResponse.CODE19, null, "【 " + pao.getId() + "】" + CommonResponse.MESSAGE19);
         }
-        List<ApplyOrderGoodsSkuVo> aogsvs = procurementApplyOrderVo.getDetails();
+        List<OrderGoodsSkuVo> orderGoodsSkuVos = procurementApplyOrderVo.getDetails();
         //判断是采购订单/采购退货申请/采购换货申请
         Byte type = pao.getType();
         switch (type) {
             //采购订单
             case 1:
                 //判断参数
-                if (aogsvs.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null) {
+                if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null) {
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
                 break;
             //采购退货申请
             case 2:
                 //判断参数
-                if (aogsvs.size() == 0 || procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null) {
+                if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null) {
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
                 break;
             //采购换货申请
             case 3:
                 //判断参数
-                if (aogsvs.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null ||
+                if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null ||
                         procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null) {
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
@@ -215,20 +237,20 @@ public class ProcurementService {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
         //删除采购申请订单/商品规格关系
-        myApplyOrderGoodsSkuMapper.deleteApplyOrderGoodsSku(new ApplyOrderGoodsSkuVo(procurementApplyOrderVo.getStoreId(), procurementApplyOrderVo.getId()));
+        myOrderGoodsSkuMapper.deleteOrderGoodsSku(new OrderGoodsSkuVo(procurementApplyOrderVo.getStoreId(), procurementApplyOrderVo.getId()));
         //新增采购申请订单/商品规格关系
-        aogsvs.stream().forEach(aogsv -> {
+        orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
             //判断参数
-            if (aogsv.getType() == null || aogsv.getGoodsSkuId() == null || aogsv.getQuantity() == null || aogsv.getMoney() == null || aogsv.getDiscountMoney() == null) {
+            if (orderGoodsSkuVo.getType() == null || orderGoodsSkuVo.getGoodsSkuId() == null || orderGoodsSkuVo.getQuantity() == null || orderGoodsSkuVo.getMoney() == null || orderGoodsSkuVo.getDiscountMoney() == null) {
                 throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
             }
             //设置初始属性
-            aogsv.setStoreId(procurementApplyOrderVo.getStoreId());
-            aogsv.setApplyOrderId(procurementApplyOrderVo.getId());
-            aogsv.setFinishQuantity(0);
-            aogsv.setNotFinishQuantity(aogsv.getQuantity());
+            orderGoodsSkuVo.setStoreId(procurementApplyOrderVo.getStoreId());
+            orderGoodsSkuVo.setOrderId(procurementApplyOrderVo.getId());
+            orderGoodsSkuVo.setFinishQuantity(0);
+            orderGoodsSkuVo.setNotFinishQuantity(orderGoodsSkuVo.getQuantity());
             //新增
-            if (myApplyOrderGoodsSkuMapper.addApplyOrderGoodsSku(aogsv) != 1) {
+            if (myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo) != 1) {
                 throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
             }
         });
@@ -307,7 +329,7 @@ public class ProcurementService {
     }
 
     /**
-     * 根据单据编号查询单据详情
+     * 根据单据编号查询申请订单详情
      * @param procurementApplyOrderVo
      * @return
      */
@@ -331,6 +353,38 @@ public class ProcurementService {
     }
 
     //采购结果订单
+
+    /**
+     * 红冲采购结果订单
+     * @param procurementResultOrderVo
+     * @return
+     */
+    @Transactional
+    public CommonResponse updateResultOrder(ProcurementResultOrderVo procurementResultOrderVo) {
+        //判断参数
+        if (procurementResultOrderVo.getId() == null || procurementResultOrderVo.getUserId() == null) {
+            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
+        Integer storeId = procurementResultOrderVo.getStoreId();
+        //修改单据状态
+        if (myProcurementMapper.updateResultOrder(procurementResultOrderVo) != 1) {
+            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        }
+        procurementResultOrderVo = myProcurementMapper.findResultOrderById(procurementResultOrderVo);
+        //新增红冲单
+        procurementResultOrderVo.setStoreId(storeId);
+        procurementResultOrderVo.setId("HC_" + procurementResultOrderVo.getId());
+        procurementResultOrderVo.setCreateTime(new Date());
+        procurementResultOrderVo.setOrderStatus((byte) -2);
+        procurementResultOrderVo.setTotalQuantity(-procurementResultOrderVo.getTotalQuantity());
+        procurementResultOrderVo.setTotalMoney(new BigDecimal(-procurementResultOrderVo.getTotalMoney().doubleValue()));
+        procurementResultOrderVo.setTotalDiscountMoney(new BigDecimal(-procurementResultOrderVo.getTotalDiscountMoney().doubleValue()));
+        procurementResultOrderVo.setOrderMoney(new BigDecimal(-procurementResultOrderVo.getOrderMoney().doubleValue()));
+        if (myProcurementMapper.addResultOrder(procurementResultOrderVo) != 1) {
+            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        }
+        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+    }
 
     /**
      * 查询所有采购结果订单
@@ -378,34 +432,26 @@ public class ProcurementService {
     }
 
     /**
-     * 红冲采购结果订单
+     * 根据单据编号查询结果订单详情
      * @param procurementResultOrderVo
      * @return
      */
-    @Transactional
-    public CommonResponse updateResultOrder(ProcurementResultOrderVo procurementResultOrderVo) {
-        //判断参数
-        if (procurementResultOrderVo.getId() == null || procurementResultOrderVo.getUserId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+    public CommonResponse findResultOrderDetailById(ProcurementResultOrderVo procurementResultOrderVo) {
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(procurementResultOrderVo.getStoreId()));
+        //根据单据编号查询单据详情
+        procurementResultOrderVo = myProcurementMapper.findResultOrderDetailById(procurementResultOrderVo);
+        if (procurementResultOrderVo == null || procurementResultOrderVo.getDetails().size() == 0) {
+            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
         }
-        Integer storeId = procurementResultOrderVo.getStoreId();
-        //修改单据状态
-        if (myProcurementMapper.updateResultOrder(procurementResultOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        //补上仓库名
+        for (Warehouse warehouse : warehouses) {
+            if (procurementResultOrderVo.getProcurementApplyOrderVo().getInWarehouseId() == warehouse.getId()) {
+                procurementResultOrderVo.getProcurementApplyOrderVo().setInWarehouseName(warehouse.getName());
+            }
+            if (procurementResultOrderVo.getProcurementApplyOrderVo().getOutWarehouseId() == warehouse.getId()) {
+                procurementResultOrderVo.getProcurementApplyOrderVo().setOutWarehouseName(warehouse.getName());
+            }
         }
-        procurementResultOrderVo = myProcurementMapper.findResultOrderById(procurementResultOrderVo);
-        //新增红冲单
-        procurementResultOrderVo.setStoreId(storeId);
-        procurementResultOrderVo.setId("HC_" + procurementResultOrderVo.getId());
-        procurementResultOrderVo.setCreateTime(new Date());
-        procurementResultOrderVo.setOrderStatus((byte) -2);
-        procurementResultOrderVo.setTotalQuantity(-procurementResultOrderVo.getTotalQuantity());
-        procurementResultOrderVo.setTotalMoney(new BigDecimal(-procurementResultOrderVo.getTotalMoney().doubleValue()));
-        procurementResultOrderVo.setTotalDiscountMoney(new BigDecimal(-procurementResultOrderVo.getTotalDiscountMoney().doubleValue()));
-        procurementResultOrderVo.setOrderMoney(new BigDecimal(-procurementResultOrderVo.getOrderMoney().doubleValue()));
-        if (myProcurementMapper.addResultOrder(procurementResultOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
-        }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return new CommonResponse(CommonResponse.CODE1, procurementResultOrderVo, CommonResponse.MESSAGE1);
     }
 }

@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 public class SellResultOrderVo {
 
@@ -17,6 +18,8 @@ public class SellResultOrderVo {
     private Integer storeId;
 
     private SellApplyOrderVo sellApplyOrderVo;
+
+    private List<OrderGoodsSkuVo> details;
 
     private String userName;
 
@@ -90,6 +93,38 @@ public class SellResultOrderVo {
     public SellResultOrderVo() {
     }
 
+    public SellResultOrderVo(BigDecimal costMoney) {
+        this.costMoney = costMoney;
+    }
+
+    public SellResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+        this.storeId = storeId;
+        this.id = id;
+    }
+
+    public SellResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, SellApplyOrderVo sellApplyOrderVo, String id) {
+        this.storeId = storeId;
+        this.sellApplyOrderVo = sellApplyOrderVo;
+        this.id = id;
+    }
+
+    public SellResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, BigDecimal totalMoney, BigDecimal totalDiscountMoney, BigDecimal orderMoney, BigDecimal costMoney, BigDecimal grossMarginMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+        this.storeId = storeId;
+        this.id = id;
+        this.type = type;
+        this.createTime = createTime;
+        this.applyOrderId = applyOrderId;
+        this.orderStatus = orderStatus;
+        this.totalQuantity = totalQuantity;
+        this.totalMoney = totalMoney;
+        this.totalDiscountMoney = totalDiscountMoney;
+        this.orderMoney = orderMoney;
+        this.costMoney = costMoney;
+        this.grossMarginMoney = grossMarginMoney;
+        this.userId = userId;
+        this.remark = remark;
+    }
+
     public Integer getStoreId() {
         return storeId;
     }
@@ -104,6 +139,14 @@ public class SellResultOrderVo {
 
     public void setSellApplyOrderVo(SellApplyOrderVo sellApplyOrderVo) {
         this.sellApplyOrderVo = sellApplyOrderVo;
+    }
+
+    public List<OrderGoodsSkuVo> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<OrderGoodsSkuVo> details) {
+        this.details = details;
     }
 
     public String getUserName() {
@@ -223,6 +266,7 @@ public class SellResultOrderVo {
         return "SellResultOrderVo{" +
                 "storeId=" + storeId +
                 ", sellApplyOrderVo=" + sellApplyOrderVo +
+                ", details=" + details +
                 ", userName='" + userName + '\'' +
                 ", id='" + id + '\'' +
                 ", type=" + type +

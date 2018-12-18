@@ -102,6 +102,8 @@ public interface MyGoodsMapper {
 
     int decreaseGoodsSkuInventory(GoodsSkuVo goodsSkuVo);
 
+    List<GoodsSku> findAllGoodsSku(GoodsSkuVo goodsSkuVo);
+
     //商品
 
     int add(GoodsVo goodsVo);

@@ -321,6 +321,10 @@
             inventory - #{inventory} &gt;= 0;
     </update>
 
+    <select id="findAllGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo" resultType="com.yeta.pps.po.GoodsSku">
+        select id, goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral from goods_sku_${storeId};
+    </select>
+
     <!--商品-->
 
     <insert id="add" parameterType="com.yeta.pps.vo.GoodsVo">

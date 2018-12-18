@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 public class ProcurementResultOrderVo {
 
@@ -18,6 +19,8 @@ public class ProcurementResultOrderVo {
     private Integer storeId;
 
     private ProcurementApplyOrderVo procurementApplyOrderVo;
+
+    private List<OrderGoodsSkuVo> details;
 
     private String userName;
 
@@ -81,13 +84,18 @@ public class ProcurementResultOrderVo {
     public ProcurementResultOrderVo() {
     }
 
+    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+        this.storeId = storeId;
+        this.id = id;
+    }
+
     public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id) {
         this.storeId = storeId;
         this.procurementApplyOrderVo = procurementApplyOrderVo;
         this.id = id;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, BigDecimal totalMoney, BigDecimal totalDiscountMoney, BigDecimal orderMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId) {
+    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, BigDecimal totalMoney, BigDecimal totalDiscountMoney, BigDecimal orderMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
@@ -99,6 +107,7 @@ public class ProcurementResultOrderVo {
         this.totalDiscountMoney = totalDiscountMoney;
         this.orderMoney = orderMoney;
         this.userId = userId;
+        this.remark = remark;
     }
 
     public Integer getStoreId() {
@@ -115,6 +124,14 @@ public class ProcurementResultOrderVo {
 
     public void setProcurementApplyOrderVo(ProcurementApplyOrderVo procurementApplyOrderVo) {
         this.procurementApplyOrderVo = procurementApplyOrderVo;
+    }
+
+    public List<OrderGoodsSkuVo> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<OrderGoodsSkuVo> details) {
+        this.details = details;
     }
 
     public String getUserName() {
@@ -218,6 +235,7 @@ public class ProcurementResultOrderVo {
         return "ProcurementResultOrderVo{" +
                 "storeId=" + storeId +
                 ", procurementApplyOrderVo=" + procurementApplyOrderVo +
+                ", details=" + details +
                 ", userName='" + userName + '\'' +
                 ", id='" + id + '\'' +
                 ", type=" + type +

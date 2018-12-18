@@ -719,6 +719,7 @@ create table procurement_result_order_1(
 ) engine InnoDB default charset=utf8;
 
 
+
 /*销售申请单*/
 drop table if exists sell_apply_order_1;
 create table sell_apply_order_1(
@@ -729,7 +730,7 @@ create table sell_apply_order_1(
   prodcing_way tinyint not null comment '产生方式，1：线下录单，2：线上下单',
   order_status tinyint not null comment '单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发',
   clear_status tinyint not null comment '结算状态：0：未完成，1：已完成',
-  client_id varchar(20) not null comment '客户编号',
+  client_id varchar(50) not null comment '客户编号',
   in_warehouse_id int comment '入库仓库编号，对应收货',
   in_total_quantity int comment '总收货数量',
   in_received_quantity int comment '已收货数量',
@@ -769,29 +770,22 @@ create table sell_result_order_1(
 ) engine InnoDB default charset=utf8;
 
 
-/*采购申请单、销售申请单/商品规格关系*/
-drop table if exists procurement_apply_order_goods_sku_1;
-create table apply_order_goods_sku_1(
-  id int primary key auto_increment comment '采购申请单、销售申请单/商品规格关系编号',
+
+/*订单/商品规格关系*/
+drop table if exists order_goods_sku_1;
+create table order_goods_sku_1(
+  id int primary key auto_increment comment '订单/商品规格关系编号',
   type tinyint not null comment '入库或出库，0：出库，1：入库',
-  apply_order_id varchar(50) not null comment '采购申请单、销售申请单编号',
+  order_id varchar(50) not null comment '订单编号',
   goods_sku_id int not null comment '商品规格编号',
   quantity int not null comment '总数量',
   finish_quantity int comment '完成数量',
   not_finish_quantity int comment '未完成数量',
   money decimal(10, 2) not null comment '金额',
   discount_money decimal(10, 2) not null comment '优惠金额',
+  operated_quantity int not null comment '已操作数量',
   remark varchar(255) comment '备注'
 ) engine InnoDB default charset=utf8;
-insert into apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark)
-values (1, 'CGDD_001', 1, 10, 0, 10, 50, 0, null);
-insert into apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark)
-values (1, 'CGDD_001', 2, 10, 0, 10, 50, 0, null);
-insert into apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark)
-values (1, 'CGDD_002', 1, 10, 0, 10, 50, 0, null);
-insert into apply_order_goods_sku_1 (type, apply_order_id, goods_sku_id, quantity, finish_quantity, not_finish_quantity, money, discount_money, remark)
-values (1, 'CGDD_002', 2, 10, 0, 10, 50, 0, null);
-
 
 
 /*收/发货单*/
