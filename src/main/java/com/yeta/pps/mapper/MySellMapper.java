@@ -35,14 +35,12 @@ public interface MySellMapper {
 
     int addResultOrder(SellResultOrderVo sellResultOrderVo);
 
-    int updateResultOrder(SellResultOrderVo sellResultOrderVo);
+    int redDashed(SellResultOrderVo sellResultOrderVo);
 
     int findCountResultOrder(SellResultOrderVo sellResultOrderVo);
 
     List<SellResultOrderVo> findAllPagedResultOrder(@Param("sellResultOrderVo") SellResultOrderVo sellResultOrderVo,
                                                     @Param("pageVo") PageVo pageVo);
-
-    SellResultOrderVo findResultOrderById(SellResultOrderVo sellResultOrderVo);
 
     SellResultOrderVo findResultOrderDetailById(SellResultOrderVo sellResultOrderVo);
 }

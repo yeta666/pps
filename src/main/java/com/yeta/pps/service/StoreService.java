@@ -81,7 +81,7 @@ public class StoreService {
         }
         Integer storeId = userVo.getStoreId();
         //插入店长信息到该分店的user表
-        userVo.setId(UUID.randomUUID().toString());
+        userVo.setId(UUID.randomUUID().toString().replace("-", ""));
         if (myUserMapper.add(userVo) != 1) {
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
         }

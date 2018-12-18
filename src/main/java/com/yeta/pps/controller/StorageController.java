@@ -39,9 +39,32 @@ public class StorageController {
      */
     @ApiOperation(value = "新增收/发货单接口", notes = "通过type判断，其中applyOrderId代表对应采购申请订单的单据编号，procurementApplyOrderVo或者sellApplyOrderVo就是该对象，采购只传第一个，销售只传第二个，该对象中的details代表具体的商品规格，其中id, type, goodsSkuId, changeQuantity必填")
     @ApiImplicitParam(name = "storageOrderVo", value = "storeId, procurementApplyOrderVo, sellApplyOrderVo, type(1：采购订单收货单，2：退换货申请收货单，3：销售订单发货单，4：退换货申请发货单), applyOrderId, quantity(不管收/发货都传>0的过来), userId必填, logistics_company(物流公司), waybill_number(运单号), remark选填", required = true, paramType = "body", dataType = "StorageOrderVo")
-    @PostMapping(value = "/orders/storage")
+    @PostMapping(value = "/storage")
     public CommonResponse addStorageOrder(@RequestBody @Valid StorageOrderVo storageOrderVo) {
         return storageService.addStorageOrder(storageOrderVo);
+    }
+
+    /**
+     * 红冲收/发货单接口
+     * @param storeId
+     * @param id
+     * @param userId
+     * @param remark
+     * @return
+     */
+    @ApiOperation(value = "红冲收/发货单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "采购结果订单编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false, paramType = "query", dataType = "String")
+    })
+    @PostMapping(value = "/storage/redDashed")
+    public CommonResponse redDashed(@RequestParam(value = "storeId") Integer storeId,
+                                    @RequestParam(value = "id") String id,
+                                    @RequestParam(value = "userId") String userId,
+                                    @RequestParam(value = "remark") String remark) {
+        return storageService.redDashed(new StorageOrderVo(storeId, id, userId, remark));
     }
 
     /**
@@ -69,7 +92,7 @@ public class StorageController {
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
-    @GetMapping(value = "/orders/storage/{type}")
+    @GetMapping(value = "/storage/{type}")
     public CommonResponse<CommonResult<List<StorageOrderVo>>> findAllStorageOrder(@RequestParam(value = "storeId") Integer storeId,
                                                                                   @PathVariable(value = "type") Byte type,
                                                                                   @RequestParam(value = "supplierName", required = false) String supplierName,

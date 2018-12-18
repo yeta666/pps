@@ -82,6 +82,13 @@ public class StorageOrderVo {
     public StorageOrderVo() {
     }
 
+    public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+        this.storeId = storeId;
+        this.id = id;
+        this.userId = userId;
+        this.remark = remark;
+    }
+
     public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, ProcurementApplyOrderVo procurementApplyOrderVo, SellApplyOrderVo sellApplyOrderVo) {
         this.storeId = storeId;
         this.id = id;

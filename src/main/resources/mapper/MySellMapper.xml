@@ -330,8 +330,8 @@
             (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{totalQuantity}, #{totalMoney}, #{totalDiscountMoney}, #{orderMoney}, #{costMoney}, #{grossMarginMoney}, #{userId}, #{remark});
     </insert>
 
-    <update id="updateResultOrder" parameterType="com.yeta.pps.vo.SellResultOrderVo">
-        update sell_result_order_${storeId} set order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+    <update id="redDashed" parameterType="com.yeta.pps.vo.SellResultOrderVo">
+        update sell_result_order_${storeId} set create_time = now(), order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
     </update>
 
     <select id="findCountResultOrder" parameterType="com.yeta.pps.vo.SellResultOrderVo" resultType="java.lang.Integer">
@@ -457,15 +457,6 @@
         limit
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
-    
-    <select id="findResultOrderById" parameterType="com.yeta.pps.vo.SellResultOrderVo" resultType="com.yeta.pps.vo.SellResultOrderVo">
-        select
-            id, type, create_time, apply_order_id, order_status, total_quantity, total_money, total_discount_money, order_money, cost_money, gross_margin_money, user_id, remark
-        from
-            sell_result_order_${storeId}
-        where
-            id = #{id};
-    </select>
 
     <resultMap id="sellResultOrderVoMap2" type="com.yeta.pps.vo.SellResultOrderVo">
         <id column="id" property="id" />
@@ -475,11 +466,12 @@
         <result column="order_status" property="orderStatus" />
         <result column="total_quantity" property="totalQuantity" />
         <result column="total_money" property="totalMoney" />
-        <result column="total_discountMoney" property="totalDiscountMoney" />
+        <result column="total_discount_money" property="totalDiscountMoney" />
         <result column="order_money" property="orderMoney" />
         <result column="cost_money" property="costMoney" />
         <result column="gross_margin_money" property="grossMarginMoney" />
         <result column="user_name" property="userName" />
+        <result column="user_id" property="userId" />
         <result column="remark" property="remark" />
         <collection property="sellApplyOrderVo" ofType="com.yeta.pps.vo.SellApplyOrderVo">
             <result column="in_warehouse_id" property="inWarehouseId" />
@@ -523,6 +515,7 @@
             sro.cost_money,
             sro.gross_margin_money,
             u.name as user_name,
+            sro.user_id,
             sro.remark,
             c.name as client_name,
             c.phone as client_phone,

@@ -235,7 +235,7 @@ public class ClientService {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
         //设置初始属性
-        clientVo.setId(UUID.randomUUID().toString());
+        clientVo.setId(UUID.randomUUID().toString().replace("-", ""));
         clientVo.setCreateTime(new Date());
         clientVo.setDisabled((byte)0);
         //判断会员卡号是否填写
@@ -373,7 +373,7 @@ public class ClientService {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
         //增加积分明细
-        clientIntegralDetail.setId(UUID.randomUUID().toString());
+        clientIntegralDetail.setId(UUID.randomUUID().toString().replace("-", ""));
         clientIntegralDetail.setClientId(clientIntegralDetailVo.getClientId());
         clientIntegralDetail.setCreateTime(new Date());
         clientIntegralDetail.setChangeIntegral(clientIntegralDetailVo.getChangeIntegral());
@@ -533,7 +533,7 @@ public class ClientService {
             HSSFRow row = sheet.getRow(j);
             ClientVo clientVo = new ClientVo();
             //设置初始属性
-            clientVo.setId(UUID.randomUUID().toString());
+            clientVo.setId(UUID.randomUUID().toString().replace("-", ""));
             clientVo.setCreateTime(new Date());
             clientVo.setDisabled((byte)0);
             clientVo.setName(CommonUtil.getCellValue(row.getCell(0)));

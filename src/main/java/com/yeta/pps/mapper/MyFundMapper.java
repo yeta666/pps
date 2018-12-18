@@ -16,8 +16,12 @@ public interface MyFundMapper {
 
     int addFundOrder(FundOrderVo fundOrderVo);
 
+    int redDashed(FundOrderVo fundOrderVo);
+
     int findCountFundOrder(FundOrderVo fundOrderVo);
 
     List<FundOrderVo> findAllPagedFundOrder(@Param(value = "fundOrderVo") FundOrderVo fundOrderVo,
                                             @Param(value = "pageVo") PageVo pageVo);
+
+    FundOrderVo findFundOrderById(FundOrderVo fundOrderVo);
 }

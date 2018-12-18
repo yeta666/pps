@@ -37,6 +37,11 @@ public class SellApplyOrderVo {
     private Date endTime;
 
     /**
+     * 银行账户编号
+     */
+    private String bankAccountId;
+
+    /**
      * 单据编号
      */
     private String id;
@@ -261,6 +266,14 @@ public class SellApplyOrderVo {
         this.endTime = endTime;
     }
 
+    public String getBankAccountId() {
+        return bankAccountId;
+    }
+
+    public void setBankAccountId(String bankAccountId) {
+        this.bankAccountId = bankAccountId;
+    }
+
     public String getId() {
         return id;
     }
@@ -479,6 +492,7 @@ public class SellApplyOrderVo {
                 ", userName='" + userName + '\'' +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
+                ", bankAccountId='" + bankAccountId + '\'' +
                 ", id='" + id + '\'' +
                 ", type=" + type +
                 ", createTime=" + createTime +

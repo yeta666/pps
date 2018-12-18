@@ -6,10 +6,14 @@
 
     <insert id="addStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo">
         insert into
-            storage_order_${storeId} (id, type, create_time, apply_order_id, order_status, quantity, logistics_company, waybill_number,  user_id, remark)
+            storage_order_${storeId} (id, type, create_time, apply_order_id, order_status, quantity, logistics_company, waybill_number, user_id, remark)
         values
             (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{quantity}, #{logisticsCompany}, #{waybillNumber}, #{userId}, #{remark});
     </insert>
+
+    <update id="redDashed" parameterType="com.yeta.pps.vo.StorageOrderVo">
+        update storage_order_${storeId} set create_time = now(), order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+    </update>
 
     <select id="findCountStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo" resultType="java.lang.Integer">
         select
@@ -101,6 +105,10 @@
             so.create_time desc
         limit
             #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findStorageOrderById" parameterType="com.yeta.pps.vo.StorageOrderVo" resultType="com.yeta.pps.vo.StorageOrderVo">
+        select id, type, create_time, apply_order_id, order_status, quantity, logistics_company, waybill_number, user_id, remark from storage_order_${storeId} where id = #{id};
     </select>
 
 </mapper>

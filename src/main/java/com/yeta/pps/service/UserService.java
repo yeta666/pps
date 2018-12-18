@@ -151,7 +151,7 @@ public class UserService {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
         //新增用户
-        userVo.setId(UUID.randomUUID().toString());
+        userVo.setId(UUID.randomUUID().toString().replace("-", ""));
         userVo.setDisabled(0);
         if (myUserMapper.add(userVo) != 1) {
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);

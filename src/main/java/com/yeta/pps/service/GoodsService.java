@@ -427,7 +427,7 @@ public class GoodsService {
              return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
          }
          //设置初始属性
-         goodsVo.setId(UUID.randomUUID().toString());
+         goodsVo.setId(UUID.randomUUID().toString().replace("-", ""));
          goodsVo.setCreateTime(new Date());
          //新增商品
          if (myGoodsMapper.add(goodsVo) != 1) {
@@ -797,7 +797,7 @@ public class GoodsService {
             HSSFRow row = sheet.getRow(sheet.getLastRowNum());
             GoodsVo goodsVo = new GoodsVo();
             goodsVo.setStoreId(storeId);
-            goodsVo.setId(UUID.randomUUID().toString());
+            goodsVo.setId(UUID.randomUUID().toString().replace("-", ""));
             goodsVo.setCreateTime(new Date());
             goodsVo.setName(CommonUtil.getCellValue(row.getCell(0)));
             goodsVo.setBarCode(CommonUtil.getCellValue(row.getCell(1)));

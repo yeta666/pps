@@ -42,6 +42,8 @@ public class FundOrderVo {
 
     private ProcurementApplyOrderVo procurementApplyOrderVo;
 
+    private SellApplyOrderVo sellApplyOrderVo;
+
     /**
      * 单据状态
      */
@@ -77,11 +79,32 @@ public class FundOrderVo {
     public FundOrderVo() {
     }
 
-    public FundOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, ProcurementApplyOrderVo procurementApplyOrderVo) {
+    public FundOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+        this.storeId = storeId;
+        this.id = id;
+        this.userId = userId;
+        this.remark = remark;
+    }
+
+    public FundOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, ProcurementApplyOrderVo procurementApplyOrderVo, SellApplyOrderVo sellApplyOrderVo) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
         this.procurementApplyOrderVo = procurementApplyOrderVo;
+        this.sellApplyOrderVo = sellApplyOrderVo;
+    }
+
+    public FundOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Date createTime, @NotBlank(message = CommonResponse.MESSAGE3) String applyOrderId, Byte orderStatus, @NotBlank(message = CommonResponse.MESSAGE3) String bankAccountId, @NotNull(message = CommonResponse.MESSAGE3) BigDecimal money, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+        this.storeId = storeId;
+        this.id = id;
+        this.type = type;
+        this.createTime = createTime;
+        this.applyOrderId = applyOrderId;
+        this.orderStatus = orderStatus;
+        this.bankAccountId = bankAccountId;
+        this.money = money;
+        this.userId = userId;
+        this.remark = remark;
     }
 
     public Integer getStoreId() {
@@ -130,6 +153,22 @@ public class FundOrderVo {
 
     public void setProcurementApplyOrderVo(ProcurementApplyOrderVo procurementApplyOrderVo) {
         this.procurementApplyOrderVo = procurementApplyOrderVo;
+    }
+
+    public SellApplyOrderVo getSellApplyOrderVo() {
+        return sellApplyOrderVo;
+    }
+
+    public void setSellApplyOrderVo(SellApplyOrderVo sellApplyOrderVo) {
+        this.sellApplyOrderVo = sellApplyOrderVo;
+    }
+
+    public BankAccount getBankAccount() {
+        return bankAccount;
+    }
+
+    public void setBankAccount(BankAccount bankAccount) {
+        this.bankAccount = bankAccount;
     }
 
     public Byte getOrderStatus() {
@@ -189,8 +228,10 @@ public class FundOrderVo {
                 ", createTime=" + createTime +
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", procurementApplyOrderVo=" + procurementApplyOrderVo +
+                ", sellApplyOrderVo=" + sellApplyOrderVo +
                 ", orderStatus=" + orderStatus +
                 ", bankAccountId='" + bankAccountId + '\'' +
+                ", bankAccount=" + bankAccount +
                 ", money=" + money +
                 ", userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +

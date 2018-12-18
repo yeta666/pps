@@ -89,6 +89,13 @@ public class ProcurementResultOrderVo {
         this.id = id;
     }
 
+    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+        this.storeId = storeId;
+        this.id = id;
+        this.userId = userId;
+        this.remark = remark;
+    }
+
     public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id) {
         this.storeId = storeId;
         this.procurementApplyOrderVo = procurementApplyOrderVo;

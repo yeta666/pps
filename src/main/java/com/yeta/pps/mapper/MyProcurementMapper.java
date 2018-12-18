@@ -35,14 +35,12 @@ public interface MyProcurementMapper {
 
     int addResultOrder(ProcurementResultOrderVo procurementResultOrderVo);
 
-    int updateResultOrder(ProcurementResultOrderVo procurementResultOrderVo);
+    int redDashed(ProcurementResultOrderVo procurementResultOrderVo);
 
     int findCountResultOrder(ProcurementResultOrderVo procurementResultOrderVo);
 
     List<ProcurementResultOrderVo> findAllPagedResultOrder(@Param("procurementResultOrderVo") ProcurementResultOrderVo procurementResultOrderVo,
                                                            @Param("pageVo") PageVo pageVo);
-
-    ProcurementResultOrderVo findResultOrderById(ProcurementResultOrderVo procurementResultOrderVo);
 
     ProcurementResultOrderVo findResultOrderDetailById(ProcurementResultOrderVo procurementResultOrderVo);
 }

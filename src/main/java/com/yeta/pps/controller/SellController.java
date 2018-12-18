@@ -184,14 +184,25 @@ public class SellController {
 
     /**
      * 红冲销售结果订单接口
-     * @param sellResultOrderVo
+     * @param storeId
+     * @param id
+     * @param userId
+     * @param remark
      * @return
      */
     @ApiOperation(value = "红冲销售结果订单")
-    @ApiImplicitParam(name = "sellResultOrderVo", value = "storeId, id, userId必填，remark选填", required = true, paramType = "body", dataType = "SellResultOrderVo")
-    @PutMapping(value = "/result")
-    public CommonResponse updateResultOrder(@RequestBody @Valid SellResultOrderVo sellResultOrderVo) {
-        return sellService.updateResultOrder(sellResultOrderVo);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "采购结果订单编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false, paramType = "query", dataType = "String")
+    })
+    @PostMapping(value = "/result/redDashed")
+    public CommonResponse redDashed(@RequestParam(value = "storeId") Integer storeId,
+                                    @RequestParam(value = "id") String id,
+                                    @RequestParam(value = "userId") String userId,
+                                    @RequestParam(value = "remark") String remark) {
+        return sellService.redDashed(new SellResultOrderVo(storeId, id, userId, remark));
     }
 
     /**

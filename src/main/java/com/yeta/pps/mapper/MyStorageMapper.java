@@ -16,8 +16,12 @@ public interface MyStorageMapper {
 
     int addStorageOrder(StorageOrderVo storageOrderVo);
 
+    int redDashed(StorageOrderVo storageOrderVo);
+
     int findCountStorageOrder(StorageOrderVo storageOrderVo);
 
     List<StorageOrderVo> findAllPagedStorageOrder(@Param(value = "storageOrderVo") StorageOrderVo storageOrderVo,
                                                   @Param(value = "pageVo")PageVo pageVo);
+
+    StorageOrderVo findStorageOrderById(StorageOrderVo storageOrderVo);
 }

@@ -265,8 +265,8 @@
             (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{totalQuantity}, #{totalMoney}, #{totalDiscountMoney}, #{orderMoney}, #{userId}, #{remark});
     </insert>
 
-    <update id="updateResultOrder" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo">
-        update procurement_result_order_${storeId} set order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+    <update id="redDashed" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo">
+        update procurement_result_order_${storeId} set create_time = now(), order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
     </update>
 
     <select id="findCountResultOrder" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo" resultType="java.lang.Integer">
@@ -366,15 +366,6 @@
         limit
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
-    
-    <select id="findResultOrderById" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo" resultType="com.yeta.pps.vo.ProcurementResultOrderVo">
-        select
-            id, type, create_time, apply_order_id, order_status, total_quantity, total_money, total_discount_money, order_money, user_id, remark
-        from
-            procurement_result_order_${storeId}
-        where
-            id = #{id};
-    </select>
 
     <resultMap id="procurementResultOrderVoMap2" type="com.yeta.pps.vo.ProcurementResultOrderVo">
         <id column="id" property="id" />
@@ -384,11 +375,13 @@
         <result column="order_status" property="orderStatus" />
         <result column="total_quantity" property="totalQuantity" />
         <result column="total_money" property="totalMoney" />
-        <result column="total_discountMoney" property="totalDiscountMoney" />
+        <result column="total_discount_money" property="totalDiscountMoney" />
         <result column="order_money" property="orderMoney" />
         <result column="user_name" property="userName" />
+        <result column="user_id" property="userId" />
         <result column="remark" property="remark" />
         <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+            <result column="clear_status" property="clearStatus" />
             <result column="supplier_name" property="supplierName" />
             <result column="in_warehouse_id" property="inWarehouseId" />
             <result column="out_warehouse_id" property="outWarehouseId" />
@@ -423,9 +416,11 @@
             pro.total_money,
             pro.total_discount_money,
             pro.order_money,
+            pro.user_id,
             u.name as user_name,
             pro.remark,
             s.name as supplier_name,
+            pao.clear_status,
             pao.in_warehouse_id,
             pao.out_warehouse_id,
             ogs.id as ogs_id,
