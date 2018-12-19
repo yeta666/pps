@@ -1,50 +1,111 @@
 package com.yeta.pps.vo;
 
-import com.yeta.pps.util.CommonResponse;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.yeta.pps.po.Store;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 public class ClientIntegralDetailVo {
 
+    private Store store;
+
+    private ClientVo clientVo;
+
     /**
-     * 用户id
+     * 客户/积分明细关系编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
-    private String userId;
+    private Integer id;
+
+    /**
+     * 店铺编号
+     */
+    public Integer storeId;
 
     /**
      * 客户编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
     private String clientId;
+
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 
     /**
      * 操作类型，0：减少，1：增加
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
     private Byte type;
 
     /**
      * 改变积分
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
     private Integer changeIntegral;
 
     /**
-     * 备注
+     * 改变后的积分
      */
-    private String remark;
+    private Integer afterChangeIntegral;
+
+    /**
+     * 单据编号
+     */
+    private String orderId;
 
     public ClientIntegralDetailVo() {
     }
 
-    public String getUserId() {
-        return userId;
+    public ClientIntegralDetailVo(Integer storeId, String clientId) {
+        this.storeId = storeId;
+        this.clientId = clientId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public ClientIntegralDetailVo(Integer storeId, String clientId, Byte type) {
+        this.storeId = storeId;
+        this.clientId = clientId;
+        this.type = type;
+    }
+
+    public ClientIntegralDetailVo(Integer storeId, String clientId, Date createTime, Byte type, Integer changeIntegral, Integer afterChangeIntegral, String orderId) {
+        this.storeId = storeId;
+        this.clientId = clientId;
+        this.createTime = createTime;
+        this.type = type;
+        this.changeIntegral = changeIntegral;
+        this.afterChangeIntegral = afterChangeIntegral;
+        this.orderId = orderId;
+    }
+
+    public Store getStore() {
+        return store;
+    }
+
+    public void setStore(Store store) {
+        this.store = store;
+    }
+
+    public ClientVo getClientVo() {
+        return clientVo;
+    }
+
+    public void setClientVo(ClientVo clientVo) {
+        this.clientVo = clientVo;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(Integer storeId) {
+        this.storeId = storeId;
     }
 
     public String getClientId() {
@@ -53,6 +114,14 @@ public class ClientIntegralDetailVo {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public Byte getType() {
@@ -71,22 +140,35 @@ public class ClientIntegralDetailVo {
         this.changeIntegral = changeIntegral;
     }
 
-    public String getRemark() {
-        return remark;
+    public Integer getAfterChangeIntegral() {
+        return afterChangeIntegral;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setAfterChangeIntegral(Integer afterChangeIntegral) {
+        this.afterChangeIntegral = afterChangeIntegral;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     @Override
     public String toString() {
         return "ClientIntegralDetailVo{" +
-                "userId='" + userId + '\'' +
+                "store=" + store +
+                ", clientVo=" + clientVo +
+                ", id=" + id +
+                ", storeId='" + storeId + '\'' +
                 ", clientId='" + clientId + '\'' +
+                ", createTime=" + createTime +
                 ", type=" + type +
                 ", changeIntegral=" + changeIntegral +
-                ", remark='" + remark + '\'' +
+                ", afterChangeIntegral=" + afterChangeIntegral +
+                ", orderId='" + orderId + '\'' +
                 '}';
     }
 }

@@ -1,33 +1,37 @@
 package com.yeta.pps.mapper;
 
-import com.yeta.pps.po.ClientClientLevel;
+import com.yeta.pps.po.Client;
 import com.yeta.pps.po.ClientIntegralDetail;
 import com.yeta.pps.po.ClientLevel;
-import com.yeta.pps.po.ClientMembershipNumber;
+import com.yeta.pps.po.MembershipNumber;
+import com.yeta.pps.vo.ClientIntegralDetailVo;
 import com.yeta.pps.vo.ClientVo;
 import com.yeta.pps.vo.PageVo;
+import com.yeta.pps.vo.StoreIntegralVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface MyClientMapper {
 
-    int addClientMembershipNumber(ClientMembershipNumber clientMembershipNumber);
+    //会员卡号
 
-    int deleteClientMembershipNumber(ClientMembershipNumber clientMembershipNumber);
+    int addMembershipNumber(MembershipNumber membershipNumber);
 
-    int updateClientMembershipNumber(ClientMembershipNumber clientMembershipNumber);
+    int deleteMembershipNumber(MembershipNumber membershipNumber);
 
-    int findCountClientMembershipNumber();
+    int updateMembershipNumber(MembershipNumber membershipNumber);
 
-    List<ClientMembershipNumber> findAllPagedClientMembershipNumber(@Param(value = "clientMembershipNumber") ClientMembershipNumber clientMembershipNumber,
-                                                                    @Param(value = "pageVo") PageVo pageVo);
+    int findCountMembershipNumber(MembershipNumber membershipNumber);
 
-    ClientMembershipNumber findClientMembershipNumberById(ClientMembershipNumber clientMembershipNumber);
+    List<MembershipNumber> findAllPagedMembershipNumber(@Param(value = "membershipNumber") MembershipNumber membershipNumber,
+                                                        @Param(value = "pageVo") PageVo pageVo);
 
-    ClientMembershipNumber findClientMembershipNumber(ClientMembershipNumber clientMembershipNumber);
+    List<MembershipNumber> findUsedMembershipNumber();
 
-    //
+    MembershipNumber findMembershipNumberByNumber(MembershipNumber membershipNumber);
+
+    //客户级别
 
     int addClientLevel(ClientLevel clientLevel);
 
@@ -37,23 +41,17 @@ public interface MyClientMapper {
 
     int findCountClientLevel();
 
-    List<ClientLevel> findAllClientLevel();
-
     List<ClientLevel> findAllPagedClientLevel(PageVo pageVo);
 
-    ClientLevel findClientLevel(ClientLevel clientLevel);
+    List<ClientLevel> findAllClientLevel();
 
-    //
+    List<ClientLevel> findUsedClientLevel();
 
-    int addClientClientLevel(ClientClientLevel clientClientLevel);
+    List<ClientLevel> findCanUseClientLevel();
 
-    int deleteClientClientLevel(ClientClientLevel clientClientLevel);
+    ClientLevel findClientLevelByIdOrName(ClientLevel clientLevel);
 
-    int updateClientClientLevel(ClientClientLevel clientClientLevel);
-
-    ClientClientLevel findClientClientLevel(ClientClientLevel clientClientLevel);
-
-    //
+    //客户
 
     int add(ClientVo clientVo);
 
@@ -61,25 +59,44 @@ public interface MyClientMapper {
 
     int update(ClientVo clientVo);
 
-    int updateIntegral(ClientVo clientVo);
+    int updateDisabledAndRemark(ClientVo clientVo);
 
     int updateLastDealTime(ClientVo clientVo);
 
-    int findCount();
+    int findCount(ClientVo clientVo);
 
     List<ClientVo> findAllPaged(@Param(value = "clientVo") ClientVo clientVo,
                                 @Param(value = "pageVo") PageVo pageVo);
 
     List<ClientVo> findAll(ClientVo clientVo);
 
-    ClientVo findClient(ClientVo clientVo);
+    Client findByIdOrPhone(ClientVo clientVo);
 
-    //
+    //店铺/积分关系
 
-    int insertIntegralDetail(ClientIntegralDetail clientIntegralDetail);
+    int addStoreIntegral(StoreIntegralVo storeIntegralVo);
 
-    int findCountIntegralDetail(ClientIntegralDetail clientIntegralDetail);
+    int deleteStoreIntegralByClientId(StoreIntegralVo storeIntegralVo);
 
-    List<ClientIntegralDetail> findAllPagedIntegralDetail(@Param(value = "clientIntegralDetail") ClientIntegralDetail clientIntegralDetail,
-                                                          @Param(value = "pageVo") PageVo pageVo);
+    int increaseIntegral(StoreIntegralVo storeIntegralVo);
+
+    int decreaseIntegral(StoreIntegralVo storeIntegralVo);
+
+    int findCountStoreIntegral(StoreIntegralVo storeIntegralVo);
+
+    List<StoreIntegralVo> findAllPagedStoreIntegral(@Param(value = "storeIntegralVo") StoreIntegralVo storeIntegralVo,
+                                                    @Param(value = "pageVo") PageVo pageVo);
+
+    StoreIntegralVo findStoreIntegralByStoreIdAndClientId(StoreIntegralVo storeIntegralVo);
+
+    //客户/积分明细关系
+
+    int addIntegralDetail(ClientIntegralDetailVo clientIntegralDetailVo);
+
+    int deleteIntegralDetailByClientId(ClientIntegralDetailVo clientIntegralDetailVo);
+
+    int findCountIntegralDetail(ClientIntegralDetailVo clientIntegralDetailVo);
+
+    List<ClientIntegralDetailVo> findAllPagedIntegralDetail(@Param(value = "clientIntegralDetailVo") ClientIntegralDetailVo clientIntegralDetailVo,
+                                                            @Param(value = "pageVo") PageVo pageVo);
 }

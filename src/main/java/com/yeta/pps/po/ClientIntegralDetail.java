@@ -8,9 +8,14 @@ import javax.persistence.*;
 public class ClientIntegralDetail {
 
     /**
-     * 积分明细id
+     * 客户/积分明细关系编号
      */
-    private String id;
+    private Integer id;
+
+    /**
+     * 店铺编号
+     */
+    public String storeId;
 
     /**
      * 客户编号
@@ -18,13 +23,13 @@ public class ClientIntegralDetail {
     private String clientId;
 
     /**
-     * 发生日期
+     * 创建时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
-     * 操作类型，1：后台增加，3：消费增加，4：提成增加，5：后台减少，6：提现减少
+     * 操作类型，0：减少，1：增加
      */
     private Byte type;
 
@@ -39,45 +44,27 @@ public class ClientIntegralDetail {
     private Integer afterChangeIntegral;
 
     /**
-     * 单据日期
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date invoicesDate;
-
-    /**
      * 单据编号
      */
-    private String invoicesId;
-
-    /**
-     * 单据类型，？？
-     */
-    private Byte invoicesType;
-
-    /**
-     * 经手人
-     */
-    private String handledBy;
-
-    /**
-     * 备注
-     */
-    private String remark;
+    private String orderId;
 
     public ClientIntegralDetail() {
     }
 
-    public ClientIntegralDetail(Byte type, String invoicesId) {
-        this.type = type;
-        this.invoicesId = invoicesId;
-    }
-
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
     }
 
     public String getClientId() {
@@ -120,60 +107,25 @@ public class ClientIntegralDetail {
         this.afterChangeIntegral = afterChangeIntegral;
     }
 
-    public Date getInvoicesDate() {
-        return invoicesDate;
+    public String getOrderId() {
+        return orderId;
     }
 
-    public void setInvoicesDate(Date invoicesDate) {
-        this.invoicesDate = invoicesDate;
-    }
-
-    public String getInvoicesId() {
-        return invoicesId;
-    }
-
-    public void setInvoicesId(String invoicesId) {
-        this.invoicesId = invoicesId;
-    }
-
-    public Byte getInvoicesType() {
-        return invoicesType;
-    }
-
-    public void setInvoicesType(Byte invoicesType) {
-        this.invoicesType = invoicesType;
-    }
-
-    public String getHandledBy() {
-        return handledBy;
-    }
-
-    public void setHandledBy(String handledBy) {
-        this.handledBy = handledBy;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     @Override
     public String toString() {
         return "ClientIntegralDetail{" +
-                "id='" + id + '\'' +
+                "id=" + id +
+                ", storeId='" + storeId + '\'' +
                 ", clientId='" + clientId + '\'' +
                 ", createTime=" + createTime +
                 ", type=" + type +
                 ", changeIntegral=" + changeIntegral +
                 ", afterChangeIntegral=" + afterChangeIntegral +
-                ", invoicesDate=" + invoicesDate +
-                ", invoicesId='" + invoicesId + '\'' +
-                ", invoicesType=" + invoicesType +
-                ", handledBy='" + handledBy + '\'' +
-                ", remark='" + remark + '\'' +
+                ", orderId='" + orderId + '\'' +
                 '}';
     }
 }

@@ -46,7 +46,7 @@ public class StoreService {
     @Transactional      //create语句不支持事务回滚，所有需要手动事务回滚
     public CommonResponse add(Store store) {
         //插入一条分店数据，还未插入店长id
-        if (storeMapper.add(store) != 1) {
+        /*if (storeMapper.add(store) != 1) {
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
         }
         Integer storeId = store.getId();
@@ -64,8 +64,8 @@ public class StoreService {
             tableMapper.deleteUserRole(storeId);
             tableMapper.addRoleFunction(storeId);
             throw new CommonException(CommonResponse.CODE2, e.getMessage());
-        }
-        return new CommonResponse(CommonResponse.CODE1, storeId, CommonResponse.MESSAGE1);
+        }*/
+        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
     /**
@@ -75,7 +75,7 @@ public class StoreService {
      */
     @Transactional
     public CommonResponse initialize(UserVo userVo) {
-        //判断参数
+        /*//判断参数
         if (userVo.getName() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
@@ -106,7 +106,7 @@ public class StoreService {
         //插入店长id到店铺表
         if (storeMapper.updateUserId(new Store(storeId, userVo.getId())) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
-        }
+        }*/
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 }

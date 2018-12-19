@@ -4,10 +4,10 @@ import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
 
-public class ClientMembershipNumber {
+public class MembershipNumber {
 
     /**
-     * 会员卡号id
+     * 会员卡号编号
      */
     private Integer id;
 
@@ -17,58 +17,57 @@ public class ClientMembershipNumber {
     @NotBlank(message = CommonResponse.MESSAGE3)
     private String number;
 
-    public ClientMembershipNumber() {
+    /**
+     * 是否停用，0：否，1：是
+     */
+    private Byte disabled;
+
+    public MembershipNumber() {
     }
 
-    public ClientMembershipNumber(Integer id) {
+    public MembershipNumber(Integer id) {
         this.id = id;
     }
 
-    public ClientMembershipNumber(String number) {
+    public MembershipNumber(@NotBlank(message = CommonResponse.MESSAGE3) String number) {
         this.number = number;
     }
 
-    /**
-     * 获取会员卡号id
-     *
-     * @return id - 会员卡号id
-     */
+    public MembershipNumber(@NotBlank(message = CommonResponse.MESSAGE3) String number, Byte disabled) {
+        this.number = number;
+        this.disabled = disabled;
+    }
+
     public Integer getId() {
         return id;
     }
 
-    /**
-     * 设置会员卡号id
-     *
-     * @param id 会员卡号id
-     */
     public void setId(Integer id) {
         this.id = id;
     }
 
-    /**
-     * 获取会员卡号
-     *
-     * @return number - 会员卡号
-     */
     public String getNumber() {
         return number;
     }
 
-    /**
-     * 设置会员卡号
-     *
-     * @param number 会员卡号
-     */
     public void setNumber(String number) {
         this.number = number;
     }
 
+    public Byte getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(Byte disabled) {
+        this.disabled = disabled;
+    }
+
     @Override
     public String toString() {
-        return "ClientMembershipNumber{" +
+        return "MembershipNumber{" +
                 "id=" + id +
                 ", number='" + number + '\'' +
+                ", disabled=" + disabled +
                 '}';
     }
 }

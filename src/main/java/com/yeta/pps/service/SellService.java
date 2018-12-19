@@ -43,6 +43,9 @@ public class SellService {
     @Autowired
     private MyGoodsMapper myGoodsMapper;
 
+    @Autowired
+    private MyClientMapper myClientMapper;
+
     //销售申请订单
 
     /**
@@ -174,8 +177,10 @@ public class SellService {
                     LOG.info("新增销售申请单，减库存失败，类型【{}】", type);
                     throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
                 }
+                //统计积分
+                GoodsSku goodsSku = goodsSkus.stream().filter(sku -> sku.getId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst().get();
                 //统计成本
-                sellResultOrderVo.setCostMoney(new BigDecimal(sellResultOrderVo.getCostMoney().doubleValue() + goodsSkus.stream().filter(goodsSku -> goodsSku.getId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst().get().getPurchasePrice().doubleValue() * orderGoodsSkuVo.getQuantity()));
+                sellResultOrderVo.setCostMoney(new BigDecimal(sellResultOrderVo.getCostMoney().doubleValue() + goodsSku.getPurchasePrice().doubleValue() * orderGoodsSkuVo.getQuantity()));
             } else {
                 orderGoodsSkuVo.setFinishQuantity(0);
                 orderGoodsSkuVo.setNotFinishQuantity(orderGoodsSkuVo.getQuantity());
@@ -230,8 +235,54 @@ public class SellService {
                 LOG.info("新增零售单，插入收款单失败");
                 throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
             }
+            //修改客户积分相关信息
+            clientIntegralMethod(storeId, sellApplyOrderVo.getClientId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
+        }
+        //修改客户最近交易时间
+        if (myClientMapper.updateLastDealTime(new ClientVo(sellApplyOrderVo.getClientId())) != 1) {
+            LOG.info("新增零售单，修改客户最近交易时间错误，客户编号：【{}】", sellApplyOrderVo.getClientId());
+            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 客户积分相关方法
+     * @param storeId
+     * @param clientId
+     * @param resultOrderId
+     * @param goodsSkus
+     * @param orderGoodsSkuVos
+     */
+    @Transactional
+    public void clientIntegralMethod(Integer storeId, String clientId, String resultOrderId, List<GoodsSku> goodsSkus, List<OrderGoodsSkuVo> orderGoodsSkuVos) {
+        //统计积分
+        StoreIntegralVo storeIntegralVo = new StoreIntegralVo(storeId, clientId, 0);
+        orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
+            GoodsSku goodsSku = goodsSkus.stream().filter(sku -> sku.getId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst().get();
+            storeIntegralVo.setIntegral(storeIntegralVo.getIntegral() + goodsSku.getIntegral());
+        });
+        //增加客户积分
+        if (storeIntegralVo.getIntegral() > 0) {
+            if (myClientMapper.increaseIntegral(storeIntegralVo) != 1) {        //还没有数据
+                if (myClientMapper.addStoreIntegral(storeIntegralVo) != 1) {
+                    LOG.info("新增零售单，新增店铺/客户积分关系失败，店铺编号：【{}】，客户编号：【{}】，积分：【{}】", storeId, clientId, storeIntegralVo.getIntegral());
+                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                }
+            }
+        }
+        //新增客户积分明细
+        if (myClientMapper.addIntegralDetail(new ClientIntegralDetailVo(
+                storeId,
+                clientId,
+                new Date(),
+                (byte) 1,
+                storeIntegralVo.getIntegral(),
+                myClientMapper.findStoreIntegralByStoreIdAndClientId(storeIntegralVo).getIntegral(),
+                resultOrderId)) != 1) {
+            LOG.info("新增零售单，新增客户积分明细失败");
+            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+        }
     }
 
     /**

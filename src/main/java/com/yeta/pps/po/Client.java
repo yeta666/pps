@@ -1,5 +1,10 @@
 package com.yeta.pps.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.yeta.pps.util.CommonResponse;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 public class Client {
@@ -7,50 +12,51 @@ public class Client {
     /**
      * 客户编号
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String id;
 
     /**
-     * 客户姓名
+     * 姓名
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String name;
 
     /**
-     * 客户用户名
+     * 用户名
      */
     private String username;
 
     /**
-     * 客户密码
+     * 密码
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String password;
 
     /**
-     * 客户电话
+     * 电话
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String phone;
+
+    /**
+     * 客户级别编号
+     */
+    private Integer levelId;
 
     /**
      * 客户生日
      */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     /**
-     * 邀请人
+     * 邀请人编号
      */
     private String inviterId;
 
     /**
-     * 邀请人姓名
-     */
-    private String inviterName;
-
-    /**
-     * 积分
-     */
-    private Integer integral;
-
-    /**
-     * 客户地址
+     * 地址
      */
     private String address;
 
@@ -67,11 +73,13 @@ public class Client {
     /**
      * 最近交易时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastDealTime;
 
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
@@ -87,14 +95,10 @@ public class Client {
     public Client() {
     }
 
-    public Client(String name, String phone, String membershipNumber) {
+    public Client(@NotBlank(message = CommonResponse.MESSAGE3) String name, @NotBlank(message = CommonResponse.MESSAGE3) String phone, String membershipNumber) {
         this.name = name;
         this.phone = phone;
         this.membershipNumber = membershipNumber;
-    }
-
-    public Client(String id) {
-        this.id = id;
     }
 
     public String getId() {
@@ -137,6 +141,14 @@ public class Client {
         this.phone = phone;
     }
 
+    public Integer getLevelId() {
+        return levelId;
+    }
+
+    public void setLevelId(Integer levelId) {
+        this.levelId = levelId;
+    }
+
     public Date getBirthday() {
         return birthday;
     }
@@ -151,22 +163,6 @@ public class Client {
 
     public void setInviterId(String inviterId) {
         this.inviterId = inviterId;
-    }
-
-    public String getInviterName() {
-        return inviterName;
-    }
-
-    public void setInviterName(String inviterName) {
-        this.inviterName = inviterName;
-    }
-
-    public Integer getIntegral() {
-        return integral;
-    }
-
-    public void setIntegral(Integer integral) {
-        this.integral = integral;
     }
 
     public String getAddress() {
@@ -233,10 +229,9 @@ public class Client {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
+                ", levelId=" + levelId +
                 ", birthday=" + birthday +
                 ", inviterId='" + inviterId + '\'' +
-                ", inviterName='" + inviterName + '\'' +
-                ", integral=" + integral +
                 ", address='" + address + '\'' +
                 ", postcode='" + postcode + '\'' +
                 ", membershipNumber='" + membershipNumber + '\'' +

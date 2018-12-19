@@ -44,6 +44,9 @@ public class StorageService {
     @Autowired
     private MyGoodsMapper myGoodsMapper;
 
+    @Autowired
+    private SellService sellService;
+
     /**
      * 修改商品规格完成情况和修改商品规格库存
      * @param storeId
@@ -442,6 +445,9 @@ public class StorageService {
                 break;
             //销售订单发货单
             case 3:
+                if (sellApplyOrder.getClearStatus() != 1) {
+                    return new CommonResponse(CommonResponse.CODE9, null, "销售订单需要结算完成之后发货");
+                }
                 storageOrderVo.setId("XXDD_FHD_" + UUID.randomUUID().toString().replace("-", ""));
                 //判断完成情况
                 if (quantity == outNotSentQuantity && quantity + outSentQuantity == outTotalQuantity) {        //全部完成
@@ -486,6 +492,10 @@ public class StorageService {
                 }
                 //新增销售出库单/商品规格关系
                 addResultOrderGoodsSku(storeId, resultOrderId, 1, orderGoodsSkuVos, orderGoodsSkuses);
+                //修改客户积分信息
+                if (applyOrderStatus == 6) {        //发货完成
+                    sellService.clientIntegralMethod(storeId, sellApplyOrder.getClientId(), resultOrderId, myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId)), orderGoodsSkuVos);
+                }
                 break;
             //【采购：退】【采购：换/销售：换】货申请发货单
             case 4:

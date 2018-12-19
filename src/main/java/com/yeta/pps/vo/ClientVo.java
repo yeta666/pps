@@ -1,8 +1,12 @@
 package com.yeta.pps.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.yeta.pps.po.ClientLevel;
+import com.yeta.pps.util.CommonResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 public class ClientVo {
@@ -13,54 +17,53 @@ public class ClientVo {
     private String id;
 
     /**
-     * 客户姓名
+     * 姓名
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String name;
 
     /**
-     * 客户用户名
+     * 用户名
      */
     private String username;
 
     /**
-     * 客户密码
+     * 密码
      */
     private String password;
 
     /**
-     * 客户电话
+     * 电话
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String phone;
+
+    /**
+     * 客户级别编号
+     */
+    @NotNull(message = CommonResponse.MESSAGE3)
+    private Integer levelId;
+
+    private ClientLevel clientLevel;
 
     /**
      * 客户生日
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     /**
-     * 邀请人
+     * 邀请人编号
      */
     private String inviterId;
 
-    /**
-     * 邀请人姓名
-     */
     private String inviterName;
 
-    /**
-     * 邀请人电话
-     */
     private String inviterPhone;
 
     /**
-     * 积分
-     */
-    private Integer integral;
-
-    /**
-     * 客户地址
+     * 地址
      */
     private String address;
 
@@ -72,19 +75,18 @@ public class ClientVo {
     /**
      * 会员卡号
      */
+    @NotBlank(message = CommonResponse.MESSAGE3)
     private String membershipNumber;
 
     /**
      * 最近交易时间
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastDealTime;
 
     /**
      * 创建时间
      */
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
@@ -98,16 +100,6 @@ public class ClientVo {
      */
     private String remark;
 
-    /**
-     * 客户级别id
-     */
-    private Integer levelId;
-
-    /**
-     * 客户级别
-     */
-    private String levelName;
-
     public ClientVo() {
     }
 
@@ -115,18 +107,23 @@ public class ClientVo {
         this.id = id;
     }
 
-    public ClientVo(String id, String phone, String membershipNumber) {
+    public ClientVo(String id, @NotBlank(message = CommonResponse.MESSAGE3) String phone) {
         this.id = id;
         this.phone = phone;
-        this.membershipNumber = membershipNumber;
     }
 
-    public ClientVo(String id, String name, String phone, String membershipNumber, Integer levelId) {
+    public ClientVo(String id, Byte disabled, String remark) {
+        this.id = id;
+        this.disabled = disabled;
+        this.remark = remark;
+    }
+
+    public ClientVo(String id, @NotBlank(message = CommonResponse.MESSAGE3) String name, @NotBlank(message = CommonResponse.MESSAGE3) String phone, @NotNull(message = CommonResponse.MESSAGE3) Integer levelId, @NotBlank(message = CommonResponse.MESSAGE3) String membershipNumber) {
         this.id = id;
         this.name = name;
         this.phone = phone;
-        this.membershipNumber = membershipNumber;
         this.levelId = levelId;
+        this.membershipNumber = membershipNumber;
     }
 
     public String getId() {
@@ -169,6 +166,22 @@ public class ClientVo {
         this.phone = phone;
     }
 
+    public Integer getLevelId() {
+        return levelId;
+    }
+
+    public void setLevelId(Integer levelId) {
+        this.levelId = levelId;
+    }
+
+    public ClientLevel getClientLevel() {
+        return clientLevel;
+    }
+
+    public void setClientLevel(ClientLevel clientLevel) {
+        this.clientLevel = clientLevel;
+    }
+
     public Date getBirthday() {
         return birthday;
     }
@@ -199,14 +212,6 @@ public class ClientVo {
 
     public void setInviterPhone(String inviterPhone) {
         this.inviterPhone = inviterPhone;
-    }
-
-    public Integer getIntegral() {
-        return integral;
-    }
-
-    public void setIntegral(Integer integral) {
-        this.integral = integral;
     }
 
     public String getAddress() {
@@ -265,22 +270,6 @@ public class ClientVo {
         this.remark = remark;
     }
 
-    public Integer getLevelId() {
-        return levelId;
-    }
-
-    public void setLevelId(Integer levelId) {
-        this.levelId = levelId;
-    }
-
-    public String getLevelName() {
-        return levelName;
-    }
-
-    public void setLevelName(String levelName) {
-        this.levelName = levelName;
-    }
-
     @Override
     public String toString() {
         return "ClientVo{" +
@@ -289,11 +278,12 @@ public class ClientVo {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
+                ", levelId=" + levelId +
+                ", clientLevel=" + clientLevel +
                 ", birthday=" + birthday +
                 ", inviterId='" + inviterId + '\'' +
                 ", inviterName='" + inviterName + '\'' +
                 ", inviterPhone='" + inviterPhone + '\'' +
-                ", integral=" + integral +
                 ", address='" + address + '\'' +
                 ", postcode='" + postcode + '\'' +
                 ", membershipNumber='" + membershipNumber + '\'' +
@@ -301,8 +291,6 @@ public class ClientVo {
                 ", createTime=" + createTime +
                 ", disabled=" + disabled +
                 ", remark='" + remark + '\'' +
-                ", levelId=" + levelId +
-                ", levelName='" + levelName + '\'' +
                 '}';
     }
 }

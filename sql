@@ -1,12 +1,78 @@
 
-drop table store;
+/*店铺*/
+drop table if exists store;
 create table store(
-  id int NOT NULL COMMENT '店铺id' auto_increment primary key,
-  name varchar(50) NOT NULL unique COMMENT '店铺名',
-  user_id varchar(50) COMMENT '店铺老板id'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  id int primary key auto_increment COMMENT '店铺编号',
+  name varchar(50) not null unique comment '店铺名',
+  address varchar(100) not null comment '地址'
+) engine InnoDB default charset=utf8;
 
-insert into store(name, user_id) values ('总店', '9ba15c62-f2ef-11e8-bbaf-00155d031a09');
+
+/*客户*/
+drop table if exists client;
+create table client(
+  id varchar(50) primary key comment '客户编号',
+  name varchar(10) not null comment '姓名',
+  username varchar(50) not null unique comment '用户名',
+  password varchar(50) not null comment '密码',
+  phone varchar(20) not null unique comment '电话',
+  level_id int not null comment '级别编号',
+  birthday datetime comment '生日',
+  inviter_id varchar(50) comment '邀请人编号',
+  address varchar(100) comment '客户地址',
+  postcode varchar(10) comment '邮编',
+  membership_number varchar(100) not null comment '会员卡号',
+  last_deal_time datetime comment '最近交易时间',
+  create_time datetime not null comment '创建时间',
+  disabled tinyint not null comment '是否停用，0：否，1：是',
+  remark varchar(200) comment '备注'
+) engine InnoDB default charset=utf8;
+
+
+/*店铺/积分关系*/
+drop table if exists store_integral;
+create table store_integral(
+  id int primary key auto_increment comment '店铺/客户积分关系编号',
+  store_id int not null comment '店铺编号',
+  client_id varchar(50) not null comment '客户编号',
+  integral int not null comment '积分'
+) engine InnoDB default charset=utf8;
+
+
+/*客户/积分明细关系*/
+drop table if exists client_integral_detail;
+create table client_integral_detail(
+  id int primary key auto_increment comment '客户/积分明细关系编号',
+  store_id int not null comment '店铺编号',
+  client_id varchar(50) not null comment '客户编号',
+  create_time datetime not null comment '创建时间',
+  type tinyint not null comment '操作类型，0：减少，1：增加',
+  change_integral int not null comment '改变积分',
+  after_change_integral int not null comment '改变后的积分',
+  order_id varchar(50) comment '单据编号'
+) engine InnoDB default charset=utf8;
+
+
+/*客户级别*/
+drop table if exists client_level;
+create table client_level(
+  id int primary key auto_increment comment '客户级别编号',
+  name varchar(20) not null unique comment '客户级别',
+  price_type tinyint not null comment '级别价格类型，1：零售价，2：vip售价',
+  price decimal(10, 2) not null comment '级别默认价格，级别价格类型*0.几',
+  can_use tinyint not null comment '分店是否可以创建该级别客户，0：不能，1：能'
+) engine InnoDB default charset=utf8;
+
+
+/*会员卡号*/
+drop table if exists membership_number;
+create table membership_number(
+  id int not null primary key auto_increment comment '会员卡号编号',
+  number varchar(100) not null unique comment '会员卡号',
+  disabled tinyint not null comment '是否停用，0：否，1：是'
+) engine InnoDB default charset=utf8;
+
+
 
 drop table if exists user_1;
 create table user_1(
@@ -585,87 +651,7 @@ insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax
 insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys008', '秋水伊人', '小明', '17760041487', '', '', '');
 
 
-drop table if exists client;
-create table client(
-  id varchar(50) not null primary key comment '客户编号',
-  name varchar(10) not null comment '客户姓名',
-  username varchar(50) not null unique comment '客户用户名',
-  password varchar(50) not null comment '客户密码',
-  phone varchar(20) not null unique comment '客户电话',
-  birthday datetime comment '客户生日',
-  inviter_id varchar(50)  comment '邀请人',
-  inviter_name varchar(10) comment '邀请人姓名',
-  integral int not null comment '积分',
-  address varchar(100) comment '客户地址',
-  postcode varchar(10) comment '邮编',
-  membership_number varchar(100) comment '会员卡号',
-  last_deal_time datetime comment '最近交易时间',
-  create_time datetime not null comment '创建时间',
-  disabled tinyint not null comment '是否停用，0：否，1：是',
-  remark varchar(200) comment '备注'
-) engine InnoDB default charset=utf8;
 
-insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
-values ('054774c2-f784-11e8-9dc7-54ee75c0f47a', '客户1', 'kh1', 'kh1', '17360034522', now(), '', '', 0, '', '', '001', now(), now(), 0, '');
-insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
-values ('054b1e2c-f784-11e8-9dc7-54ee75c0f47a', '客户2', 'kh2', 'kh2', '17360034523', now(), '', '', 0, '', '', '002', now(), now(), 0, '');
-insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
-values ('054e2add-f784-11e8-9dc7-54ee75c0f47a', '客户3', 'kh3', 'kh3', '17360034524', now(), '', '', 0, '', '', '003', now(), now(), 0, '');
-insert into client (id, name, username, password, phone, birthday, inviter_id, inviter_name, integral, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
-values ('05510d52-f784-11e8-9dc7-54ee75c0f47a', '客户4', 'kh4', 'kh4', '17360034525', now(), '', '', 0, '', '', null, now(), now(), 0, '');
-
-drop table if exists client_level;
-create table client_level(
-  id int not null primary key auto_increment comment '客户级别id',
-  name varchar(20) not null unique comment '客户级别',
-  price_type tinyint not null comment '级别价格类型，1：零售价， 2：vip售价',
-  price decimal(10, 2) not null comment '级别默认价格，级别价格类型*0.几'
-) engine InnoDB default charset=utf8;
-
-insert into client_level (name, price_type, price) values ('总店店长', 2, 0.6);
-insert into client_level (name, price_type, price) values ('分店店长', 2, 0.8);
-insert into client_level (name, price_type, price) values ('普通vip', 1, 1);
-insert into client_level (name, price_type, price) values ('普通客户', 1, 1);
-
-drop table if exists client_client_level;
-create table client_client_level(
-  id int not null primary key auto_increment comment '客户客户级别id',
-  client_id varchar(50) not null unique comment '客户编号',
-  level_id int not null comment '客户级别id'
-) engine InnoDB default charset=utf8;
-
-insert into client_client_level (client_id, level_id) values ('054774c2-f784-11e8-9dc7-54ee75c0f47a', 1);
-insert into client_client_level (client_id, level_id) values ('054b1e2c-f784-11e8-9dc7-54ee75c0f47a', 2);
-insert into client_client_level (client_id, level_id) values ('054e2add-f784-11e8-9dc7-54ee75c0f47a', 3);
-insert into client_client_level (client_id, level_id) values ('05510d52-f784-11e8-9dc7-54ee75c0f47a', 4);
-
-drop table if exists client_membership_number;
-create table client_membership_number(
-  id int not null primary key auto_increment comment '会员卡号id',
-  number varchar(100) not null unique comment '会员卡号'
-) engine InnoDB default charset=utf8;
-
-insert into client_membership_number (number) values ('001');
-insert into client_membership_number (number) values ('002');
-insert into client_membership_number (number) values ('003');
-insert into client_membership_number (number) values ('004');
-insert into client_membership_number (number) values ('005');
-insert into client_membership_number (number) values ('006');
-
-drop table if exists client_integral_detail;
-create table client_integral_detail(
-  id varchar(50) not null primary key comment '积分明细id',
-  client_id varchar(50) not null comment '客户编号',
-  create_time datetime not null comment '发生日期',
-  type tinyint not null comment '操作类型，1：后台增加，3：消费增加，4：提成增加，5：后台减少，6：提现减少',
-  change_integral int not null comment '改变积分',
-  after_change_integral int not null comment '改变后的积分',
-  invoices_date datetime comment '单据日期',
-  invoices_id varchar(50) comment '单据编号',
-  invoices_type tinyint comment '单据类型，？？',
-  handled_by varchar(50) comment '经手人',
-  remark varchar(200) comment '备注'
-) engine InnoDB default charset=utf8;
 
 
 /*采购申请单*/
