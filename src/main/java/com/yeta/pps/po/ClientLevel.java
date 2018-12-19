@@ -31,12 +31,6 @@ public class ClientLevel {
     @NotNull(message = CommonResponse.MESSAGE3)
     private BigDecimal price;
 
-    /**
-     * 分店是否可以创建该级别客户，0：不能，1：能
-     */
-    @NotNull(message = CommonResponse.MESSAGE3)
-    private Byte canUse;
-
     public ClientLevel() {
     }
 
@@ -80,14 +74,6 @@ public class ClientLevel {
         this.price = price;
     }
 
-    public Byte getCanUse() {
-        return canUse;
-    }
-
-    public void setCanUse(Byte canUse) {
-        this.canUse = canUse;
-    }
-
     @Override
     public String toString() {
         return "ClientLevel{" +
@@ -95,7 +81,6 @@ public class ClientLevel {
                 ", name='" + name + '\'' +
                 ", priceType=" + priceType +
                 ", price=" + price +
-                ", canUse=" + canUse +
                 '}';
     }
 }

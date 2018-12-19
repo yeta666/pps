@@ -4,7 +4,9 @@ drop table if exists store;
 create table store(
   id int primary key auto_increment COMMENT '店铺编号',
   name varchar(50) not null unique comment '店铺名',
-  address varchar(100) not null comment '地址'
+  address varchar(100) not null comment '地址',
+  boss varchar(20) not null comment '店长',
+  phone varchar(20) not null unique comment '电话'
 ) engine InnoDB default charset=utf8;
 
 
@@ -59,8 +61,7 @@ create table client_level(
   id int primary key auto_increment comment '客户级别编号',
   name varchar(20) not null unique comment '客户级别',
   price_type tinyint not null comment '级别价格类型，1：零售价，2：vip售价',
-  price decimal(10, 2) not null comment '级别默认价格，级别价格类型*0.几',
-  can_use tinyint not null comment '分店是否可以创建该级别客户，0：不能，1：能'
+  price decimal(10, 2) not null comment '级别默认价格，级别价格类型*0.几'
 ) engine InnoDB default charset=utf8;
 
 
@@ -80,17 +81,17 @@ create table user_1(
   name varchar(10) NOT NULL COMMENT '用户姓名',
   username varchar(50) not null unique comment '用户名',
   password varchar(50) not null comment '密码',
-  phone varchar(20) not null comment '电话',
+  phone varchar(20) not null unique comment '电话',
   warehouse_id int not null comment '仓库id',
   disabled tinyint not null comment '是否禁用，0：不禁用，1：禁用',
   remark varchar(200) comment '备注'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '总店老板', 'lb', 'lb', '17760041487', 1, 0);
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '总店销售经理', 'xsjl', 'xsjl', '17760041487', 1, 0);
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '总店销售', 'xs', 'xs', '17760041487', 1, 0);
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc00d94-f384-11e8-b25b-54ee75c0f47a', '总店采购', 'cg', 'cg', '17760041487', 1, 0);
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '总店库管', 'kg', 'kg', '17760041487', 1, 0);
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '总店财务', 'cw', 'cw', '17760041487', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '老板', 'lb', 'lb', '17760041487', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '销售经理', 'xsjl', 'xsjl', '17760041488', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '销售', 'xs', 'xs', '17760041489', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc00d94-f384-11e8-b25b-54ee75c0f47a', '采购', 'cg', 'cg', '17760041490', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '库管', 'kg', 'kg', '17760041491', 1, 0);
+insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '财务', 'cw', 'cw', '17760041492', 1, 0);
 
 drop table if exists role_1;
 create table role_1(
@@ -554,7 +555,7 @@ insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price,
 insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral) values ('sp002', '{"品牌":"美的","单位":"个"}', 200, 380, 300, 10, 0);
 
 
-drop table bank_account_1;
+drop table if exists bank_account_1;
 create table bank_account_1(
   id varchar(20) not null primary key comment '科目编号',
   name varchar(20) not null comment '科目名称',
@@ -803,3 +804,4 @@ create table fund_order_1(
   user_id varchar(50) not null comment '经手人',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
+

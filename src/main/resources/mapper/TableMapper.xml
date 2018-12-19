@@ -2,57 +2,203 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeta.pps.mapper.TableMapper" >
 
-    <insert id="addUser" parameterType="java.lang.Integer">
-        CREATE TABLE user_${storeId} (
-            id varchar(50) NOT NULL COMMENT '用户id',
-            name varchar(10) NOT NULL COMMENT '用户姓名',
-            username varchar(50) not null comment '用户名',
-            password varchar(50) not null comment '密码',
-            remark varchar(200) comment '备注',
-            PRIMARY KEY (id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    <!--创建表-->
+
+    <insert id="addBankAccount" parameterType="java.lang.Integer">
+        create table bank_account_${storeId}(
+          id varchar(20) not null primary key comment '科目编号',
+          name varchar(20) not null comment '科目名称',
+          type tinyint not null comment '账户类型，1：现金，2：银行卡，3：支付宝，4：微信',
+          head varchar(20) comment '户主名',
+          account varchar(50) comment '账户',
+          gathering tinyint default 0 comment '是否用于商城收款，0：否，1：是',
+          qrCode varchar(50) comment '收款码',
+          procurement tinyint default 0 comment '是否用于订货平台，0：否，1：是'
+        ) engine InnoDB default charset=utf8;
     </insert>
 
-    <delete id="deleteUser" parameterType="java.lang.Integer">
-        drop table if exists user_${storeId};
-    </delete>
+    <insert id="addFundOrder" parameterType="java.lang.Integer">
+        create table fund_order_${storeId}(
+          id varchar(50) primary key comment '单据编号',
+          type tinyint not null comment '单据类型，1：付款单，2：收款单',
+          create_time datetime not null comment '单据日期',
+          apply_order_id varchar(50) not null comment '来源订单',
+          order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+          bank_account_id varchar(20) not null comment '银行账户编号',
+          money decimal(10, 2) not null comment '金额',
+          user_id varchar(50) not null comment '经手人',
+          remark varchar(255) comment '单据备注'
+        ) engine InnoDB default charset=utf8;
+    </insert>
+
+    <insert id="addGoodsGoodsLabel" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addGoodsLabel" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addGoodsPropertyKey" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addGoodsPropertyValue" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addGoodsSku" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addGoodsType" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addIncomeExpenses" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addOrderGoodsSku" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addProcurementApplyOrder" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addProcurementResultOrder" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="add" parameterType="java.lang.Integer">
+
+    </insert>
 
     <insert id="addRole" parameterType="java.lang.Integer">
-        CREATE TABLE role_${storeId} (
-            id int not null auto_increment comment '角色id',
-            name varchar(10) not null comment '角色名',
-            PRIMARY KEY (id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
     </insert>
-
-    <delete id="deleteRole" parameterType="java.lang.Integer">
-        drop table if exists role_${storeId};
-    </delete>
-
-    <insert id="addUserRole" parameterType="java.lang.Integer">
-        CREATE TABLE user_role_${storeId} (
-            id int not null auto_increment comment 'id',
-            user_id varchar(50) NOT NULL COMMENT '用户id',
-            role_id int not null comment '角色id',
-            PRIMARY KEY (id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    </insert>
-
-    <delete id="deleteUserRole" parameterType="java.lang.Integer">
-        drop table if exists user_role_${storeId};
-    </delete>
 
     <insert id="addRoleFunction" parameterType="java.lang.Integer">
-        CREATE TABLE role_function_${storeId} (
-            id int not null auto_increment comment 'id',
-            role_id int not null comment '角色id',
-            function_id int NOT NULL COMMENT '功能id',
-            PRIMARY KEY (id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
     </insert>
 
+    <insert id="addSellApplyOrder" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addSellResultOrder" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addStorageOrder" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addSupplier" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addUser" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addUserRole" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <insert id="addWarehouse" parameterType="java.lang.Integer">
+
+    </insert>
+
+    <!--删除表-->
+
+    <delete id="deleteBankAccount" parameterType="java.lang.Integer">
+        drop table if exists bank_account_${storeId};
+    </delete>
+
+    <delete id="deleteFundOrder" parameterType="java.lang.Integer">
+        drop table if exists fund_order_${storeId};
+    </delete>
+
+    <delete id="deleteGoods" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteGoodsGoodsLabel" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteGoodsLabel" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteGoodsPropertyKey" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteGoodsPropertyValue" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteGoodsSku" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteGoodsType" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteIncomeExpenses" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteOrderGoodsSku" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteProcurementApplyOrder" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteProcurementResultOrder" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteRole" parameterType="java.lang.Integer">
+
+    </delete>
+
     <delete id="deleteRoleFunction" parameterType="java.lang.Integer">
-        drop table if exists role_function_${storeId};
+
+    </delete>
+
+    <delete id="deleteSellApplyOrder" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteSellResultOrder" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteStorageOrder" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteSupplier" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteUser" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteUserRole" parameterType="java.lang.Integer">
+
+    </delete>
+
+    <delete id="deleteWarehouse" parameterType="java.lang.Integer">
+
     </delete>
 
 </mapper>

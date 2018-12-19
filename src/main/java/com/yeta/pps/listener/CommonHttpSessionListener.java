@@ -39,5 +39,16 @@ public class CommonHttpSessionListener implements HttpSessionListener {
                 }
             }
         }
+
+        Object clientId = session.getAttribute("clientId");
+        if (clientId != null) {
+            ConcurrentSkipListSet<String> onlineIds = (ConcurrentSkipListSet<String>) session.getServletContext().getAttribute("onlineClientIds");
+            for (String onlineId : onlineIds) {
+                if (onlineId.equals(clientId)) {
+                    onlineIds.remove(onlineId);
+                    break;
+                }
+            }
+        }
     }
 }

@@ -33,6 +33,16 @@ public class ClientVo {
     private String password;
 
     /**
+     * 验证码
+     */
+    private String identifyingCode;
+
+    /**
+     * 凭证
+     */
+    private String token;
+
+    /**
      * 电话
      */
     @NotBlank(message = CommonResponse.MESSAGE3)
@@ -118,6 +128,12 @@ public class ClientVo {
         this.remark = remark;
     }
 
+    public ClientVo(String username, String password, String identifyingCode) {
+        this.username = username;
+        this.password = password;
+        this.identifyingCode = identifyingCode;
+    }
+
     public ClientVo(String id, @NotBlank(message = CommonResponse.MESSAGE3) String name, @NotBlank(message = CommonResponse.MESSAGE3) String phone, @NotNull(message = CommonResponse.MESSAGE3) Integer levelId, @NotBlank(message = CommonResponse.MESSAGE3) String membershipNumber) {
         this.id = id;
         this.name = name;
@@ -156,6 +172,22 @@ public class ClientVo {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getIdentifyingCode() {
+        return identifyingCode;
+    }
+
+    public void setIdentifyingCode(String identifyingCode) {
+        this.identifyingCode = identifyingCode;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getPhone() {
@@ -277,6 +309,8 @@ public class ClientVo {
                 ", name='" + name + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", identifyingCode='" + identifyingCode + '\'' +
+                ", token='" + token + '\'' +
                 ", phone='" + phone + '\'' +
                 ", levelId=" + levelId +
                 ", clientLevel=" + clientLevel +

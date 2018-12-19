@@ -9,6 +9,10 @@ public interface StoreMapper {
 
     int add(Store store);
 
+    void delete(Store store);
+
+    int update(Store store);
+
     int findCount();
 
     List<Store> findAllPaged(PageVo pageVo);

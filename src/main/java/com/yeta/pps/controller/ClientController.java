@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -39,144 +40,150 @@ public class ClientController {
     @Autowired
     private ClientService clientService;
 
+    //客户登陆注销
+
+    /**
+     * 客户登陆接口
+     * @param username
+     * @param password
+     * @param identifyingCode
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "登陆")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "用户名", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "password", value = "密码", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "identifyingCode", value = "验证码", required = true, paramType = "query", dataType = "String")
+    })
+    @PostMapping(value = "/clients/login")
+    public CommonResponse login(@RequestParam(value = "username") String username,
+                                @RequestParam(value = "password") String password,
+                                @RequestParam(value = "identifyingCode") String identifyingCode,
+                                HttpServletRequest request) {
+        return clientService.login(new ClientVo(username, password, identifyingCode), request);
+    }
+
+    /**
+     * 客户注销接口
+     * @param id
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "注销")
+    @ApiImplicitParam(name = "id", value = "客户编号", required = true, paramType = "path", dataType = "String")
+    @GetMapping(value = "/clients/logout/{id}")
+    public CommonResponse logout(@PathVariable(value = "id") String id,
+                                 HttpServletRequest request) {
+        return clientService.logout(new ClientVo(id), request);
+    }
+
+
     //会员卡号
 
     /**
      * 新增会员卡号接口
-     * @param storeId
      * @param membershipNumber
      * @return
      */
-    @ApiOperation(value = "新增会员卡号", notes = "总店使用")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "membershipNumber", value = "number必填", required = true, paramType = "body", dataType = "MembershipNumber")
-    })
-    @PostMapping(value = "/clients/membershipNumbers/{storeId}")
-    public CommonResponse addMembershipNumber(@PathVariable(value = "storeId") Integer storeId,
-                                              @RequestBody @Valid MembershipNumber membershipNumber) {
-        return clientService.addMembershipNumber(storeId, membershipNumber);
+    @ApiOperation(value = "新增会员卡号", notes = "特权账号使用")
+    @ApiImplicitParam(name = "membershipNumber", value = "number必填", required = true, paramType = "body", dataType = "MembershipNumber")
+    @PostMapping(value = "/clients/membershipNumbers")
+    public CommonResponse addMembershipNumber(@RequestBody @Valid MembershipNumber membershipNumber) {
+        return clientService.addMembershipNumber(membershipNumber);
     }
 
     /**
      * 删除会员卡号接口
-     * @param storeId
      * @param ids
      * @return
      */
-    @ApiOperation(value = "删除会员卡号", notes = "总店使用")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "ids", value = "会员卡号id", required = true, paramType = "query", dataType = "String")
-    })
-    @DeleteMapping(value = "/clients/membershipNumbers/{storeId}")
-    public CommonResponse deleteMembershipNumber(@PathVariable(value = "storeId") Integer storeId,
-                                                 @RequestParam(value = "ids") String ids) {
+    @ApiOperation(value = "删除会员卡号", notes = "特权账号使用")
+    @ApiImplicitParam(name = "ids", value = "会员卡号id", required = true, paramType = "query", dataType = "String")
+    @DeleteMapping(value = "/clients/membershipNumbers")
+    public CommonResponse deleteMembershipNumber(@RequestParam(value = "ids") String ids) {
         List<MembershipNumber> membershipNumbers = new ArrayList<>();
         Arrays.asList(ids.split(",")).stream().forEach(id -> {
             membershipNumbers.add(new MembershipNumber(Integer.valueOf(id)));
         });
-        return clientService.deleteMembershipNumber(storeId, membershipNumbers);
+        return clientService.deleteMembershipNumber(membershipNumbers);
     }
 
     /**
      * 修改会员卡号接口
-     * @param storeId
      * @param membershipNumber
      * @return
      */
-    @ApiOperation(value = "修改会员卡号", notes = "总店使用，只有未被使用的才可以修改")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "membershipNumber", value = "id, number, disabled必填", required = true, paramType = "body", dataType = "MembershipNumber")
-    })
-    @PutMapping(value = "/clients/membershipNumbers/{storeId}")
-    public CommonResponse updateMembershipNumber(@PathVariable(value = "storeId") Integer storeId,
-                                                 @RequestBody @Valid MembershipNumber membershipNumber) {
-        return clientService.updateMembershipNumber(storeId, membershipNumber);
+    @ApiOperation(value = "修改会员卡号", notes = "特权账号使用")
+    @ApiImplicitParam(name = "membershipNumber", value = "id, number, disabled必填", required = true, paramType = "body", dataType = "MembershipNumber")
+    @PutMapping(value = "/clients/membershipNumbers")
+    public CommonResponse updateMembershipNumber(@RequestBody @Valid MembershipNumber membershipNumber) {
+        return clientService.updateMembershipNumber(membershipNumber);
     }
 
     /**
      * 查找所有会员卡号接口
-     * @param storeId
      * @param number
      * @param disabled
      * @param page
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查找所有会员卡号", notes = "总店使用，分页、筛选查询，会员卡号模糊查询")
+    @ApiOperation(value = "查找所有会员卡号", notes = "特权账号使用")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
             @ApiImplicitParam(name = "number", value = "会员卡号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "disabled", value = "是否停用，0：否，1：是", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
     })
-    @GetMapping(value = "/clients/membershipNumbers/{storeId}")
-    public CommonResponse<CommonResult<List<MembershipNumber>>> findAllMembershipNumber(@PathVariable(value = "storeId") Integer storeId,
-                                                                                        @RequestParam(value = "number", required = false) String number,
+    @GetMapping(value = "/clients/membershipNumbers")
+    public CommonResponse<CommonResult<List<MembershipNumber>>> findAllMembershipNumber(@RequestParam(value = "number", required = false) String number,
                                                                                         @RequestParam(value = "disabled", required = false) Byte disabled,
                                                                                         @RequestParam(value = "page") Integer page,
                                                                                         @RequestParam(value = "pageSize") Integer pageSize) {
-        return clientService.findAllMembershipNumber(storeId, new MembershipNumber(number, disabled), new PageVo(page, pageSize));
+        return clientService.findAllMembershipNumber(new MembershipNumber(number, disabled), new PageVo(page, pageSize));
     }
 
     //客户级别
 
     /**
      * 新增客户级别接口
-     * @param storeId
      * @param clientLevel
      * @return
      */
-    @ApiOperation(value = "新增客户级别", notes = "总店使用")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "clientLevel", value = "name, priceType(级别价格类型，1：零售价，2：vip售价), price(级别默认价格，级别价格类型*0.几), canUse(分店是否可以创建该级别客户，0：不能，1：能)必填", required = true, paramType = "body", dataType = "ClientLevel")
-    })
-    @PostMapping(value = "/clients/levels/{storeId}")
-    public CommonResponse addClientLevel(@PathVariable(value = "storeId") Integer storeId,
-                                         @RequestBody @Valid ClientLevel clientLevel) {
-        return clientService.addClientLevel(storeId, clientLevel);
+    @ApiOperation(value = "新增客户级别", notes = "特权账号使用")
+    @ApiImplicitParam(name = "clientLevel", value = "name, priceType(级别价格类型，1：零售价，2：vip售价), price(级别默认价格，级别价格类型*0.几)必填", required = true, paramType = "body", dataType = "ClientLevel")
+    @PostMapping(value = "/clients/levels")
+    public CommonResponse addClientLevel(@RequestBody @Valid ClientLevel clientLevel) {
+        return clientService.addClientLevel(clientLevel);
     }
 
     /**
      * 删除客户级别接口
-     * @param storeId
      * @param ids
      * @return
      */
-    @ApiOperation(value = "删除客户级别", notes = "总店使用")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "ids", value = "客户级别id，英文逗号隔开", required = true, paramType = "query", dataType = "String")
-    })
-    @DeleteMapping(value = "/clients/levels/{storeId}")
-    public CommonResponse deleteClientLevel(@PathVariable(value = "storeId") Integer storeId,
-                                            @RequestParam(value = "ids") String ids) {
+    @ApiOperation(value = "删除客户级别", notes = "特权账号使用")
+    @ApiImplicitParam(name = "ids", value = "客户级别id，英文逗号隔开", required = true, paramType = "query", dataType = "String")
+    @DeleteMapping(value = "/clients/levels")
+    public CommonResponse deleteClientLevel(@RequestParam(value = "ids") String ids) {
         List<ClientLevel> clientLevels = new ArrayList<>();
         Arrays.asList(ids.split(",")).stream().forEach(id -> {
             clientLevels.add(new ClientLevel(Integer.valueOf(id)));
         });
-        return clientService.deleteClientLevel(storeId, clientLevels);
+        return clientService.deleteClientLevel(clientLevels);
     }
 
     /**
      * 修改客户级别接口
-     * @param storeId
      * @param clientLevel
      * @return
      */
-    @ApiOperation(value = "修改客户级别", notes = "总店使用")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "clientLevel", value = "id, name, priceType(级别价格类型，1：零售价，2：vip售价), price(级别默认价格，级别价格类型*0.几), canUse(分店是否可以创建该级别客户，0：不能，1：能)必填", required = true, paramType = "body", dataType = "ClientLevel")
-    })
-    @PutMapping(value = "/clients/levels/{storeId}")
-    public CommonResponse updateClientLevel(@PathVariable(value = "storeId") Integer storeId,
-                                            @RequestBody @Valid ClientLevel clientLevel) {
-        return clientService.updateClientLevel(storeId, clientLevel);
+    @ApiOperation(value = "修改客户级别", notes = "特权账号使用")
+    @ApiImplicitParam(name = "clientLevel", value = "id, name, priceType(级别价格类型，1：零售价，2：vip售价), price(级别默认价格，级别价格类型*0.几)必填", required = true, paramType = "body", dataType = "ClientLevel")
+    @PutMapping(value = "/clients/levels")
+    public CommonResponse updateClientLevel(@RequestBody @Valid ClientLevel clientLevel) {
+        return clientService.updateClientLevel(clientLevel);
     }
 
     /**
@@ -200,40 +207,30 @@ public class ClientController {
 
     /**
      * 新增客户接口
-     * @param storeId
      * @param clientVo
      * @return
      */
     @ApiOperation(value = "新增客户", notes = "用户名后台默认电话号码，密码后台默认电话号码后4位")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "clientVo", value = "name, phone, levelId, membershipNumber必填, inviterId, inviterPhone(二选一填), birthday, address, postcode选填, 其他不填", required = true, paramType = "body", dataType = "ClientVo")
-    })
-    @PostMapping(value = "/clients/{storeId}")
-    public CommonResponse add(@PathVariable(value = "storeId") Integer storeId,
-                              @RequestBody ClientVo clientVo) {
-        return clientService.add(storeId, clientVo);
+    @ApiImplicitParam(name = "clientVo", value = "name, phone, levelId, membershipNumber必填, inviterId, inviterPhone(二选一填), birthday, address, postcode选填, 其他不填", required = true, paramType = "body", dataType = "ClientVo")
+    @PostMapping(value = "/clients")
+    public CommonResponse add(@RequestBody ClientVo clientVo) {
+        return clientService.add(clientVo);
     }
 
     /**
      * 删除客户接口
-     * @param storeId
      * @param ids
      * @return
      */
-    @ApiOperation(value = "删除客户", notes = "总店使用")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "ids", value = "客户编号", required = true, paramType = "query", dataType = "String")
-    })
-    @DeleteMapping(value = "/clients/{storeId}")
-    public CommonResponse delete(@PathVariable(value = "storeId") Integer storeId,
-                                 @RequestParam(value = "ids") String ids) {
+    @ApiOperation(value = "删除客户")
+    @ApiImplicitParam(name = "ids", value = "客户编号", required = true, paramType = "query", dataType = "String")
+    @DeleteMapping(value = "/clients")
+    public CommonResponse delete(@RequestParam(value = "ids") String ids) {
         List<ClientVo> clientVos = new ArrayList<>();
         Arrays.asList(ids.split(",")).stream().forEach(id -> {
             clientVos.add(new ClientVo(id));
         });
-        return clientService.delete(storeId, clientVos);
+        return clientService.delete(clientVos);
     }
 
     /**
@@ -258,7 +255,6 @@ public class ClientController {
 
     /**
      * 修改客户停用和备注接口
-     * @param storeId
      * @param id
      * @param disabled
      * @param remark
@@ -266,17 +262,15 @@ public class ClientController {
      */
     @ApiOperation(value = "修改客户停用和备注")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "客户编号", required = true, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "disabled", value = "是否停用，0：否，1：是", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "remark", value = "备注", required = false, paramType = "query", dataType = "String"),
     })
-    @PutMapping(value = "/clients/disabled/{storeId}")
-    public CommonResponse updateDisabledAndRemark(@PathVariable(value = "storeId") Integer storeId,
-                                                  @RequestParam(value = "id") String id,
+    @PutMapping(value = "/clients/disabled")
+    public CommonResponse updateDisabledAndRemark(@RequestParam(value = "id") String id,
                                                   @RequestParam(value = "disabled") Byte disabled,
                                                   @RequestParam(value = "remark", required = false) String remark) {
-        return clientService.updateDisabledAndRemark(storeId, new ClientVo(id, disabled, remark));
+        return clientService.updateDisabledAndRemark(new ClientVo(id, disabled, remark));
     }
 
     /**
@@ -350,21 +344,16 @@ public class ClientController {
 
     /**
      * 导入客户接口
-     * @param storeId
      * @param file
      * @return
      * @throws IOException
      * @throws ParseException
      */
     @ApiOperation(value = "导入客户")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "file", value = "文件", required = true, paramType = "form", dataType = "File")
-    })
-    @PostMapping(value = "/clients/import/{storeId}")
-    public CommonResponse importClient(@PathVariable(value = "storeId") Integer storeId,
-                                       @RequestParam(value = "file") MultipartFile file) throws IOException, ParseException {
-        return clientService.importClient(storeId, file);
+    @ApiImplicitParam(name = "file", value = "文件", required = true, paramType = "form", dataType = "File")
+    @PostMapping(value = "/clients/import")
+    public CommonResponse importClient(@RequestParam(value = "file") MultipartFile file) throws IOException, ParseException {
+        return clientService.importClient(file);
     }
 
     //店铺/积分关系

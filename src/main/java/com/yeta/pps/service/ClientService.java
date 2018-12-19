@@ -4,7 +4,6 @@ import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyClientMapper;
 import com.yeta.pps.mapper.StoreMapper;
 import com.yeta.pps.po.Client;
-import com.yeta.pps.po.ClientIntegralDetail;
 import com.yeta.pps.po.ClientLevel;
 import com.yeta.pps.po.MembershipNumber;
 import com.yeta.pps.util.CommonResponse;
@@ -23,11 +22,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * 客户相关逻辑处理
@@ -40,8 +44,73 @@ public class ClientService {
     @Autowired
     private MyClientMapper myClientMapper;
 
-    @Autowired
-    private StoreMapper storeMapper;
+    /**
+     * 客户登陆
+     * @param clientVo
+     * @param request
+     * @return
+     */
+    public CommonResponse login(ClientVo clientVo, HttpServletRequest request) {
+        //判断参数
+        if (clientVo.getIdentifyingCode() == null || clientVo.getUsername() == null || clientVo.getPassword() == null) {
+            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
+        //判断验证码
+        String iCode = clientVo.getIdentifyingCode().toUpperCase();
+        HttpSession session = request.getSession();
+        Object siCode = session.getAttribute("identifyingCode");
+        if (siCode == null || !siCode.equals(iCode)) {
+            return new CommonResponse(CommonResponse.CODE4, null, CommonResponse.MESSAGE4);
+        }
+        //判断用户名、密码
+        Client client = myClientMapper.findByUsernameAndPassword(clientVo);
+        if (client == null) {
+            return new CommonResponse(CommonResponse.CODE5, null, CommonResponse.MESSAGE5);
+        }
+        //判断客户是否已禁用
+        if (client.getDisabled() == 1) {
+            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
+        }
+        //判断客户是否已登陆
+        String clientId = client.getId();
+        ServletContext servletContext = session.getServletContext();
+        ConcurrentSkipListSet<String> onlineIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineClientIds");
+        for (String onlineId: onlineIds) {
+            if (onlineId.equals(clientId)) {
+                return new CommonResponse(CommonResponse.CODE11, null, CommonResponse.MESSAGE11);
+            }
+        }
+        //设置已登陆
+        onlineIds.add(clientId);
+        session.setAttribute("clientId", clientId);
+        session.setMaxInactiveInterval(60 * 60);      //60分钟
+        clientVo.setId(clientId);
+        clientVo.setToken(CommonUtil.getMd5(clientId));        //token就是md5加密后的客户id
+        return new CommonResponse(CommonResponse.CODE1, clientVo, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 注销
+     * @param clientVo
+     * @param request
+     * @return
+     */
+    public CommonResponse logout(ClientVo clientVo, HttpServletRequest request) {
+        //获取在线客户id
+        HttpSession session = request.getSession();
+        ServletContext servletContext = session.getServletContext();
+        ConcurrentSkipListSet<String> onlineIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineClientIds");
+        //注销
+        for (String onlineId : onlineIds) {
+            if (onlineId.equals(clientVo.getId())) {
+                onlineIds.remove(onlineId);
+                break;
+            }
+        }
+        session.invalidate();
+        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+    }
+
 
     /**
      * 判断会员卡号是否使用的方法
@@ -66,41 +135,14 @@ public class ClientService {
         return result;
     }
 
-    /**
-     * 判断客户级别是否分店可用的方法
-     * @param clientLevel
-     * @return
-     */
-    public boolean judgeClientLevel(ClientLevel clientLevel) {
-        boolean result = false;
-        //查找所有分店可用的客户级别
-        List<ClientLevel> clientLevels = myClientMapper.findCanUseClientLevel();
-        if (clientLevel.getId() != null) {
-            if (clientLevels.stream().filter(level -> level.getId().toString().equals(clientLevel.getId().toString())).findFirst().isPresent()) {
-                result = true;
-            }
-        }
-        if (clientLevel.getName() != null) {
-            if (clientLevels.stream().filter(level -> level.getName().equals(clientLevel.getName())).findFirst().isPresent()) {
-                result = true;
-            }
-        }
-        return result;
-    }
-
     //会员卡号
 
     /**
      * 新增会员卡号
-     * @param storeId
      * @param membershipNumber
      * @return
      */
-    public CommonResponse addMembershipNumber(Integer storeId, MembershipNumber membershipNumber) {
-        //判断是否总店
-        if (storeId != 1) {
-            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
-        }
+    public CommonResponse addMembershipNumber(MembershipNumber membershipNumber) {
         membershipNumber.setDisabled((byte) 0);
         if (myClientMapper.addMembershipNumber(membershipNumber) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
@@ -111,16 +153,11 @@ public class ClientService {
 
     /**
      * 删除会员卡号
-     * @param storeId
      * @param membershipNumbers
      * @return
      */
     @Transactional
-    public CommonResponse deleteMembershipNumber(Integer storeId, List<MembershipNumber> membershipNumbers) {
-        //判断是否总店
-        if (storeId != 1) {
-            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
-        }
+    public CommonResponse deleteMembershipNumber(List<MembershipNumber> membershipNumbers) {
         membershipNumbers.stream().forEach(membershipNumber -> {
             //判断会员卡号是否使用
             if (judgeMembershipNumber(membershipNumber)) {
@@ -136,15 +173,10 @@ public class ClientService {
 
     /**
      * 修改会员卡号
-     * @param storeId
      * @param membershipNumber
      * @return
      */
-    public CommonResponse updateMembershipNumber(Integer storeId, MembershipNumber membershipNumber) {
-        //判断是否总店
-        if (storeId != 1) {
-            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
-        }
+    public CommonResponse updateMembershipNumber(MembershipNumber membershipNumber) {
         //判断参数
         if (membershipNumber.getId() == null || membershipNumber.getDisabled() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
@@ -162,16 +194,11 @@ public class ClientService {
 
     /**
      * 查找所有会员卡号
-     * @param storeId
      * @param membershipNumber
      * @param pageVo
      * @return
      */
-    public CommonResponse findAllMembershipNumber(Integer storeId, MembershipNumber membershipNumber, PageVo pageVo) {
-        //判断是否总店
-        if (storeId != 1) {
-            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
-        }
+    public CommonResponse findAllMembershipNumber(MembershipNumber membershipNumber, PageVo pageVo) {
         //查询所有页数
         pageVo.setTotalPage((int) Math.ceil(myClientMapper.findCountMembershipNumber(membershipNumber) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
@@ -188,15 +215,10 @@ public class ClientService {
 
     /**
      * 新增客户级别
-     * @param storeId
      * @param clientLevel
      * @return
      */
-    public CommonResponse addClientLevel(Integer storeId, ClientLevel clientLevel) {
-        //判断是否总店
-        if (storeId != 1) {
-            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
-        }
+    public CommonResponse addClientLevel(ClientLevel clientLevel) {
         if (myClientMapper.addClientLevel(clientLevel) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
@@ -205,16 +227,11 @@ public class ClientService {
 
     /**
      * 删除客户级别
-     * @param storeId
      * @param clientLevels
      * @return
      */
     @Transactional
-    public CommonResponse deleteClientLevel(Integer storeId, List<ClientLevel> clientLevels) {
-        //判断是否总店
-        if (storeId != 1) {
-            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
-        }
+    public CommonResponse deleteClientLevel(List<ClientLevel> clientLevels) {
         //查询所有已经使用的客户级别
         List<ClientLevel> clientLevelList = myClientMapper.findUsedClientLevel();
         clientLevels.stream().forEach(clientLevel -> {
@@ -232,15 +249,10 @@ public class ClientService {
 
     /**
      * 修改客户级别
-     * @param storeId
      * @param clientLevel
      * @return
      */
-    public CommonResponse updateClientLevel(Integer storeId, ClientLevel clientLevel) {
-        //判断是否总店
-        if (storeId != 1) {
-            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
-        }
+    public CommonResponse updateClientLevel(ClientLevel clientLevel) {
         //判断参数
         if (clientLevel.getId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
@@ -268,7 +280,6 @@ public class ClientService {
             titles.add(new Title("客户级别", "name"));
             titles.add(new Title("级别价格类型", "priceType"));
             titles.add(new Title("级别默认价格", "price"));
-            titles.add(new Title("分店是否可以创建该级别客户", "canUse"));
             CommonResult commonResult = new CommonResult(titles, clientLevels, pageVo);
             return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
         }
@@ -281,12 +292,11 @@ public class ClientService {
 
     /**
      * 新增客户
-     * @param storeId
      * @param clientVo
      * @return
      */
     @Transactional
-    public CommonResponse add(Integer storeId, ClientVo clientVo) {
+    public CommonResponse add(ClientVo clientVo) {
         //设置初始属性
         clientVo.setId(UUID.randomUUID().toString().replace("-", ""));
         String phone = clientVo.getPhone();
@@ -312,10 +322,6 @@ public class ClientService {
             }
             clientVo.setInviterId(inviter.getId());
         }
-        //判断客户级别分店是否可用
-        if (storeId != 1 && !judgeClientLevel(new ClientLevel(clientVo.getLevelId()))) {
-            return new CommonResponse(CommonResponse.CODE7, null, "该客户级别分店不可用");
-        }
         //新增客户
         if (myClientMapper.add(clientVo) != 1) {
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
@@ -325,15 +331,11 @@ public class ClientService {
 
     /**
      * 删除客户
-     * @param storeId
      * @param clientVos
      * @return
      */
     @Transactional
-    public CommonResponse delete(Integer storeId, List<ClientVo> clientVos) {
-        if (storeId != 1) {
-            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
-        }
+    public CommonResponse delete(List<ClientVo> clientVos) {
         clientVos.stream().forEach(clientVo -> {
             //删除客户
             if (myClientMapper.delete(clientVo) != 1) {
@@ -366,14 +368,10 @@ public class ClientService {
 
     /**
      * 修改客户停用和备注
-     * @param storeId
      * @param clientVo
      * @return
      */
-    public CommonResponse updateDisabledAndRemark(Integer storeId, ClientVo clientVo) {
-        if (storeId != 1) {
-            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
-        }
+    public CommonResponse updateDisabledAndRemark(ClientVo clientVo) {
         if (myClientMapper.updateDisabledAndRemark(clientVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
@@ -506,14 +504,13 @@ public class ClientService {
 
     /**
      * 导入客户
-     * @param storeId
      * @param multipartFile
      * @return
      * @throws IOException
      * @throws ParseException
      */
     @Transactional
-    public CommonResponse importClient(Integer storeId, MultipartFile multipartFile) throws IOException, ParseException {
+    public CommonResponse importClient(MultipartFile multipartFile) throws IOException, ParseException {
         //创建Excel工作簿
         HSSFWorkbook workbook = new HSSFWorkbook(multipartFile.getInputStream());
         //创建一个工作表sheet
@@ -546,9 +543,6 @@ public class ClientService {
             String levelName = CommonUtil.getCellValue(row.getCell(2));
             if (levelName.equals("")) {
                 throw new CommonException(CommonResponse.CODE3, "客户级别必填");
-            }
-            if (storeId != 1 && !judgeClientLevel(new ClientLevel(levelName))) {
-                throw new CommonException(CommonResponse.CODE17, "客户级别【" + levelName + "】分店不可用");
             }
             //判断客户级别是否存在
             ClientLevel clientLevel = new ClientLevel(levelName);

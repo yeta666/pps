@@ -14,6 +14,9 @@ import java.util.List;
 
 public interface MyClientMapper {
 
+    //客户登陆
+    Client findByUsernameAndPassword(ClientVo clientVo);
+
     //会员卡号
 
     int addMembershipNumber(MembershipNumber membershipNumber);
@@ -46,8 +49,6 @@ public interface MyClientMapper {
     List<ClientLevel> findAllClientLevel();
 
     List<ClientLevel> findUsedClientLevel();
-
-    List<ClientLevel> findCanUseClientLevel();
 
     ClientLevel findClientLevelByIdOrName(ClientLevel clientLevel);
 

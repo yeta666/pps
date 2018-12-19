@@ -57,12 +57,19 @@ public class CommonInterceptor implements HandlerInterceptor {
         HttpSession httpSession = request.getSession();
         ServletContext servletContext = httpSession.getServletContext();
         ConcurrentSkipListSet<String> onlineIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineIds");
+        ConcurrentSkipListSet<String> onlineClientIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineClientIds");
 
         //获取请求uri
         String uri = request.getServletPath();
 
         //判断是否访问的是允许的资源
         if (isPremited(uri)) {
+            LOG.info("请求访问【{}】，允许的uri，放行", uri);
+            return true;
+        }
+
+        //如果是获取所有店铺
+        if (uri.indexOf("/stores") != -1 && request.getMethod().equals("GET")) {
             LOG.info("请求访问【{}】，允许的uri，放行", uri);
             return true;
         }
@@ -74,9 +81,19 @@ public class CommonInterceptor implements HandlerInterceptor {
             throw new CommonException(CommonResponse.CODE14, CommonResponse.MESSAGE14);
         }
 
-        //判断该用户名是否已经存在于在线用户列表
+        //判断该用户id是否已经存在于在线用户列表
         for (String onlineId: onlineIds) {
             if (CommonUtil.getMd5(onlineId).equals(requestToken)) {
+                LOG.info("请求访问【{}】，验证token通过，放行", uri);
+                return true;
+            }
+        }
+
+        for (String onlineId: onlineClientIds) {
+            if (CommonUtil.getMd5(onlineId).equals(requestToken)) {
+                if (uri.indexOf("/clients") == -1) {
+                    return false;
+                }
                 LOG.info("请求访问【{}】，验证token通过，放行", uri);
                 return true;
             }

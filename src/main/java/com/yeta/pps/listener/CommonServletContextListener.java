@@ -25,6 +25,10 @@ public class CommonServletContextListener implements ServletContextListener {
         //初始化的时候新建一个Set，用来存所有在线用户
         ConcurrentSkipListSet<String> onlineIds = new ConcurrentSkipListSet<>();
         servletContextEvent.getServletContext().setAttribute("onlineIds", onlineIds);
+
+        //初始化的时候新建一个Set，用来存所有在线客户
+        ConcurrentSkipListSet<String> onlineClientIds = new ConcurrentSkipListSet<>();
+        servletContextEvent.getServletContext().setAttribute("onlineClientIds", onlineClientIds);
     }
 
     @Override
@@ -33,5 +37,6 @@ public class CommonServletContextListener implements ServletContextListener {
 
         //销毁的时候移除
         servletContextEvent.getServletContext().removeAttribute("onlineIds");
+        servletContextEvent.getServletContext().removeAttribute("onlineClientIds");
     }
 }
