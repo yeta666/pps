@@ -110,14 +110,14 @@ public class StorageController {
     //其他入/出库单
 
     /**
-     * 新增其他出/入库单接口
+     * 新增其他入/出库单、报溢/损单接口
      * @param storageResultOrderVo
      * @return
      */
-    @ApiOperation(value = "新增其他出/入库单", notes = "details是对应的商品规格，其中goodsSkuId, type, quantity, money, discountMoney必填, remark选填")
+    @ApiOperation(value = "新增其他入/出库单、报溢/损单", notes = "details是对应的商品规格，其中goodsSkuId, type, quantity, money, discountMoney必填, remark选填")
     @ApiImplicitParam(
             name = "storageResultOrderVo",
-            value = "storeId, details, type(单据类型，1：其他入库单，2：其他出库单), targetType(往来单位类型，1：供应商，2：客户), targetId, warehouseId, totalQuantity, totalMoney, totalDiscountMoney, orderMoney, userId必填，remark选填",
+            value = "storeId, details, type(单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单), targetType(往来单位类型，1：供应商，2：客户), targetId(后两种类型不填), warehouseId, totalQuantity, totalMoney, userId必填，remark选填",
             required = true,
             paramType = "body",
             dataType = "StorageResultOrderVo"
@@ -128,30 +128,25 @@ public class StorageController {
     }
 
     /**
-     * 红冲其他入/出库单接口
-     * @param storeId
-     * @param id
-     * @param userId
-     * @param remark
+     * 红冲其他入/出库单、报溢/损单接口
+     * @param storageResultOrderVo
      * @return
      */
-    @ApiOperation(value = "红冲其他入/出库单")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "id", value = "其他入/出库单订单编号", required = true, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "remark", value = "备注", required = false, paramType = "query", dataType = "String")
-    })
+    @ApiOperation(value = "红冲其他入/出库单、报溢/损单")
+    @ApiImplicitParam(
+            name = "storageResultOrderVo",
+            value = "storeId, id, userId必填，remark选填",
+            required = true,
+            paramType = "body",
+            dataType = "StorageResultOrderVo"
+    )
     @PutMapping(value = "/storage/result/redDashed")
-    public CommonResponse redDashedStorageResultOrder(@RequestParam(value = "storeId") Integer storeId,
-                                                      @RequestParam(value = "id") String id,
-                                                      @RequestParam(value = "userId") String userId,
-                                                      @RequestParam(value = "remark") String remark) {
-        return storageService.redDashedStorageResultOrder(new StorageResultOrderVo(storeId, id, userId, remark));
+    public CommonResponse redDashedStorageResultOrder(@RequestBody @Valid StorageResultOrderVo storageResultOrderVo) {
+        return storageService.redDashedStorageResultOrder(storageResultOrderVo);
     }
 
     /**
-     * 根据条件查询其他入/出库单接口
+     * 根据条件查询其他入/出库单、报溢/损单接口
      * @param storeId
      * @param id
      * @param type
@@ -162,11 +157,11 @@ public class StorageController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查询所有销售申请订单", notes = "分页、筛选查询，其中targetName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiOperation(value = "根据条件查询其他入/出库单、报溢/损单", notes = "分页、筛选查询，其中targetName为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "单据类型，1：其他入库单，2：其他出库单", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "type", value = "单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "targetName", value = "往来单位", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
@@ -176,7 +171,7 @@ public class StorageController {
     @GetMapping(value = "/storage/result")
     public CommonResponse<CommonResult<List<StorageResultOrderVo>>> findAllStorageResultOrder(@RequestParam(value = "storeId") Integer storeId,
                                                                                               @RequestParam(value = "id", required = false) String id,
-                                                                                              @RequestParam(value = "type", required = false) Byte type,
+                                                                                              @RequestParam(value = "type") Byte type,
                                                                                               @RequestParam(value = "targetName", required = false) String targetName,
                                                                                               @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
                                                                                               @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
@@ -186,12 +181,12 @@ public class StorageController {
     }
 
     /**
-     * 根据单据编号查询其他入/出库单详情接口
+     * 根据单据编号查询其他入/出库单、报溢/损单详情接口
      * @param storeId
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据单据编号查询其他入/出库单详情", notes = "主要是查关联的商品和商品规格信息，用于点击其他入/出库单时")
+    @ApiOperation(value = "根据单据编号查询其他入/出库单、报溢/损单详情", notes = "主要是查关联的商品和商品规格信息，用于点击其他入/出库单时")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "单据编号", required = true, paramType = "path", dataType = "String")

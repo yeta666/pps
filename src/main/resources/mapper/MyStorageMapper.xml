@@ -115,9 +115,9 @@
 
     <insert id="addStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo">
         insert into
-            storage_result_order_${storeId} (id, type, create_time, order_status, target_type, target_id, warehouse_id, total_quantity, total_money, total_discount_money, order_money, user_id, remark)
+            storage_result_order_${storeId} (id, type, create_time, order_status, target_type, target_id, warehouse_id, total_quantity, total_money, user_id, remark)
         values
-            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{targetType}, #{targetId}, #{warehouseId}, #{totalQuantity}, #{totalMoney}, #{totalDiscountMoney}, #{orderMoney}, #{userId}, #{remark});
+            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{targetType}, #{targetId}, #{warehouseId}, #{totalQuantity}, #{totalMoney}, #{userId}, #{remark});
     </insert>
 
     <update id="redDashedStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo">
@@ -169,8 +169,6 @@
             w.name as warehouse_name,
             sro.total_quantity,
             sro.total_money,
-            sro.total_discount_money,
-            sro.order_money,
             sro.user_id,
             u.name as u_name,
             sro.remark
@@ -216,8 +214,6 @@
         <result column="warehouse_name" property="warehouseName" />
         <result column="total_quantity" property="totalQuantity" />
         <result column="total_money" property="totalMoney" />
-        <result column="total_discount_money" property="totalDiscountMoney" />
-        <result column="order_money" property="orderMoney" />
         <result column="user_id" property="userId" />
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
@@ -253,8 +249,6 @@
             w.name as warehouse_name,
             sro.total_quantity,
             sro.total_money,
-            sro.total_discount_money,
-            sro.order_money,
             sro.user_id,
             u.name as u_name,
             sro.remark,
