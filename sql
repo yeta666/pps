@@ -805,3 +805,22 @@ create table fund_order_1(
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
 
+
+/*其他入/出库单*/
+drop table if exists storage_result_order_1;
+create table storage_result_order_1(
+  id varchar(50) primary key comment '单据编号',
+  type tinyint not null comment '单据类型，1：其他入库单，2：其他出库单',
+  create_time datetime not null comment '单据日期',
+  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  target_type tinyint not null comment '往来单位类型，1：供应商，2：客户',
+  target_id varchar(50) not null comment '往来单位编号',
+  warehouse_id int not null comment '仓库编号',
+  total_quantity int not null comment '总商品数量',
+  total_money decimal(10, 2) not null comment '总商品金额',
+  total_discount_money decimal(10, 2) not null comment '总优惠金额',
+  order_money decimal(10, 2) not null comment '本单金额',
+  user_id varchar(50) not null comment '经手人',
+  remark varchar(255) comment '单据备注'
+) engine InnoDB default charset=utf8;
+

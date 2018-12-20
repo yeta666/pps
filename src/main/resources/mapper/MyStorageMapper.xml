@@ -111,4 +111,190 @@
         select id, type, create_time, apply_order_id, order_status, quantity, logistics_company, waybill_number, user_id, remark from storage_order_${storeId} where id = #{id};
     </select>
 
+    <!--其他入/出库单-->
+
+    <insert id="addStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo">
+        insert into
+            storage_result_order_${storeId} (id, type, create_time, order_status, target_type, target_id, warehouse_id, total_quantity, total_money, total_discount_money, order_money, user_id, remark)
+        values
+            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{targetType}, #{targetId}, #{warehouseId}, #{totalQuantity}, #{totalMoney}, #{totalDiscountMoney}, #{orderMoney}, #{userId}, #{remark});
+    </insert>
+
+    <update id="redDashedStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo">
+        update storage_result_order_${storeId} set create_time = now(), order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+    </update>
+
+    <select id="findCountStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                (
+                    (
+                        storage_result_order_${storeId} as sro
+                        left join warehouse_${storeId} as w on sro.warehouse_id = w.id
+                    )
+                    left join user_${storeId} as u on sro.user_id = u.id
+                )
+                left join supplier_${storeId} as s on sro.target_id = s.id
+            )
+        left join client as c on sro.target_id = c.id
+        where 1 = 1
+        <if test="id != null">
+            and sro.id = #{id}
+        </if>
+        <if test="type != null">
+            and sro.type = #{type}
+        </if>
+        <if test="targetName != null">
+            and (c.name like concat('%', #{targetName}, '%') or s.name like concat('%', #{targetName}, '%'))
+        </if>
+        <if test="startTime != null and endTime != null">
+            and date(sro.create_time) between #{startTime} and #{endTime}
+        </if>
+        order by sro.create_time desc;
+    </select>
+
+    <select id="findAllPagedStorageResultOrder" resultType="com.yeta.pps.vo.StorageResultOrderVo">
+        select
+            sro.id,
+            sro.type,
+            sro.create_time,
+            sro.order_status,
+            sro.target_type,
+            sro.target_id,
+            c.name as client_name,
+            s.name as supplier_name,
+            sro.warehouse_id,
+            w.name as warehouse_name,
+            sro.total_quantity,
+            sro.total_money,
+            sro.total_discount_money,
+            sro.order_money,
+            sro.user_id,
+            u.name as u_name,
+            sro.remark
+        from
+            (
+                (
+                    (
+                        storage_result_order_${vo.storeId} as sro
+                        left join warehouse_${vo.storeId} as w on sro.warehouse_id = w.id
+                    )
+                    left join user_${vo.storeId} as u on sro.user_id = u.id
+                )
+                left join supplier_${vo.storeId} as s on sro.target_id = s.id
+            )
+        left join client as c on sro.target_id = c.id
+        where 1 = 1
+        <if test="vo.id != null">
+            and sro.id = #{vo.id}
+        </if>
+        <if test="vo.type != null">
+            and sro.type = #{vo.type}
+        </if>
+        <if test="vo.targetName != null">
+            and (c.name like concat('%', #{vo.targetName}, '%') or s.name like concat('%', #{vo.targetName}, '%'))
+        </if>
+        <if test="vo.startTime != null and vo.endTime != null">
+            and date(sro.create_time) between #{vo.startTime} and #{vo.endTime}
+        </if>
+        order by sro.create_time desc
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <resultMap id="storageResultOrderVoMap2" type="com.yeta.pps.vo.StorageResultOrderVo">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="target_type" property="targetType" />
+        <result column="target_id" property="targetId" />
+        <result column="client_name" property="clientName" />
+        <result column="supplier_name" property="supplierName" />
+        <result column="order_status" property="orderStatus" />
+        <result column="warehouse_id" property="warehouseId" />
+        <result column="warehouse_name" property="warehouseName" />
+        <result column="total_quantity" property="totalQuantity" />
+        <result column="total_money" property="totalMoney" />
+        <result column="total_discount_money" property="totalDiscountMoney" />
+        <result column="order_money" property="orderMoney" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="remark" property="remark" />
+        <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
+            <result column="ogs_id" property="id" />
+            <result column="ogs_type" property="type" />
+            <result column="ogs_goods_sku_id" property="goodsSkuId" />
+            <result column="ogs_quantity" property="quantity" />
+            <result column="ogs_finish_quantity" property="finishQuantity" />
+            <result column="ogs_not_finish_quantity" property="notFinishQuantity" />
+            <result column="ogs_money" property="money" />
+            <result column="ogs_discount_money" property="discountMoney" />
+            <result column="ogs_remark" property="remark" />
+            <result column="g_name" property="goodsName" />
+            <result column="g_id" property="goodsId" />
+            <result column="g_bar_code" property="goodsBarCode" />
+            <result column="gs_sku" property="goodsSkuSku" />
+            <result column="gs_purchase_price" property="goodsSkuPurchasePrice" />
+        </collection>
+    </resultMap>
+
+    <select id="findStorageResultOrderDetailById" parameterType="com.yeta.pps.vo.StorageResultOrderVo" resultMap="storageResultOrderVoMap2">
+        select
+            sro.id,
+            sro.type,
+            sro.create_time,
+            sro.order_status,
+            sro.target_type,
+            sro.target_id,
+            c.name as client_name,
+            s.name as supplier_name,
+            sro.warehouse_id,
+            w.name as warehouse_name,
+            sro.total_quantity,
+            sro.total_money,
+            sro.total_discount_money,
+            sro.order_money,
+            sro.user_id,
+            u.name as u_name,
+            sro.remark,
+            ogs.id as ogs_id,
+            ogs.type as ogs_type,
+            ogs.goods_sku_id as ogs_goods_sku_id,
+            ogs.quantity as ogs_quantity,
+            ogs.finish_quantity as ogs_finish_quantity,
+            ogs.not_finish_quantity as ogs_not_finish_quantity,
+            ogs.money as ogs_money,
+            ogs.discount_money as ogs_discount_money,
+            ogs.remark as ogs_remark,
+            g.name as g_name,
+            g.id as g_id,
+            g.bar_code as g_bar_code,
+            gs.sku as gs_sku,
+            gs.purchase_price as gs_purchase_price
+        from
+            (
+                (
+                    (
+                        (
+                            (
+                                (
+                                    storage_result_order_${storeId} as sro
+                                    left join warehouse_${storeId} as w on sro.warehouse_id = w.id
+                                )
+                                left join user_${storeId} as u on sro.user_id = u.id
+                            )
+                            left join supplier_${storeId} as s on sro.target_id = s.id
+                        )
+                        left join client as c on sro.target_id = c.id
+                    )
+                    left join order_goods_sku_${storeId} as ogs on sro.id = ogs.order_id
+                )
+                left join goods_sku_${storeId} as gs on ogs.goods_sku_id = gs.id
+            )
+        left join goods_${storeId} as g on gs.goods_id = g.id
+        where
+            sro.id = #{id};
+    </select>
+
 </mapper>

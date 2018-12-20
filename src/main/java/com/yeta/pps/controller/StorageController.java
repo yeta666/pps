@@ -4,10 +4,7 @@ import com.yeta.pps.po.Client;
 import com.yeta.pps.service.StorageService;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.ProcurementApplyOrderVo;
-import com.yeta.pps.vo.SellApplyOrderVo;
-import com.yeta.pps.vo.StorageOrderVo;
+import com.yeta.pps.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -59,7 +56,7 @@ public class StorageController {
             @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "remark", value = "备注", required = false, paramType = "query", dataType = "String")
     })
-    @PostMapping(value = "/storage/redDashed")
+    @PutMapping(value = "/storage/redDashed")
     public CommonResponse redDashed(@RequestParam(value = "storeId") Integer storeId,
                                     @RequestParam(value = "id") String id,
                                     @RequestParam(value = "userId") String userId,
@@ -108,5 +105,100 @@ public class StorageController {
         Client client = new Client(clientName, phone, membershipNumber);
         SellApplyOrderVo sellApplyOrderVo = new SellApplyOrderVo(startTime, endTime, client);
         return storageService.findAllStorageOrder(new StorageOrderVo(storeId, id, type, procurementApplyOrderVo, sellApplyOrderVo), new PageVo(page, pageSize));
+    }
+
+    //其他入/出库单
+
+    /**
+     * 新增其他出/入库单接口
+     * @param storageResultOrderVo
+     * @return
+     */
+    @ApiOperation(value = "新增其他出/入库单", notes = "details是对应的商品规格，其中goodsSkuId, type, quantity, money, discountMoney必填, remark选填")
+    @ApiImplicitParam(
+            name = "storageResultOrderVo",
+            value = "storeId, details, type(单据类型，1：其他入库单，2：其他出库单), targetType(往来单位类型，1：供应商，2：客户), targetId, warehouseId, totalQuantity, totalMoney, totalDiscountMoney, orderMoney, userId必填，remark选填",
+            required = true,
+            paramType = "body",
+            dataType = "StorageResultOrderVo"
+    )
+    @PostMapping(value = "/storage/result")
+    public CommonResponse addStorageResultOrder(@RequestBody @Valid StorageResultOrderVo storageResultOrderVo) {
+        return storageService.addStorageResultOrder(storageResultOrderVo);
+    }
+
+    /**
+     * 红冲其他入/出库单接口
+     * @param storeId
+     * @param id
+     * @param userId
+     * @param remark
+     * @return
+     */
+    @ApiOperation(value = "红冲其他入/出库单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "其他入/出库单订单编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false, paramType = "query", dataType = "String")
+    })
+    @PutMapping(value = "/storage/result/redDashed")
+    public CommonResponse redDashedStorageResultOrder(@RequestParam(value = "storeId") Integer storeId,
+                                                      @RequestParam(value = "id") String id,
+                                                      @RequestParam(value = "userId") String userId,
+                                                      @RequestParam(value = "remark") String remark) {
+        return storageService.redDashedStorageResultOrder(new StorageResultOrderVo(storeId, id, userId, remark));
+    }
+
+    /**
+     * 根据条件查询其他入/出库单接口
+     * @param storeId
+     * @param id
+     * @param type
+     * @param targetName
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "查询所有销售申请订单", notes = "分页、筛选查询，其中targetName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "单据类型，1：其他入库单，2：其他出库单", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "targetName", value = "往来单位", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/storage/result")
+    public CommonResponse<CommonResult<List<StorageResultOrderVo>>> findAllStorageResultOrder(@RequestParam(value = "storeId") Integer storeId,
+                                                                                              @RequestParam(value = "id", required = false) String id,
+                                                                                              @RequestParam(value = "type", required = false) Byte type,
+                                                                                              @RequestParam(value = "targetName", required = false) String targetName,
+                                                                                              @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                              @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                              @RequestParam(value = "page") Integer page,
+                                                                                              @RequestParam(value = "pageSize") Integer pageSize) {
+        return storageService.findAllStorageResultOrder(new StorageResultOrderVo(storeId, id, type, startTime, endTime, targetName), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据单据编号查询其他入/出库单详情接口
+     * @param storeId
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "根据单据编号查询其他入/出库单详情", notes = "主要是查关联的商品和商品规格信息，用于点击其他入/出库单时")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = true, paramType = "path", dataType = "String")
+    })
+    @GetMapping(value = "/storage/result/detail/{id}")
+    public CommonResponse<StorageResultOrderVo> findStorageResultOrderDetailById(@RequestParam(value = "storeId") Integer storeId,
+                                                                                 @PathVariable(value = "id") String id) {
+        return storageService.findStorageResultOrderDetailById(new StorageResultOrderVo(storeId, id));
     }
 }

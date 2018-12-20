@@ -662,4 +662,221 @@ public class StorageService {
         CommonResult commonResult = new CommonResult(titles, storageOrderVos, pageVo);
         return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
     }
+
+    //其他入/出库单
+
+    /**
+     * 新增单据对应的商品规格关系的方法
+     * @param orderGoodsSkuVos
+     * @param type 0：出库，1：入库
+     * @param storeId
+     * @param orderId
+     * @return 返回验证数量和金额
+     */
+    @Transactional
+    public Map<String, Object> addOrderGoodsSku(List<OrderGoodsSkuVo> orderGoodsSkuVos, byte type, int storeId, String orderId) {
+        //验证
+        Map<String, Object> check = new HashMap<>();
+        check.put("totalQuantity", 0);
+        check.put("totalMoney", 0.0);
+        check.put("totalDiscountMoney", 0.0);
+        check.put("orderMoney", 0.0);
+        //新增其他入/出库单 商品规格关系
+        orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
+            //判断参数
+            if (orderGoodsSkuVo.getGoodsSkuId() == null || orderGoodsSkuVo.getType() == null || orderGoodsSkuVo.getType() != type ||
+                    orderGoodsSkuVo.getQuantity() == null || orderGoodsSkuVo.getMoney() == null || orderGoodsSkuVo.getDiscountMoney() == null){
+                LOG.info("新增其他入/出库单，商品规格参数错误");
+                throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+            }
+            //设置初始属性
+            orderGoodsSkuVo.setStoreId(storeId);
+            orderGoodsSkuVo.setOrderId(orderId);
+            orderGoodsSkuVo.setFinishQuantity(orderGoodsSkuVo.getQuantity());
+            orderGoodsSkuVo.setNotFinishQuantity(0);
+            orderGoodsSkuVo.setOperatedQuantity(orderGoodsSkuVo.getQuantity());
+            //插入数据
+            if (myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo) != 1) {
+                LOG.info("新增其他入/出库单，插入其他入/出库单、商品规格关系数据失败");
+                throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+            }
+            //修改库存
+            updateGoodsSkuInventory(type, orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), storeId);
+            //统计数量
+            check.put("totalQuantity", (int) check.get("totalQuantity") + orderGoodsSkuVo.getQuantity());
+            //统计金额
+            check.put("totalMoney", (double) check.get("totalMoney") + orderGoodsSkuVo.getMoney().doubleValue());
+            check.put("totalDiscountMoney", (double) check.get("totalDiscountMoney") + orderGoodsSkuVo.getDiscountMoney().doubleValue());
+        });
+        check.put("orderMoney", (double) check.get("totalMoney") - (double) check.get("totalDiscountMoney"));
+        return check;
+    }
+
+    /**
+     * 修改商品库存方法
+     * @param type 0：出库，1：入库
+     * @param goodsSkuId
+     * @param quantity
+     * @param storeId
+     */
+    @Transactional
+    public void updateGoodsSkuInventory(byte type, int goodsSkuId, int quantity, int storeId) {
+        switch (type) {
+            //出库，减库存
+            case 0:
+                if (myGoodsMapper.decreaseGoodsSkuInventory(new GoodsSkuVo(storeId, goodsSkuId, quantity)) != 1) {
+                    LOG.info("加库存失败，店铺编号：【{}】，商品规格编号：【{}】，数量：【{}】", storeId, goodsSkuId, quantity);
+                    throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                }
+                break;
+            //入库，加库存
+            case 1:
+                if (myGoodsMapper.increaseGoodsSkuInventory(new GoodsSkuVo(storeId, goodsSkuId, quantity)) != 1) {
+                    LOG.info("减库存失败，店铺编号：【{}】，商品规格编号：【{}】，数量：【{}】", storeId, goodsSkuId, quantity);
+                    throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                }
+                break;
+            default:
+                LOG.info("修改库存，出/入库类型错误：【{}】", type);
+                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        }
+    }
+
+    /**
+     * 新增其他入/出库单
+     * @param storageResultOrderVo
+     * @return
+     */
+    @Transactional
+    public CommonResponse addStorageResultOrder(StorageResultOrderVo storageResultOrderVo) {
+        //获取参数
+        Integer storeId = storageResultOrderVo.getStoreId();
+        List<OrderGoodsSkuVo> orderGoodsSkuVos = storageResultOrderVo.getDetails();
+        byte type = storageResultOrderVo.getType();
+        int totalQuantity = storageResultOrderVo.getTotalQuantity();
+        double totalMoney = storageResultOrderVo.getTotalMoney().doubleValue();
+        double totalDiscountMoney = storageResultOrderVo.getTotalDiscountMoney().doubleValue();
+        double orderMoney = storageResultOrderVo.getOrderMoney().doubleValue();
+        //判断参数
+        if (orderGoodsSkuVos.size() == 0 || totalMoney - totalDiscountMoney != orderMoney) {
+            LOG.info("新增其他入/出库单，商品规格数量错误或金额错误【{}】", orderGoodsSkuVos.size());
+            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
+        //判断新增单据类型
+        switch (type) {
+            //其他入库单
+            case 1:
+                storageResultOrderVo.setId("QTRKD_" + UUID.randomUUID().toString().replace("-", ""));
+                break;
+            //其他出库单
+            case 2:
+                storageResultOrderVo.setId("QTCKD_" + UUID.randomUUID().toString().replace("-", ""));
+                break;
+            default:
+                LOG.info("新增其他入/出库单，类型【{}】", type);
+                return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
+        //设置初始属性
+        storageResultOrderVo.setCreateTime(new Date());
+        storageResultOrderVo.setOrderStatus((byte) 1);
+        //新增采购入/出库单
+        if (myStorageMapper.addStorageResultOrder(storageResultOrderVo) != 1) {
+            LOG.info("新增其他入/出库单，插入数据失败");
+            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+        }
+        //采购入/出库单、商品规格关系
+        Map<String, Object> check = addOrderGoodsSku(orderGoodsSkuVos, type == 1 ? (byte) 1 : (byte) 0, storeId, storageResultOrderVo.getId());
+        //验证数量和金额是否对应
+        if (totalQuantity != (int) check.get("totalQuantity") || orderMoney != (double) check.get("orderMoney")) {
+            LOG.info("新增其他入/出库单，商品数量或金额与所有商品规格数量、金额之和不对应");
+            throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+        }
+        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 红冲其他入/出库单
+     * @param storageResultOrderVo
+     * @return
+     */
+    @Transactional
+    public CommonResponse redDashedStorageResultOrder(StorageResultOrderVo storageResultOrderVo) {
+        Integer storeId = storageResultOrderVo.getStoreId();
+        //修改单据状态
+        if (myStorageMapper.redDashedStorageResultOrder(storageResultOrderVo) != 1) {
+            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        }
+        //获取该订单
+        storageResultOrderVo = myStorageMapper.findStorageResultOrderDetailById(storageResultOrderVo);
+        //新增红冲单
+        storageResultOrderVo.setStoreId(storeId);
+        storageResultOrderVo.setId("HC_" + storageResultOrderVo.getId());
+        storageResultOrderVo.setCreateTime(new Date());
+        storageResultOrderVo.setOrderStatus((byte) -2);
+        storageResultOrderVo.setTotalQuantity(-storageResultOrderVo.getTotalQuantity());
+        storageResultOrderVo.setTotalMoney(new BigDecimal(-storageResultOrderVo.getTotalMoney().doubleValue()));
+        storageResultOrderVo.setTotalDiscountMoney(new BigDecimal(-storageResultOrderVo.getTotalDiscountMoney().doubleValue()));
+        storageResultOrderVo.setOrderMoney(new BigDecimal(-storageResultOrderVo.getOrderMoney().doubleValue()));
+        if (myStorageMapper.addStorageResultOrder(storageResultOrderVo) != 1) {
+            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        }
+        //修改库存
+        List<OrderGoodsSkuVo> details = storageResultOrderVo.getDetails();
+        details.stream().forEach(orderGoodsSkuVo -> {
+            updateGoodsSkuInventory(orderGoodsSkuVo.getType() == 0 ? (byte) 1 : (byte) 0, orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), storeId);
+        });
+        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 根据条件查询其他入/出库单
+     * @param storageResultOrderVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findAllStorageResultOrder(StorageResultOrderVo storageResultOrderVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountStorageResultOrder(storageResultOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<StorageResultOrderVo> storageResultOrderVos = myStorageMapper.findAllPagedStorageResultOrder(storageResultOrderVo, pageVo);
+        //设置往来单位
+        storageResultOrderVos.stream().forEach(vo -> {
+            if (vo.getTargetType() == 1) {      //供应商
+                vo.setTargetName(vo.getSupplierName());
+            } else if (vo.getType() == 2) {       //客户
+                vo.setTargetName(vo.getClientName());
+            }
+        });
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "id"));
+        titles.add(new Title("单据类型", "type"));
+        titles.add(new Title("单据日期", "createTime"));
+        titles.add(new Title("往来单位", "targetName"));
+        titles.add(new Title("仓库", "warehouseName"));
+        titles.add(new Title("总商品数量", "totalQuantity"));
+        titles.add(new Title("总订单金额", "totalMoney"));
+        titles.add(new Title("总优惠金额", "totalDiscountMoney"));
+        titles.add(new Title("本单金额", "orderMoney"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("单据备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, storageResultOrderVos, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 根据单据编号查询其他入/出库单详情
+     * @param storageResultOrderVo
+     * @return
+     */
+    public CommonResponse findStorageResultOrderDetailById(StorageResultOrderVo storageResultOrderVo) {
+        storageResultOrderVo = myStorageMapper.findStorageResultOrderDetailById(storageResultOrderVo);
+        //设置往来单位
+        if (storageResultOrderVo.getTargetType() == 1) {      //供应商
+            storageResultOrderVo.setTargetName(storageResultOrderVo.getSupplierName());
+        } else if (storageResultOrderVo.getType() == 2) {       //客户
+            storageResultOrderVo.setTargetName(storageResultOrderVo.getClientName());
+        }
+        return new CommonResponse(CommonResponse.CODE1, storageResultOrderVo, CommonResponse.MESSAGE1);
+    }
 }

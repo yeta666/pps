@@ -2,6 +2,7 @@ package com.yeta.pps.mapper;
 
 import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.StorageOrderVo;
+import com.yeta.pps.vo.StorageResultOrderVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -24,4 +25,17 @@ public interface MyStorageMapper {
                                                   @Param(value = "pageVo")PageVo pageVo);
 
     StorageOrderVo findStorageOrderById(StorageOrderVo storageOrderVo);
+
+    //其他入/出库单
+
+    int addStorageResultOrder(StorageResultOrderVo storageResultOrderVo);
+
+    int redDashedStorageResultOrder(StorageResultOrderVo storageResultOrderVo);
+
+    int findCountStorageResultOrder(StorageResultOrderVo storageResultOrderVo);
+
+    List<StorageResultOrderVo> findAllPagedStorageResultOrder(@Param(value = "vo") StorageResultOrderVo storageResultOrderVo,
+                                                              @Param(value = "pageVo")PageVo pageVo);
+
+    StorageResultOrderVo findStorageResultOrderDetailById(StorageResultOrderVo storageResultOrderVo);
 }

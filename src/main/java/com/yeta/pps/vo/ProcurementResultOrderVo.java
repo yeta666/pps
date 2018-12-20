@@ -13,7 +13,7 @@ import java.util.List;
 public class ProcurementResultOrderVo {
 
     /**
-     * 店铺id
+     * 店铺编号
      */
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
