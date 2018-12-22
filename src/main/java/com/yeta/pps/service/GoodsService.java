@@ -666,7 +666,7 @@ public class GoodsService {
             List<String> titleRowCell;
             if (goodsVo1.getSkus() != null && !goodsVo1.getSkus().equals("")) {
                 titleRowCell = new ArrayList<>(Arrays.asList(new String[]{
-                        "商品货号", "商品名", "条码", "分类", "上架状态（0：不上架，1：上架）", "产地", "图片", "备注", "创建时间", "标签（多个用英文逗号隔开）", "进价", "零售价", "vip售价", "库存", "积分"
+                        "商品货号", "商品名", "条码", "分类", "上架状态（0：不上架，1：上架）", "产地", "图片", "备注", "创建时间", "标签（多个用英文逗号隔开）", "进价", "零售价", "vip售价", "积分"
                 }));
                 List<Skus> skuses = JSON.parseArray(goodsVo1.getSkus(), Skus.class);
                 skuses.stream().forEach(skus -> {
@@ -734,8 +734,7 @@ public class GoodsService {
                     dataRowCell.set(10, goodsSkuVo.getPurchasePrice().toString());
                     dataRowCell.set(11, goodsSkuVo.getRetailPrice().toString());
                     dataRowCell.set(12, goodsSkuVo.getVipPrice().toString());
-                    dataRowCell.set(13, goodsSkuVo.getInventory().toString());
-                    dataRowCell.set(14, goodsSkuVo.getIntegral().toString());
+                    dataRowCell.set(13, goodsSkuVo.getIntegral().toString());
                     List<Sku> skus = JSON.parseArray(goodsSkuVo.getSku(), Sku.class);
                     skus.stream().forEach(sku -> {
                         int pos = titleRowCell.indexOf(sku.getKey());

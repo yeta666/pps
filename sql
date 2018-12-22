@@ -453,9 +453,11 @@ INSERT INTO role_function_1 VALUES ('172', '1', '172');
 INSERT INTO role_function_1 VALUES ('173', '1', '173');
 INSERT INTO role_function_1 VALUES ('174', '1', '174');
 
+
+/*仓库*/
 drop table warehouse_1;
 create table warehouse_1(
-  id int not null primary key auto_increment comment '仓库id',
+  id int not null primary key auto_increment comment '仓库编号',
   name varchar(20) not null null unique comment '仓库名',
   contacts varchar(20) comment '联系人',
   contact_number varchar(20) comment '联系电话',
@@ -463,12 +465,10 @@ create table warehouse_1(
   postcode varchar(10) comment '邮编',
   remark varchar(200) comment '备注'
 ) engine InnoDB default charset=utf8;
-
 insert into warehouse_1 (name) values ('第一个仓库');
 
-drop table warehouse_user_1;
 
-
+/*商品*/
 drop table if exists goods_1;
 create table goods_1(
   id varchar(50) not null primary key comment '商品货号',
@@ -539,21 +539,38 @@ insert into goods_property_value_1 (name, property_key_id) values ('件', 2);
 insert into goods_property_value_1 (name, property_key_id) values ('美的', 3);
 insert into goods_property_value_1 (name, property_key_id) values ('个', 3);
 
+
+/*商品规格*/
 drop table if exists goods_sku_1;
 create table goods_sku_1(
-  id int primary key auto_increment comment '商品规格id',
+  id int primary key auto_increment comment '商品规格编号',
   goods_id varchar(50) not null comment '商品货号',
   sku MEDIUMTEXT not null comment '商品规格',
   purchase_price decimal(10, 2) not null comment '进价',
   retail_price decimal(10, 2) not null comment '零售价',
   vip_price decimal(10, 2) not null comment 'vip售价',
-  inventory int not null comment '可用库存',
-  integral int not null comment '商品积分'
+  integral int not null comment '积分'
 ) engine InnoDB default charset=utf8;
-insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral) values ('sp001', '{"品牌":"舍得","单位":"瓶"}', 555, 777, 666, 20, 0);
-insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral) values ('sp001', '{"品牌":"舍得","单位":"件"}', 5550, 7770, 6660, 40, 0);
-insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral) values ('sp002', '{"品牌":"美的","单位":"个"}', 200, 380, 300, 10, 0);
+insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp001', '{"品牌":"舍得","单位":"瓶"}', 555, 777, 666, 0);
+insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp001', '{"品牌":"舍得","单位":"件"}', 5550, 7770, 6660, 0);
+insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp002', '{"品牌":"美的","单位":"个"}', 200, 380, 300, 0);
 
+
+/*仓库/商品规格关系*/
+drop table if exists warehouse_goods_sku_1;
+create table warehouse_goods_sku_1(
+  id int primary key auto_increment comment '仓库/商品规格关系编号',
+  warehouse_id int not null comment '仓库编号',
+  goods_sku_id int not null comment '商品规格编号',
+  real_inventory int not null comment '实物库存',
+  not_sent_quantity int not null comment '待发货数量',
+  not_received_quantity int not null comment '待收货数量',
+  can_use_inventory int not null comment '可用库存',
+  book_inventory int not null comment '账面库存'
+) engine InnoDB default charset=utf8;
+
+insert into warehouse_goods_sku_1 (warehouse_id, goods_sku_id, real_inventory, not_sent_quantity, not_received_quantity, can_use_inventory, book_inventory) values (1, 1, 100, 0, 0, 100, 100);
+insert into warehouse_goods_sku_1 (warehouse_id, goods_sku_id, real_inventory, not_sent_quantity, not_received_quantity, can_use_inventory, book_inventory) values (1, 2, 100, 0, 0, 100, 100);
 
 drop table if exists bank_account_1;
 create table bank_account_1(

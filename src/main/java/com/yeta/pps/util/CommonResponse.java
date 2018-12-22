@@ -7,6 +7,7 @@ package com.yeta.pps.util;
  */
 public class CommonResponse<T> {
 
+    public static final Integer CODE0 = 1111;
     public static final Integer CODE1 = 1001;
     public static final Integer CODE2 = 1002;
     public static final Integer CODE3 = 1003;
@@ -63,6 +64,11 @@ public class CommonResponse<T> {
     public CommonResponse(Integer code, T data, String message) {
         this.code = code;
         this.data = data;
+        this.message = message;
+    }
+
+    public CommonResponse(String message) {
+        this.code = CODE0;
         this.message = message;
     }
 

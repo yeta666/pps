@@ -62,6 +62,11 @@ public class OrderGoodsSku {
     public OrderGoodsSku() {
     }
 
+    public OrderGoodsSku(Integer quantity, Integer finishQuantity) {
+        this.quantity = quantity;
+        this.finishQuantity = finishQuantity;
+    }
+
     public Integer getId() {
         return id;
     }

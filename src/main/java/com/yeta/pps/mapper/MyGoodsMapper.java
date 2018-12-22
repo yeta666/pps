@@ -98,9 +98,13 @@ public interface MyGoodsMapper {
 
     int deleteGoodsSku(GoodsSkuVo goodsSkuVo);
 
-    int increaseGoodsSkuInventory(GoodsSkuVo goodsSkuVo);
+    int increaseInventory(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
-    int decreaseGoodsSkuInventory(GoodsSkuVo goodsSkuVo);
+    int decreaseInventory(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
+
+    int increaseNotQuantity(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
+
+    int decreaseNotQuantity(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
     List<GoodsSku> findAllGoodsSku(GoodsSkuVo goodsSkuVo);
 
@@ -125,8 +129,6 @@ public interface MyGoodsMapper {
     List<GoodsVo> findAllSku(GoodsVo goodsVo);
 
     List<Goods> findByTypeId(GoodsVo goodsVo);
-
-
 
 
     //商品分类包商品，商品包商品规格，用于下单的时候

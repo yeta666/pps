@@ -292,37 +292,53 @@
 
     <insert id="addGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
         insert into
-            goods_sku_${storeId} (goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral)
+            goods_sku_${storeId} (goods_id, sku, purchase_price, retail_price, vip_price, integral)
         values
-            (#{goodsId}, #{sku}, #{purchasePrice}, #{retailPrice}, #{vipPrice}, #{inventory}, #{integral});
+            (#{goodsId}, #{sku}, #{purchasePrice}, #{retailPrice}, #{vipPrice}, #{integral});
     </insert>
 
+    <update id="increaseInventory" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+        update
+            warehouse_goods_sku_${storeId}
+        set
+            real_inventory = real_inventory + #{realInventory}, can_use_inventory = can_use_inventory + #{canUseInventory}, book_inventory = book_inventory + #{bookInventory}
+        where
+            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+    </update>
+
+    <update id="decreaseInventory" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+        update
+            warehouse_goods_sku_${storeId}
+        set
+            real_inventory = real_inventory - #{realInventory}, can_use_inventory = can_use_inventory - #{canUseInventory}, book_inventory = book_inventory - #{bookInventory}
+        where
+            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+    </update>
+
+    <update id="increaseNotQuantity" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+        update
+            warehouse_goods_sku_${storeId}
+        set
+            not_sent_quantity = not_sent_quantity + #{notSentQuantity}, not_received_quantity = not_received_quantity + #{notReceivedQuantity}
+        where
+            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+    </update>
+
+    <update id="decreaseNotQuantity" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+        update
+            warehouse_goods_sku_${storeId}
+        set
+            not_sent_quantity = not_sent_quantity - #{notSentQuantity}, not_received_quantity = not_received_quantity - #{notReceivedQuantity}
+        where
+            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+    </update>
+    
     <delete id="deleteGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
         delete from goods_sku_${storeId} where goods_id = #{goodsId};
     </delete>
 
-    <update id="increaseGoodsSkuInventory" parameterType="com.yeta.pps.vo.GoodsSkuVo">
-        update
-            goods_sku_${storeId}
-        set
-            inventory = inventory + #{inventory}
-        where
-            id = #{id};
-    </update>
-
-    <update id="decreaseGoodsSkuInventory" parameterType="com.yeta.pps.vo.GoodsSkuVo">
-        update
-            goods_sku_${storeId}
-        set
-            inventory = inventory - #{inventory}
-        where
-            id = #{id}
-        and
-            inventory - #{inventory} &gt;= 0;
-    </update>
-
     <select id="findAllGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo" resultType="com.yeta.pps.po.GoodsSku">
-        select id, goods_id, sku, purchase_price, retail_price, vip_price, inventory, integral from goods_sku_${storeId};
+        select id, goods_id, sku, purchase_price, retail_price, vip_price, integral from goods_sku_${storeId};
     </select>
 
     <!--商品-->
@@ -523,7 +539,6 @@
             <result column="sku_purchase_price" property="purchasePrice" />
             <result column="sku_retail_price" property="retailPrice" />
             <result column="sku_vip_price" property="vipPrice" />
-            <result column="sku_inventory" property="inventory" />
             <result column="sku_integral" property="integral" />
         </collection>
     </resultMap>
@@ -547,7 +562,6 @@
             gsku.purchase_price as sku_purchase_price,
             gsku.retail_price as sku_retail_price,
             gsku.vip_price as sku_vip_price,
-            gsku.inventory as sku_inventory,
             gsku.integral as sku_integral
         from
             (
@@ -580,7 +594,6 @@
             gsku.purchase_price as sku_purchase_price,
             gsku.retail_price as sku_retail_price,
             gsku.vip_price as sku_vip_price,
-            gsku.inventory as sku_inventory,
             gsku.integral as sku_integral
         from
             (
@@ -619,7 +632,6 @@
                 <result column="gs_purchase_price" property="purchasePrice" />
                 <result column="gs_retail_price" property="retailPrice" />
                 <result column="gs_vip_price" property="vipPrice" />
-                <result column="gs_inventory" property="inventory" />
                 <result column="gs_integral" property="integral" />
             </collection>
         </collection>
@@ -645,7 +657,6 @@
             gs.purchase_price as gs_purchase_price,
             gs.retail_price as gs_retail_price,
             gs.vip_price as gs_vip_price,
-            gs.inventory as gs_inventory,
             gs.integral as gs_integral
         from 
             (

@@ -105,30 +105,6 @@ public class StorageOrderVo {
         this.storeId = storeId;
     }
 
-    public ProcurementApplyOrderVo getProcurementApplyOrderVo() {
-        return procurementApplyOrderVo;
-    }
-
-    public void setProcurementApplyOrderVo(ProcurementApplyOrderVo procurementApplyOrderVo) {
-        this.procurementApplyOrderVo = procurementApplyOrderVo;
-    }
-
-    public SellApplyOrderVo getSellApplyOrderVo() {
-        return sellApplyOrderVo;
-    }
-
-    public void setSellApplyOrderVo(SellApplyOrderVo sellApplyOrderVo) {
-        this.sellApplyOrderVo = sellApplyOrderVo;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public String getId() {
         return id;
     }
@@ -159,6 +135,22 @@ public class StorageOrderVo {
 
     public void setApplyOrderId(String applyOrderId) {
         this.applyOrderId = applyOrderId;
+    }
+
+    public ProcurementApplyOrderVo getProcurementApplyOrderVo() {
+        return procurementApplyOrderVo;
+    }
+
+    public void setProcurementApplyOrderVo(ProcurementApplyOrderVo procurementApplyOrderVo) {
+        this.procurementApplyOrderVo = procurementApplyOrderVo;
+    }
+
+    public SellApplyOrderVo getSellApplyOrderVo() {
+        return sellApplyOrderVo;
+    }
+
+    public void setSellApplyOrderVo(SellApplyOrderVo sellApplyOrderVo) {
+        this.sellApplyOrderVo = sellApplyOrderVo;
     }
 
     public Byte getOrderStatus() {
@@ -199,6 +191,14 @@ public class StorageOrderVo {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getRemark() {

@@ -5,9 +5,7 @@ import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.GoodsSku;
 import com.yeta.pps.po.SellApplyOrder;
 import com.yeta.pps.po.Warehouse;
-import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.util.CommonResult;
-import com.yeta.pps.util.Title;
+import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +44,12 @@ public class SellService {
     @Autowired
     private MyClientMapper myClientMapper;
 
+    @Autowired
+    private InventoryUtil inventoryUtil;
+
+    @Autowired
+    private IntegralUtil integralUtil;
+
     //销售申请订单
 
     /**
@@ -59,17 +63,19 @@ public class SellService {
         Integer storeId = sellApplyOrderVo.getStoreId();
         List<OrderGoodsSkuVo> orderGoodsSkuVos = sellApplyOrderVo.getDetails();
         Byte type = sellApplyOrderVo.getType();
+
         //优惠券的钱
         double discountCouponMoney = 0;
+
         //判断是零售单/销售订单/销售退货申请单/销售换货申请单
         switch (type) {
-            //零售单
-            case 1:
+            case 1:     //零售单
                 //判断参数
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null || sellApplyOrderVo.getBankAccountId() == null) {
                     LOG.info("新增销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，出库仓库【{}】，出库数量：【{}】，银行账户编号：【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getOutWarehouseId(), sellApplyOrderVo.getOutTotalQuantity(), sellApplyOrderVo.getBankAccountId());
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
+
                 //设置初始属性
                 sellApplyOrderVo.setId("LSD_" + UUID.randomUUID().toString().replace("-", ""));
                 sellApplyOrderVo.setOrderStatus((byte) 6);       //已发
@@ -79,13 +85,14 @@ public class SellService {
                 sellApplyOrderVo.setClearedMoney(sellApplyOrderVo.getOrderMoney());
                 sellApplyOrderVo.setNotClearedMoney(new BigDecimal(0));
                 break;
-            //销售订单
-            case 2:
+
+            case 2:     //销售订单
                 //判断参数
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null) {
                     LOG.info("新增销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，出库仓库【{}】，出库数量：【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getOutWarehouseId(), sellApplyOrderVo.getOutTotalQuantity());
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
+
                 //设置初始属性
                 sellApplyOrderVo.setId("XXDD_" + UUID.randomUUID().toString().replace("-", ""));
                 sellApplyOrderVo.setOrderStatus((byte) 4);       //已发
@@ -95,14 +102,15 @@ public class SellService {
                 sellApplyOrderVo.setClearedMoney(new BigDecimal(0));
                 sellApplyOrderVo.setNotClearedMoney(sellApplyOrderVo.getOrderMoney());
                 break;
-            //销售退货申请单
-            case 3:
+
+            case 3:     //销售退货申请单
                 //判断参数
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getInWarehouseId() == null || sellApplyOrderVo.getInTotalQuantity() == null ||
                         sellApplyOrderVo.getResultOrderId() == null) {
                     LOG.info("新增销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，入库仓库【{}】，入库数量：【{}】，来源订单【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getInWarehouseId(), sellApplyOrderVo.getInTotalQuantity(), sellApplyOrderVo.getResultOrderId());
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
+
                 //设置初始属性
                 sellApplyOrderVo.setId("XXTHSQD_" + UUID.randomUUID().toString().replace("-", ""));
                 sellApplyOrderVo.setOrderStatus((byte) 1);       //未收
@@ -112,8 +120,8 @@ public class SellService {
                 sellApplyOrderVo.setClearedMoney(new BigDecimal(0));
                 sellApplyOrderVo.setNotClearedMoney(sellApplyOrderVo.getOrderMoney());
                 break;
-            //销售换货申请单
-            case 4:
+
+            case 4:     //销售换货申请单
                 //判断参数
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getInWarehouseId() == null || sellApplyOrderVo.getInTotalQuantity() == null ||
                         sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null ||
@@ -121,6 +129,7 @@ public class SellService {
                     LOG.info("新增销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，入库仓库【{}】，入库数量：【{}】，出库仓库【{}】，出库数量【{}】，来源订单【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getInWarehouseId(), sellApplyOrderVo.getInTotalQuantity(), sellApplyOrderVo.getOutWarehouseId(), sellApplyOrderVo.getOutTotalQuantity(), sellApplyOrderVo.getResultOrderId());
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
+
                 //设置初始属性
                 sellApplyOrderVo.setId("XXHHSQD_" + UUID.randomUUID().toString().replace("-", ""));
                 sellApplyOrderVo.setOrderStatus((byte) 7);       //未收未发
@@ -132,30 +141,36 @@ public class SellService {
                 sellApplyOrderVo.setClearedMoney(new BigDecimal(0));
                 sellApplyOrderVo.setNotClearedMoney(sellApplyOrderVo.getOrderMoney());
                 break;
+
             default:
                 LOG.info("新增销售申请单，参数不匹配，类型：【{}】", type);
                 return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
+
+        //设置初始属性
         sellApplyOrderVo.setCreateTime(new Date());
+
         //判断优惠券
         if (sellApplyOrderVo.getDiscountCouponId() != null) {
             //TODO
             //判断优惠券是否存在
             //discountCouponMoney =
         }
+
         //判断钱
         if (sellApplyOrderVo.getDiscountMoney().doubleValue() + discountCouponMoney != sellApplyOrderVo.getTotalDiscountMoney().doubleValue() ||
                 sellApplyOrderVo.getOrderMoney().doubleValue() + sellApplyOrderVo.getTotalDiscountMoney().doubleValue() != sellApplyOrderVo.getTotalMoney().doubleValue()) {
             LOG.info("新增销售申请单，钱不正确，类型【{}】", type);
             throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
         }
+
         //新增销售申请单
         if (mySellMapper.addApplyOrder(sellApplyOrderVo) != 1) {
             LOG.info("新增销售申请单，插入销售申请单数据失败，类型【{}】", type);
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
         }
+
         //新增销售申请单/商品规格关系
-        GoodsSkuVo goodsSkuVo = new GoodsSkuVo(storeId);
         List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId));
         SellResultOrderVo sellResultOrderVo = new SellResultOrderVo(new BigDecimal(0));
         orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
@@ -164,32 +179,48 @@ public class SellService {
                 LOG.info("新增销售申请单，商品规格参数不匹配，类型：【{}】，商品规格类型：【{}】，商品规格编号：【{}】，数量：【{}】，金额：【{}】，优惠金额：【{}】", type, orderGoodsSkuVo.getType(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getMoney(), orderGoodsSkuVo.getDiscountMoney());
                 throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
             }
+
             //设置初始属性
             orderGoodsSkuVo.setStoreId(sellApplyOrderVo.getStoreId());
             orderGoodsSkuVo.setOrderId(sellApplyOrderVo.getId());
             if (type == 1) {
                 orderGoodsSkuVo.setFinishQuantity(orderGoodsSkuVo.getQuantity());
                 orderGoodsSkuVo.setNotFinishQuantity(0);
+
                 //减库存
-                goodsSkuVo.setId(orderGoodsSkuVo.getGoodsSkuId());
-                goodsSkuVo.setInventory(orderGoodsSkuVo.getQuantity());
-                if (myGoodsMapper.decreaseGoodsSkuInventory(goodsSkuVo) != 1) {
-                    LOG.info("新增销售申请单，减库存失败，类型【{}】", type);
-                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-                }
-                //统计积分
+                inventoryUtil.updateInventoryMethod((byte) 0, new WarehouseGoodsSkuVo(storeId, sellApplyOrderVo.getOutWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
                 GoodsSku goodsSku = goodsSkus.stream().filter(sku -> sku.getId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst().get();
+
                 //统计成本
                 sellResultOrderVo.setCostMoney(new BigDecimal(sellResultOrderVo.getCostMoney().doubleValue() + goodsSku.getPurchasePrice().doubleValue() * orderGoodsSkuVo.getQuantity()));
             } else {
                 orderGoodsSkuVo.setFinishQuantity(0);
                 orderGoodsSkuVo.setNotFinishQuantity(orderGoodsSkuVo.getQuantity());
+
+                //修改库存相关
+                Integer warehouseId = null;
+                int notSentQuantity = 0;
+                int notReceivedQuantity = 0;
+                if (orderGoodsSkuVo.getType() == 1) {
+                    warehouseId = sellApplyOrderVo.getInWarehouseId();
+                    notReceivedQuantity = orderGoodsSkuVo.getQuantity();
+                } else if (orderGoodsSkuVo.getType() == 0) {
+                    warehouseId = sellApplyOrderVo.getOutTotalQuantity();
+                    notSentQuantity = orderGoodsSkuVo.getQuantity();
+
+                    //减少可用库存
+                    inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storeId, warehouseId, orderGoodsSkuVo.getGoodsSkuId(), 0, notSentQuantity, 0));
+                }
+                //增加待发货数量、待收货数量
+                inventoryUtil.updateNotQuantityMethod(1, new WarehouseGoodsSkuVo(storeId, warehouseId, orderGoodsSkuVo.getGoodsSkuId(), notSentQuantity, notReceivedQuantity));
             }
+
             //新增
             if (myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo) != 1) {
                 LOG.info("新增销售申请单，插入销售申请单/商品规格关系数据失败，类型【{}】", type);
                 throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
             }
+
             //修改采购入库单对应的商品规格已操作数量
             if (type == 3 || (type == 4 && orderGoodsSkuVo.getType() == 1)) {
                 if (orderGoodsSkuVo.getId() == null) {
@@ -199,7 +230,10 @@ public class SellService {
                     throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
                 }
             }
+
+
         });
+
         //新增销售结果单和收款单
         if (type == 1) {
             sellResultOrderVo.setStoreId(storeId);
@@ -235,54 +269,17 @@ public class SellService {
                 LOG.info("新增零售单，插入收款单失败");
                 throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
             }
+
             //修改客户积分相关信息
-            clientIntegralMethod(storeId, sellApplyOrderVo.getClientId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
+            integralUtil.updateIntegralMethod(storeId, sellApplyOrderVo.getClientId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
         }
+
         //修改客户最近交易时间
         if (myClientMapper.updateLastDealTime(new ClientVo(sellApplyOrderVo.getClientId())) != 1) {
             LOG.info("新增零售单，修改客户最近交易时间错误，客户编号：【{}】", sellApplyOrderVo.getClientId());
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
         }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
-    }
-
-    /**
-     * 客户积分相关方法
-     * @param storeId
-     * @param clientId
-     * @param resultOrderId
-     * @param goodsSkus
-     * @param orderGoodsSkuVos
-     */
-    @Transactional
-    public void clientIntegralMethod(Integer storeId, String clientId, String resultOrderId, List<GoodsSku> goodsSkus, List<OrderGoodsSkuVo> orderGoodsSkuVos) {
-        //统计积分
-        StoreIntegralVo storeIntegralVo = new StoreIntegralVo(storeId, clientId, 0);
-        orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
-            GoodsSku goodsSku = goodsSkus.stream().filter(sku -> sku.getId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst().get();
-            storeIntegralVo.setIntegral(storeIntegralVo.getIntegral() + goodsSku.getIntegral());
-        });
-        //增加客户积分
-        if (storeIntegralVo.getIntegral() > 0) {
-            if (myClientMapper.increaseIntegral(storeIntegralVo) != 1) {        //还没有数据
-                if (myClientMapper.addStoreIntegral(storeIntegralVo) != 1) {
-                    LOG.info("新增零售单，新增店铺/客户积分关系失败，店铺编号：【{}】，客户编号：【{}】，积分：【{}】", storeId, clientId, storeIntegralVo.getIntegral());
-                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-                }
-            }
-        }
-        //新增客户积分明细
-        if (myClientMapper.addIntegralDetail(new ClientIntegralDetailVo(
-                storeId,
-                clientId,
-                new Date(),
-                (byte) 1,
-                storeIntegralVo.getIntegral(),
-                myClientMapper.findStoreIntegralByStoreIdAndClientId(storeIntegralVo).getIntegral(),
-                resultOrderId)) != 1) {
-            LOG.info("新增零售单，新增客户积分明细失败");
-            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-        }
     }
 
     /**
@@ -564,22 +561,18 @@ public class SellService {
         }
         //修改库存
         List<OrderGoodsSkuVo> orderGoodsSkuVos = sellResultOrderVo.getDetails();
-        orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
+        for (OrderGoodsSkuVo orderGoodsSkuVo : orderGoodsSkuVos) {
             if (orderGoodsSkuVo.getType() == 0) {        //原来是出库
                 //增加商品规格库存
-                if (myGoodsMapper.increaseGoodsSkuInventory(new GoodsSkuVo(storeId, orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity())) != 1) {
-                    throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
-                }
+                inventoryUtil.updateInventoryMethod((byte) 1, new WarehouseGoodsSkuVo(storeId, sellResultOrderVo.getSellApplyOrderVo().getOutWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
             } else if (orderGoodsSkuVo.getType() == 1) {     //原来是入库
                 //减少商品规格库存
-                if (myGoodsMapper.decreaseGoodsSkuInventory(new GoodsSkuVo(storeId, orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity())) != 1) {
-                    throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
-                }
+                inventoryUtil.updateInventoryMethod((byte) 0, new WarehouseGoodsSkuVo(storeId, sellResultOrderVo.getSellApplyOrderVo().getOutWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
             } else {
                 LOG.info("商品规格类型不正确【{}】", orderGoodsSkuVo.getType());
                 throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
             }
-        });
+        }
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 

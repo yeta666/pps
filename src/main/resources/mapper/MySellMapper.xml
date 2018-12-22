@@ -226,6 +226,8 @@
         <result column="in_not_received_quantity" property="inNotReceivedQuantity" />
         <result column="out_warehouse_id" property="outWarehouseId" />
         <result column="out_total_quantity" property="outTotalQuantity" />
+        <result column="out_sent_quantity" property="outSentQuantity" />
+        <result column="out_not_sent_quantity" property="outNotSentQuantity" />
         <result column="total_money" property="totalMoney" />
         <result column="discount_money" property="discountMoney" />
         <result column="discount_coupon_id" property="discountCouponId" />
@@ -236,6 +238,7 @@
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
         <collection property="client" ofType="com.yeta.pps.po.Client">
+            <result column="client_id" property="id" />
             <result column="client_name" property="name" />
             <result column="client_phone" property="phone" />
             <result column="client_membership_number" property="membershipNumber" />
@@ -267,6 +270,7 @@
             sao.prodcing_way,
             sao.order_status,
             sao.clear_status,
+            c.id as client_id,
             c.name as client_name,
             c.phone as client_phone,
             c.membership_number as client_membership_number,
