@@ -332,6 +332,15 @@
         where
             warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
     </update>
+
+    <update id="updateLimitInventoryMethod" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+        update
+            warehouse_goods_sku_${storeId}
+        set
+            inventory_upper_limit = #{inventoryUpperLimit}, inventory_low_limit = #{inventoryLowLimit}
+        where
+            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+    </update>
     
     <delete id="deleteGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
         delete from goods_sku_${storeId} where goods_id = #{goodsId};

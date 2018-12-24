@@ -25,7 +25,8 @@ public class InventoryUtil {
     @Transactional
     public void updateInventoryMethod(int flag, WarehouseGoodsSkuVo vo) {
         //判断参数
-        if (vo.getStoreId() == null || vo.getRealInventory() == null || vo.getCanUseInventory() == null || vo.getBookInventory() == null) {
+        if (vo.getStoreId() == null || vo.getWarehouseId() == null || vo.getGoodsSkuId() == null ||
+                vo.getRealInventory() == null || vo.getCanUseInventory() == null || vo.getBookInventory() == null) {
             throw new CommonException("修改库存失败");
         }
         switch (flag) {
@@ -52,8 +53,9 @@ public class InventoryUtil {
     @Transactional
     public void updateNotQuantityMethod(int flag, WarehouseGoodsSkuVo vo) {
         //判断参数
-        if (vo.getStoreId() == null || vo.getNotSentQuantity() == null || vo.getNotReceivedQuantity() == null) {
-            throw new CommonException("修改库存失败");
+        if (vo.getStoreId() == null || vo.getWarehouseId() == null || vo.getGoodsSkuId() == null ||
+                vo.getNotSentQuantity() == null || vo.getNotReceivedQuantity() == null) {
+            throw new CommonException("修改库存待发货数量或待收货数量失败");
         }
         switch (flag) {
             case 1:
@@ -68,6 +70,21 @@ public class InventoryUtil {
                 break;
             default:
                 throw new CommonException("修改库存待发货数量或待收货数量失败");
+        }
+    }
+
+    /**
+     * 修改库存待发货数量或待收货数量的方法
+     * @param vo
+     */
+    @Transactional
+    public void updateLimitInventoryMethod( WarehouseGoodsSkuVo vo) {
+        //判断参数
+        if (vo.getStoreId() == null || vo.getWarehouseId() == null || vo.getGoodsSkuId() == null) {
+            throw new CommonException("修改库存上限或下限失败");
+        }
+        if (myGoodsMapper.updateLimitInventoryMethod(vo) != 1) {
+            throw new CommonException("修改库存上限或下限失败");
         }
     }
 }

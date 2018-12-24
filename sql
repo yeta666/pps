@@ -566,11 +566,14 @@ create table warehouse_goods_sku_1(
   not_sent_quantity int not null comment '待发货数量',
   not_received_quantity int not null comment '待收货数量',
   can_use_inventory int not null comment '可用库存',
-  book_inventory int not null comment '账面库存'
+  book_inventory int not null comment '账面库存',
+  inventory_upper_limit int comment '库存上限',
+  inventory_low_limit int comment '库存下限'
 ) engine InnoDB default charset=utf8;
 
 insert into warehouse_goods_sku_1 (warehouse_id, goods_sku_id, real_inventory, not_sent_quantity, not_received_quantity, can_use_inventory, book_inventory) values (1, 1, 100, 0, 0, 100, 100);
 insert into warehouse_goods_sku_1 (warehouse_id, goods_sku_id, real_inventory, not_sent_quantity, not_received_quantity, can_use_inventory, book_inventory) values (1, 2, 100, 0, 0, 100, 100);
+
 
 drop table if exists bank_account_1;
 create table bank_account_1(

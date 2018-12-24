@@ -106,6 +106,8 @@ public interface MyGoodsMapper {
 
     int decreaseNotQuantity(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
+    int updateLimitInventoryMethod(WarehouseGoodsSkuVo vo);
+
     List<GoodsSku> findAllGoodsSku(GoodsSkuVo goodsSkuVo);
 
     //商品

@@ -48,12 +48,28 @@ public class WarehouseGoodsSkuVo {
      */
     private Integer bookInventory;
 
+    /**
+     * 库存上限
+     */
+    private Integer inventoryUpperLimit;
+
+    /**
+     * 库存下限
+     */
+    private Integer inventoryLowLimit;
+
     public WarehouseGoodsSkuVo() {
     }
 
     public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
+    }
+
+    public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId, Integer goodsSkuId) {
+        this.storeId = storeId;
+        this.warehouseId = warehouseId;
+        this.goodsSkuId = goodsSkuId;
     }
 
     public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId, Integer goodsSkuId, Integer notSentQuantity, Integer notReceivedQuantity) {
@@ -145,6 +161,22 @@ public class WarehouseGoodsSkuVo {
         this.bookInventory = bookInventory;
     }
 
+    public Integer getInventoryUpperLimit() {
+        return inventoryUpperLimit;
+    }
+
+    public void setInventoryUpperLimit(Integer inventoryUpperLimit) {
+        this.inventoryUpperLimit = inventoryUpperLimit;
+    }
+
+    public Integer getInventoryLowLimit() {
+        return inventoryLowLimit;
+    }
+
+    public void setInventoryLowLimit(Integer inventoryLowLimit) {
+        this.inventoryLowLimit = inventoryLowLimit;
+    }
+
     @Override
     public String toString() {
         return "WarehouseGoodsSkuVo{" +
@@ -157,6 +189,8 @@ public class WarehouseGoodsSkuVo {
                 ", notReceivedQuantity=" + notReceivedQuantity +
                 ", canUseInventory=" + canUseInventory +
                 ", bookInventory=" + bookInventory +
+                ", inventoryUpperLimit=" + inventoryUpperLimit +
+                ", inventoryLowLimit=" + inventoryLowLimit +
                 '}';
     }
 }

@@ -46,6 +46,16 @@ public class WarehouseGoodsSku {
      */
     private Integer bookInventory;
 
+    /**
+     * 库存上限
+     */
+    private Integer inventoryUpperLimit;
+
+    /**
+     * 库存下限
+     */
+    private Integer inventoryLowLimit;
+
     public WarehouseGoodsSku() {
     }
 
@@ -113,6 +123,22 @@ public class WarehouseGoodsSku {
         this.bookInventory = bookInventory;
     }
 
+    public Integer getInventoryUpperLimit() {
+        return inventoryUpperLimit;
+    }
+
+    public void setInventoryUpperLimit(Integer inventoryUpperLimit) {
+        this.inventoryUpperLimit = inventoryUpperLimit;
+    }
+
+    public Integer getInventoryLowLimit() {
+        return inventoryLowLimit;
+    }
+
+    public void setInventoryLowLimit(Integer inventoryLowLimit) {
+        this.inventoryLowLimit = inventoryLowLimit;
+    }
+
     @Override
     public String toString() {
         return "WarehouseGoodsSku{" +
@@ -124,6 +150,8 @@ public class WarehouseGoodsSku {
                 ", notReceivedQuantity=" + notReceivedQuantity +
                 ", canUseInventory=" + canUseInventory +
                 ", bookInventory=" + bookInventory +
+                ", inventoryUpperLimit=" + inventoryUpperLimit +
+                ", inventoryLowLimit=" + inventoryLowLimit +
                 '}';
     }
 }

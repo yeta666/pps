@@ -1,8 +1,6 @@
 package com.yeta.pps.mapper;
 
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.StorageOrderVo;
-import com.yeta.pps.vo.StorageResultOrderVo;
+import com.yeta.pps.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -22,7 +20,7 @@ public interface MyStorageMapper {
     int findCountStorageOrder(StorageOrderVo storageOrderVo);
 
     List<StorageOrderVo> findAllPagedStorageOrder(@Param(value = "storageOrderVo") StorageOrderVo storageOrderVo,
-                                                  @Param(value = "pageVo")PageVo pageVo);
+                                                  @Param(value = "pageVo") PageVo pageVo);
 
     StorageOrderVo findStorageOrderById(StorageOrderVo storageOrderVo);
 
@@ -35,7 +33,39 @@ public interface MyStorageMapper {
     int findCountStorageResultOrder(StorageResultOrderVo storageResultOrderVo);
 
     List<StorageResultOrderVo> findAllPagedStorageResultOrder(@Param(value = "vo") StorageResultOrderVo storageResultOrderVo,
-                                                              @Param(value = "pageVo")PageVo pageVo);
+                                                              @Param(value = "pageVo") PageVo pageVo);
 
     StorageResultOrderVo findStorageResultOrderDetailById(StorageResultOrderVo storageResultOrderVo);
+
+    //查库存
+
+    int findCountCurrentInventory(GoodsWarehouseSkuVo goodsWarehouseSkuVo);
+
+    List<GoodsWarehouseSkuVo> findPagedCurrentInventory(@Param(value = "vo") GoodsWarehouseSkuVo goodsWarehouseSkuVo,
+                                                        @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountDistributionByGoodsId(GoodsWarehouseSkuVo goodsWarehouseSkuVo);
+
+    List<GoodsWarehouseSkuVo> findPagedDistributionByGoodsId(@Param(value = "vo") GoodsWarehouseSkuVo goodsWarehouseSkuVo,
+                                                             @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountOrderByGoodsId(GoodsWarehouseSkuOrderVo goodsWarehouseSkuOrderVo);
+
+    List<GoodsWarehouseSkuOrderVo> findPagedOrderByGoodsId(@Param(value = "vo") GoodsWarehouseSkuOrderVo goodsWarehouseSkuOrderVo,
+                                                           @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountSkuByGoodsId(GoodsWarehouseSkuVo goodsWarehouseSkuVo);
+
+    List<GoodsWarehouseSkuVo> findPagedSkuByGoodsId(@Param(value = "vo") GoodsWarehouseSkuVo goodsWarehouseSkuVo,
+                                                    @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountBySku(GoodsWarehouseSkuVo goodsWarehouseSkuVo);
+
+    List<GoodsWarehouseSkuVo> findPagedBySku(@Param(value = "vo") GoodsWarehouseSkuVo goodsWarehouseSkuVo,
+                                             @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountByWarehouse(GoodsWarehouseSkuVo goodsWarehouseSkuVo);
+
+    List<GoodsWarehouseSkuVo> findPagedByWarehouse(@Param(value = "vo") GoodsWarehouseSkuVo goodsWarehouseSkuVo,
+                                                   @Param(value = "pageVo") PageVo pageVo);
 }

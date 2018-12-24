@@ -1032,4 +1032,223 @@ public class StorageService {
             }
         }
     }
+
+    //查库存
+
+    /**
+     * 查当前库存
+     * @param goodsWarehouseSkuVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findCurrentInventory(GoodsWarehouseSkuVo goodsWarehouseSkuVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountCurrentInventory(goodsWarehouseSkuVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<GoodsWarehouseSkuVo> goodsWarehouseSkuVos = myStorageMapper.findPagedCurrentInventory(goodsWarehouseSkuVo, pageVo);
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("商品货号", "id"));
+        titles.add(new Title("商品名", "name"));
+        titles.add(new Title("条码", "barCode"));
+        titles.add(new Title("分类", "typeName"));
+        titles.add(new Title("图片", "image"));
+        titles.add(new Title("实物库存", "realInventory"));
+        titles.add(new Title("待发货数量", "notSentQuantity"));
+        titles.add(new Title("待收货数量", "notReceivedQuantity"));
+        titles.add(new Title("可用库存", "canUseInventory"));
+        titles.add(new Title("账面库存", "bookInventory"));
+        CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 根据商品货号查分布
+     * @param goodsWarehouseSkuVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findDistributionByGoodsId(GoodsWarehouseSkuVo goodsWarehouseSkuVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountDistributionByGoodsId(goodsWarehouseSkuVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<GoodsWarehouseSkuVo> goodsWarehouseSkuVos = myStorageMapper.findPagedDistributionByGoodsId(goodsWarehouseSkuVo, pageVo);
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("商品货号", "id"));
+        titles.add(new Title("商品名", "name"));
+        titles.add(new Title("条码", "barCode"));
+        titles.add(new Title("仓库", "warehouseName"));
+        titles.add(new Title("实物库存", "realInventory"));
+        titles.add(new Title("待发货数量", "notSentQuantity"));
+        titles.add(new Title("待收货数量", "notReceivedQuantity"));
+        titles.add(new Title("可用库存", "canUseInventory"));
+        titles.add(new Title("账面库存", "bookInventory"));
+        CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 根据商品货号查对账
+     * @param goodsWarehouseSkuOrderVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findOrderByGoodsId(GoodsWarehouseSkuOrderVo goodsWarehouseSkuOrderVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountOrderByGoodsId(goodsWarehouseSkuOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<GoodsWarehouseSkuOrderVo> goodsWarehouseSkuOrderVos = myStorageMapper.findPagedOrderByGoodsId(goodsWarehouseSkuOrderVo, pageVo);
+        //补上仓库名
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(goodsWarehouseSkuOrderVo.getStoreId()));
+        goodsWarehouseSkuOrderVos.stream().forEach(vo -> {
+            if (vo.getInWarehouseId() != null) {
+                vo.setInWarehouseName(warehouses.stream().filter(warehouse -> warehouse.getId().toString().equals(vo.getInWarehouseId().toString())).findFirst().get().getName());
+            }
+            if (vo.getOutWarehouseId() != null) {
+                vo.setOutWarehouseName(warehouses.stream().filter(warehouse -> warehouse.getId().toString().equals(vo.getOutWarehouseId().toString())).findFirst().get().getName());
+            }
+        });
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "id"));
+        titles.add(new Title("单据类型", "typeName"));
+        titles.add(new Title("单据日期", "createTime"));
+        titles.add(new Title("来源订单", "applyOrderId"));
+        titles.add(new Title("往来单位", "targetName"));
+        titles.add(new Title("商品规格", "sku"));
+        titles.add(new Title("入库仓库", "inWarehouseName"));
+        titles.add(new Title("入库总数量", "inTotalQuantity"));
+        titles.add(new Title("入库总金额", "inTotalMoney"));
+        titles.add(new Title("入库总优惠金额", "inTotalDiscountMoney"));
+        titles.add(new Title("出库仓库", "outWarehouseName"));
+        titles.add(new Title("出库总数量", "outTotalQuantity"));
+        titles.add(new Title("出库总金额", "outTotalMoney"));
+        titles.add(new Title("出库总优惠金额", "outTotalDiscountMoney"));
+        titles.add(new Title("总成本金额", "totalPurchasePrice"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("单据备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuOrderVos, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 根据商品货号查属性
+     * @param goodsWarehouseSkuVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findSkuByGoodsId(GoodsWarehouseSkuVo goodsWarehouseSkuVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountSkuByGoodsId(goodsWarehouseSkuVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<GoodsWarehouseSkuVo> goodsWarehouseSkuVos = myStorageMapper.findPagedSkuByGoodsId(goodsWarehouseSkuVo, pageVo);
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("商品货号", "id"));
+        titles.add(new Title("商品名", "name"));
+        titles.add(new Title("条码", "barCode"));
+        /*titles.add(new Title("skus", "skus"));*/
+        titles.add(new Title("商品规格", "sku"));
+        titles.add(new Title("实物库存", "realInventory"));
+        titles.add(new Title("待发货数量", "notSentQuantity"));
+        titles.add(new Title("待收货数量", "notReceivedQuantity"));
+        titles.add(new Title("可用库存", "canUseInventory"));
+        titles.add(new Title("账面库存", "bookInventory"));
+        CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 按属性查库存
+     * @param goodsWarehouseSkuVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findBySku(GoodsWarehouseSkuVo goodsWarehouseSkuVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountBySku(goodsWarehouseSkuVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<GoodsWarehouseSkuVo> goodsWarehouseSkuVos = myStorageMapper.findPagedBySku(goodsWarehouseSkuVo, pageVo);
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("商品货号", "id"));
+        titles.add(new Title("商品名", "name"));
+        titles.add(new Title("条码", "barCode"));
+        titles.add(new Title("分类", "typeName"));
+        titles.add(new Title("图片", "image"));
+        /*titles.add(new Title("skus", "skus"));*/
+        titles.add(new Title("商品规格", "sku"));
+        titles.add(new Title("实物库存", "realInventory"));
+        titles.add(new Title("待发货数量", "notSentQuantity"));
+        titles.add(new Title("待收货数量", "notReceivedQuantity"));
+        titles.add(new Title("可用库存", "canUseInventory"));
+        titles.add(new Title("账面库存", "bookInventory"));
+        CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 按仓库查库存
+     * @param goodsWarehouseSkuVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findByWarehouse(GoodsWarehouseSkuVo goodsWarehouseSkuVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountByWarehouse(goodsWarehouseSkuVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<GoodsWarehouseSkuVo> goodsWarehouseSkuVos = myStorageMapper.findPagedByWarehouse(goodsWarehouseSkuVo, pageVo);
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("商品货号", "id"));
+        titles.add(new Title("商品名", "name"));
+        titles.add(new Title("条码", "barCode"));
+        titles.add(new Title("分类", "typeName"));
+        titles.add(new Title("图片", "image"));
+        titles.add(new Title("仓库", "warehouseName"));
+        /*titles.add(new Title("skus", "skus"));*/
+        titles.add(new Title("商品规格", "sku"));
+        if (goodsWarehouseSkuVo.getWarning() == 1) {
+            titles.add(new Title("库存上限", "inventoryUpperLimit"));
+            titles.add(new Title("库存下限", "inventoryLowLimit"));
+        } else if (goodsWarehouseSkuVo.getWarning() == 2) {
+            titles.add(new Title("库存上限", "inventoryUpperLimit"));
+            titles.add(new Title("库存下限", "inventoryLowLimit"));
+            titles.add(new Title("账面库存", "bookInventory"));
+        } else if (goodsWarehouseSkuVo.getWarning() == 3) {
+            titles.add(new Title("缺货数量", "needQuantity"));
+            titles.add(new Title("库存下限", "inventoryLowLimit"));
+            titles.add(new Title("待发货数量", "notSentQuantity"));
+            titles.add(new Title("实物库存", "realInventory"));
+            titles.add(new Title("待收货数量", "notReceivedQuantity"));
+        } else if (goodsWarehouseSkuVo.getWarning() == 0) {
+            titles.add(new Title("实物库存", "realInventory"));
+            titles.add(new Title("待发货数量", "notSentQuantity"));
+            titles.add(new Title("待收货数量", "notReceivedQuantity"));
+            titles.add(new Title("可用库存", "canUseInventory"));
+            titles.add(new Title("账面库存", "bookInventory"));
+        }
+        CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
+        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+    }
+
+    //库存预警
+
+    /**
+     * 库存预警设置
+     * @param goodsWarehouseSkuVo
+     * @return
+     */
+    public CommonResponse updateLimitInventory(GoodsWarehouseSkuVo goodsWarehouseSkuVo) {
+        //判断参数
+        if (goodsWarehouseSkuVo.getWarehouseId() == null || goodsWarehouseSkuVo.getGoodsSkuId() == null) {
+            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
+        WarehouseGoodsSkuVo warehouseGoodsSkuVo = new WarehouseGoodsSkuVo(goodsWarehouseSkuVo.getStoreId(), goodsWarehouseSkuVo.getWarehouseId(), goodsWarehouseSkuVo.getGoodsSkuId());
+        warehouseGoodsSkuVo.setInventoryUpperLimit(goodsWarehouseSkuVo.getInventoryUpperLimit());
+        warehouseGoodsSkuVo.setInventoryLowLimit(goodsWarehouseSkuVo.getInventoryLowLimit());
+        inventoryUtil.updateLimitInventoryMethod(warehouseGoodsSkuVo);
+        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+    }
 }

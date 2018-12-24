@@ -291,4 +291,630 @@
             sro.id = #{id};
     </select>
 
+    <!--查库存-->
+
+    <select id="findCountCurrentInventory" parameterType="com.yeta.pps.vo.GoodsWarehouseSkuVo" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            (
+                select
+                    count(*)
+                from
+                    (
+                        (
+                            (
+                                goods_${storeId} as g
+                                left join goods_sku_${storeId} as gs on g.id = gs.goods_id
+                            )
+                            left join warehouse_goods_sku_${storeId} as wgs on gs.id = wgs.goods_sku_id
+                        )
+                        left join warehouse_${storeId} as w on w.id = wgs.warehouse_id
+                    )
+                left join goods_type_${storeId} as gt on g.type_id = gt.id
+                where 1 = 1
+                <if test="id != null">
+                    and g.id like concat('%', #{id}, '%')
+                </if>
+                <if test="name != null">
+                    and g.name like concat('%', #{name}, '%')
+                </if>
+                <if test="typeId != null">
+                    and g.type_id = #{typeId}
+                </if>
+                group by g.id
+            ) as temp;
+    </select>
+
+    <select id="findPagedCurrentInventory" resultType="com.yeta.pps.vo.GoodsWarehouseSkuVo">
+        select
+            g.id,
+            g.name,
+            g.bar_code,
+            gt.name as type_name,
+            g.image,
+            sum(wgs.real_inventory) as real_inventory,
+            sum(wgs.not_sent_quantity) as not_sent_quantity,
+            sum(wgs.not_received_quantity) as not_received_quantity,
+            sum(wgs.can_use_inventory) as can_use_inventory,
+            sum(wgs.book_inventory) as book_inventory
+        from 
+            (
+                (
+                    (
+                        goods_${vo.storeId} as g
+                        left join goods_sku_${vo.storeId} as gs on g.id = gs.goods_id
+                    )
+                    left join warehouse_goods_sku_${vo.storeId} as wgs on gs.id = wgs.goods_sku_id
+                )
+                left join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
+            )
+        left join goods_type_${vo.storeId} as gt on g.type_id = gt.id
+        where 1 = 1
+        <if test="vo.id != null">
+            and g.id like concat('%', #{vo.id}, '%')
+        </if>
+        <if test="vo.name != null">
+            and g.name like concat('%', #{vo.name}, '%')
+        </if>
+        <if test="vo.typeId != null">
+            and g.type_id = #{vo.typeId}
+        </if>
+        group by g.id
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountDistributionByGoodsId" parameterType="com.yeta.pps.vo.GoodsWarehouseSkuVo" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+        (
+            select
+                count(*)
+            from
+                (
+                    (
+                        (
+                            goods_${storeId} as g
+                            left join goods_sku_${storeId} as gs on g.id = gs.goods_id
+                        )
+                        left join warehouse_goods_sku_${storeId} as wgs on gs.id = wgs.goods_sku_id
+                    )
+                    left join warehouse_${storeId} as w on w.id = wgs.warehouse_id
+                )
+            left join goods_type_${storeId} as gt on g.type_id = gt.id
+            where g.id = #{id}
+            group by w.id
+        ) as temp;
+    </select>
+
+    <select id="findPagedDistributionByGoodsId" resultType="com.yeta.pps.vo.GoodsWarehouseSkuVo">
+        select
+            g.id,
+            g.name,
+            g.bar_code,
+            w.name as warehouse_name,
+            sum(wgs.real_inventory) as real_inventory,
+            sum(wgs.not_sent_quantity) as not_sent_quantity,
+            sum(wgs.not_received_quantity) as not_received_quantity,
+            sum(wgs.can_use_inventory) as can_use_inventory,
+            sum(wgs.book_inventory) as book_inventory
+        from
+            (
+                (
+                    (
+                        goods_${vo.storeId} as g
+                        left join goods_sku_${vo.storeId} as gs on g.id = gs.goods_id
+                    )
+                    left join warehouse_goods_sku_${vo.storeId} as wgs on gs.id = wgs.goods_sku_id
+                )
+                left join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
+            )
+        left join goods_type_${vo.storeId} as gt on g.type_id = gt.id
+        where g.id = #{vo.id}
+        group by w.id
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountOrderByGoodsId" parameterType="com.yeta.pps.vo.GoodsWarehouseSkuOrderVo" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            (
+                (
+                    select
+                        pro.id as id,
+                        if (pro.type = 1, '采购入库单', if (pro.type = 2, '采购退货单', if (pro.type = 3, '采购换货单', null))) as type_name,
+                        pro.create_time as create_time,
+                        pro.apply_order_id as apply_order_id,
+                        s.name as target_name,
+                        gs.sku as sku,
+                        if (ogs.type = 1, pao.in_warehouse_id, null) as in_warehouse_id,
+                        if (ogs.type = 1, ogs.quantity, null) as in_total_quantity,
+                        if (ogs.type = 1, ogs.money, null) as in_total_money,
+                        if (ogs.type = 1, ogs.discount_money, null) as in_total_discount_money,
+                        if (ogs.type = 0, pao.out_warehouse_id, null) as out_warehouse_id,
+                        if (ogs.type = 0, ogs.quantity, null) as out_total_quantity,
+                        if (ogs.type = 0, ogs.money, null) as out_total_money,
+                        if (ogs.type = 0, ogs.discount_money, null) as out_total_discount_money,
+                        gs.purchase_price * ogs.quantity as total_purchase_price,
+                        u.name as user_name,
+                        pro.remark as remark
+                    from
+                        (
+                            (
+                                (
+                                    (
+                                        (
+                                            procurement_result_order_${storeId} as pro
+                                            left join order_goods_sku_${storeId} as ogs on pro.id = ogs.order_id
+                                        )
+                                        left join goods_sku_${storeId} as gs on ogs.goods_sku_id = gs.id
+                                    )
+                                    left join goods_${storeId} as g on gs.goods_id = g.id
+                                )
+                                left join procurement_apply_order_${storeId} as pao on pro.apply_order_id = pao.id
+                            )
+                            left join supplier_${storeId} as s on pao.supplier_id = s.id
+                        )
+                    left join user_${storeId} as u on pro.user_id = u.id
+                    where g.id = #{goodsId}
+                    <if test="id != null">
+                        and pro.id = #{id}
+                    </if>
+                    <if test="startTime != null and endTime != null">
+                        and date(pro.create_time) between #{startTime} and #{endTime}
+                    </if>
+                    order by pro.create_time desc
+                )
+                union all
+                (
+                    select
+                        sro.id as id,
+                        if (sro.type = 1, '零售单', if (sro.type = 2, '销售出库单', if (sro.type = 3, '销售退货单', if (sro.type = 4, '销售换货单', null)))) as type_name,
+                        sro.create_time as create_time,
+                        sro.apply_order_id as apply_order_id,
+                        c.name as target_name,
+                        gs.sku as sku,
+                        if (ogs.type = 1, sao.in_warehouse_id, null) as in_warehouse_id,
+                        if (ogs.type = 1, ogs.quantity, null) as in_total_quantity,
+                        if (ogs.type = 1, ogs.money, null) as in_total_money,
+                        if (ogs.type = 1, ogs.discount_money, null) as in_total_discount_money,
+                        if (ogs.type = 0, sao.out_warehouse_id, null) as out_warehouse_id,
+                        if (ogs.type = 0, ogs.quantity, null) as out_total_quantity,
+                        if (ogs.type = 0, ogs.money, null) as out_total_money,
+                        if (ogs.type = 0, ogs.discount_money, null) as out_total_discount_money,
+                        gs.purchase_price * ogs.quantity as total_purchase_price,
+                        u.name as user_name,
+                        sro.remark as remark
+                    from
+                        (
+                            (
+                                (
+                                    (
+                                        (
+                                            sell_result_order_${storeId} as sro
+                                            left join order_goods_sku_${storeId} as ogs on sro.id = ogs.order_id
+                                        )
+                                        left join goods_sku_${storeId} as gs on ogs.goods_sku_id = gs.id
+                                    )
+                                    left join goods_${storeId} as g on gs.goods_id = g.id
+                                )
+                                left join sell_apply_order_${storeId} as sao on sro.apply_order_id = sao.id
+                            )
+                            left join client as c on sao.client_id = c.id
+                        )
+                    left join user_${storeId} as u on sro.user_id = u.id
+                    where g.id = #{goodsId}
+                    <if test="id != null">
+                        and sro.id = #{id}
+                    </if>
+                    <if test="startTime != null and endTime != null">
+                        and date(sro.create_time) between #{startTime} and #{endTime}
+                    </if>
+                    order by sro.create_time desc
+                )
+                union all
+                (
+                    select
+                        sro.id as id,
+                        if (sro.type = 1, '其他入库单', if (sro.type = 2, '其他出库单', if (sro.type = 3, '报溢单', if ( sro.type = 4, '报损单', null)))) as type_name,
+                        sro.create_time as create_time,
+                        null as apply_order_id,
+                        c. NAME as target_name,
+                        gs.sku as sku,
+                        if (ogs.type = 1, sro.warehouse_id, null) as in_warehouse_id,
+                        if (ogs.type = 1, ogs.quantity, null) as in_total_quantity,
+                        if (ogs.type = 1, ogs.money, null) as in_total_money,
+                        if (ogs.type = 1, ogs.discount_money, null) as in_total_discount_money,
+                        if (ogs.type = 0, sro.warehouse_id, null) as out_warehouse_id,
+                        if (ogs.type = 0, ogs.quantity, null) as out_total_quantity,
+                        if (ogs.type = 0, ogs.money, null) as out_total_money,
+                        if (ogs.type = 0, ogs.discount_money, null) as out_total_discount_money,
+                        gs.purchase_price * ogs.quantity as total_purchase_price,
+                        u. NAME as user_name,
+                        sro.remark as remark
+                    from
+                        (
+                            (
+                                (
+                                    (
+                                        (
+                                            storage_result_order_${storeId} as sro
+                                            left join order_goods_sku_${storeId} as ogs on sro.id = ogs.order_id
+                                        )
+                                        left join goods_sku_${storeId} as gs on ogs.goods_sku_id = gs.id
+                                    )
+                                    left join goods_${storeId} as g on gs.goods_id = g.id
+                                )
+                                left join supplier_${storeId} as s on sro.target_id = s.id
+                            )
+                            left join client as c on sro.target_id = c.id
+                        )
+                    left join user_${storeId} as u on sro.user_id = u.id
+                    where g.id = #{goodsId}
+                    <if test="id != null">
+                        and sro.id = #{id}
+                    </if>
+                    <if test="startTime != null and endTime != null">
+                        and date(sro.create_time) between #{startTime} and #{endTime}
+                    </if>
+                    order by sro.create_time desc
+                )
+            ) as temp;
+    </select>
+
+    <select id="findPagedOrderByGoodsId" resultType="com.yeta.pps.vo.GoodsWarehouseSkuOrderVo">
+        (
+            select 
+                pro.id as id,
+                if (pro.type = 1, '采购入库单', if (pro.type = 2, '采购退货单', if (pro.type = 3, '采购换货单', null))) as type_name,
+                pro.create_time as create_time,
+                pro.apply_order_id as apply_order_id,
+                s.name as target_name,
+                gs.sku as sku,
+                if (ogs.type = 1, pao.in_warehouse_id, null) as in_warehouse_id,
+                if (ogs.type = 1, ogs.quantity, null) as in_total_quantity,
+                if (ogs.type = 1, ogs.money, null) as in_total_money,
+                if (ogs.type = 1, ogs.discount_money, null) as in_total_discount_money,
+                if (ogs.type = 0, pao.out_warehouse_id, null) as out_warehouse_id,
+                if (ogs.type = 0, ogs.quantity, null) as out_total_quantity,
+                if (ogs.type = 0, ogs.money, null) as out_total_money,
+                if (ogs.type = 0, ogs.discount_money, null) as out_total_discount_money,
+                gs.purchase_price * ogs.quantity as total_purchase_price,
+                u.name as user_name,
+                pro.remark as remark
+            from
+                (
+                    (
+                        (
+                            (
+                                (
+                                    procurement_result_order_${vo.storeId} as pro
+                                    left join order_goods_sku_${vo.storeId} as ogs on pro.id = ogs.order_id
+                                )
+                                left join goods_sku_${vo.storeId} as gs on ogs.goods_sku_id = gs.id
+                            )
+                            left join goods_${vo.storeId} as g on gs.goods_id = g.id
+                        )
+                        left join procurement_apply_order_${vo.storeId} as pao on pro.apply_order_id = pao.id
+                    )
+                    left join supplier_${vo.storeId} as s on pao.supplier_id = s.id
+                )
+            left join user_${vo.storeId} as u on pro.user_id = u.id
+            where g.id = #{vo.goodsId}
+            <if test="vo.id != null">
+                and pro.id = #{vo.id}
+            </if>
+            <if test="vo.startTime != null and vo.endTime != null">
+                and date(pro.create_time) between #{vo.startTime} and #{vo.endTime}
+            </if>
+            order by pro.create_time desc
+        )
+        union all
+        (
+            select
+                sro.id as id,
+                if (sro.type = 1, '零售单', if (sro.type = 2, '销售出库单', if (sro.type = 3, '销售退货单', if (sro.type = 4, '销售换货单', null)))) as type_name,
+                sro.create_time as create_time,
+                sro.apply_order_id as apply_order_id,
+                c. NAME as target_name,
+                gs.sku as sku,
+                if (ogs.type = 1, sao.in_warehouse_id, null) as in_warehouse_id,
+                if (ogs.type = 1, ogs.quantity, null) as in_total_quantity,
+                if (ogs.type = 1, ogs.money, null) as in_total_money,
+                if (ogs.type = 1, ogs.discount_money, null) as in_total_discount_money,
+                if (ogs.type = 0, sao.out_warehouse_id, null) as out_warehouse_id,
+                if (ogs.type = 0, ogs.quantity, null) as out_total_quantity,
+                if (ogs.type = 0, ogs.money, null) as out_total_money,
+                if (ogs.type = 0, ogs.discount_money, null) as out_total_discount_money,
+                gs.purchase_price * ogs.quantity as total_purchase_price,
+                u. NAME as user_name,
+                sro.remark as remark
+            from
+                (
+                    (
+                        (
+                            (
+                                (
+                                    sell_result_order_${vo.storeId} as sro
+                                    left join order_goods_sku_${vo.storeId} as ogs on sro.id = ogs.order_id
+                                )
+                                left join goods_sku_${vo.storeId} as gs on ogs.goods_sku_id = gs.id
+                            )
+                            left join goods_${vo.storeId} as g on gs.goods_id = g.id
+                        )
+                        left join sell_apply_order_${vo.storeId} as sao on sro.apply_order_id = sao.id
+                    )
+                    left join client as c on sao.client_id = c.id
+                )
+            left join user_${vo.storeId} as u on sro.user_id = u.id
+            where g.id = #{vo.goodsId}
+            <if test="vo.id != null">
+                and sro.id = #{vo.id}
+            </if>
+            <if test="vo.startTime != null and vo.endTime != null">
+                and date(sro.create_time) between #{vo.startTime} and #{vo.endTime}
+            </if>
+            order by sro.create_time desc
+        )
+        union all
+        (
+            select
+                sro.id as id,
+                if (sro.type = 1, '其他入库单', if (sro.type = 2, '其他出库单', if (sro.type = 3, '报溢单', if ( sro.type = 4, '报损单', null)))) as type_name,
+                sro.create_time as create_time,
+                null as apply_order_id,
+                c. NAME as target_name,
+                gs.sku as sku,
+                if (ogs.type = 1, sro.warehouse_id, null) as in_warehouse_id,
+                if (ogs.type = 1, ogs.quantity, null) as in_total_quantity,
+                if (ogs.type = 1, ogs.money, null) as in_total_money,
+                if (ogs.type = 1, ogs.discount_money, null) as in_total_discount_money,
+                if (ogs.type = 0, sro.warehouse_id, null) as out_warehouse_id,
+                if (ogs.type = 0, ogs.quantity, null) as out_total_quantity,
+                if (ogs.type = 0, ogs.money, null) as out_total_money,
+                if (ogs.type = 0, ogs.discount_money, null) as out_total_discount_money,
+                gs.purchase_price * ogs.quantity as total_purchase_price,
+                u. NAME as user_name,
+                sro.remark as remark
+            from
+                (
+                    (
+                        (
+                            (
+                                (
+                                    storage_result_order_${vo.storeId} as sro
+                                    left join order_goods_sku_${vo.storeId} as ogs on sro.id = ogs.order_id
+                                )
+                                left join goods_sku_${vo.storeId} as gs on ogs.goods_sku_id = gs.id
+                            )
+                            left join goods_${vo.storeId} as g on gs.goods_id = g.id
+                        )
+                        left join supplier_${vo.storeId} as s on sro.target_id = s.id
+                    )
+                    left join client as c on sro.target_id = c.id
+                )
+            left join user_${vo.storeId} as u on sro.user_id = u.id
+            where g.id = #{vo.goodsId}
+            <if test="vo.id != null">
+                and sro.id = #{vo.id}
+            </if>
+            <if test="vo.startTime != null and vo.endTime != null">
+                and date(sro.create_time) between #{vo.startTime} and #{vo.endTime}
+            </if>
+            order by sro.create_time desc
+        )
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountSkuByGoodsId" parameterType="com.yeta.pps.vo.GoodsWarehouseSkuVo" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            (
+                select
+                    count(*)
+                from
+                    (
+                        (
+                            (
+                                goods_${storeId} as g
+                                left join goods_sku_${storeId} as gs on g.id = gs.goods_id
+                            )
+                            left join warehouse_goods_sku_${storeId} as wgs on gs.id = wgs.goods_sku_id
+                        )
+                        left join warehouse_${storeId} as w on w.id = wgs.warehouse_id
+                    )
+                left join goods_type_${storeId} as gt on g.type_id = gt.id
+                where g.id = #{id}
+                group by gs.id
+            ) as temp;
+    </select>
+
+    <select id="findPagedSkuByGoodsId" resultType="com.yeta.pps.vo.GoodsWarehouseSkuVo">
+        select
+            g.id,
+            g.name,
+            g.bar_code,
+            g.skus,
+            gs.sku,
+            sum(wgs.real_inventory) as real_inventory,
+            sum(wgs.not_sent_quantity) as not_sent_quantity,
+            sum(wgs.not_received_quantity) as not_received_quantity,
+            sum(wgs.can_use_inventory) as can_use_inventory,
+            sum(wgs.book_inventory) as book_inventory
+        from
+            (
+                (
+                    (
+                        goods_${vo.storeId} as g
+                        left join goods_sku_${vo.storeId} as gs on g.id = gs.goods_id
+                    )
+                    left join warehouse_goods_sku_${vo.storeId} as wgs on gs.id = wgs.goods_sku_id
+                )
+                left join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
+            )
+        left join goods_type_${vo.storeId} as gt on g.type_id = gt.id
+        where g.id = #{vo.id}
+        group by gs.id
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountBySku" parameterType="com.yeta.pps.vo.GoodsWarehouseSkuVo" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            (
+                select
+                    count(*)
+                from
+                    (
+                        (
+                            (
+                                goods_${storeId} as g
+                                left join goods_sku_${storeId} as gs on g.id = gs.goods_id
+                            )
+                            left join warehouse_goods_sku_${storeId} as wgs on gs.id = wgs.goods_sku_id
+                        )
+                        left join warehouse_${storeId} as w on w.id = wgs.warehouse_id
+                    )
+                left join goods_type_${storeId} as gt on g.type_id = gt.id
+                where 1 = 1
+                <if test="id != null">
+                    and g.id like concat('%', #{id}, '%')
+                </if>
+                <if test="name != null">
+                    and g.name like concat('%', #{name}, '%')
+                </if>
+                <if test="typeId != null">
+                    and g.type_id = #{typeId}
+                </if>
+                group by gs.id
+            ) as temp;
+    </select>
+
+    <select id="findPagedBySku" resultType="com.yeta.pps.vo.GoodsWarehouseSkuVo">
+        SELECT
+            g.id,
+            g.name,
+            g.bar_code,
+            gt.name as type_name,
+            g.image,
+            g.skus,
+            gs.sku,
+            sum(wgs.real_inventory) as real_inventory,
+            sum(wgs.not_sent_quantity) as not_sent_quantity,
+            sum(wgs.not_received_quantity) as not_received_quantitym,
+            sum(wgs.can_use_inventory) as can_use_inventory,
+            sum(wgs.book_inventory) as book_inventory
+        FROM
+            (
+                (
+                    (
+                        goods_${vo.storeId} as g
+                        left join goods_sku_${vo.storeId} as gs on g.id = gs.goods_id
+                    )
+                    left join warehouse_goods_sku_${vo.storeId} as wgs on gs.id = wgs.goods_sku_id
+                )
+                left join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
+            )
+        left join goods_type_${vo.storeId} as gt on g.type_id = gt.id
+        where 1 = 1
+        <if test="vo.id != null">
+            and g.id like concat('%', #{vo.id}, '%')
+        </if>
+        <if test="vo.name != null">
+            and g.name like concat('%', #{vo.name}, '%')
+        </if>
+        <if test="vo.typeId != null">
+            and g.type_id = #{vo.typeId}
+        </if>
+        group by gs.id
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountByWarehouse" parameterType="com.yeta.pps.vo.GoodsWarehouseSkuVo" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            (
+                (
+                    (
+                        goods_${storeId} as g
+                        left join goods_sku_${storeId} as gs on g.id = gs.goods_id
+                    )
+                    left join warehouse_goods_sku_${storeId} as wgs on gs.id = wgs.goods_sku_id
+                )
+                left join warehouse_${storeId} as w on w.id = wgs.warehouse_id
+            )
+        left join goods_type_${storeId} as gt on g.type_id = gt.id
+        where 1 = 1
+        <if test="id != null">
+            and g.id like concat('%', #{id}, '%')
+        </if>
+        <if test="name != null">
+            and g.name like concat('%', #{name}, '%')
+        </if>
+        <if test="typeId != null">
+            and g.type_id = #{typeId}
+        </if>
+        <if test="warehouseId != null">
+            and w.id = #{warehouseId}
+        </if>
+    </select>
+
+    <select id="findPagedByWarehouse" resultType="com.yeta.pps.vo.GoodsWarehouseSkuVo">
+        select
+            g.id,
+            g.name,
+            g.bar_code,
+            gt.name as type_name,
+            g.image,
+            g.skus,
+            gs.id,
+            gs.sku,
+            w.name as warehouse_name,
+            wgs.real_inventory as real_inventory,
+            wgs.not_sent_quantity as not_sent_quantity,
+            wgs.not_received_quantity as not_received_quantity,
+            wgs.can_use_inventory as can_use_inventory,
+            wgs.book_inventory as book_inventory,
+            wgs.inventory_upper_limit,
+            wgs.inventory_low_limit,
+            wgs.inventory_low_limit + wgs.not_sent_quantity - wgs.real_inventory - wgs.not_received_quantity as need_quantity
+        from
+            (
+                (
+                    (
+                        goods_${vo.storeId} as g
+                        left join goods_sku_${vo.storeId} as gs on g.id = gs.goods_id
+                    )
+                    left join warehouse_goods_sku_${vo.storeId} as wgs on gs.id = wgs.goods_sku_id
+                )
+                left join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
+            )
+        left join goods_type_${vo.storeId} as gt on g.type_id = gt.id
+        where 1 = 1
+        <if test="vo.id != null">
+            and g.id like concat('%', #{vo.id}, '%')
+        </if>
+        <if test="vo.name != null">
+            and g.name like concat('%', #{vo.name}, '%')
+        </if>
+        <if test="vo.typeId != null">
+            and g.type_id = #{vo.typeId}
+        </if>
+        <if test="vo.warehouseId != null">
+            and w.id = #{vo.warehouseId}
+        </if>
+        <if test="vo.warning == 2">
+            and wgs.book_inventory &gt;= wgs.inventory_upper_limit or wgs.book_inventory &lt;= wgs.inventory_low_limit
+        </if>
+        <if test="vo.warning == 3">
+            and wgs.inventory_low_limit + wgs.not_sent_quantity - wgs.real_inventory - wgs.not_received_quantity &gt; 0
+        </if>
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
 </mapper>
