@@ -96,7 +96,19 @@ public interface MyGoodsMapper {
 
     int addGoodsSku(GoodsSkuVo goodsSkuVo);
 
+    int updateGoodsSku(GoodsSkuVo goodsSkuVo);
+
     int deleteGoodsSku(GoodsSkuVo goodsSkuVo);
+
+    List<GoodsSku> findAllGoodsSku(GoodsSkuVo goodsSkuVo);
+
+    //仓库/商品规格关系
+
+    int initializeOpening(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
+
+    WarehouseGoodsSkuVo findWarehouseGoodsSku(WarehouseGoodsSkuVo vo);
+
+    int updateOpening(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
     int increaseInventory(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
@@ -107,8 +119,6 @@ public interface MyGoodsMapper {
     int decreaseNotQuantity(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
     int updateLimitInventoryMethod(WarehouseGoodsSkuVo vo);
-
-    List<GoodsSku> findAllGoodsSku(GoodsSkuVo goodsSkuVo);
 
     //商品
 
@@ -124,16 +134,9 @@ public interface MyGoodsMapper {
 
     List<GoodsVo> findAll(GoodsVo goodsVo);
 
-    int findCountSkuById(GoodsVo goodsVo);
-
-    GoodsVo findAllPagedSkuById(@Param(value = "goodsVo") GoodsVo goodsVo, @Param(value = "pageVo") PageVo page);
-
-    List<GoodsVo> findAllSku(GoodsVo goodsVo);
-
     List<Goods> findByTypeId(GoodsVo goodsVo);
 
+    //下单查商品
 
-    //商品分类包商品，商品包商品规格，用于下单的时候
-
-    List<GoodsTypeVo> findTypeGoodsSku(GoodsTypeVo goodsTypeVo);
+    List<GoodsTypeVo> findCanUseByWarehouseId(WarehouseGoodsSkuVo vo);
 }

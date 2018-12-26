@@ -101,13 +101,6 @@ public class StorageResultOrderVo {
         this.id = id;
     }
 
-    public StorageResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
-        this.storeId = storeId;
-        this.id = id;
-        this.userId = userId;
-        this.remark = remark;
-    }
-
     public StorageResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date startTime, Date endTime, String targetName) {
         this.storeId = storeId;
         this.id = id;

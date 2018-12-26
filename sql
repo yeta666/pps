@@ -483,9 +483,9 @@ create table goods_1(
   create_time datetime not null comment '创建时间'
 ) engine InnoDB default charset=utf8;
 insert into goods_1 (id, name, bar_code, type_id, putaway, skus, origin, image, remark, create_time)
-VALUES ('sp001', '舍得典藏款', '176', 1, 1, '', '四川', '/upload/goods/123123.jpg', '', now());
+VALUES ('sp001', '舍得典藏款', '176', 1, 1, '[{"key":"品牌","value":["舍得"]},{"key":"单位","value":["瓶","件"]}]', '四川', '/upload/goods/123123.jpg', '', now());
 insert into goods_1 (id, name, bar_code, type_id, putaway, skus, origin, image, remark, create_time)
-VALUES ('sp002', '美的电压力锅', '177', 2, 1, '', '浙江', '/upload/goods/123123.jpg', '', now());
+VALUES ('sp002', '美的电压力锅', '177', 2, 1, '[{"key":"品牌","value":["美的"]},{"key":"单位","value":["个"]}]', '浙江', '/upload/goods/123123.jpg', '', now());
 
 drop table if exists goods_type_1;
 create table goods_type_1(
@@ -551,28 +551,9 @@ create table goods_sku_1(
   vip_price decimal(10, 2) not null comment 'vip售价',
   integral int not null comment '积分'
 ) engine InnoDB default charset=utf8;
-insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp001', '{"品牌":"舍得","单位":"瓶"}', 555, 777, 666, 0);
-insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp001', '{"品牌":"舍得","单位":"件"}', 5550, 7770, 6660, 0);
-insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp002', '{"品牌":"美的","单位":"个"}', 200, 380, 300, 0);
-
-
-/*仓库/商品规格关系*/
-drop table if exists warehouse_goods_sku_1;
-create table warehouse_goods_sku_1(
-  id int primary key auto_increment comment '仓库/商品规格关系编号',
-  warehouse_id int not null comment '仓库编号',
-  goods_sku_id int not null comment '商品规格编号',
-  real_inventory int not null comment '实物库存',
-  not_sent_quantity int not null comment '待发货数量',
-  not_received_quantity int not null comment '待收货数量',
-  can_use_inventory int not null comment '可用库存',
-  book_inventory int not null comment '账面库存',
-  inventory_upper_limit int comment '库存上限',
-  inventory_low_limit int comment '库存下限'
-) engine InnoDB default charset=utf8;
-
-insert into warehouse_goods_sku_1 (warehouse_id, goods_sku_id, real_inventory, not_sent_quantity, not_received_quantity, can_use_inventory, book_inventory) values (1, 1, 100, 0, 0, 100, 100);
-insert into warehouse_goods_sku_1 (warehouse_id, goods_sku_id, real_inventory, not_sent_quantity, not_received_quantity, can_use_inventory, book_inventory) values (1, 2, 100, 0, 0, 100, 100);
+insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp001', '[{"key":"品牌","value":"舍得"},{"key":"单位","value":"瓶"}]', 10, 30, 20, 66);
+insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp001', '[{"key":"品牌","value":"舍得"},{"key":"单位","value":"件"}]', 10, 30, 20, 66);
+insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp002', '[{"key":"品牌","value":"美的"},{"key":"单位","value":"个"}]', 10, 30, 20, 66);
 
 
 drop table if exists bank_account_1;
@@ -826,19 +807,5 @@ create table fund_order_1(
 ) engine InnoDB default charset=utf8;
 
 
-/*其他入/出库单，报损/溢单*/
-drop table if exists storage_result_order_1;
-create table storage_result_order_1(
-  id varchar(50) primary key comment '单据编号',
-  type tinyint not null comment '单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单',
-  create_time datetime not null comment '单据日期',
-  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
-  target_type tinyint not null comment '往来单位类型，1：供应商，2：客户',
-  target_id varchar(50) not null comment '往来单位编号',
-  warehouse_id int not null comment '仓库编号',
-  total_quantity int not null comment '总商品数量',
-  total_money decimal(10, 2) not null comment '总商品金额',
-  user_id varchar(50) not null comment '经手人',
-  remark varchar(255) comment '单据备注'
-) engine InnoDB default charset=utf8;
+
 

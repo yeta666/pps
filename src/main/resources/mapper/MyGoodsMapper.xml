@@ -290,12 +290,55 @@
 
     <!--商品规格-->
 
-    <insert id="addGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
+    <insert id="addGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo" useGeneratedKeys="true" keyProperty="id">
         insert into
             goods_sku_${storeId} (goods_id, sku, purchase_price, retail_price, vip_price, integral)
         values
             (#{goodsId}, #{sku}, #{purchasePrice}, #{retailPrice}, #{vipPrice}, #{integral});
     </insert>
+    
+    <delete id="deleteGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
+        delete from goods_sku_${storeId} where goods_id = #{goodsId};
+    </delete>
+
+    <update id="updateGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
+        update goods_sku_${storeId} set sku = #{sku}, purchase_price = #{purchasePrice}, retail_price = #{retailPrice}, vip_price = #{vipPrice}, integral = #{integral} where id = #{id};
+    </update>
+
+    <select id="findAllGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo" resultType="com.yeta.pps.po.GoodsSku">
+        select id, goods_id, sku, purchase_price, retail_price, vip_price, integral from goods_sku_${storeId};
+    </select>
+
+    <!--仓库/商品规格关系-->
+
+    <insert id="initializeOpening" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+        insert into
+            warehouse_goods_sku_${storeId} (warehouse_id, goods_sku_id, real_inventory, not_sent_quantity, not_received_quantity, can_use_inventory, book_inventory, opening_quantity, opening_money, opening_total_money)
+        values
+            (#{warehouseId}, #{goodsSkuId}, 0, 0, 0, 0, 0, 0, 0, 0);
+    </insert>
+
+    <select id="findWarehouseGoodsSku" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo" resultType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+        select
+            warehouse_id, goods_sku_id, real_inventory, not_sent_quantity, not_received_quantity, can_use_inventory, book_inventory, inventory_upper_limit, inventory_low_limit, opening_quantity, opening_money, opening_total_money
+        from
+            warehouse_goods_sku_${storeId}
+        where
+            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+    </select>
+
+    <update id="updateOpening" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+        update
+            warehouse_goods_sku_${storeId}
+        set
+            real_inventory = #{openingQuantity}, can_use_inventory = #{openingQuantity}, book_inventory = #{openingQuantity}, opening_quantity = #{openingQuantity}, opening_money = #{openingMoney}, opening_total_money = #{openingTotalMoney}
+        where
+            warehouse_id = #{warehouseId}
+        and goods_sku_id = #{goodsSkuId}
+        and opening_quantity = 0
+        and opening_money = 0
+        and opening_total_money = 0;
+    </update>
 
     <update id="increaseInventory" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
         update
@@ -341,14 +384,6 @@
         where
             warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
     </update>
-    
-    <delete id="deleteGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
-        delete from goods_sku_${storeId} where goods_id = #{goodsId};
-    </delete>
-
-    <select id="findAllGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo" resultType="com.yeta.pps.po.GoodsSku">
-        select id, goods_id, sku, purchase_price, retail_price, vip_price, integral from goods_sku_${storeId};
-    </select>
 
     <!--商品-->
 
@@ -367,7 +402,7 @@
         update
             goods_${storeId}
         set
-            name = #{name}, bar_code = #{barCode}, type_id = #{typeId}, putaway = #{putaway}, skus = #{skus}, origin = #{origin}, image = #{image}, remark = #{remark}
+            name = #{name}, bar_code = #{barCode}, putaway = #{putaway}, skus = #{skus}, origin = #{origin}, image = #{image}, remark = #{remark}
         where
             id = #{id};
     </update>
@@ -420,6 +455,15 @@
             <id column="label_id" property="id" />
             <result column="label_name" property="name" />
         </collection>
+        <collection property="goodsSkuVos" ofType="com.yeta.pps.vo.GoodsSkuVo">
+            <id column="sku_id" property="id" />
+            <result column="sku_goods_id" property="goodsId" />
+            <result column="sku_sku" property="sku" />
+            <result column="sku_purchase_price" property="purchasePrice" />
+            <result column="sku_retail_price" property="retailPrice" />
+            <result column="sku_vip_price" property="vipPrice" />
+            <result column="sku_integral" property="integral" />
+        </collection>
     </resultMap>
 
     <select id="findAllPaged" resultMap="goodsVoMap1">
@@ -436,16 +480,26 @@
             g.create_time,
             gt.name as type_name,
             gl.id as label_id,
-            gl.name as label_name
+            gl.name as label_name,
+            gsku.id as sku_id,
+            gsku.goods_id as sku_goods_id,
+            gsku.sku as sku_sku,
+            gsku.purchase_price as sku_purchase_price,
+            gsku.retail_price as sku_retail_price,
+            gsku.vip_price as sku_vip_price,
+            gsku.integral as sku_integral
         from
             (
                 (
-                    goods_${goodsVo.storeId} as g
-                    inner join goods_type_${goodsVo.storeId} as gt on g.type_id = gt.id
-                )
-                left join goods_goods_label_${goodsVo.storeId} as ggl on g.id = ggl.goods_id
-                )
-            left join goods_label_${goodsVo.storeId} as gl on gl.id = ggl.label_id
+                    (
+                        goods_${goodsVo.storeId} as g
+                        inner join goods_type_${goodsVo.storeId} as gt on g.type_id = gt.id
+                    )
+                    left join goods_goods_label_${goodsVo.storeId} as ggl on g.id = ggl.goods_id
+                    )
+                left join goods_label_${goodsVo.storeId} as gl on gl.id = ggl.label_id
+            )
+        left join goods_sku_${goodsVo.storeId} as gsku on g.id = gsku.goods_id
         where
             1 = 1
         <if test="goodsVo.id != null">
@@ -482,16 +536,26 @@
             g.create_time,
             gt.name as type_name,
             gl.id as label_id,
-            gl.name as label_name
+            gl.name as label_name,
+            gsku.id as sku_id,
+            gsku.goods_id as sku_goods_id,
+            gsku.sku as sku_sku,
+            gsku.purchase_price as sku_purchase_price,
+            gsku.retail_price as sku_retail_price,
+            gsku.vip_price as sku_vip_price,
+            gsku.integral as sku_integral
         from
             (
                 (
-                    goods_${storeId} as g
-                    inner join goods_type_${storeId} as gt on g.type_id = gt.id
+                    (
+                        goods_${storeId} as g
+                        inner join goods_type_${storeId} as gt on g.type_id = gt.id
+                    )
+                    left join goods_goods_label_${storeId} as ggl on g.id = ggl.goods_id
                 )
-                left join goods_goods_label_${storeId} as ggl on g.id = ggl.goods_id
+                left join goods_label_${storeId} as gl on gl.id = ggl.label_id
             )
-            left join goods_label_${storeId} as gl on gl.id = ggl.label_id
+        left join goods_sku_${storeId} as gsku on g.id = gsku.goods_id
         where
             1 = 1
         <if test="id != null">
@@ -512,115 +576,13 @@
         </if>
     </select>
 
-    <select id="findCountSkuById" parameterType="com.yeta.pps.vo.GoodsVo" resultType="java.lang.Integer">
-        select
-            count(0)
-        from
-            (
-                goods_${storeId} as g
-                inner join goods_type_${storeId} as gt on g.type_id = gt.id
-            )
-            left join goods_sku_${storeId} as gsku on g.id = gsku.goods_id
-        where
-            g.id = #{id};
-    </select>
-
-    <resultMap id="goodsVoMap2" type="com.yeta.pps.vo.GoodsVo">
-        <id column="id" property="id" />
-        <result column="name" property="name" />
-        <result column="bar_code" property="barCode" />
-        <result column="type_id" property="typeId" />
-        <result column="putaway" property="putaway" />
-        <result column="skus" property="skus" />
-        <result column="origin" property="origin" />
-        <result column="image" property="image" />
-        <result column="remark" property="remark" />
-        <result column="create_time" property="createTime" />
-        <result column="type_name" property="typeName" />
-        <collection property="goodsLabels" ofType="com.yeta.pps.po.GoodsLabel">
-            <id column="label_id" property="id" />
-            <result column="label_name" property="name" />
-        </collection>
-        <collection property="goodsSkuVos" ofType="com.yeta.pps.vo.GoodsSkuVo">
-            <id column="sku_id" property="id" />
-            <result column="sku_goods_id" property="goodsId" />
-            <result column="sku_sku" property="sku" />
-            <result column="sku_purchase_price" property="purchasePrice" />
-            <result column="sku_retail_price" property="retailPrice" />
-            <result column="sku_vip_price" property="vipPrice" />
-            <result column="sku_integral" property="integral" />
-        </collection>
-    </resultMap>
-
-    <select id="findAllPagedSkuById" resultMap="goodsVoMap2">
-        select
-            g.id,
-            g.name,
-            g.bar_code,
-            g.type_id,
-            g.putaway,
-            g.skus,
-            g.origin,
-            g.image,
-            g.remark,
-            g.create_time,
-            gt.name as type_name,
-            gsku.id as sku_id,
-            gsku.goods_id as sku_goods_id,
-            gsku.sku as sku_sku,
-            gsku.purchase_price as sku_purchase_price,
-            gsku.retail_price as sku_retail_price,
-            gsku.vip_price as sku_vip_price,
-            gsku.integral as sku_integral
-        from
-            (
-                goods_${goodsVo.storeId} as g
-                inner join goods_type_${goodsVo.storeId} as gt on g.type_id = gt.id
-            )
-            left join goods_sku_${goodsVo.storeId} as gsku on g.id = gsku.goods_id
-        where
-            g.id = #{goodsVo.id}
-        limit
-            #{pageVo.start}, #{pageVo.pageSize};
-    </select>
-
-    <select id="findAllSku" parameterType="com.yeta.pps.vo.GoodsVo" resultMap="goodsVoMap2">
-        select
-            g.id,
-            g.name,
-            g.bar_code,
-            g.type_id,
-            g.putaway,
-            g.skus,
-            g.origin,
-            g.image,
-            g.remark,
-            g.create_time,
-            gt.name as type_name,
-            gsku.id as sku_id,
-            gsku.goods_id as sku_goods_id,
-            gsku.sku as sku_sku,
-            gsku.purchase_price as sku_purchase_price,
-            gsku.retail_price as sku_retail_price,
-            gsku.vip_price as sku_vip_price,
-            gsku.integral as sku_integral
-        from
-            (
-                goods_${storeId} as g
-                inner join goods_type_${storeId} as gt on g.type_id = gt.id
-            )
-            left join goods_sku_${storeId} as gsku on g.id = gsku.goods_id;
-    </select>
-
     <select id="findByTypeId" parameterType="com.yeta.pps.vo.GoodsVo" resultType="com.yeta.pps.po.Goods">
         select id, name, bar_code, type_id, putaway, skus, origin, image, remark, create_time from goods_${storeId} where type_id = #{typeId};
     </select>
 
+    <!--下单查商品-->
 
-
-    <!--商品分类包商品，商品包商品规格，用于下单的时候-->
-    
-    <resultMap id="goodsTypeVoMap2" type="com.yeta.pps.vo.GoodsTypeVo">
+    <resultMap id="canUserMap" type="com.yeta.pps.vo.GoodsTypeVo">
         <id column="id" property="id" />
         <result column="name" property="name" />
         <collection property="goodsVos" ofType="com.yeta.pps.vo.GoodsVo">
@@ -642,16 +604,19 @@
                 <result column="gs_retail_price" property="retailPrice" />
                 <result column="gs_vip_price" property="vipPrice" />
                 <result column="gs_integral" property="integral" />
+                <result column="wgs_real_inventory" property="realInventory" />
+                <result column="wgs_can_use_inventory" property="canUseInventory" />
+                <result column="wgs_book_inventory" property="bookInventory" />
             </collection>
         </collection>
     </resultMap>
     
-    <select id="findTypeGoodsSku" parameterType="com.yeta.pps.vo.GoodsTypeVo" resultMap="goodsTypeVoMap2">
-        select 
+    <select id="findCanUseByWarehouseId" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo" resultMap="canUserMap">
+        select
             gt.id,
-            gt.name,
+            gt. NAME,
             g.id as g_id,
-            g.`name` as g_name,
+            g. NAME as g_name,
             g.bar_code as g_bar_code,
             g.type_id as g_type_id,
             g.putaway as g_putaway,
@@ -666,13 +631,25 @@
             gs.purchase_price as gs_purchase_price,
             gs.retail_price as gs_retail_price,
             gs.vip_price as gs_vip_price,
-            gs.integral as gs_integral
-        from 
+            gs.integral as gs_integral,
+            wgs.real_inventory as wgs_real_inventory,
+            wgs.can_use_inventory as wgs_can_use_inventory,
+            wgs.book_inventory as wgs_book_inventory
+        from
             (
-                goods_type_${storeId} as gt
-                left join goods_${storeId} as g on gt.id = g.type_id
+                (
+                    goods_type_${storeId} as gt
+                    inner join goods_${storeId} as g on g.type_id = gt.id
+                )
+                inner join goods_sku_${storeId} as gs on gs.goods_id = g.id
             )
-        left join goods_sku_${storeId} as gs on g.id = gs.goods_id;
+        inner join warehouse_goods_sku_${storeId} as wgs on wgs.goods_sku_id = gs.id
+        where
+            wgs.warehouse_id = #{warehouseId}
+        and g.putaway = 1
+        and wgs.opening_quantity > 0
+        and wgs.opening_money > 0
+        and wgs.opening_total_money > 0;
     </select>
 
 </mapper>

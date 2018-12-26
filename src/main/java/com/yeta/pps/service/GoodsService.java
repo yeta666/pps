@@ -3,9 +3,8 @@ package com.yeta.pps.service;
 import com.alibaba.fastjson.JSON;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyGoodsMapper;
-import com.yeta.pps.po.GoodsLabel;
-import com.yeta.pps.po.GoodsPropertyKey;
-import com.yeta.pps.po.GoodsType;
+import com.yeta.pps.mapper.MyWarehouseMapper;
+import com.yeta.pps.po.*;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -20,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 商品相关逻辑处理
@@ -31,6 +31,9 @@ public class GoodsService {
 
     @Autowired
     private MyGoodsMapper myGoodsMapper;
+
+    @Autowired
+    private MyWarehouseMapper myWarehouseMapper;
 
     //商品标签
 
@@ -411,7 +414,6 @@ public class GoodsService {
 
     /**
      * 新增商品
-     * 商品规格至少要1条
      * @param goodsVo
      * @return
      */
@@ -421,40 +423,36 @@ public class GoodsService {
          if (goodsVo.getTypeId() == null) {
              return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
          }
-         //判断商品类型是否存在
-         GoodsTypeVo goodsTypeVo = new GoodsTypeVo(goodsVo.getStoreId(), goodsVo.getTypeId());
-         if (myGoodsMapper.findType(goodsTypeVo) == null) {
-             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
-         }
+
          //设置初始属性
          goodsVo.setId(UUID.randomUUID().toString().replace("-", ""));
          goodsVo.setCreateTime(new Date());
+
          //新增商品
          if (myGoodsMapper.add(goodsVo) != 1) {
              throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
          }
-         //判断商品标签是否存在
-         List<GoodsLabel> goodsLabels = goodsVo.getGoodsLabels();
-         goodsLabels.stream().forEach(goodsLabel -> {
-             GoodsLabelVo goodsLabelVo = new GoodsLabelVo(goodsVo.getStoreId(), goodsLabel.getId());
-             if (myGoodsMapper.findLabel(goodsLabelVo) == null) {
-                 throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-             }
-             //新增商品/商品标签关系
-             GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(goodsVo.getStoreId(), goodsVo.getId(), goodsLabel.getId());
-             if (myGoodsMapper.addGoodsLabel(goodsGoodsLabelVo) != 1) {
-                 throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-             }
-         });
-         //新增商品规格
-         List<GoodsSkuVo> goodsSkuVos = goodsVo.getGoodsSkuVos();
-         goodsSkuVos.stream().forEach(goodsSkuVo -> {
-             goodsSkuVo.setStoreId(goodsVo.getStoreId());
-             goodsSkuVo.setGoodsId(goodsVo.getId());
-             if (myGoodsMapper.addGoodsSku(goodsSkuVo) != 1) {
-                 throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
-             }
-         });
+
+         //判断是否关联商品标签
+         if (goodsVo.getGoodsLabels() != null && goodsVo.getGoodsLabels().size() > 0) {
+             List<GoodsLabel> goodsLabels = goodsVo.getGoodsLabels();
+             goodsLabels.stream().forEach(goodsLabel -> {
+                 //判断商品标签参数
+                 if (goodsLabel.getId() == null) {
+                     throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                 }
+
+                 //新增商品/商品标签关系
+                 GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(goodsVo.getStoreId(), goodsVo.getId(), goodsLabel.getId());
+                 if (myGoodsMapper.addGoodsLabel(goodsGoodsLabelVo) != 1) {
+                     throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                 }
+             });
+         }
+
+         //关联商品规格
+         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(goodsVo.getStoreId()));
+         addGoodsSku(goodsVo.getGoodsSkuVos(), warehouses, goodsVo);
          return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -465,7 +463,7 @@ public class GoodsService {
      */
     @Transactional
     public CommonResponse delete(List<GoodsVo> goodsVos) {
-        goodsVos.stream().forEach(goodsVo -> {
+        /*goodsVos.stream().forEach(goodsVo -> {
             //删除商品
             if (myGoodsMapper.delete(goodsVo) != 1) {
                 throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
@@ -476,54 +474,126 @@ public class GoodsService {
             //删除该商品对应的商品规格
             GoodsSkuVo goodsSkuVo = new GoodsSkuVo(goodsVo.getStoreId(), goodsVo.getId());
             myGoodsMapper.deleteGoodsSku(goodsSkuVo);
-        });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        });*/
+        return new CommonResponse(CommonResponse.CODE1, null, "暂不支持删除商品");
     }
 
     /**
      * 修改商品
-     * 不能修改商品类型
      * @param goodsVo
      * @return
      */
     @Transactional
     public CommonResponse update(GoodsVo goodsVo) {
-         //判断参数
-         if (goodsVo.getId() == null) {
-             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-         }
-         //修改商品
-         if (myGoodsMapper.update(goodsVo) != 1) {
-             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
-         }
-         //删除商品/商品标签关系
-         GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(goodsVo.getStoreId(), goodsVo.getId());
-         myGoodsMapper.deleteGoodsLabel(goodsGoodsLabelVo);
-         //判断商品标签是否存在
-         List<GoodsLabel> goodsLabels = goodsVo.getGoodsLabels();
-         goodsLabels.stream().forEach(goodsLabel -> {
-             GoodsLabelVo goodsLabelVo = new GoodsLabelVo(goodsVo.getStoreId(), goodsLabel.getId());
-             if (myGoodsMapper.findLabel(goodsLabelVo) == null) {
-                 throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
-             }
-             //新增商品/商品标签关系
-             goodsGoodsLabelVo.setLabelId(goodsLabel.getId());
-             if (myGoodsMapper.addGoodsLabel(goodsGoodsLabelVo) != 1) {
-                 throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
-             }
-         });
-         //删除该商品对应的商品规格
-         myGoodsMapper.deleteGoodsSku(new GoodsSkuVo(goodsVo.getStoreId(), goodsVo.getId()));
-         //新增商品规格
-         List<GoodsSkuVo> goodsSkuVos = goodsVo.getGoodsSkuVos();
-         goodsSkuVos.stream().forEach(goodsSkuVo -> {
-             goodsSkuVo.setStoreId(goodsVo.getStoreId());
-             goodsSkuVo.setGoodsId(goodsVo.getId());
-             if (myGoodsMapper.addGoodsSku(goodsSkuVo) != 1) {
-                 throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
-             }
-         });
-         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        //判断参数
+        if (goodsVo.getId() == null) {
+            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+        }
+
+        //修改商品
+        if (myGoodsMapper.update(goodsVo) != 1) {
+            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        }
+
+        //删除商品/商品标签关系
+        GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(goodsVo.getStoreId(), goodsVo.getId());
+        myGoodsMapper.deleteGoodsLabel(goodsGoodsLabelVo);
+
+        //判断是否关联商品标签
+        if (goodsVo.getGoodsLabels() != null && goodsVo.getGoodsLabels().size() > 0) {
+            List<GoodsLabel> goodsLabels = goodsVo.getGoodsLabels();
+            goodsLabels.stream().forEach(goodsLabel -> {
+                //判断商品标签参数
+                if (goodsLabel.getId() == null) {
+                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                }
+
+                //新增商品/商品标签关系
+                goodsGoodsLabelVo.setLabelId(goodsLabel.getId());
+                if (myGoodsMapper.addGoodsLabel(goodsGoodsLabelVo) != 1) {
+                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                }
+            });
+        }
+
+        //判断该商品原来是否关联商品规格
+        List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(goodsVo.getStoreId()));
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(goodsVo.getStoreId()));
+        if (goodsSkus.size() > 0) {     //数据库中有商品规格
+            //过滤该商品的商品规格
+            goodsSkus = goodsSkus.stream().filter(goodsSku -> goodsSku.getGoodsId().equals(goodsVo.getId())).collect(Collectors.toList());
+            if (goodsSkus != null && goodsSkus.size() > 0) {        //原来关联了商品规格
+                if (goodsVo.getSkus() != null && goodsVo.getGoodsSkuVos() != null && goodsVo.getGoodsSkuVos().size() > 0) {     //参数中的商品规格不为空
+                    List<GoodsSkuVo> goodsSkuVos = goodsVo.getGoodsSkuVos();
+                    int flag = 0;
+                    for (GoodsSku goodsSku : goodsSkus) {
+                        Iterator<GoodsSkuVo> it = goodsSkuVos.iterator();
+                        while (it.hasNext()) {
+                            GoodsSkuVo goodsSkuVo = it.next();
+                            goodsSkuVo.setStoreId(goodsVo.getStoreId());
+
+                            if (goodsSkuVo.getId() != null && goodsSku.getId() == goodsSkuVo.getId()) {
+                                flag++;
+                                //判断商品规格参数
+                                if (goodsSkuVo.getSku() == null || goodsSkuVo.getPurchasePrice() == null || goodsSkuVo.getRetailPrice() == null || goodsSkuVo.getVipPrice() == null || goodsSkuVo.getIntegral() == null) {
+                                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                                }
+                                if (myGoodsMapper.updateGoodsSku(goodsSkuVo) != 1) {
+                                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                                }
+                                it.remove();
+                            }
+                        }
+                    }
+                    if (flag != goodsSkus.size()) {
+                        throw new CommonException(CommonResponse.CODE7, "该商品原来的商品规格不能删除");
+                    }
+                    addGoodsSku(goodsVo.getGoodsSkuVos(), warehouses, goodsVo);
+                } else {        //原来关联了商品规格但是参数中的商品规格为空
+                    throw new CommonException(CommonResponse.CODE7, "该商品原来的商品规格不能删除");
+                }
+            } else {        //原来没有关联商品规格
+                addGoodsSku(goodsVo.getGoodsSkuVos(), warehouses, goodsVo);
+            }
+        } else {        //数据库中还没有商品规格
+            addGoodsSku(goodsVo.getGoodsSkuVos(), warehouses, goodsVo);
+        }
+        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+    }
+
+    /**
+     * 新增关联商品规格的方法
+     * @param goodsSkuVos
+     * @param warehouses
+     * @param goodsVo
+     */
+    @Transactional
+    public void addGoodsSku(List<GoodsSkuVo> goodsSkuVos, List<Warehouse> warehouses, GoodsVo goodsVo) {
+        if (goodsVo.getSkus() != null && goodsVo.getGoodsSkuVos() != null && goodsVo.getGoodsSkuVos().size() > 0) {     //参数中的商品规格不为空
+            //关联新添加的商品规格
+            goodsSkuVos.stream().forEach(goodsSkuVo -> {
+                //判断商品规格参数
+                if (goodsSkuVo.getSku() == null || goodsSkuVo.getPurchasePrice() == null || goodsSkuVo.getRetailPrice() == null || goodsSkuVo.getVipPrice() == null || goodsSkuVo.getIntegral() == null) {
+                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                }
+
+                //设置初始属性
+                goodsSkuVo.setStoreId(goodsVo.getStoreId());
+                goodsSkuVo.setGoodsId(goodsVo.getId());
+
+                //新增商品规格
+                if (myGoodsMapper.addGoodsSku(goodsSkuVo) != 1) {
+                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                }
+
+                warehouses.stream().forEach(warehouse -> {
+                    //新增商品规格仓库关系
+                    if (myGoodsMapper.initializeOpening(new WarehouseGoodsSkuVo(goodsVo.getStoreId(), warehouse.getId(), goodsSkuVo.getId())) != 1) {
+                        throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                    }
+                });
+            });
+        }
     }
 
     /**
@@ -549,37 +619,6 @@ public class GoodsService {
         titles.add(new Title("创建时间", "createTime"));
         titles.add(new Title("标签", "goodsLabels"));     //list
         CommonResult commonResult = new CommonResult(titles, goodsVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
-    }
-
-    /**
-     * 根据id查询商品及sku
-     * @param goodsVo
-     * @return
-     */
-    public CommonResponse findSkuById(GoodsVo goodsVo, PageVo pageVo) {
-        //查询所有页数
-        pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCountSkuById(goodsVo) * 1.0 / pageVo.getPageSize()));
-        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        GoodsVo goodsVoPaged = myGoodsMapper.findAllPagedSkuById(goodsVo, pageVo);
-        if (goodsVoPaged == null) {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
-        }
-        goodsVoPaged.setGoodsLabels(myGoodsMapper.findAll(goodsVo).get(0).getGoodsLabels());
-        //封装返回结果
-        List<Title> titles = new ArrayList<>();
-        titles.add(new Title("商品货号", "id"));
-        titles.add(new Title("商品名", "name"));
-        titles.add(new Title("条码", "barCode"));
-        titles.add(new Title("分类", "typeName"));
-        titles.add(new Title("上架状态", "putaway"));
-        titles.add(new Title("产地", "origin"));
-        titles.add(new Title("图片", "image"));
-        titles.add(new Title("备注", "remark"));
-        titles.add(new Title("创建时间", "createTime"));
-        titles.add(new Title("标签", "goodsLabels"));     //list
-        titles.add(new Title("sku", "goodsSkuVos"));        //list
-        CommonResult commonResult = new CommonResult(titles, goodsVoPaged, pageVo);
         return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
     }
 
@@ -649,7 +688,7 @@ public class GoodsService {
      */
     public void exportGoodsSku(GoodsVo goodsVo, HttpServletResponse response) throws IOException {
         //根据筛选条件查找商品
-        List<GoodsVo> goodsVos = myGoodsMapper.findAllSku(goodsVo);
+        List<GoodsVo> goodsVos = myGoodsMapper.findAll(goodsVo);
         GoodsVo vo = goodsVos.get(0);
         //备注
         String remark = "【筛选条件】" +
@@ -668,6 +707,7 @@ public class GoodsService {
                 titleRowCell = new ArrayList<>(Arrays.asList(new String[]{
                         "商品货号", "商品名", "条码", "分类", "上架状态（0：不上架，1：上架）", "产地", "图片", "备注", "创建时间", "标签（多个用英文逗号隔开）", "进价", "零售价", "vip售价", "积分"
                 }));
+                System.out.println(goodsVo1.getSkus());
                 List<Skus> skuses = JSON.parseArray(goodsVo1.getSkus(), Skus.class);
                 skuses.stream().forEach(skus -> {
                     titleRowCell.add(skus.getKey());
@@ -787,6 +827,9 @@ public class GoodsService {
      */
     @Transactional
     public CommonResponse importGoods(MultipartFile multipartFile, Integer storeId) throws IOException {
+        //TODO
+        //商品规格??
+
         //创建Excel工作簿
         HSSFWorkbook workbook = new HSSFWorkbook(multipartFile.getInputStream());
         //创建一个工作表sheet
@@ -839,17 +882,10 @@ public class GoodsService {
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
+    //下单查商品
 
-
-    //商品分类包商品，商品包商品规格，用于下单的时候
-
-    /**
-     * 用于下单的时候选择商品分类、商品、商品规格
-     * @param goodsTypeVo
-     * @return
-     */
-    public CommonResponse findTypeGoodsSku(GoodsTypeVo goodsTypeVo) {
-        List<GoodsTypeVo> goodsTypeVos = myGoodsMapper.findTypeGoodsSku(goodsTypeVo);
-        return new CommonResponse(CommonResponse.CODE1, goodsTypeVos, CommonResponse.MESSAGE1);
+    public CommonResponse findCanUseByWarehouseId(WarehouseGoodsSkuVo warehouseGoodsSkuVo) {
+        List<GoodsTypeVo> canUseGoods = myGoodsMapper.findCanUseByWarehouseId(warehouseGoodsSkuVo);
+        return new CommonResponse(CommonResponse.CODE1, canUseGoods, CommonResponse.MESSAGE1);
     }
 }

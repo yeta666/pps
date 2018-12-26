@@ -8,28 +8,27 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class GoodsWarehouseSkuOrderVo {
+public class StorageCheckOrderVo {
 
-    /**
-     * 店铺id
-     */
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
-    
+
+    /**
+     * 库存对账记录编号
+     */
+    private Integer id;
+
     /**
      * 单据编号
      */
-    private String id;
-    
-    /**
-     * 单据类型
-     */
+    private String orderId;
+
     private String typeName;
-    
+
     /**
-     * 单据日期
+     * 创建时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     @JsonIgnore
@@ -38,92 +37,104 @@ public class GoodsWarehouseSkuOrderVo {
     @JsonIgnore
     private Date endTime;
 
-    /**
-     * 来源订单
-     */
     private String applyOrderId;
 
     /**
-     * 往来单位
+     * 往来单位编号
      */
+    private String targetId;
+
     private String targetName;
 
-    @JsonIgnore
-    private String goodsId;
-
     /**
-     * 商品规格
+     * 商品规格编号
      */
+    @JsonIgnore
+    private Integer goodsSkuId;
+
     private String sku;
 
+    /**
+     * 入库仓库编号
+     */
     private Integer inWarehouseId;
 
-    /**
-     * 入库仓库
-     */
     private String inWarehouseName;
 
     /**
-     * 入库总数量
+     * 入库数量
      */
-    private Integer inTotalQuantity;
+    private Integer inQuantity;
 
     /**
-     * 入库总金额
+     * 入库成本单价
+     */
+    private BigDecimal inMoney;
+
+    /**
+     * 入库成本金额
      */
     private BigDecimal inTotalMoney;
 
     /**
-     * 入库总优惠金额
+     * 出库仓库编号
      */
-    private BigDecimal inTotalDiscountMoney;
-
     private Integer outWarehouseId;
 
-    /**
-     * 出库仓库
-     */
     private String outWarehouseName;
 
     /**
-     * 出库总数量
+     * 出库数量
      */
-    private Integer outTotalQuantity;
+    private Integer outQuantity;
 
     /**
-     * 出库总金额
+     * 出库成本单价
+     */
+    private BigDecimal outMoney;
+
+    /**
+     * 出库成本金额
      */
     private BigDecimal outTotalMoney;
 
     /**
-     * 出库总优惠金额
+     * 结存数量
      */
-    private BigDecimal outTotalDiscountMoney;
+    private Integer checkQuantity;
 
     /**
-     * 总成本金额
+     * 结存成本单价
      */
-    private BigDecimal totalPurchasePrice;
+    private BigDecimal checkMoney;
 
     /**
-     * 经手人
+     * 结存成本金额
      */
+    private BigDecimal checkTotalMoney;
+
+    /**
+     * 经手人编号
+     */
+    private String userId;
+
     private String userName;
 
-    /**
-     * 单据备注
-     */
     private String remark;
 
-    public GoodsWarehouseSkuOrderVo() {
+    public StorageCheckOrderVo() {
     }
 
-    public GoodsWarehouseSkuOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Date startTime, Date endTime, String goodsId) {
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer goodsSkuId) {
         this.storeId = storeId;
-        this.id = id;
+        this.goodsSkuId = goodsSkuId;
+    }
+
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId) {
+        this.storeId = storeId;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.goodsId = goodsId;
+        this.goodsSkuId = goodsSkuId;
     }
 
     public Integer getStoreId() {
@@ -134,12 +145,20 @@ public class GoodsWarehouseSkuOrderVo {
         this.storeId = storeId;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     public String getTypeName() {
@@ -182,6 +201,14 @@ public class GoodsWarehouseSkuOrderVo {
         this.applyOrderId = applyOrderId;
     }
 
+    public String getTargetId() {
+        return targetId;
+    }
+
+    public void setTargetId(String targetId) {
+        this.targetId = targetId;
+    }
+
     public String getTargetName() {
         return targetName;
     }
@@ -190,12 +217,12 @@ public class GoodsWarehouseSkuOrderVo {
         this.targetName = targetName;
     }
 
-    public String getGoodsId() {
-        return goodsId;
+    public Integer getGoodsSkuId() {
+        return goodsSkuId;
     }
 
-    public void setGoodsId(String goodsId) {
-        this.goodsId = goodsId;
+    public void setGoodsSkuId(Integer goodsSkuId) {
+        this.goodsSkuId = goodsSkuId;
     }
 
     public String getSku() {
@@ -222,12 +249,20 @@ public class GoodsWarehouseSkuOrderVo {
         this.inWarehouseName = inWarehouseName;
     }
 
-    public Integer getInTotalQuantity() {
-        return inTotalQuantity;
+    public Integer getInQuantity() {
+        return inQuantity;
     }
 
-    public void setInTotalQuantity(Integer inTotalQuantity) {
-        this.inTotalQuantity = inTotalQuantity;
+    public void setInQuantity(Integer inQuantity) {
+        this.inQuantity = inQuantity;
+    }
+
+    public BigDecimal getInMoney() {
+        return inMoney;
+    }
+
+    public void setInMoney(BigDecimal inMoney) {
+        this.inMoney = inMoney;
     }
 
     public BigDecimal getInTotalMoney() {
@@ -236,14 +271,6 @@ public class GoodsWarehouseSkuOrderVo {
 
     public void setInTotalMoney(BigDecimal inTotalMoney) {
         this.inTotalMoney = inTotalMoney;
-    }
-
-    public BigDecimal getInTotalDiscountMoney() {
-        return inTotalDiscountMoney;
-    }
-
-    public void setInTotalDiscountMoney(BigDecimal inTotalDiscountMoney) {
-        this.inTotalDiscountMoney = inTotalDiscountMoney;
     }
 
     public Integer getOutWarehouseId() {
@@ -262,12 +289,20 @@ public class GoodsWarehouseSkuOrderVo {
         this.outWarehouseName = outWarehouseName;
     }
 
-    public Integer getOutTotalQuantity() {
-        return outTotalQuantity;
+    public Integer getOutQuantity() {
+        return outQuantity;
     }
 
-    public void setOutTotalQuantity(Integer outTotalQuantity) {
-        this.outTotalQuantity = outTotalQuantity;
+    public void setOutQuantity(Integer outQuantity) {
+        this.outQuantity = outQuantity;
+    }
+
+    public BigDecimal getOutMoney() {
+        return outMoney;
+    }
+
+    public void setOutMoney(BigDecimal outMoney) {
+        this.outMoney = outMoney;
     }
 
     public BigDecimal getOutTotalMoney() {
@@ -278,20 +313,36 @@ public class GoodsWarehouseSkuOrderVo {
         this.outTotalMoney = outTotalMoney;
     }
 
-    public BigDecimal getOutTotalDiscountMoney() {
-        return outTotalDiscountMoney;
+    public Integer getCheckQuantity() {
+        return checkQuantity;
     }
 
-    public void setOutTotalDiscountMoney(BigDecimal outTotalDiscountMoney) {
-        this.outTotalDiscountMoney = outTotalDiscountMoney;
+    public void setCheckQuantity(Integer checkQuantity) {
+        this.checkQuantity = checkQuantity;
     }
 
-    public BigDecimal getTotalPurchasePrice() {
-        return totalPurchasePrice;
+    public BigDecimal getCheckMoney() {
+        return checkMoney;
     }
 
-    public void setTotalPurchasePrice(BigDecimal totalPurchasePrice) {
-        this.totalPurchasePrice = totalPurchasePrice;
+    public void setCheckMoney(BigDecimal checkMoney) {
+        this.checkMoney = checkMoney;
+    }
+
+    public BigDecimal getCheckTotalMoney() {
+        return checkTotalMoney;
+    }
+
+    public void setCheckTotalMoney(BigDecimal checkTotalMoney) {
+        this.checkTotalMoney = checkTotalMoney;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getUserName() {
@@ -312,28 +363,33 @@ public class GoodsWarehouseSkuOrderVo {
 
     @Override
     public String toString() {
-        return "GoodsWarehouseSkuOrderVo{" +
+        return "StorageCheckOrderVo{" +
                 "storeId=" + storeId +
-                ", id='" + id + '\'' +
+                ", id=" + id +
+                ", orderId='" + orderId + '\'' +
                 ", typeName='" + typeName + '\'' +
                 ", createTime=" + createTime +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", applyOrderId='" + applyOrderId + '\'' +
+                ", targetId='" + targetId + '\'' +
                 ", targetName='" + targetName + '\'' +
-                ", goodsId='" + goodsId + '\'' +
+                ", goodsSkuId=" + goodsSkuId +
                 ", sku='" + sku + '\'' +
                 ", inWarehouseId=" + inWarehouseId +
                 ", inWarehouseName='" + inWarehouseName + '\'' +
-                ", inTotalQuantity=" + inTotalQuantity +
+                ", inQuantity=" + inQuantity +
+                ", inMoney=" + inMoney +
                 ", inTotalMoney=" + inTotalMoney +
-                ", inTotalDiscountMoney=" + inTotalDiscountMoney +
                 ", outWarehouseId=" + outWarehouseId +
                 ", outWarehouseName='" + outWarehouseName + '\'' +
-                ", outTotalQuantity=" + outTotalQuantity +
+                ", outQuantity=" + outQuantity +
+                ", outMoney=" + outMoney +
                 ", outTotalMoney=" + outTotalMoney +
-                ", outTotalDiscountMoney=" + outTotalDiscountMoney +
-                ", totalPurchasePrice=" + totalPurchasePrice +
+                ", checkQuantity=" + checkQuantity +
+                ", checkMoney=" + checkMoney +
+                ", checkTotalMoney=" + checkTotalMoney +
+                ", userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +
                 ", remark='" + remark + '\'' +
                 '}';

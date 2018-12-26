@@ -1,15 +1,15 @@
 package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
+import com.yeta.pps.mapper.MyGoodsMapper;
 import com.yeta.pps.mapper.MyUserMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
+import com.yeta.pps.po.GoodsSku;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.UserVo;
-import com.yeta.pps.vo.WarehouseVo;
+import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +29,9 @@ public class WarehouseService {
     private MyWarehouseMapper myWarehouseMapper;
 
     @Autowired
+    private MyGoodsMapper myGoodsMapper;
+
+    @Autowired
     private MyUserMapper myUserMapper;
 
     /**
@@ -41,6 +44,15 @@ public class WarehouseService {
         if (myWarehouseMapper.add(warehouseVo) != 1) {
             return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
         }
+
+        //查询所有商品规格
+        List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(warehouseVo.getStoreId()));
+        goodsSkus.stream().forEach(goodsSku -> {
+            //新增商品规格仓库关系
+            if (myGoodsMapper.initializeOpening(new WarehouseGoodsSkuVo(warehouseVo.getStoreId(), warehouseVo.getId(), goodsSku.getId())) != 1) {
+                throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+            }
+        });
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 

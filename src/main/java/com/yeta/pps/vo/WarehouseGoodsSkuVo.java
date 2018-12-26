@@ -1,26 +1,40 @@
 package com.yeta.pps.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yeta.pps.util.CommonResponse;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+
 /**
  * @author YETA
  * @date 2018/12/20/21:48
  */
 public class WarehouseGoodsSkuVo {
 
+    /**
+     * 店铺编号
+     */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
 
     /**
      * 仓库/商品规格关系编号
      */
+    @JsonIgnore
     private Integer id;
 
     /**
      * 仓库编号
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Integer warehouseId;
 
     /**
      * 商品规格编号
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Integer goodsSkuId;
 
     /**
@@ -58,35 +72,61 @@ public class WarehouseGoodsSkuVo {
      */
     private Integer inventoryLowLimit;
 
+    /**
+     * 缺货数量
+     */
+    private Integer needQuantity;
+
+    /**
+     * 期初数量
+     */
+    private Integer openingQuantity;
+
+    /**
+     * 期初成本单价
+     */
+    private BigDecimal openingMoney;
+
+    /**
+     * 期初金额
+     */
+    private BigDecimal openingTotalMoney;
+
+    /**
+     * 经手人
+     */
+    @NotBlank(message = CommonResponse.MESSAGE3)
+    private String userId;
+
     public WarehouseGoodsSkuVo() {
     }
 
-    public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId) {
+    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotNull(message = CommonResponse.MESSAGE3) Integer warehouseId) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
     }
 
-    public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId, Integer goodsSkuId) {
-        this.storeId = storeId;
-        this.warehouseId = warehouseId;
-        this.goodsSkuId = goodsSkuId;
-    }
-
-    public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId, Integer goodsSkuId, Integer notSentQuantity, Integer notReceivedQuantity) {
+    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotNull(message = CommonResponse.MESSAGE3) Integer warehouseId, @NotNull(message = CommonResponse.MESSAGE3) Integer goodsSkuId) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
         this.goodsSkuId = goodsSkuId;
-        this.notSentQuantity = notSentQuantity;
-        this.notReceivedQuantity = notReceivedQuantity;
     }
 
-    public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId, Integer goodsSkuId, Integer realInventory, Integer canUseInventory, Integer bookInventory) {
+    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotNull(message = CommonResponse.MESSAGE3) Integer warehouseId, @NotNull(message = CommonResponse.MESSAGE3) Integer goodsSkuId, Integer realInventory, Integer canUseInventory, Integer bookInventory) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
         this.goodsSkuId = goodsSkuId;
         this.realInventory = realInventory;
         this.canUseInventory = canUseInventory;
         this.bookInventory = bookInventory;
+    }
+
+    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotNull(message = CommonResponse.MESSAGE3) Integer warehouseId, @NotNull(message = CommonResponse.MESSAGE3) Integer goodsSkuId, Integer notSentQuantity, Integer notReceivedQuantity) {
+        this.storeId = storeId;
+        this.warehouseId = warehouseId;
+        this.goodsSkuId = goodsSkuId;
+        this.notSentQuantity = notSentQuantity;
+        this.notReceivedQuantity = notReceivedQuantity;
     }
 
     public Integer getStoreId() {
@@ -177,6 +217,46 @@ public class WarehouseGoodsSkuVo {
         this.inventoryLowLimit = inventoryLowLimit;
     }
 
+    public Integer getNeedQuantity() {
+        return needQuantity;
+    }
+
+    public void setNeedQuantity(Integer needQuantity) {
+        this.needQuantity = needQuantity;
+    }
+
+    public Integer getOpeningQuantity() {
+        return openingQuantity;
+    }
+
+    public void setOpeningQuantity(Integer openingQuantity) {
+        this.openingQuantity = openingQuantity;
+    }
+
+    public BigDecimal getOpeningMoney() {
+        return openingMoney;
+    }
+
+    public void setOpeningMoney(BigDecimal openingMoney) {
+        this.openingMoney = openingMoney;
+    }
+
+    public BigDecimal getOpeningTotalMoney() {
+        return openingTotalMoney;
+    }
+
+    public void setOpeningTotalMoney(BigDecimal openingTotalMoney) {
+        this.openingTotalMoney = openingTotalMoney;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     @Override
     public String toString() {
         return "WarehouseGoodsSkuVo{" +
@@ -191,6 +271,11 @@ public class WarehouseGoodsSkuVo {
                 ", bookInventory=" + bookInventory +
                 ", inventoryUpperLimit=" + inventoryUpperLimit +
                 ", inventoryLowLimit=" + inventoryLowLimit +
+                ", needQuantity=" + needQuantity +
+                ", openingQuantity=" + openingQuantity +
+                ", openingMoney=" + openingMoney +
+                ", openingTotalMoney=" + openingTotalMoney +
+                ", userId='" + userId + '\'' +
                 '}';
     }
 }

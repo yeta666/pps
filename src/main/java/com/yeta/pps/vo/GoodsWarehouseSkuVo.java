@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.List;
 
 public class GoodsWarehouseSkuVo {
@@ -39,17 +40,12 @@ public class GoodsWarehouseSkuVo {
      */
     private String typeName;
 
-    private Integer goodsSkuId;
-
-    /**
-     * skus
-     */
-    private String skus;
-
     /**
      * 图片
      */
     private String image;
+
+    private Integer goodsSkuId;
 
     /**
      * 规格
@@ -65,6 +61,9 @@ public class GoodsWarehouseSkuVo {
      * 仓库
      */
     private String warehouseName;
+
+    @JsonIgnore
+    private Byte flag;
 
     /**
      * 实物库存
@@ -82,7 +81,7 @@ public class GoodsWarehouseSkuVo {
     private Integer notReceivedQuantity;
 
     /**
-     * 可用存库
+     * 可用库存
      */
     private Integer canUseInventory;
 
@@ -90,9 +89,6 @@ public class GoodsWarehouseSkuVo {
      * 账面库存
      */
     private Integer bookInventory;
-
-    @JsonIgnore
-    private Byte warning;
 
     /**
      * 库存上限
@@ -109,6 +105,31 @@ public class GoodsWarehouseSkuVo {
      */
     private Integer needQuantity;
 
+    /**
+     * 期初数量
+     */
+    private Integer openingQuantity;
+
+    /**
+     * 期初成本单价
+     */
+    private BigDecimal openingMoney;
+
+    /**
+     * 期初金额
+     */
+    private BigDecimal openingTotalMoney;
+
+    /**
+     * 成本单价
+     */
+    private BigDecimal costMoney;
+
+    /**
+     * 成本金额
+     */
+    private BigDecimal totalCostMoney;
+
     public GoodsWarehouseSkuVo() {
     }
 
@@ -124,13 +145,13 @@ public class GoodsWarehouseSkuVo {
         this.typeId = typeId;
     }
 
-    public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, String name, Integer typeId, Integer warehouseId, Byte warning) {
+    public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, String name, Integer typeId, Integer warehouseId, Byte flag) {
         this.storeId = storeId;
         this.id = id;
         this.name = name;
         this.typeId = typeId;
         this.warehouseId = warehouseId;
-        this.warning = warning;
+        this.flag = flag;
     }
 
     public Integer getStoreId() {
@@ -181,28 +202,20 @@ public class GoodsWarehouseSkuVo {
         this.typeName = typeName;
     }
 
-    public Integer getGoodsSkuId() {
-        return goodsSkuId;
-    }
-
-    public void setGoodsSkuId(Integer goodsSkuId) {
-        this.goodsSkuId = goodsSkuId;
-    }
-
-    public String getSkus() {
-        return skus;
-    }
-
-    public void setSkus(String skus) {
-        this.skus = skus;
-    }
-
     public String getImage() {
         return image;
     }
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public Integer getGoodsSkuId() {
+        return goodsSkuId;
+    }
+
+    public void setGoodsSkuId(Integer goodsSkuId) {
+        this.goodsSkuId = goodsSkuId;
     }
 
     public String getSku() {
@@ -227,6 +240,14 @@ public class GoodsWarehouseSkuVo {
 
     public void setWarehouseName(String warehouseName) {
         this.warehouseName = warehouseName;
+    }
+
+    public Byte getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Byte flag) {
+        this.flag = flag;
     }
 
     public Integer getRealInventory() {
@@ -269,14 +290,6 @@ public class GoodsWarehouseSkuVo {
         this.bookInventory = bookInventory;
     }
 
-    public Byte getWarning() {
-        return warning;
-    }
-
-    public void setWarning(Byte warning) {
-        this.warning = warning;
-    }
-
     public Integer getInventoryUpperLimit() {
         return inventoryUpperLimit;
     }
@@ -301,6 +314,46 @@ public class GoodsWarehouseSkuVo {
         this.needQuantity = needQuantity;
     }
 
+    public Integer getOpeningQuantity() {
+        return openingQuantity;
+    }
+
+    public void setOpeningQuantity(Integer openingQuantity) {
+        this.openingQuantity = openingQuantity;
+    }
+
+    public BigDecimal getOpeningMoney() {
+        return openingMoney;
+    }
+
+    public void setOpeningMoney(BigDecimal openingMoney) {
+        this.openingMoney = openingMoney;
+    }
+
+    public BigDecimal getOpeningTotalMoney() {
+        return openingTotalMoney;
+    }
+
+    public void setOpeningTotalMoney(BigDecimal openingTotalMoney) {
+        this.openingTotalMoney = openingTotalMoney;
+    }
+
+    public BigDecimal getCostMoney() {
+        return costMoney;
+    }
+
+    public void setCostMoney(BigDecimal costMoney) {
+        this.costMoney = costMoney;
+    }
+
+    public BigDecimal getTotalCostMoney() {
+        return totalCostMoney;
+    }
+
+    public void setTotalCostMoney(BigDecimal totalCostMoney) {
+        this.totalCostMoney = totalCostMoney;
+    }
+
     @Override
     public String toString() {
         return "GoodsWarehouseSkuVo{" +
@@ -310,21 +363,25 @@ public class GoodsWarehouseSkuVo {
                 ", barCode='" + barCode + '\'' +
                 ", typeId=" + typeId +
                 ", typeName='" + typeName + '\'' +
-                ", goodsSkuId=" + goodsSkuId +
-                ", skus='" + skus + '\'' +
                 ", image='" + image + '\'' +
+                ", goodsSkuId=" + goodsSkuId +
                 ", sku='" + sku + '\'' +
                 ", warehouseId=" + warehouseId +
                 ", warehouseName='" + warehouseName + '\'' +
+                ", flag=" + flag +
                 ", realInventory=" + realInventory +
                 ", notSentQuantity=" + notSentQuantity +
                 ", notReceivedQuantity=" + notReceivedQuantity +
                 ", canUseInventory=" + canUseInventory +
                 ", bookInventory=" + bookInventory +
-                ", warning=" + warning +
                 ", inventoryUpperLimit=" + inventoryUpperLimit +
                 ", inventoryLowLimit=" + inventoryLowLimit +
                 ", needQuantity=" + needQuantity +
+                ", openingQuantity=" + openingQuantity +
+                ", openingMoney=" + openingMoney +
+                ", openingTotalMoney=" + openingTotalMoney +
+                ", costMoney=" + costMoney +
+                ", totalCostMoney=" + totalCostMoney +
                 '}';
     }
 }

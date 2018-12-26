@@ -390,7 +390,7 @@ public class GoodsController {
      * @return
      */
     @ApiOperation(value = "新增商品")
-    @ApiImplicitParam(name = "goodsVo", value = "storeId, name, barCode, typeId, putaway必填；其他选填", required = true, paramType = "body", dataType = "GoodsVo")
+    @ApiImplicitParam(name = "goodsVo", value = "storeId, name, barCode, typeId, putaway必填；商品规格skus, goodsSkuVos(sku, purchasePrice, retailPrice, vipPrice, integral), goodsLabels, origin, image, remark选填", required = true, paramType = "body", dataType = "GoodsVo")
     @PostMapping(value = "/goods")
     public CommonResponse add(@RequestBody @Valid GoodsVo goodsVo) {
         return goodsService.add(goodsVo);
@@ -422,8 +422,8 @@ public class GoodsController {
      * @param goodsVo
      * @return
      */
-    @ApiOperation(value = "修改商品", notes = "不能修改商品类型")
-    @ApiImplicitParam(name = "goodsVo", value = "storeId, id, name, barCode, putaway必填；其他选填", required = true, paramType = "body", dataType = "GoodsVo")
+    @ApiOperation(value = "修改商品", notes = "不能修改商品类型，特别强调goodsSkuVos，之前已经存在的规格必须传id，新增的规格不传id，不能删除已经存在的规格")
+    @ApiImplicitParam(name = "goodsVo", value = "storeId, id, name, barCode, putaway, goodsLabels, goodsSkuVos(id, goodsId, sku, purchasePrice, retailPrice, vipPrice, integral必填)必填；其他选填", required = true, paramType = "body", dataType = "GoodsVo")
     @PutMapping(value = "/goods")
     public CommonResponse update(@RequestBody @Valid GoodsVo goodsVo) {
         return goodsService.update(goodsVo);
@@ -459,29 +459,6 @@ public class GoodsController {
                                                          @RequestParam(value = "page", required = true) Integer page,
                                                          @RequestParam(value = "pageSize", required = true) Integer pageSize) {
         return goodsService.findAll(new GoodsVo(storeId, id, barCode, typeId, putaway), new PageVo(page, pageSize));
-    }
-
-    /**
-     * 根据商品货号查询商品及sku
-     * @param storeId
-     * @param id
-     * @param page
-     * @param pageSize
-     * @return
-     */
-    @ApiOperation(value = "根据商品货号查询商品及规格", notes = "分页查找")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "id", value = "商品货号", required = true, paramType = "path", dataType = "String"),
-            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
-    })
-    @GetMapping(value = "/goods/skus/{id}")
-    public CommonResponse<CommonResult<List<GoodsVo>>> findSkuById(@RequestParam(value = "storeId") Integer storeId,
-                                                                   @PathVariable(value = "id") String id,
-                                                                   @RequestParam(value = "page") Integer page,
-                                                                   @RequestParam(value = "pageSize") Integer pageSize) {
-        return goodsService.findSkuById(new GoodsVo(storeId, id), new PageVo(page, pageSize));
     }
 
     /**
@@ -568,16 +545,16 @@ public class GoodsController {
         return goodsService.importGoods(file, storeId);
     }
 
+    //下单查商品
 
-    /**
-     * 用于下单的时候选择商品分类、商品、商品规格接口
-     * @param storeId
-     * @return
-     */
-    @ApiOperation(value = "用于下单的时候选择商品分类、商品、商品规格", notes = "返回格式是分类包商品，商品包规格")
-    @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int")
-    @GetMapping(value = "/types/goods/skus")
-    public CommonResponse<List<GoodsTypeVo>> findTypeGoodsSku(@RequestParam(value = "storeId") Integer storeId) {
-        return goodsService.findTypeGoodsSku(new GoodsTypeVo(storeId));
+    @ApiOperation(value = "下单查商品接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "warehouseId", value = "仓库编号", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/goods/canUse")
+    public CommonResponse findCanUseByWarehouseId(@RequestParam(value = "storeId") Integer storeId,
+                                                  @RequestParam(value = "warehouseId") Integer warehouseId) {
+        return goodsService.findCanUseByWarehouseId(new WarehouseGoodsSkuVo(storeId, warehouseId));
     }
 }
