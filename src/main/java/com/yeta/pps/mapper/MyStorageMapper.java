@@ -24,7 +24,7 @@ public interface MyStorageMapper {
 
     StorageOrderVo findStorageOrderById(StorageOrderVo storageOrderVo);
 
-    //其他入/出库单
+    //其他入/出库单、报溢/损单、成本调价单
 
     int addStorageResultOrder(StorageResultOrderVo storageResultOrderVo);
 
@@ -72,6 +72,14 @@ public interface MyStorageMapper {
     //库存对账
 
     int addStorageCheckOrder(StorageCheckOrderVo storageCheckOrderVo);
+
+    int redDashedInStorageCheckOrder(StorageCheckOrderVo storageCheckOrderVo);
+
+    int redDashedOutStorageCheckOrder(StorageCheckOrderVo storageCheckOrderVo);
+
+    StorageCheckOrderVo findInStorageCheckOrder(StorageCheckOrderVo storageCheckOrderVo);
+
+    StorageCheckOrderVo findOutStorageCheckOrder(StorageCheckOrderVo storageCheckOrderVo);
 
     StorageCheckOrderVo findLastCheckMoney(StorageCheckOrderVo storageCheckOrderVo);
 }

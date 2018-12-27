@@ -3,6 +3,7 @@ package com.yeta.pps.service;
 import com.alibaba.fastjson.JSON;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyGoodsMapper;
+import com.yeta.pps.mapper.MyStorageMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.*;
 import com.yeta.pps.util.*;
@@ -34,6 +35,9 @@ public class GoodsService {
 
     @Autowired
     private MyWarehouseMapper myWarehouseMapper;
+
+    @Autowired
+    private MyStorageMapper myStorageMapper;
 
     //商品标签
 
@@ -884,8 +888,24 @@ public class GoodsService {
 
     //下单查商品
 
+    /**
+     * 下单查商品
+     * @param warehouseGoodsSkuVo
+     * @return
+     */
     public CommonResponse findCanUseByWarehouseId(WarehouseGoodsSkuVo warehouseGoodsSkuVo) {
         List<GoodsTypeVo> canUseGoods = myGoodsMapper.findCanUseByWarehouseId(warehouseGoodsSkuVo);
+        //补上最新结存数量、结存成本单价、结存成本金额
+        canUseGoods.stream().forEach(goodsTypeVo -> {
+            goodsTypeVo.getGoodsVos().stream().forEach(goodsVo -> {
+                goodsVo.getGoodsSkuVos().stream().forEach(goodsSkuVo -> {
+                    StorageCheckOrderVo storageCheckOrderVo = myStorageMapper.findLastCheckMoney(new StorageCheckOrderVo(warehouseGoodsSkuVo.getStoreId(), goodsSkuVo.getId()));
+                    goodsSkuVo.setCheckQuantity(storageCheckOrderVo.getCheckQuantity());
+                    goodsSkuVo.setCheckMoney(storageCheckOrderVo.getCheckMoney());
+                    goodsSkuVo.setCheckTotalMoney(storageCheckOrderVo.getCheckTotalMoney());
+                });
+            });
+        });
         return new CommonResponse(CommonResponse.CODE1, canUseGoods, CommonResponse.MESSAGE1);
     }
 }

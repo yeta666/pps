@@ -167,6 +167,7 @@
         <result column="result_order_id" property="resultOrderId" />
         <result column="order_status" property="orderStatus" />
         <result column="clear_status" property="clearStatus" />
+        <result column="supplier_id" property="supplierId" />
         <result column="supplier_name" property="supplierName" />
         <result column="in_warehouse_id" property="inWarehouseId" />
         <result column="in_total_quantity" property="inTotalQuantity" />
@@ -209,6 +210,7 @@
             pao.result_order_id,
             pao.order_status,
             pao.clear_status,
+            s.id as supplier_id,
             s.name as supplier_name,
             pao.in_warehouse_id,
             pao.in_total_quantity,
@@ -268,7 +270,7 @@
     </insert>
 
     <update id="redDashed" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo">
-        update procurement_result_order_${storeId} set create_time = now(), order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+        update procurement_result_order_${storeId} set order_status = -1 where id = #{id} and order_status &gt; 0;
     </update>
 
     <select id="findCountResultOrder" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo" resultType="java.lang.Integer">

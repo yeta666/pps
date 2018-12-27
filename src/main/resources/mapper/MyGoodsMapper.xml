@@ -614,9 +614,9 @@
     <select id="findCanUseByWarehouseId" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo" resultMap="canUserMap">
         select
             gt.id,
-            gt. NAME,
+            gt.name,
             g.id as g_id,
-            g. NAME as g_name,
+            g.name as g_name,
             g.bar_code as g_bar_code,
             g.type_id as g_type_id,
             g.putaway as g_putaway,

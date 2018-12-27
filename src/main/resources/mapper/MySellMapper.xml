@@ -257,7 +257,8 @@
             <result column="g_id" property="goodsId" />
             <result column="g_bar_code" property="goodsBarCode" />
             <result column="gs_sku" property="goodsSkuSku" />
-            <result column="gs_purchase_price" property="goodsSkuPurchasePrice" />
+            <result column="gs_retail_price" property="goodsSkuRetailPrice" />
+            <result column="gs_vip_price" property="goodsSkuVipPrice" />
         </collection>
     </resultMap>
 
@@ -305,7 +306,8 @@
             g.id as g_id,
             g.bar_code as g_bar_code,
             gs.sku as gs_sku,
-            gs.purchase_price as gs_purchase_price
+            gs.retail_price as gs_retail_price,
+            gs.vip_price as gs_vip_price
         from
             (
                 (
@@ -335,7 +337,7 @@
     </insert>
 
     <update id="redDashed" parameterType="com.yeta.pps.vo.SellResultOrderVo">
-        update sell_result_order_${storeId} set create_time = now(), order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+        update sell_result_order_${storeId} set order_status = -1 where id = #{id} and order_status &gt; 0;
     </update>
 
     <select id="findCountResultOrder" parameterType="com.yeta.pps.vo.SellResultOrderVo" resultType="java.lang.Integer">
@@ -501,7 +503,8 @@
             <result column="g_id" property="goodsId" />
             <result column="g_bar_code" property="goodsBarCode" />
             <result column="gs_sku" property="goodsSkuSku" />
-            <result column="gs_purchase_price" property="goodsSkuPurchasePrice" />
+            <result column="gs_retail_price" property="goodsSkuRetailPrice" />
+            <result column="gs_vip_price" property="goodsSkuVipPrice" />
         </collection>
     </resultMap>
 
@@ -540,7 +543,8 @@
             g.id as g_id,
             g.bar_code as g_bar_code,
             gs.sku as gs_sku,
-            gs.purchase_price as gs_purchase_price
+            gs.retail_price as gs_retail_price,
+            gs.vip_price as gs_vip_price
         from
             (
                 (

@@ -70,6 +70,12 @@ public class GoodsSkuVo {
      */
     private Integer bookInventory;
 
+    private Integer checkQuantity;
+
+    private BigDecimal checkMoney;
+
+    private BigDecimal checkTotalMoney;
+
     public GoodsSkuVo() {
     }
 
@@ -125,6 +131,7 @@ public class GoodsSkuVo {
         this.vipPrice = vipPrice;
     }
 
+
     public Integer getIntegral() {
         return integral;
     }
@@ -165,6 +172,30 @@ public class GoodsSkuVo {
         this.bookInventory = bookInventory;
     }
 
+    public Integer getCheckQuantity() {
+        return checkQuantity;
+    }
+
+    public void setCheckQuantity(Integer checkQuantity) {
+        this.checkQuantity = checkQuantity;
+    }
+
+    public BigDecimal getCheckMoney() {
+        return checkMoney;
+    }
+
+    public void setCheckMoney(BigDecimal checkMoney) {
+        this.checkMoney = checkMoney;
+    }
+
+    public BigDecimal getCheckTotalMoney() {
+        return checkTotalMoney;
+    }
+
+    public void setCheckTotalMoney(BigDecimal checkTotalMoney) {
+        this.checkTotalMoney = checkTotalMoney;
+    }
+
     @Override
     public String toString() {
         return "GoodsSkuVo{" +
@@ -179,6 +210,9 @@ public class GoodsSkuVo {
                 ", realInventory=" + realInventory +
                 ", canUseInventory=" + canUseInventory +
                 ", bookInventory=" + bookInventory +
+                ", checkQuantity=" + checkQuantity +
+                ", checkMoney=" + checkMoney +
+                ", checkTotalMoney=" + checkTotalMoney +
                 '}';
     }
 }

@@ -776,6 +776,77 @@ create table order_goods_sku_1(
 ) engine InnoDB default charset=utf8;
 
 
+
+
+
+
+
+/*仓库/商品规格关系*/
+drop table if exists warehouse_goods_sku_1;
+create table warehouse_goods_sku_1(
+  id int primary key auto_increment comment '仓库/商品规格关系编号',
+  warehouse_id int not null comment '仓库编号',
+  goods_sku_id int not null comment '商品规格编号',
+  real_inventory int not null comment '实物库存',
+  not_sent_quantity int not null comment '待发货数量',
+  not_received_quantity int not null comment '待收货数量',
+  can_use_inventory int not null comment '可用库存',
+  book_inventory int not null comment '账面库存',
+  inventory_upper_limit int comment '库存上限',
+  inventory_low_limit int comment '库存下限',
+  opening_quantity int not null comment '期初数量',
+  opening_money decimal(10, 2) not null comment '期初成本单价',
+  opening_total_money decimal(10, 2) not null comment '期初金额'
+) engine InnoDB default charset=utf8;
+
+
+/*其他入/出库单，报损/溢单，成本调价单*/
+drop table if exists storage_result_order_1;
+create table storage_result_order_1(
+  id varchar(50) primary key comment '单据编号',
+  type tinyint not null comment '单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单',
+  create_time datetime not null comment '单据日期',
+  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  target_type tinyint comment '往来单位类型，1：供应商，2：客户',
+  target_id varchar(50) comment '往来单位编号',
+  warehouse_id int not null comment '仓库编号',
+  total_quantity int comment '总商品数量',
+  total_money decimal(10, 2) comment '总商品金额',
+  user_id varchar(50) not null comment '经手人',
+  remark varchar(255) comment '单据备注',
+  goods_sku_id int comment '商品规格编号',
+  check_quantity int comment '结存数量',
+  check_money decimal(10, 2) comment '结存成本单价',
+  check_total_money decimal(10, 2) comment '结存金额',
+  after_change_check_money decimal(10, 2) comment '调整后成本单价',
+  change_check_total_money decimal(10, 2) comment '调整金额'
+) engine InnoDB default charset=utf8;
+
+
+/*库存对账*/
+drop table if exists storage_check_order_1;
+create table storage_check_order_1(
+  id int primary key auto_increment comment '库存对账记录编号',
+  order_id varchar(50) not null comment '单据编号',
+  create_time datetime not null comment '创建时间',
+  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  target_id varchar(50) comment '往来单位编号',
+  goods_sku_id int not null comment '商品规格编号',
+  in_warehouse_id int comment '入库仓库',
+  in_quantity int comment '入库数量',
+  in_money decimal(10, 2) comment '入库成本单价',
+  in_total_money decimal(10, 2) comment '入库成本金额',
+  out_warehouse_id int comment '出库仓库',
+  out_quantity int comment '出库数量',
+  out_money decimal(10, 2) comment '出库成本单价',
+  out_total_money decimal(10, 2) comment '出库成本金额',
+  check_quantity int not null comment '结存数量',
+  check_money decimal(10, 2) not null comment '结存成本单价',
+  check_total_money decimal(10, 2) not null comment '结存成本金额',
+  user_id varchar(50) not null comment '经手人'
+) engine InnoDB default charset=utf8;
+
+
 /*收/发货单*/
 drop table if exists storage_order_1;
 create table storage_order_1(

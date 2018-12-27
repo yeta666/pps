@@ -219,28 +219,76 @@ public class StorageService {
      * @param storageOrderVo
      * @param pVo
      * @param sVo
+     * @param resultOrderId
+     * @return
      */
     @Transactional
-    public void updateBookInventoryMethod(StorageOrderVo storageOrderVo, ProcurementApplyOrderVo pVo, SellApplyOrderVo sVo) {
+    public double updateBookInventoryMethod(StorageOrderVo storageOrderVo, ProcurementApplyOrderVo pVo, SellApplyOrderVo sVo, String resultOrderId) {
         List<OrderGoodsSkuVo> vos = null;
         Integer inWarehouseId = null;
         Integer outWarehouseId = null;
+        String targetId = null;
         if (pVo != null && sVo == null) {       //采购相关
             vos = pVo.getDetails();
             inWarehouseId = pVo.getInWarehouseId();
             outWarehouseId = pVo.getOutWarehouseId();
+            targetId = pVo.getSupplierId();
         } else if (pVo == null && sVo != null) {        //销售相关
             vos = sVo.getDetails();
             inWarehouseId = sVo.getInWarehouseId();
             outWarehouseId = sVo.getOutWarehouseId();
+            targetId = sVo.getClient().getId();
         }
-        for (OrderGoodsSkuVo vo : vos) {
-            if (vo.getType() == 1) {        //入库
-                inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storageOrderVo.getStoreId(), inWarehouseId, vo.getGoodsSkuId(), 0, 0, vo.getQuantity()));
-            } else if (vo.getType() == 0) {     //出库
-                inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storageOrderVo.getStoreId(), outWarehouseId, vo.getGoodsSkuId(), 0, 0, vo.getQuantity()));
+
+        //统计成本
+        double costMoney = 0;
+
+        //采购换货需要先记账出库，再记账入库
+        List<OrderGoodsSkuVo> outVos = vos.stream().filter(vo -> vo.getType() == 0).collect(Collectors.toList());
+        for (OrderGoodsSkuVo vo : outVos) {
+            //减少账面库存
+            inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storageOrderVo.getStoreId(), outWarehouseId, vo.getGoodsSkuId(), 0, 0, vo.getQuantity()));
+
+            //库存记账
+            StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
+            storageCheckOrderVo.setStoreId(storageOrderVo.getStoreId());
+            storageCheckOrderVo.setOrderId(resultOrderId);
+            storageCheckOrderVo.setTargetId(targetId);
+            storageCheckOrderVo.setCreateTime(new Date());
+            storageCheckOrderVo.setOrderStatus((byte) 1);
+            storageCheckOrderVo.setGoodsSkuId(vo.getGoodsSkuId());
+            storageCheckOrderVo.setOutWarehouseId(outWarehouseId);
+            storageCheckOrderVo.setOutQuantity(vo.getQuantity());
+            storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
+            costMoney += inventoryUtil.addStorageCheckOrder(0, storageCheckOrderVo, null) * vo.getQuantity();
+        }
+
+        List<OrderGoodsSkuVo> inVos = vos.stream().filter(vo -> vo.getType() == 1).collect(Collectors.toList());
+        for (OrderGoodsSkuVo vo : inVos) {
+            //增加账面库存
+            inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storageOrderVo.getStoreId(), inWarehouseId, vo.getGoodsSkuId(), 0, 0, vo.getQuantity()));
+
+            //库存记账
+            StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
+            storageCheckOrderVo.setStoreId(storageOrderVo.getStoreId());
+            storageCheckOrderVo.setOrderId(resultOrderId);
+            storageCheckOrderVo.setTargetId(targetId);
+            storageCheckOrderVo.setCreateTime(new Date());
+            storageCheckOrderVo.setOrderStatus((byte) 1);
+            storageCheckOrderVo.setGoodsSkuId(vo.getGoodsSkuId());
+            storageCheckOrderVo.setInWarehouseId(inWarehouseId);
+            storageCheckOrderVo.setInQuantity(vo.getQuantity());
+            storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
+            if (pVo != null && sVo == null) {       //采购相关
+                storageCheckOrderVo.setInMoney(new BigDecimal((vo.getMoney().doubleValue() - vo.getDiscountMoney().doubleValue()) / vo.getQuantity()));
+                storageCheckOrderVo.setInTotalMoney(new BigDecimal(storageCheckOrderVo.getInQuantity() * storageCheckOrderVo.getInMoney().doubleValue()));
+                inventoryUtil.addStorageCheckOrder(1, storageCheckOrderVo, null);
+            } else if (pVo == null && sVo != null) {        //销售相关
+                costMoney -= inventoryUtil.addStorageCheckOrder(3, storageCheckOrderVo, null) * vo.getQuantity();
             }
         }
+
+        return costMoney;
     }
 
     /**
@@ -252,7 +300,7 @@ public class StorageService {
      */
     @Transactional
     public SellResultOrder getMoneyMethod(int flag, List<OrderGoodsSkuVo> orderGoodsSkuVos, List<OrderGoodsSkuVo> vos) {
-        SellResultOrder money = new SellResultOrder(new BigDecimal(0), new BigDecimal(0), new BigDecimal(0), new BigDecimal(0), new BigDecimal(0));
+        SellResultOrder money = new SellResultOrder(new BigDecimal(0), new BigDecimal(0), new BigDecimal(0));
         //遍历这次要修改的商品规格
         orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
             Optional<OrderGoodsSkuVo> optional = vos.stream().filter(vo -> vo.getId().toString().equals(orderGoodsSkuVo.getId().toString())).findFirst();
@@ -271,26 +319,21 @@ public class StorageService {
                 if (orderGoodsSkuVo.getType() == 1) {       //入库
                     money.setTotalMoney(new BigDecimal(money.getTotalMoney().doubleValue() + (vo.getMoney().doubleValue() * finalQuantity / vo.getQuantity())));
                     money.setTotalDiscountMoney(new BigDecimal(money.getTotalDiscountMoney().doubleValue() + (vo.getDiscountMoney().doubleValue() * finalQuantity / vo.getQuantity())));
-                    money.setCostMoney(new BigDecimal(money.getCostMoney().doubleValue() + vo.getGoodsSkuPurchasePrice().doubleValue() * finalQuantity));
                 } else if (orderGoodsSkuVo.getType() == 0) {        //出库
                     money.setTotalMoney(new BigDecimal(money.getTotalMoney().doubleValue() - (vo.getMoney().doubleValue() * finalQuantity / vo.getQuantity())));
                     money.setTotalDiscountMoney(new BigDecimal(money.getTotalDiscountMoney().doubleValue() - (vo.getDiscountMoney().doubleValue() * finalQuantity / vo.getQuantity())));
-                    money.setCostMoney(new BigDecimal(money.getCostMoney().doubleValue() - vo.getGoodsSkuPurchasePrice().doubleValue() * finalQuantity));
                 }
             } else if (flag == 2) {     //销售
                 if (orderGoodsSkuVo.getType() == 1) {       //入库
                     money.setTotalMoney(new BigDecimal(money.getTotalMoney().doubleValue() - (vo.getMoney().doubleValue() * finalQuantity / vo.getQuantity())));
                     money.setTotalDiscountMoney(new BigDecimal(money.getTotalDiscountMoney().doubleValue() - (vo.getDiscountMoney().doubleValue() * finalQuantity / vo.getQuantity())));
-                    money.setCostMoney(new BigDecimal(money.getCostMoney().doubleValue() - vo.getGoodsSkuPurchasePrice().doubleValue() * finalQuantity));
                 } else if (orderGoodsSkuVo.getType() == 0) {        //出库
                     money.setTotalMoney(new BigDecimal(money.getTotalMoney().doubleValue() + (vo.getMoney().doubleValue() * finalQuantity / vo.getQuantity())));
                     money.setTotalDiscountMoney(new BigDecimal(money.getTotalDiscountMoney().doubleValue() + (vo.getDiscountMoney().doubleValue() * finalQuantity / vo.getQuantity())));
-                    money.setCostMoney(new BigDecimal(money.getCostMoney().doubleValue() + vo.getGoodsSkuPurchasePrice().doubleValue() * finalQuantity));
                 }
             }
         });
         money.setOrderMoney(new BigDecimal(money.getTotalMoney().doubleValue() - money.getTotalDiscountMoney().doubleValue()));
-        money.setGrossMarginMoney(new BigDecimal(money.getOrderMoney().doubleValue() - money.getCostMoney().doubleValue()));
         return money;
     }
 
@@ -302,10 +345,9 @@ public class StorageService {
      * @return
      */
     @Transactional
-    public String addResultOrderMethod(StorageOrderVo storageOrderVo, ProcurementApplyOrderVo pVo, SellApplyOrderVo sVo) {
+    public String addResultOrderMethod(StorageOrderVo storageOrderVo, ProcurementApplyOrderVo pVo, SellApplyOrderVo sVo, String resultOrderId, double costMoney) {
         List<OrderGoodsSkuVo> orderGoodsSkuVos;
         SellResultOrder money;
-        String resultOrderId = null;
         Integer quantity = null;
 
         if (pVo != null && sVo == null) {       //采购相关
@@ -342,13 +384,10 @@ public class StorageService {
         } else if (pVo == null && sVo != null) {        //销售相关
             orderGoodsSkuVos = storageOrderVo.getSellApplyOrderVo().getDetails();
             if (sVo.getType() == 2) {       //销售订单
-                resultOrderId = "XXCKD_" + UUID.randomUUID().toString().replace("-", "");
                 quantity = storageOrderVo.getQuantity();
             } else if (sVo.getType() == 3) {        //销售退货申请单
-                resultOrderId = "XXTHD_" + UUID.randomUUID().toString().replace("-", "");
                 quantity = -storageOrderVo.getQuantity();
             } else if (sVo.getType() == 4) {        //销售换货申请单
-                resultOrderId = "XXHHD_" + UUID.randomUUID().toString().replace("-", "");
                 quantity = sVo.getOutTotalQuantity() - sVo.getInTotalQuantity();
                 orderGoodsSkuVos = sVo.getDetails();
             }
@@ -365,8 +404,8 @@ public class StorageService {
                             money.getTotalMoney(),
                             money.getTotalDiscountMoney(),
                             money.getOrderMoney(),
-                            money.getCostMoney(),
-                            money.getGrossMarginMoney(),
+                            new BigDecimal(costMoney),
+                            new BigDecimal(money.getOrderMoney().doubleValue() - costMoney),
                             storageOrderVo.getUserId(),
                             storageOrderVo.getRemark()
                     )) != 1) {
@@ -417,6 +456,12 @@ public class StorageService {
         //修改商品规格完成情况
         updateOrderGoodsSkuMethod(storeId, quantity, orderGoodsSkuVos);
 
+        //新增结果订单
+        String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
+
+        //新增结果订单/商品规格关系
+        addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
+
         //修改库存相关
         for (OrderGoodsSkuVo vo : orderGoodsSkuVos) {
             Integer warehouseId = pVo.getInWarehouseId();
@@ -428,13 +473,22 @@ public class StorageService {
 
             //减少待收货数量
             inventoryUtil.updateNotQuantityMethod(0, new WarehouseGoodsSkuVo(storeId, warehouseId, goodsSkuId, 0, changeQuantity));
+
+            //库存记账
+            StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
+            storageCheckOrderVo.setStoreId(storeId);
+            storageCheckOrderVo.setOrderId(resultOrderId);
+            storageCheckOrderVo.setTargetId(pVo.getSupplierId());
+            storageCheckOrderVo.setCreateTime(new Date());
+            storageCheckOrderVo.setOrderStatus((byte) 1);
+            storageCheckOrderVo.setGoodsSkuId(vo.getGoodsSkuId());
+            storageCheckOrderVo.setInWarehouseId(pVo.getInWarehouseId());
+            storageCheckOrderVo.setInQuantity(vo.getChangeQuantity());
+            storageCheckOrderVo.setInMoney(new BigDecimal((vo.getMoney().doubleValue() - vo.getDiscountMoney().doubleValue()) / vo.getChangeQuantity()));
+            storageCheckOrderVo.setInTotalMoney(new BigDecimal(storageCheckOrderVo.getInQuantity() * storageCheckOrderVo.getInMoney().doubleValue()));
+            storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
+            inventoryUtil.addStorageCheckOrder(1, storageCheckOrderVo, null);
         }
-
-        //新增结果订单
-        String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo);
-
-        //新增结果订单/商品规格关系
-        addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
     }
 
     /**
@@ -480,14 +534,14 @@ public class StorageService {
 
             //如果换货完成
             if (applyOrderStatus == 15) {
-                //修改商品规格账面库存
-                updateBookInventoryMethod(storageOrderVo, pVo, sVo);
-
                 //新增结果订单
-                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo);
+                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
 
                 //新增结果订单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, pVo.getDetails());
+
+                //修改商品规格账面库存
+                updateBookInventoryMethod(storageOrderVo, pVo, sVo, resultOrderId);
             }
 
         } else if (pVo == null && sVo != null) {        //销售相关
@@ -505,6 +559,12 @@ public class StorageService {
 
             //判断销售类型
             if (sVo.getType() == 3) {       //销售退货收货
+                //销售结果订单单据编号
+                String resultOrderId = "XXTHD_" + UUID.randomUUID().toString().replace("-", "");
+
+                //统计成本
+                double costMoney = 0;
+
                 //修改库存相关
                 for (OrderGoodsSkuVo vo : orderGoodsSkuVos) {
                     //增加实物库存、可用库存、账面库存
@@ -512,10 +572,23 @@ public class StorageService {
 
                     //减少待收货数量
                     inventoryUtil.updateNotQuantityMethod(0, new WarehouseGoodsSkuVo(storeId, sVo.getInWarehouseId(), vo.getGoodsSkuId(), 0, vo.getChangeQuantity()));
+
+                    //库存记账
+                    StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
+                    storageCheckOrderVo.setStoreId(storeId);
+                    storageCheckOrderVo.setOrderId(resultOrderId);
+                    storageCheckOrderVo.setTargetId(sVo.getClient().getId());
+                    storageCheckOrderVo.setCreateTime(new Date());
+                    storageCheckOrderVo.setOrderStatus((byte) 1);
+                    storageCheckOrderVo.setGoodsSkuId(vo.getGoodsSkuId());
+                    storageCheckOrderVo.setInWarehouseId(sVo.getInWarehouseId());
+                    storageCheckOrderVo.setInQuantity(vo.getChangeQuantity());
+                    storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
+                    costMoney += inventoryUtil.addStorageCheckOrder(3, storageCheckOrderVo, null) * vo.getChangeQuantity();
                 }
 
                 //新增结果订单
-                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo);
+                addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, -costMoney);
 
                 //新增结果订单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
@@ -567,6 +640,12 @@ public class StorageService {
         //修改商品规格完成情况
         updateOrderGoodsSkuMethod(storeId, quantity, orderGoodsSkuVos);
 
+        //销售结果订单单据编号
+        String resultOrderId = "XXCKD_" + UUID.randomUUID().toString().replace("-", "");
+
+        //统计成本
+        double costMoney = 0;
+
         //修改库存相关
         for (OrderGoodsSkuVo vo : orderGoodsSkuVos) {
             //减少实物库存、账面库存
@@ -574,10 +653,23 @@ public class StorageService {
 
             //减少待发货数量
             inventoryUtil.updateNotQuantityMethod(0, new WarehouseGoodsSkuVo(storeId, sVo.getOutWarehouseId(), vo.getGoodsSkuId(), vo.getChangeQuantity(), 0));
+
+            //库存记账
+            StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
+            storageCheckOrderVo.setStoreId(storeId);
+            storageCheckOrderVo.setOrderId(resultOrderId);
+            storageCheckOrderVo.setTargetId(sVo.getClient().getId());
+            storageCheckOrderVo.setCreateTime(new Date());
+            storageCheckOrderVo.setOrderStatus((byte) 1);
+            storageCheckOrderVo.setGoodsSkuId(vo.getGoodsSkuId());
+            storageCheckOrderVo.setOutWarehouseId(sVo.getOutWarehouseId());
+            storageCheckOrderVo.setOutQuantity(vo.getChangeQuantity());
+            storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
+            costMoney += inventoryUtil.addStorageCheckOrder(0, storageCheckOrderVo, null) * vo.getChangeQuantity();
         }
 
         //新增结果订单
-        String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo);
+        addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, costMoney);
 
         //新增结果订单/商品规格关系
         addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
@@ -617,6 +709,12 @@ public class StorageService {
 
             //判断采购类型
             if (pVo.getType() == 2) {       //采购退货发货
+                //新增结果订单
+                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
+
+                //新增结果订单/商品规格关系
+                addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
+
                 //修改库存相关
                 for (OrderGoodsSkuVo vo : orderGoodsSkuVos) {
                     //减少实物库存、账面库存
@@ -624,14 +722,20 @@ public class StorageService {
 
                     //减少待发货数量
                     inventoryUtil.updateNotQuantityMethod(0, new WarehouseGoodsSkuVo(storeId, pVo.getOutWarehouseId(), vo.getGoodsSkuId(), vo.getChangeQuantity(), 0));
+
+                    //库存记账
+                    StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
+                    storageCheckOrderVo.setStoreId(storeId);
+                    storageCheckOrderVo.setOrderId(resultOrderId);
+                    storageCheckOrderVo.setTargetId(pVo.getSupplierId());
+                    storageCheckOrderVo.setCreateTime(new Date());
+                    storageCheckOrderVo.setOrderStatus((byte) 1);
+                    storageCheckOrderVo.setGoodsSkuId(vo.getGoodsSkuId());
+                    storageCheckOrderVo.setOutWarehouseId(pVo.getOutWarehouseId());
+                    storageCheckOrderVo.setOutQuantity(vo.getChangeQuantity());
+                    storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
+                    inventoryUtil.addStorageCheckOrder(0, storageCheckOrderVo, null);
                 }
-
-                //新增结果订单
-                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo);
-
-                //新增结果订单/商品规格关系
-                addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
-
             } else if (pVo.getType() == 3) {        //采购换货发货
                 //修改库存相关
                 for (OrderGoodsSkuVo vo : orderGoodsSkuVos) {
@@ -669,11 +773,13 @@ public class StorageService {
                 inventoryUtil.updateNotQuantityMethod(0, new WarehouseGoodsSkuVo(storeId, sVo.getOutWarehouseId(), vo.getGoodsSkuId(), vo.getChangeQuantity(), 0));
             }
             if (applyOrderStatus == 15) {
+                String resultOrderId = "XXHHD_" + UUID.randomUUID().toString().replace("-", "");
+
                 //修改商品规格账面库存
-                updateBookInventoryMethod(storageOrderVo, pVo, sVo);
+                double costMoney = updateBookInventoryMethod(storageOrderVo, pVo, sVo, resultOrderId);
 
                 //新增结果订单
-                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo);
+                addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, costMoney);
 
                 //新增结果订单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, sVo.getDetails());
@@ -753,23 +859,32 @@ public class StorageService {
      */
     @Transactional
     public CommonResponse redDashed(StorageOrderVo storageOrderVo) {
+        //获取参数
         Integer storeId = storageOrderVo.getStoreId();
-        //修改单据状态
+        String userId = storageOrderVo.getUserId();
+        String remark = storageOrderVo.getRemark();
+
+        //红冲
         if (myStorageMapper.redDashed(storageOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
-        //获取该订单
+
+        //查询红冲蓝单
         storageOrderVo = myStorageMapper.findStorageOrderById(storageOrderVo);
-        //新增红冲单
+
+        //设置红冲红单
         storageOrderVo.setStoreId(storeId);
         storageOrderVo.setId("HC_" + storageOrderVo.getId());
         storageOrderVo.setCreateTime(new Date());
         storageOrderVo.setOrderStatus((byte) -2);
         storageOrderVo.setQuantity(-storageOrderVo.getQuantity());
+        storageOrderVo.setUserId(userId);
+        storageOrderVo.setRemark(remark);
+
+        //新增红冲红单
         if (myStorageMapper.addStorageOrder(storageOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
-        //TODO
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
@@ -823,120 +938,169 @@ public class StorageService {
     //其他入/出库单
 
     /**
-     * 新增其他入/出库单、报溢/损单
+     * 新增其他入/出库单、报溢/损单、成本调价单
      * @param storageResultOrderVo
      * @return
      */
     @Transactional
     public CommonResponse addStorageResultOrder(StorageResultOrderVo storageResultOrderVo) {
-        //判断参数
-        if (storageResultOrderVo.getDetails() == null || storageResultOrderVo.getDetails().size() == 0 ||
-                storageResultOrderVo.getType() == null || storageResultOrderVo.getWarehouseId() == null ||
-                storageResultOrderVo.getTotalQuantity() == null || storageResultOrderVo.getTotalMoney() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
-        }
         //获取参数
-        Integer storeId = storageResultOrderVo.getStoreId();
-        List<OrderGoodsSkuVo> orderGoodsSkuVos = storageResultOrderVo.getDetails();
         byte type = storageResultOrderVo.getType();
-        int totalQuantity = storageResultOrderVo.getTotalQuantity();
-        double totalMoney = storageResultOrderVo.getTotalMoney().doubleValue();
+
+        if (type != 5) {
+            //判断参数
+            if (storageResultOrderVo.getDetails() == null || storageResultOrderVo.getDetails().size() == 0 ||
+                    storageResultOrderVo.getTotalQuantity() == null || storageResultOrderVo.getTotalMoney() == null) {
+                return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+            }
+        }
+
         //判断新增单据类型
         switch (type) {
-            //其他入库单
-            case 1:
+            case 1:     //其他入库单
                 //判断参数
-                if (storageResultOrderVo.getTargetId() == null) {
+                if (storageResultOrderVo.getTargetId() == null || storageResultOrderVo.getTargetType() == null) {
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
                 storageResultOrderVo.setId("QTRKD_" + UUID.randomUUID().toString().replace("-", ""));
                 break;
-            //其他出库单
-            case 2:
+
+            case 2:     //其他出库单
                 //判断参数
-                if (storageResultOrderVo.getTargetId() == null) {
+                if (storageResultOrderVo.getTargetId() == null || storageResultOrderVo.getTargetType() == null) {
                     return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
                 }
                 storageResultOrderVo.setId("QTCKD_" + UUID.randomUUID().toString().replace("-", ""));
                 break;
-            //报溢单
-            case 3:
+
+            case 3:     //报溢单
                 storageResultOrderVo.setId("BYD_" + UUID.randomUUID().toString().replace("-", ""));
                 break;
-            //报损单
-            case 4:
+
+            case 4:     //报损单
                 storageResultOrderVo.setId("BSD_" + UUID.randomUUID().toString().replace("-", ""));
                 break;
+
+            case 5:     //成本调价单
+                //判断参数
+                if (storageResultOrderVo.getGoodsSkuId() == null ||
+                        storageResultOrderVo.getCheckQuantity() == null || storageResultOrderVo.getCheckMoney() == null || storageResultOrderVo.getCheckTotalMoney() == null ||
+                        storageResultOrderVo.getAfterChangeCheckMoney() == null || storageResultOrderVo.getChangeCheckTotalMoney() == null) {
+                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                }
+                storageResultOrderVo.setId("CBTJD_" + UUID.randomUUID().toString().replace("-", ""));
+                break;
+
             default:
                 return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
+
         //设置初始属性
         storageResultOrderVo.setCreateTime(new Date());
         storageResultOrderVo.setOrderStatus((byte) 1);
+
         //新增单据
         if (myStorageMapper.addStorageResultOrder(storageResultOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
         }
+
         //新增单据/商品规格关系
-        byte flag = (type == 1 || type == 3) ? (byte) 1 : (byte) 0;
-        Map<String, Object> check = addOrderGoodsSku(flag, orderGoodsSkuVos, storeId, storageResultOrderVo.getId(), storageResultOrderVo.getWarehouseId());
+        int flag = (type == 1 || type == 3) ? 1 : (type == 2 || type == 4) ? 0 : 3;
+        Map<String, Object> check = addOrderGoodsSku(flag, storageResultOrderVo);
+
         //验证数量和金额是否对应
-        if (totalQuantity != (int) check.get("totalQuantity") || totalMoney != (double) check.get("totalMoney")) {
-            LOG.info("新增其他入/出库单、报溢/损单，商品数量或金额与所有商品规格数量、金额之和不对应");
-            throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+        if (type != 5) {
+            if (storageResultOrderVo.getTotalQuantity() != (int) check.get("totalQuantity") || storageResultOrderVo.getTotalMoney().doubleValue() != (double) check.get("totalMoney")) {
+                LOG.info("新增其他入/出库单、报溢/损单、成本调价单，商品数量或金额与所有商品规格数量、金额之和不对应");
+                throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+            }
         }
+
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
     /**
      * 新增订单对应的商品规格关系的方法
-     * @param flag 0：出库，1：入库
-     * @param vos
-     * @param storeId
-     * @param orderId
-     * @param warehouseId
-     * @return 返回验证数量和金额
+     * @param flag 0：出库，1：入库，3：成本调价单
+     * @param storageResultOrderVo
+     * @return
      */
     @Transactional
-    public Map<String, Object> addOrderGoodsSku(byte flag, List<OrderGoodsSkuVo> vos, int storeId, String orderId, int warehouseId) {
+    public Map<String, Object> addOrderGoodsSku(int flag, StorageResultOrderVo storageResultOrderVo) {
         //验证
         Map<String, Object> check = new HashMap<>();
         check.put("totalQuantity", 0);
         check.put("totalMoney", 0.0);
-        check.put("totalDiscountMoney", 0.0);
-        check.put("orderMoney", 0.0);
-        //新增其他入/出库单 商品规格关系
-        vos.stream().forEach(vo -> {
-            //判断参数
-            if (vo.getGoodsSkuId() == null || vo.getType() == null || vo.getType() != flag ||
-                    vo.getQuantity() == null || vo.getMoney() == null){
-                throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
-            }
-            //设置初始属性
-            vo.setStoreId(storeId);
-            vo.setOrderId(orderId);
-            vo.setFinishQuantity(vo.getQuantity());
-            vo.setNotFinishQuantity(0);
-            vo.setOperatedQuantity(vo.getQuantity());
-            //插入数据
-            if (myOrderGoodsSkuMapper.addOrderGoodsSku(vo) != 1) {
-                throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
-            }
-            //修改库存
-            inventoryUtil.updateInventoryMethod(flag, new WarehouseGoodsSkuVo(storeId, warehouseId, vo.getGoodsSkuId(), vo.getQuantity(), vo.getQuantity(), vo.getQuantity()));
-            //统计数量
-            check.put("totalQuantity", (int) check.get("totalQuantity") + vo.getQuantity());
-            //统计金额
-            check.put("totalMoney", (double) check.get("totalMoney") + vo.getMoney().doubleValue());
-            double discountMoney = vo.getDiscountMoney() == null ? 0.0 : vo.getDiscountMoney().doubleValue();
-            check.put("totalDiscountMoney", (double) check.get("totalDiscountMoney") + discountMoney);
-        });
-        check.put("orderMoney", (double) check.get("totalMoney") - (double) check.get("totalDiscountMoney"));
+
+        //获取参数
+        List<OrderGoodsSkuVo> vos = storageResultOrderVo.getDetails();
+        Integer storeId = storageResultOrderVo.getStoreId();
+        String orderId = storageResultOrderVo.getId();
+        Integer warehouseId = storageResultOrderVo.getWarehouseId();
+
+        //库存记账
+        StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
+        storageCheckOrderVo.setStoreId(storeId);
+        storageCheckOrderVo.setOrderId(orderId);
+        storageCheckOrderVo.setTargetId(storageResultOrderVo.getTargetId());
+        storageCheckOrderVo.setCreateTime(new Date());
+        storageCheckOrderVo.setOrderStatus((byte) 1);
+        storageCheckOrderVo.setUserId(storageResultOrderVo.getUserId());
+
+        if (flag != 3) {
+            //新增其他入/出库单 商品规格关系
+            vos.stream().forEach(vo -> {
+                //判断参数
+                if (vo.getGoodsSkuId() == null || vo.getType() == null || vo.getType() != flag ||
+                        vo.getQuantity() == null || vo.getMoney() == null){
+                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                }
+
+                //设置初始属性
+                vo.setStoreId(storeId);
+                vo.setOrderId(orderId);
+                vo.setDiscountMoney(new BigDecimal(0));
+                vo.setFinishQuantity(vo.getQuantity());
+                vo.setNotFinishQuantity(0);
+                vo.setOperatedQuantity(vo.getQuantity());
+
+                //插入数据
+                if (myOrderGoodsSkuMapper.addOrderGoodsSku(vo) != 1) {
+                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                }
+
+                //修改库存
+                inventoryUtil.updateInventoryMethod(flag, new WarehouseGoodsSkuVo(storeId, warehouseId, vo.getGoodsSkuId(), vo.getQuantity(), vo.getQuantity(), vo.getQuantity()));
+
+                //统计数量
+                check.put("totalQuantity", (int) check.get("totalQuantity") + vo.getQuantity());
+                //统计金额
+                check.put("totalMoney", (double) check.get("totalMoney") + vo.getMoney().doubleValue());
+
+                if (flag == 0) {
+                    storageCheckOrderVo.setGoodsSkuId(vo.getGoodsSkuId());
+                    storageCheckOrderVo.setOutWarehouseId(warehouseId);
+                    storageCheckOrderVo.setOutQuantity(vo.getQuantity());
+                    inventoryUtil.addStorageCheckOrder(0, storageCheckOrderVo, null);
+                } else if (flag == 1) {
+                    storageCheckOrderVo.setGoodsSkuId(vo.getGoodsSkuId());
+                    storageCheckOrderVo.setInWarehouseId(warehouseId);
+                    storageCheckOrderVo.setInQuantity(vo.getQuantity());
+                    storageCheckOrderVo.setInMoney(new BigDecimal((vo.getMoney().doubleValue() - vo.getDiscountMoney().doubleValue()) / vo.getQuantity()));
+                    storageCheckOrderVo.setInTotalMoney(new BigDecimal(storageCheckOrderVo.getInQuantity() * storageCheckOrderVo.getInMoney().doubleValue()));
+                    inventoryUtil.addStorageCheckOrder(1, storageCheckOrderVo, null);
+                }
+            });
+        } else {
+            storageCheckOrderVo.setGoodsSkuId(storageResultOrderVo.getGoodsSkuId());
+            inventoryUtil.addStorageCheckOrder(4, storageCheckOrderVo, storageResultOrderVo);
+        }
+
         return check;
     }
 
     /**
-     * 红冲其他入/出库单、报溢/损单
+     * 红冲其他入/出库单、报溢/损单、成本调价单
      * @param storageResultOrderVo
      * @return
      */
@@ -946,39 +1110,89 @@ public class StorageService {
         if (storageResultOrderVo.getId() == null) {
             return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
         }
+
+        //获取参数
         Integer storeId = storageResultOrderVo.getStoreId();
-        //修改单据状态
+        String userId = storageResultOrderVo.getUserId();
+        String remark = storageResultOrderVo.getRemark();
+
+        //红冲
         if (myStorageMapper.redDashedStorageResultOrder(storageResultOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
-        //获取该订单
+
+        //查询红冲蓝单
         storageResultOrderVo = myStorageMapper.findStorageResultOrderDetailById(storageResultOrderVo);
-        //新增红冲单
+        byte type  = storageResultOrderVo.getType();
+
+        //设置红冲红单
         storageResultOrderVo.setStoreId(storeId);
-        storageResultOrderVo.setId("HC_" + storageResultOrderVo.getId());
+        String oldResultOrderId = storageResultOrderVo.getId();
+        storageResultOrderVo.setId("HC_" + oldResultOrderId);
         storageResultOrderVo.setCreateTime(new Date());
         storageResultOrderVo.setOrderStatus((byte) -2);
-        storageResultOrderVo.setTotalQuantity(-storageResultOrderVo.getTotalQuantity());
-        storageResultOrderVo.setTotalMoney(new BigDecimal(-storageResultOrderVo.getTotalMoney().doubleValue()));
+        storageResultOrderVo.setUserId(userId);
+        storageResultOrderVo.setRemark(remark);
+
+        if (type != 5) {
+            storageResultOrderVo.setTotalQuantity(-storageResultOrderVo.getTotalQuantity());
+            storageResultOrderVo.setTotalMoney(new BigDecimal(-storageResultOrderVo.getTotalMoney().doubleValue()));
+
+            //修改库存相关
+            List<OrderGoodsSkuVo> details = storageResultOrderVo.getDetails();
+            WarehouseGoodsSkuVo warehouseGoodsSkuVo = new WarehouseGoodsSkuVo(storeId, storageResultOrderVo.getWarehouseId());
+            details.stream().forEach(orderGoodsSkuVo -> {
+                warehouseGoodsSkuVo.setGoodsSkuId(orderGoodsSkuVo.getGoodsSkuId());
+                warehouseGoodsSkuVo.setRealInventory(orderGoodsSkuVo.getQuantity());
+                warehouseGoodsSkuVo.setCanUseInventory(orderGoodsSkuVo.getQuantity());
+                warehouseGoodsSkuVo.setBookInventory(orderGoodsSkuVo.getQuantity());
+
+                if (orderGoodsSkuVo.getType() == 0) {        //原来是出库
+                    //增加商品规格库存
+                    inventoryUtil.updateInventoryMethod(1, warehouseGoodsSkuVo);
+
+                    //红冲库存记账记录
+                    inventoryUtil.redDashedStorageCheckOrder(0, new StorageCheckOrderVo(storeId, oldResultOrderId, orderGoodsSkuVo.getGoodsSkuId(), userId));
+                } else if (orderGoodsSkuVo.getType() == 1) {     //原来是入库
+                    //减少商品规格库存
+                    inventoryUtil.updateInventoryMethod(0, warehouseGoodsSkuVo);
+
+                    //红冲库存记账记录
+                    inventoryUtil.redDashedStorageCheckOrder(1, new StorageCheckOrderVo(storeId, oldResultOrderId, orderGoodsSkuVo.getGoodsSkuId(), userId));
+                } else {
+                    LOG.info("商品规格类型不正确【{}】", orderGoodsSkuVo.getType());
+                    throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                }
+            });
+
+        } else {
+            if (storageResultOrderVo.getChangeCheckTotalMoney().doubleValue() > 0) {        //原来是入库
+                //红冲库存记账记录
+                inventoryUtil.redDashedStorageCheckOrder(4, new StorageCheckOrderVo(storeId, oldResultOrderId, storageResultOrderVo.getGoodsSkuId(), userId));
+            } else if (storageResultOrderVo.getChangeCheckTotalMoney().doubleValue() < 0) {     //原来是出库
+                //红冲库存记账记录
+                inventoryUtil.redDashedStorageCheckOrder(5, new StorageCheckOrderVo(storeId, oldResultOrderId, storageResultOrderVo.getGoodsSkuId(), userId));
+            } else {
+                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            }
+
+            storageResultOrderVo.setCheckQuantity(-storageResultOrderVo.getCheckQuantity());
+            storageResultOrderVo.setCheckMoney(new BigDecimal(-storageResultOrderVo.getCheckMoney().doubleValue()));
+            storageResultOrderVo.setCheckTotalMoney(new BigDecimal(-storageResultOrderVo.getCheckTotalMoney().doubleValue()));
+            storageResultOrderVo.setAfterChangeCheckMoney(new BigDecimal(-storageResultOrderVo.getAfterChangeCheckMoney().doubleValue()));
+            storageResultOrderVo.setChangeCheckTotalMoney(new BigDecimal(-storageResultOrderVo.getChangeCheckTotalMoney().doubleValue()));
+        }
+
+        //新增红冲红单
         if (myStorageMapper.addStorageResultOrder(storageResultOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
-        //修改库存
-        List<OrderGoodsSkuVo> details = storageResultOrderVo.getDetails();
-        WarehouseGoodsSkuVo warehouseGoodsSkuVo = new WarehouseGoodsSkuVo(storeId, storageResultOrderVo.getWarehouseId());
-        details.stream().forEach(orderGoodsSkuVo -> {
-            byte flag = orderGoodsSkuVo.getType() == 0 ? (byte) 1 : (byte) 0;
-            warehouseGoodsSkuVo.setGoodsSkuId(orderGoodsSkuVo.getGoodsSkuId());
-            warehouseGoodsSkuVo.setRealInventory(orderGoodsSkuVo.getQuantity());
-            warehouseGoodsSkuVo.setCanUseInventory(orderGoodsSkuVo.getQuantity());
-            warehouseGoodsSkuVo.setBookInventory(orderGoodsSkuVo.getQuantity());
-            inventoryUtil.updateInventoryMethod(flag, warehouseGoodsSkuVo);
-        });
+
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 
     /**
-     * 根据条件查询其他入/出库单、报溢/损单
+     * 根据条件查询其他入/出库单、报溢/损单、成本调价单
      * @param storageResultOrderVo
      * @param pageVo
      * @return
@@ -997,10 +1211,22 @@ public class StorageService {
         titles.add(new Title("单据编号", "id"));
         titles.add(new Title("单据类型", "type"));
         titles.add(new Title("单据日期", "createTime"));
-        titles.add(new Title("往来单位", "targetName"));
+        if (storageResultOrderVo.getType() == 1 || storageResultOrderVo.getType() == 2) {
+            titles.add(new Title("往来单位", "targetName"));
+            titles.add(new Title("总商品数量", "totalQuantity"));
+            titles.add(new Title("总订单金额", "totalMoney"));
+        } else if (storageResultOrderVo.getType() == 3 || storageResultOrderVo.getType() == 4) {
+            titles.add(new Title("总商品数量", "totalQuantity"));
+            titles.add(new Title("总订单金额", "totalMoney"));
+        } else if (storageResultOrderVo.getType() == 5) {
+            titles.add(new Title("商品规格", "sku"));
+            titles.add(new Title("结存数量", "checkQuantity"));
+            titles.add(new Title("结存成本单价", "checkMoney"));
+            titles.add(new Title("结存金额", "checkTotalMoney"));
+            titles.add(new Title("调整后成本单价", "afterChangeCheckMoney"));
+            titles.add(new Title("调整金额", "changeCheckTotalMoney"));
+        }
         titles.add(new Title("仓库", "warehouseName"));
-        titles.add(new Title("总商品数量", "totalQuantity"));
-        titles.add(new Title("总订单金额", "totalMoney"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, storageResultOrderVos, pageVo);
@@ -1008,7 +1234,7 @@ public class StorageService {
     }
 
     /**
-     * 根据单据编号查询其他入/出库单、报溢/损单详情
+     * 根据单据编号查询其他入/出库单、报溢/损单、成本调价单详情
      * @param storageResultOrderVo
      * @return
      */
@@ -1024,9 +1250,9 @@ public class StorageService {
      * @param storageResultOrderVo
      */
     public void setTargetNameMethod(StorageResultOrderVo storageResultOrderVo) {
-        byte targetType = storageResultOrderVo.getTargetType();
         byte type = storageResultOrderVo.getType();
         if (type == 1 || type == 2) {
+            byte targetType = storageResultOrderVo.getTargetType();
             if (targetType == 1) {      //供应商
                 storageResultOrderVo.setTargetName(storageResultOrderVo.getSupplierName());
             } else if (targetType == 2) {       //客户

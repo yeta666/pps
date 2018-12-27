@@ -25,6 +25,10 @@ public class OrderGoodsSkuVo {
 
     private BigDecimal goodsSkuPurchasePrice;
 
+    private BigDecimal goodsSkuRetailPrice;
+
+    private BigDecimal goodsSkuVipPrice;
+
     /**
      * 采购申请订单/商品规格关系编号
      */
@@ -170,6 +174,22 @@ public class OrderGoodsSkuVo {
         this.goodsSkuPurchasePrice = goodsSkuPurchasePrice;
     }
 
+    public BigDecimal getGoodsSkuRetailPrice() {
+        return goodsSkuRetailPrice;
+    }
+
+    public void setGoodsSkuRetailPrice(BigDecimal goodsSkuRetailPrice) {
+        this.goodsSkuRetailPrice = goodsSkuRetailPrice;
+    }
+
+    public BigDecimal getGoodsSkuVipPrice() {
+        return goodsSkuVipPrice;
+    }
+
+    public void setGoodsSkuVipPrice(BigDecimal goodsSkuVipPrice) {
+        this.goodsSkuVipPrice = goodsSkuVipPrice;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -268,6 +288,8 @@ public class OrderGoodsSkuVo {
                 ", goodsBarCode='" + goodsBarCode + '\'' +
                 ", goodsSkuSku='" + goodsSkuSku + '\'' +
                 ", goodsSkuPurchasePrice=" + goodsSkuPurchasePrice +
+                ", goodsSkuRetailPrice=" + goodsSkuRetailPrice +
+                ", goodsSkuVipPrice=" + goodsSkuVipPrice +
                 ", id=" + id +
                 ", type=" + type +
                 ", orderId='" + orderId + '\'' +

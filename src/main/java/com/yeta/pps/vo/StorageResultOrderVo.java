@@ -26,8 +26,9 @@ public class StorageResultOrderVo {
     private String id;
 
     /**
-     * 单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单
+     * 单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Byte type;
 
     /**
@@ -66,6 +67,7 @@ public class StorageResultOrderVo {
     /**
      * 仓库编号
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Integer warehouseId;
 
     private String warehouseName;
@@ -93,12 +95,51 @@ public class StorageResultOrderVo {
      */
     private String remark;
 
+    /**
+     * 商品规格编号
+     */
+    private Integer goodsSkuId;
+
+    private String sku;
+
+    /**
+     * 结存数量
+     */
+    private Integer checkQuantity;
+
+    /**
+     * 结存成本单价
+     */
+    private BigDecimal checkMoney;
+
+    /**
+     * 结存金额
+     */
+    private BigDecimal checkTotalMoney;
+
+    /**
+     * 调整后成本单价
+     */
+    private BigDecimal afterChangeCheckMoney;
+
+    /**
+     * 调整金额
+     */
+    private BigDecimal changeCheckTotalMoney;
+
     public StorageResultOrderVo() {
     }
 
     public StorageResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
+    }
+
+    public StorageResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+        this.storeId = storeId;
+        this.id = id;
+        this.userId = userId;
+        this.remark = remark;
     }
 
     public StorageResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date startTime, Date endTime, String targetName) {
@@ -270,6 +311,62 @@ public class StorageResultOrderVo {
         this.remark = remark;
     }
 
+    public Integer getGoodsSkuId() {
+        return goodsSkuId;
+    }
+
+    public void setGoodsSkuId(Integer goodsSkuId) {
+        this.goodsSkuId = goodsSkuId;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public Integer getCheckQuantity() {
+        return checkQuantity;
+    }
+
+    public void setCheckQuantity(Integer checkQuantity) {
+        this.checkQuantity = checkQuantity;
+    }
+
+    public BigDecimal getCheckMoney() {
+        return checkMoney;
+    }
+
+    public void setCheckMoney(BigDecimal checkMoney) {
+        this.checkMoney = checkMoney;
+    }
+
+    public BigDecimal getCheckTotalMoney() {
+        return checkTotalMoney;
+    }
+
+    public void setCheckTotalMoney(BigDecimal checkTotalMoney) {
+        this.checkTotalMoney = checkTotalMoney;
+    }
+
+    public BigDecimal getAfterChangeCheckMoney() {
+        return afterChangeCheckMoney;
+    }
+
+    public void setAfterChangeCheckMoney(BigDecimal afterChangeCheckMoney) {
+        this.afterChangeCheckMoney = afterChangeCheckMoney;
+    }
+
+    public BigDecimal getChangeCheckTotalMoney() {
+        return changeCheckTotalMoney;
+    }
+
+    public void setChangeCheckTotalMoney(BigDecimal changeCheckTotalMoney) {
+        this.changeCheckTotalMoney = changeCheckTotalMoney;
+    }
+
     @Override
     public String toString() {
         return "StorageResultOrderVo{" +
@@ -293,6 +390,13 @@ public class StorageResultOrderVo {
                 ", userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +
                 ", remark='" + remark + '\'' +
+                ", goodsSkuId=" + goodsSkuId +
+                ", sku='" + sku + '\'' +
+                ", checkQuantity=" + checkQuantity +
+                ", checkMoney=" + checkMoney +
+                ", checkTotalMoney=" + checkTotalMoney +
+                ", afterChangeCheckMoney=" + afterChangeCheckMoney +
+                ", changeCheckTotalMoney=" + changeCheckTotalMoney +
                 '}';
     }
 }

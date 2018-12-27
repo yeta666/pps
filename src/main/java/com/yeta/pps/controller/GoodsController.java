@@ -547,7 +547,13 @@ public class GoodsController {
 
     //下单查商品
 
-    @ApiOperation(value = "下单查商品接口")
+    /**
+     * 下单查商品接口
+     * @param storeId
+     * @param warehouseId
+     * @return
+     */
+    @ApiOperation(value = "下单查商品")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "warehouseId", value = "仓库编号", required = true, paramType = "query", dataType = "int")

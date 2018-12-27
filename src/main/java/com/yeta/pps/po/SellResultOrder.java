@@ -73,12 +73,10 @@ public class SellResultOrder {
     public SellResultOrder() {
     }
 
-    public SellResultOrder(BigDecimal totalMoney, BigDecimal totalDiscountMoney, BigDecimal orderMoney, BigDecimal costMoney, BigDecimal grossMarginMoney) {
+    public SellResultOrder(BigDecimal totalMoney, BigDecimal totalDiscountMoney, BigDecimal orderMoney) {
         this.totalMoney = totalMoney;
         this.totalDiscountMoney = totalDiscountMoney;
         this.orderMoney = orderMoney;
-        this.costMoney = costMoney;
-        this.grossMarginMoney = grossMarginMoney;
     }
 
     /**

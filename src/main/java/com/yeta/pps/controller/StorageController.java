@@ -52,15 +52,15 @@ public class StorageController {
     @ApiOperation(value = "红冲收/发货单")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "id", value = "采购结果订单编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = true, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "remark", value = "备注", required = false, paramType = "query", dataType = "String")
     })
-    @PutMapping(value = "/storage/redDashed")
+    @PostMapping(value = "/storage/redDashed")
     public CommonResponse redDashed(@RequestParam(value = "storeId") Integer storeId,
                                     @RequestParam(value = "id") String id,
                                     @RequestParam(value = "userId") String userId,
-                                    @RequestParam(value = "remark") String remark) {
+                                    @RequestParam(value = "remark", required = false) String remark) {
         return storageService.redDashed(new StorageOrderVo(storeId, id, userId, remark));
     }
 
@@ -110,14 +110,14 @@ public class StorageController {
     //其他入/出库单
 
     /**
-     * 新增其他入/出库单、报溢/损单接口
+     * 新增其他入/出库单、报溢/损单、成本调价单接口
      * @param storageResultOrderVo
      * @return
      */
-    @ApiOperation(value = "新增其他入/出库单、报溢/损单", notes = "details是对应的商品规格，其中goodsSkuId, type, quantity, money, discountMoney必填, remark选填")
+    @ApiOperation(value = "新增其他入/出库单、报溢/损单、成本调价单", notes = "details是对应的商品规格，其中goodsSkuId, type, quantity, money必填, remark选填")
     @ApiImplicitParam(
             name = "storageResultOrderVo",
-            value = "storeId, details, type(单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单), targetType(往来单位类型，1：供应商，2：客户), targetId(后两种类型不填), warehouseId, totalQuantity, totalMoney, userId必填，remark选填",
+            value = "storeId, details, type(单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单), targetType(往来单位类型，1：供应商，2：客户), targetId(后3种类型不填), warehouseId, totalQuantity, totalMoney, userId必填，remark选填, 成本调价单填checkQuantity(结存数量), checkMoney(结存成本单价), checkTotalMoney(结存金额), afterChangeCheckMoney(调整后成本单价), changeCheckTotalMoney(调整金额), goodsSkuId",
             required = true,
             paramType = "body",
             dataType = "StorageResultOrderVo"
@@ -128,25 +128,30 @@ public class StorageController {
     }
 
     /**
-     * 红冲其他入/出库单、报溢/损单接口
-     * @param storageResultOrderVo
+     * 红冲其他入/出库单、报溢/损单、成本调价单接口
+     * @param storeId
+     * @param id
+     * @param userId
+     * @param remark
      * @return
      */
-    @ApiOperation(value = "红冲其他入/出库单、报溢/损单")
-    @ApiImplicitParam(
-            name = "storageResultOrderVo",
-            value = "storeId, id, userId必填，remark选填",
-            required = true,
-            paramType = "body",
-            dataType = "StorageResultOrderVo"
-    )
-    @PutMapping(value = "/storage/result/redDashed")
-    public CommonResponse redDashedStorageResultOrder(@RequestBody @Valid StorageResultOrderVo storageResultOrderVo) {
-        return storageService.redDashedStorageResultOrder(storageResultOrderVo);
+    @ApiOperation(value = "红冲其他入/出库单、报溢/损单、成本调价单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "remark", value = "备注", required = false, paramType = "query", dataType = "String")
+    })
+    @PostMapping(value = "/storage/result/redDashed")
+    public CommonResponse redDashedStorageResultOrder(@RequestParam(value = "storeId") Integer storeId,
+                                                      @RequestParam(value = "id") String id,
+                                                      @RequestParam(value = "userId") String userId,
+                                                      @RequestParam(value = "remark", required = false) String remark) {
+        return storageService.redDashedStorageResultOrder(new StorageResultOrderVo(storeId, id, userId, remark));
     }
 
     /**
-     * 根据条件查询其他入/出库单、报溢/损单接口
+     * 根据条件查询其他入/出库单、报溢/损单、成本调价单接口
      * @param storeId
      * @param id
      * @param type
@@ -157,11 +162,11 @@ public class StorageController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "根据条件查询其他入/出库单、报溢/损单", notes = "分页、筛选查询，其中targetName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiOperation(value = "根据条件查询其他入/出库单、报溢/损单、成本调价单", notes = "分页、筛选查询，其中targetName为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "type", value = "单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "targetName", value = "往来单位", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
@@ -181,12 +186,12 @@ public class StorageController {
     }
 
     /**
-     * 根据单据编号查询其他入/出库单、报溢/损单详情接口
+     * 根据单据编号查询其他入/出库单、报溢/损单、成本调价单详情接口
      * @param storeId
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据单据编号查询其他入/出库单、报溢/损单详情", notes = "主要是查关联的商品和商品规格信息，用于点击其他入/出库单时")
+    @ApiOperation(value = "根据单据编号查询其他入/出库单、报溢/损单、成本调价单详情", notes = "主要是查关联的商品和商品规格信息，用于点击其他入/出库单时")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "单据编号", required = true, paramType = "path", dataType = "String")

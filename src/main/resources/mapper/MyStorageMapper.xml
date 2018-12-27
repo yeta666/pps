@@ -12,7 +12,7 @@
     </insert>
 
     <update id="redDashed" parameterType="com.yeta.pps.vo.StorageOrderVo">
-        update storage_order_${storeId} set create_time = now(), order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+        update storage_order_${storeId} set order_status = -1 where id = #{id} and order_status &gt; 0;
     </update>
 
     <select id="findCountStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo" resultType="java.lang.Integer">
@@ -111,17 +111,17 @@
         select id, type, create_time, apply_order_id, order_status, quantity, logistics_company, waybill_number, user_id, remark from storage_order_${storeId} where id = #{id};
     </select>
 
-    <!--其他入/出库单-->
+    <!--其他入/出库单、报溢/损单、成本调价单-->
 
     <insert id="addStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo">
         insert into
-            storage_result_order_${storeId} (id, type, create_time, order_status, target_type, target_id, warehouse_id, total_quantity, total_money, user_id, remark)
+            storage_result_order_${storeId} (id, type, create_time, order_status, target_type, target_id, warehouse_id, total_quantity, total_money, user_id, remark, goods_sku_id, check_quantity, check_money, check_total_money, after_change_check_money, change_check_total_money)
         values
-            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{targetType}, #{targetId}, #{warehouseId}, #{totalQuantity}, #{totalMoney}, #{userId}, #{remark});
+            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{targetType}, #{targetId}, #{warehouseId}, #{totalQuantity}, #{totalMoney}, #{userId}, #{remark}, #{goodsSkuId}, #{checkQuantity}, #{checkMoney}, #{checkTotalMoney}, #{afterChangeCheckMoney}, #{changeCheckTotalMoney});
     </insert>
 
     <update id="redDashedStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo">
-        update storage_result_order_${storeId} set create_time = now(), order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+        update storage_result_order_${storeId} set order_status = -1 where id = #{id} and order_status &gt; 0;
     </update>
 
     <select id="findCountStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo" resultType="java.lang.Integer">
@@ -131,20 +131,20 @@
             (
                 (
                     (
-                        storage_result_order_${storeId} as sro
-                        left join warehouse_${storeId} as w on sro.warehouse_id = w.id
+                        (
+                            storage_result_order_${storeId} as sro
+                            left join warehouse_${storeId} as w on sro.warehouse_id = w.id
+                        )
+                        left join user_${storeId} as u on sro.user_id = u.id
                     )
-                    left join user_${storeId} as u on sro.user_id = u.id
+                    left join supplier_${storeId} as s on sro.target_id = s.id
                 )
-                left join supplier_${storeId} as s on sro.target_id = s.id
+                left join client as c on sro.target_id = c.id
             )
-        left join client as c on sro.target_id = c.id
-        where 1 = 1
+        left join goods_sku_${storeId} as gs on gs.id = sro.goods_sku_id
+        where sro.type = #{type}
         <if test="id != null">
             and sro.id = #{id}
-        </if>
-        <if test="type != null">
-            and sro.type = #{type}
         </if>
         <if test="targetName != null">
             and (c.name like concat('%', #{targetName}, '%') or s.name like concat('%', #{targetName}, '%'))
@@ -171,25 +171,32 @@
             sro.total_money,
             sro.user_id,
             u.name as u_name,
-            sro.remark
+            sro.remark,
+            sro.goods_sku_id,
+            gs.sku,
+            sro.check_quantity,
+            sro.check_money,
+            sro.check_total_money,
+            sro.after_change_check_money,
+            sro.change_check_total_money
         from
             (
                 (
                     (
-                        storage_result_order_${vo.storeId} as sro
-                        left join warehouse_${vo.storeId} as w on sro.warehouse_id = w.id
+                        (
+                            storage_result_order_${vo.storeId} as sro
+                            left join warehouse_${vo.storeId} as w on sro.warehouse_id = w.id
+                        )
+                        left join user_${vo.storeId} as u on sro.user_id = u.id
                     )
-                    left join user_${vo.storeId} as u on sro.user_id = u.id
+                    left join supplier_${vo.storeId} as s on sro.target_id = s.id
                 )
-                left join supplier_${vo.storeId} as s on sro.target_id = s.id
+                left join client as c on sro.target_id = c.id
             )
-        left join client as c on sro.target_id = c.id
-        where 1 = 1
+        left join goods_sku_${vo.storeId} as gs on gs.id = sro.goods_sku_id
+        where sro.type = #{vo.type}
         <if test="vo.id != null">
             and sro.id = #{vo.id}
-        </if>
-        <if test="vo.type != null">
-            and sro.type = #{vo.type}
         </if>
         <if test="vo.targetName != null">
             and (c.name like concat('%', #{vo.targetName}, '%') or s.name like concat('%', #{vo.targetName}, '%'))
@@ -217,6 +224,12 @@
         <result column="user_id" property="userId" />
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
+        <result column="goods_sku_id" property="goodsSkuId" />
+        <result column="check_quantity" property="checkQuantity" />
+        <result column="check_money" property="checkMoney" />
+        <result column="check_total_money" property="checkTotalMoney" />
+        <result column="after_change_check_money" property="afterChangeCheckMoney" />
+        <result column="change_check_total_money" property="changeCheckTotalMoney" />
         <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
             <result column="ogs_id" property="id" />
             <result column="ogs_type" property="type" />
@@ -250,6 +263,12 @@
             sro.total_quantity,
             sro.total_money,
             sro.user_id,
+            sro.goods_sku_id,
+            sro.check_quantity,
+            sro.check_money,
+            sro.check_total_money,
+            sro.after_change_check_money,
+            sro.change_check_total_money,
             u.name as u_name,
             sro.remark,
             ogs.id as ogs_id,
@@ -457,13 +476,7 @@
                 left join client as c on c.id = sco.target_id
             )
         left join user_${storeId} as u on u.id = sco.user_id
-        where 1 = 1
-        <if test="goodsId != null">
-            and g.id = #{goodsId}
-        </if>
-        <if test="goodsSkuId != null">
-            and sco.goods_sku_id = #{goodsSkuId}
-        </if>
+        where sco.goods_sku_id = #{goodsSkuId}
         order by sco.create_time asc;
     </select>
 
@@ -503,8 +516,11 @@
             if (
                 sro1.type = 4,
                 '报损单',
-                null
-            ))))))))))) as type_name,
+            if (
+                sro1.type = 5,
+                '成本调价单',
+            null
+            )))))))))))) as type_name,
             sco.create_time,
             if (
                 pro.apply_order_id is not null,
@@ -567,13 +583,7 @@
                 left join client as c on c.id = sco.target_id
             )
         left join user_${vo.storeId} as u on u.id = sco.user_id
-        where 1 = 1
-        <if test="vo.goodsId != null">
-            and g.id = #{vo.goodsId}
-        </if>
-        <if test="vo.goodsSkuId != null">
-            and sco.goods_sku_id = #{vo.goodsSkuId}
-        </if>
+        where sco.goods_sku_id = #{vo.goodsSkuId}
         order by sco.create_time asc
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
@@ -820,13 +830,59 @@
 
     <insert id="addStorageCheckOrder" parameterType="com.yeta.pps.vo.StorageCheckOrderVo">
         insert into
-            storage_check_order_${storeId} (order_id, create_time, target_id, goods_sku_id, in_warehouse_id, in_quantity, in_money, in_total_money, out_warehouse_id, out_quantity, out_money, out_total_money, check_quantity, check_money, check_total_money, user_id)
-        values (#{orderId}, #{createTime}, #{targetId}, #{goodsSkuId}, #{inWarehouseId}, #{inQuantity}, #{inMoney}, #{inTotalMoney}, #{outWarehouseId}, #{outQuantity}, #{outMoney}, #{outTotalMoney}, #{checkQuantity}, #{checkMoney}, #{checkTotalMoney}, #{userId});
+            storage_check_order_${storeId} (order_id, create_time, order_status, target_id, goods_sku_id, in_warehouse_id, in_quantity, in_money, in_total_money, out_warehouse_id, out_quantity, out_money, out_total_money, check_quantity, check_money, check_total_money, user_id)
+        values (#{orderId}, #{createTime}, #{orderStatus}, #{targetId}, #{goodsSkuId}, #{inWarehouseId}, #{inQuantity}, #{inMoney}, #{inTotalMoney}, #{outWarehouseId}, #{outQuantity}, #{outMoney}, #{outTotalMoney}, #{checkQuantity}, #{checkMoney}, #{checkTotalMoney}, #{userId});
     </insert>
 
+    <update id="redDashedInStorageCheckOrder" parameterType="com.yeta.pps.vo.StorageCheckOrderVo">
+        update
+            storage_check_order_${storeId}
+        set
+            order_status = -1
+        where
+            order_id = #{orderId}
+        and goods_sku_id = #{goodsSkuId}
+        and order_status &gt; 0
+        and in_warehouse_id is not null;
+    </update>
+
+    <update id="redDashedOutStorageCheckOrder" parameterType="com.yeta.pps.vo.StorageCheckOrderVo">
+        update
+            storage_check_order_${storeId}
+        set
+            order_status = -1
+        where
+            order_id = #{orderId}
+        and goods_sku_id = #{goodsSkuId}
+        and order_status &gt; 0
+        and out_warehouse_id is not null;
+    </update>
+
+    <select id="findInStorageCheckOrder" parameterType="com.yeta.pps.vo.StorageCheckOrderVo" resultType="com.yeta.pps.vo.StorageCheckOrderVo">
+        select
+            id, order_id, create_time, order_status, target_id, goods_sku_id, in_warehouse_id, in_quantity, in_money, in_total_money, out_warehouse_id, out_quantity, out_money, out_total_money, check_quantity, check_money, check_total_money, user_id
+        from
+            storage_check_order_${storeId}
+        where
+            order_id = #{orderId}
+        and goods_sku_id = #{goodsSkuId}
+        and in_warehouse_id is not null;
+    </select>
+
+    <select id="findOutStorageCheckOrder" parameterType="com.yeta.pps.vo.StorageCheckOrderVo" resultType="com.yeta.pps.vo.StorageCheckOrderVo">
+        select
+            id, order_id, create_time, order_status, target_id, goods_sku_id, in_warehouse_id, in_quantity, in_money, in_total_money, out_warehouse_id, out_quantity, out_money, out_total_money, check_quantity, check_money, check_total_money, user_id
+        from
+            storage_check_order_${storeId}
+        where
+            order_id = #{orderId}
+        and goods_sku_id = #{goodsSkuId}
+        and out_warehouse_id is not null;
+    </select>
+    
     <select id="findLastCheckMoney" parameterType="com.yeta.pps.vo.StorageCheckOrderVo" resultType="com.yeta.pps.vo.StorageCheckOrderVo">
         select
-            order_id, create_time, target_id, goods_sku_id, in_warehouse_id, in_quantity, in_money, in_total_money, out_warehouse_id, out_quantity, out_money, out_total_money, check_quantity, check_money, check_total_money, user_id
+            id, order_id, create_time, order_status, target_id, goods_sku_id, in_warehouse_id, in_quantity, in_money, in_total_money, out_warehouse_id, out_quantity, out_money, out_total_money, check_quantity, check_money, check_total_money, user_id
         from
             storage_check_order_${storeId}
         where

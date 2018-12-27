@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 采购相关逻辑处理
@@ -193,9 +194,9 @@ public class ProcurementService {
             }
             //修改商品规格可操作数量
             if (applyOrderVo.getType() == 2 || applyOrderVo.getType() == 3) {
-                List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = applyOrderVo.getDetails();
+                List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = applyOrderVo.getDetails().stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("0")).collect(Collectors.toList());        //采购退换申请单或采购换货申请单中出库的的商品规格
                 ProcurementResultOrderVo resultOrderVo = myProcurementMapper.findResultOrderDetailById(new ProcurementResultOrderVo(procurementApplyOrderVo.getStoreId(), applyOrderVo.getResultOrderId()));
-                List<OrderGoodsSkuVo> resultOrderGoodsSkuVos = resultOrderVo.getDetails();
+                List<OrderGoodsSkuVo> resultOrderGoodsSkuVos = resultOrderVo.getDetails();      //采购入库单的商品规格
                 resultOrderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
                     Optional<OrderGoodsSkuVo> optional = applyOrderGoodsSkuVos.stream().filter(vo -> vo.getGoodsSkuId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst();
                     if (optional.isPresent()) {
@@ -400,39 +401,86 @@ public class ProcurementService {
     public CommonResponse redDashed(ProcurementResultOrderVo procurementResultOrderVo) {
         //获取参数
         Integer storeId = procurementResultOrderVo.getStoreId();
-        //修改单据状态
+        String userId = procurementResultOrderVo.getUserId();
+        String remark = procurementResultOrderVo.getRemark();
+
+        //红冲
         if (myProcurementMapper.redDashed(procurementResultOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
-        //获取该订单
+
+        //获取红冲蓝单
         procurementResultOrderVo = myProcurementMapper.findResultOrderDetailById(procurementResultOrderVo);
-        //新增红冲单
+
+        //设置红冲红单
         procurementResultOrderVo.setStoreId(storeId);
-        procurementResultOrderVo.setId("HC_" + procurementResultOrderVo.getId());
+        String oldResultOrderId = procurementResultOrderVo.getId();
+        procurementResultOrderVo.setId("HC_" + oldResultOrderId);
         procurementResultOrderVo.setCreateTime(new Date());
         procurementResultOrderVo.setOrderStatus((byte) -2);
         procurementResultOrderVo.setTotalQuantity(-procurementResultOrderVo.getTotalQuantity());
         procurementResultOrderVo.setTotalMoney(new BigDecimal(-procurementResultOrderVo.getTotalMoney().doubleValue()));
         procurementResultOrderVo.setTotalDiscountMoney(new BigDecimal(-procurementResultOrderVo.getTotalDiscountMoney().doubleValue()));
         procurementResultOrderVo.setOrderMoney(new BigDecimal(-procurementResultOrderVo.getOrderMoney().doubleValue()));
+        procurementResultOrderVo.setUserId(userId);
+        procurementResultOrderVo.setRemark(remark);
+
+        //新增红冲红单
         if (myProcurementMapper.addResultOrder(procurementResultOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
-        //修改库存
+
+        //红冲采购换货单要先入库再出库
         List<OrderGoodsSkuVo> orderGoodsSkuVos = procurementResultOrderVo.getDetails();
-        for (OrderGoodsSkuVo orderGoodsSkuVo : orderGoodsSkuVos) {
-            if (orderGoodsSkuVo.getType() == 0) {        //原来是出库
-                //增加商品规格库存
-                inventoryUtil.updateInventoryMethod((byte) 1, new WarehouseGoodsSkuVo(storeId, procurementResultOrderVo.getProcurementApplyOrderVo().getOutWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
-            } else if (orderGoodsSkuVo.getType() == 1) {     //原来是入库
-                //减少商品规格库存
-                inventoryUtil.updateInventoryMethod((byte) 0, new WarehouseGoodsSkuVo(storeId, procurementResultOrderVo.getProcurementApplyOrderVo().getOutWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
-            } else {
-                LOG.info("商品规格类型不正确【{}】", orderGoodsSkuVo.getType());
-                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+        List<OrderGoodsSkuVo> inVos = orderGoodsSkuVos.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("1")).collect(Collectors.toList());
+        for (OrderGoodsSkuVo orderGoodsSkuVo : inVos) {
+            //已经退换货的结果单不能红冲
+            if (orderGoodsSkuVo.getOperatedQuantity() > 0) {
+                throw new CommonException("该采购入库单已经发生退换货，不能红冲，单据编号：【" + oldResultOrderId + "】");
             }
-            //TODO
+
+            //减少商品规格库存
+            inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storeId, procurementResultOrderVo.getProcurementApplyOrderVo().getInWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
+
+            //红冲库存记账记录
+            inventoryUtil.redDashedStorageCheckOrder(1, new StorageCheckOrderVo(storeId, oldResultOrderId, orderGoodsSkuVo.getGoodsSkuId(), userId));
         }
+
+        List<OrderGoodsSkuVo> outVos = orderGoodsSkuVos.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("0")).collect(Collectors.toList());
+        for (OrderGoodsSkuVo orderGoodsSkuVo : outVos) {
+            //已经退换货的结果单不能红冲
+            if (orderGoodsSkuVo.getOperatedQuantity() > 0) {
+                throw new CommonException("该采购入库单已经发生退换货，不能红冲，单据编号：【" + procurementResultOrderVo.getId() + "】");
+            }
+
+            //增加商品规格库存
+            inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storeId, procurementResultOrderVo.getProcurementApplyOrderVo().getOutWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
+
+            //红冲库存记账记录
+            inventoryUtil.redDashedStorageCheckOrder(0, new StorageCheckOrderVo(storeId, oldResultOrderId, orderGoodsSkuVo.getGoodsSkuId(), userId));
+        }
+
+        //修改商品规格可操作数量
+        if (procurementResultOrderVo.getType() == 2 || procurementResultOrderVo.getType() == 3) {
+            //查询该采购退货单或采购换货单对应的采购退货申请单或采购换货申请单
+            ProcurementApplyOrderVo applyOrderVo = myProcurementMapper.findApplyOrderDetailById(new ProcurementApplyOrderVo(storeId, procurementResultOrderVo.getApplyOrderId()));
+            List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = applyOrderVo.getDetails().stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("0")).collect(Collectors.toList());        //采购退换申请单或采购换货申请单中出库的的商品规格
+            //查询该采购退货申请单或采购换货申请单对应的采购入库单
+            ProcurementResultOrderVo resultOrderVo = myProcurementMapper.findResultOrderDetailById(new ProcurementResultOrderVo(storeId, applyOrderVo.getResultOrderId()));
+            List<OrderGoodsSkuVo> resultOrderGoodsSkuVos = resultOrderVo.getDetails();      //采购入库单的商品规格
+            resultOrderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
+                Optional<OrderGoodsSkuVo> optional = applyOrderGoodsSkuVos.stream().filter(vo -> vo.getGoodsSkuId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst();
+                if (optional.isPresent()) {
+                    int changeQuantity = optional.get().getQuantity();
+                    orderGoodsSkuVo.setStoreId(storeId);
+                    orderGoodsSkuVo.setOperatedQuantity(-changeQuantity);
+                    if (myOrderGoodsSkuMapper.updateOperatedQuantity(orderGoodsSkuVo) != 1) {
+                        throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                    }
+                }
+            });
+        }
+
         return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
     }
 

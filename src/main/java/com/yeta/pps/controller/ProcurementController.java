@@ -181,7 +181,7 @@ public class ProcurementController {
     @ApiOperation(value = "红冲采购结果订单")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "id", value = "采购结果订单编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = true, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "remark", value = "备注", required = false, paramType = "query", dataType = "String")
     })
@@ -189,7 +189,7 @@ public class ProcurementController {
     public CommonResponse redDashed(@RequestParam(value = "storeId") Integer storeId,
                                     @RequestParam(value = "id") String id,
                                     @RequestParam(value = "userId") String userId,
-                                    @RequestParam(value = "remark") String remark) {
+                                    @RequestParam(value = "remark", required = false) String remark) {
         return procurementService.redDashed(new ProcurementResultOrderVo(storeId, id, userId, remark));
     }
 

@@ -37,6 +37,11 @@ public class StorageCheckOrderVo {
     @JsonIgnore
     private Date endTime;
 
+    /**
+     * 单据状态
+     */
+    private Byte orderStatus;
+
     private String applyOrderId;
 
     /**
@@ -130,6 +135,13 @@ public class StorageCheckOrderVo {
         this.goodsSkuId = goodsSkuId;
     }
 
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String orderId, Integer goodsSkuId, String userId) {
+        this.storeId = storeId;
+        this.orderId = orderId;
+        this.goodsSkuId = goodsSkuId;
+        this.userId = userId;
+    }
+
     public StorageCheckOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId) {
         this.storeId = storeId;
         this.startTime = startTime;
@@ -191,6 +203,14 @@ public class StorageCheckOrderVo {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public Byte getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(Byte orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     public String getApplyOrderId() {
@@ -371,6 +391,7 @@ public class StorageCheckOrderVo {
                 ", createTime=" + createTime +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
+                ", orderStatus=" + orderStatus +
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", targetId='" + targetId + '\'' +
                 ", targetName='" + targetName + '\'' +
