@@ -393,7 +393,6 @@
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
         <collection property="sellApplyOrderVo" ofType="com.yeta.pps.vo.SellApplyOrderVo">
-            <result column="sao_order_status" property="orderStatus" />
             <result column="sao_clear_status" property="clearStatus" />
             <result column="in_warehouse_id" property="inWarehouseId" />
             <result column="out_warehouse_id" property="outWarehouseId" />
@@ -420,13 +419,12 @@
             sro.gross_margin_money,
             u.name as user_name,
             sro.remark,
-            sao.order_status as sao_order_status,
             sao.clear_status as sao_clear_status,
+            sao.in_warehouse_id,
+            sao.out_warehouse_id,
             c.name as client_name,
             c.phone as client_phone,
-            c.membership_number as client_membership_number,
-            sao.in_warehouse_id,
-            sao.out_warehouse_id
+            c.membership_number as client_membership_number
         from 
             (
                 (
@@ -480,6 +478,7 @@
         <result column="user_id" property="userId" />
         <result column="remark" property="remark" />
         <collection property="sellApplyOrderVo" ofType="com.yeta.pps.vo.SellApplyOrderVo">
+            <result column="sao_clear_status" property="clearStatus" />
             <result column="in_warehouse_id" property="inWarehouseId" />
             <result column="out_warehouse_id" property="outWarehouseId" />
             <collection property="client" ofType="com.yeta.pps.po.Client">
@@ -524,11 +523,12 @@
             u.name as user_name,
             sro.user_id,
             sro.remark,
+            sao.clear_status as sao_clear_status,
+            sao.in_warehouse_id,
+            sao.out_warehouse_id,
             c.name as client_name,
             c.phone as client_phone,
             c.membership_number as client_membership_number,
-            sao.in_warehouse_id,
-            sao.out_warehouse_id,
             ogs.id as ogs_id,
             ogs.type as ogs_type,
             ogs.goods_sku_id as ogs_goods_sku_id,

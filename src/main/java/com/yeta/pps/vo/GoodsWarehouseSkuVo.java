@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.List;
 
 public class GoodsWarehouseSkuVo {
 
@@ -113,22 +111,22 @@ public class GoodsWarehouseSkuVo {
     /**
      * 期初成本单价
      */
-    private BigDecimal openingMoney;
+    private Double openingMoney;
 
     /**
      * 期初金额
      */
-    private BigDecimal openingTotalMoney;
+    private Double openingTotalMoney;
 
     /**
      * 成本单价
      */
-    private BigDecimal costMoney;
+    private Double costMoney;
 
     /**
      * 成本金额
      */
-    private BigDecimal totalCostMoney;
+    private Double totalCostMoney;
 
     public GoodsWarehouseSkuVo() {
     }
@@ -322,35 +320,35 @@ public class GoodsWarehouseSkuVo {
         this.openingQuantity = openingQuantity;
     }
 
-    public BigDecimal getOpeningMoney() {
+    public Double getOpeningMoney() {
         return openingMoney;
     }
 
-    public void setOpeningMoney(BigDecimal openingMoney) {
+    public void setOpeningMoney(Double openingMoney) {
         this.openingMoney = openingMoney;
     }
 
-    public BigDecimal getOpeningTotalMoney() {
+    public Double getOpeningTotalMoney() {
         return openingTotalMoney;
     }
 
-    public void setOpeningTotalMoney(BigDecimal openingTotalMoney) {
+    public void setOpeningTotalMoney(Double openingTotalMoney) {
         this.openingTotalMoney = openingTotalMoney;
     }
 
-    public BigDecimal getCostMoney() {
+    public Double getCostMoney() {
         return costMoney;
     }
 
-    public void setCostMoney(BigDecimal costMoney) {
+    public void setCostMoney(Double costMoney) {
         this.costMoney = costMoney;
     }
 
-    public BigDecimal getTotalCostMoney() {
+    public Double getTotalCostMoney() {
         return totalCostMoney;
     }
 
-    public void setTotalCostMoney(BigDecimal totalCostMoney) {
+    public void setTotalCostMoney(Double totalCostMoney) {
         this.totalCostMoney = totalCostMoney;
     }
 

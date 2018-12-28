@@ -61,7 +61,7 @@ create table client_level(
   id int primary key auto_increment comment '客户级别编号',
   name varchar(20) not null unique comment '客户级别',
   price_type tinyint not null comment '级别价格类型，1：零售价，2：vip售价',
-  price decimal(10, 2) not null comment '级别默认价格，级别价格类型*0.几'
+  price double(10, 2) not null comment '级别默认价格，级别价格类型*0.几'
 ) engine InnoDB default charset=utf8;
 
 
@@ -546,9 +546,9 @@ create table goods_sku_1(
   id int primary key auto_increment comment '商品规格编号',
   goods_id varchar(50) not null comment '商品货号',
   sku MEDIUMTEXT not null comment '商品规格',
-  purchase_price decimal(10, 2) not null comment '进价',
-  retail_price decimal(10, 2) not null comment '零售价',
-  vip_price decimal(10, 2) not null comment 'vip售价',
+  purchase_price double(10, 2) not null comment '进价',
+  retail_price double(10, 2) not null comment '零售价',
+  vip_price double(10, 2) not null comment 'vip售价',
   integral int not null comment '积分'
 ) engine InnoDB default charset=utf8;
 insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp001', '[{"key":"品牌","value":"舍得"},{"key":"单位","value":"瓶"}]', 10, 30, 20, 66);
@@ -674,11 +674,11 @@ create table procurement_apply_order_1(
   out_total_quantity int comment '总发货数量',
   out_sent_quantity int comment '已发货数量',
   out_not_sent_quantity int comment '未发货数量',
-  total_money decimal(10, 2) not null comment '总商品金额',
-  total_discount_money decimal(10, 2) not null comment '总优惠金额',
-  order_money decimal(10, 2) not null comment '本单金额',
-  cleared_money decimal(10, 2) not null comment '已结算金额',
-  not_cleared_money decimal(10, 2) not null comment '未结算金额',
+  total_money double(10, 2) not null comment '总商品金额',
+  total_discount_money double(10, 2) not null comment '总优惠金额',
+  order_money double(10, 2) not null comment '本单金额',
+  cleared_money double(10, 2) not null comment '已结算金额',
+  not_cleared_money double(10, 2) not null comment '未结算金额',
   user_id varchar(50) not null comment '经手人编号',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
@@ -699,9 +699,9 @@ create table procurement_result_order_1(
   apply_order_id varchar(50) not null comment '来源订单',
   order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
   total_quantity int not null comment '总商品数量',
-  total_money decimal(10, 2) not null comment '总商品金额',
-  total_discount_money decimal(10, 2) not null comment '总优惠金额',
-  order_money decimal(10, 2) not null comment '本单金额',
+  total_money double(10, 2) not null comment '总商品金额',
+  total_discount_money double(10, 2) not null comment '总优惠金额',
+  order_money double(10, 2) not null comment '本单金额',
   user_id varchar(50) not null comment '经手人',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
@@ -727,13 +727,13 @@ create table sell_apply_order_1(
   out_total_quantity int comment '总发货数量',
   out_sent_quantity int comment '已发货数量',
   out_not_sent_quantity int comment '未发货数量',
-  total_money decimal(10, 2) not null comment '总商品金额',
-  discount_money decimal(10, 2) not null comment '直接优惠金额',
+  total_money double(10, 2) not null comment '总商品金额',
+  discount_money double(10, 2) not null comment '直接优惠金额',
   discount_coupon_id int comment '优惠券编号',
-  total_discount_money decimal(10, 2) not null comment '总优惠金额',
-  order_money decimal(10, 2) not null comment '本单金额',
-  cleared_money decimal(10, 2) not null comment '已结算金额',
-  not_cleared_money decimal(10, 2) not null comment '未结算金额',
+  total_discount_money double(10, 2) not null comment '总优惠金额',
+  order_money double(10, 2) not null comment '本单金额',
+  cleared_money double(10, 2) not null comment '已结算金额',
+  not_cleared_money double(10, 2) not null comment '未结算金额',
   user_id varchar(50) not null comment '经手人编号',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
@@ -748,32 +748,18 @@ create table sell_result_order_1(
   apply_order_id varchar(50) not null comment '来源订单',
   order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
   total_quantity int not null comment '总商品数量',
-  total_money decimal(10, 2) not null comment '总商品金额',
-  total_discount_money decimal(10, 2) not null comment '总优惠金额',
-  order_money decimal(10, 2) not null comment '本单金额',
-  cost_money decimal(10,2 ) not null comment '成本',
-  gross_margin_money decimal(10, 2) not null comment '毛利',
+  total_money double(10, 2) not null comment '总商品金额',
+  total_discount_money double(10, 2) not null comment '总优惠金额',
+  order_money double(10, 2) not null comment '本单金额',
+  cost_money double(10,2 ) not null comment '成本',
+  gross_margin_money double(10, 2) not null comment '毛利',
   user_id varchar(50) not null comment '经手人',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
 
 
 
-/*订单/商品规格关系*/
-drop table if exists order_goods_sku_1;
-create table order_goods_sku_1(
-  id int primary key auto_increment comment '订单/商品规格关系编号',
-  type tinyint not null comment '入库或出库，0：出库，1：入库',
-  order_id varchar(50) not null comment '订单编号',
-  goods_sku_id int not null comment '商品规格编号',
-  quantity int not null comment '总数量',
-  finish_quantity int comment '完成数量',
-  not_finish_quantity int comment '未完成数量',
-  money decimal(10, 2) not null comment '金额',
-  discount_money decimal(10, 2) not null comment '优惠金额',
-  operated_quantity int not null comment '已操作数量',
-  remark varchar(255) comment '备注'
-) engine InnoDB default charset=utf8;
+
 
 
 
@@ -795,31 +781,55 @@ create table warehouse_goods_sku_1(
   inventory_upper_limit int comment '库存上限',
   inventory_low_limit int comment '库存下限',
   opening_quantity int not null comment '期初数量',
-  opening_money decimal(10, 2) not null comment '期初成本单价',
-  opening_total_money decimal(10, 2) not null comment '期初金额'
+  opening_money double(10, 2) not null comment '期初成本单价',
+  opening_total_money double(10, 2) not null comment '期初金额'
 ) engine InnoDB default charset=utf8;
 
 
-/*其他入/出库单，报损/溢单，成本调价单*/
+/*其他入/出库单，报损/溢单，成本调价单，库存盘点单*/
 drop table if exists storage_result_order_1;
 create table storage_result_order_1(
   id varchar(50) primary key comment '单据编号',
-  type tinyint not null comment '单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单',
+  type tinyint not null comment '单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单，6：库存盘点单',
   create_time datetime not null comment '单据日期',
   order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
-  target_type tinyint comment '往来单位类型，1：供应商，2：客户',
-  target_id varchar(50) comment '往来单位编号',
+  target_id varchar(50) comment '往来单位编号，类型1、2会用到',
   warehouse_id int not null comment '仓库编号',
-  total_quantity int comment '总商品数量',
-  total_money decimal(10, 2) comment '总商品金额',
+  total_quantity int not null comment '总数量，类型1-6都会用到',
+  total_money double(10, 2) comment '总金额，类型1-5会用到',
+  total_check_quantity int comment '总库存数量，类型6会用到',
+  total_in_quantity int comment '总报溢数量，类型6会用到',
+  total_in_money double(10, 2) comment '总报溢金额，类型6会用到',
+  total_out_quantity int comment '总报损数量，类型6会用到',
+  total_out_money double(10, 2) comment '总报损金额，类型6会用到',
   user_id varchar(50) not null comment '经手人',
-  remark varchar(255) comment '单据备注',
-  goods_sku_id int comment '商品规格编号',
+  remark varchar(255) comment '单据备注'
+) engine InnoDB default charset=utf8;
+
+
+/*订单/商品规格关系*/
+drop table if exists order_goods_sku_1;
+create table order_goods_sku_1(
+  id int primary key auto_increment comment '订单/商品规格关系编号',
+  type tinyint comment '类型，0：出库，1：入库',
+  order_id varchar(50) not null comment '订单编号',
+  goods_sku_id int not null comment '商品规格编号',
+  quantity int comment '总数量',
+  finish_quantity int comment '完成数量',
+  not_finish_quantity int comment '未完成数量',
+  money double(10, 2) comment '金额',
+  discount_money double(10, 2) comment '优惠金额',
+  operated_quantity int comment '已操作数量',
   check_quantity int comment '结存数量',
-  check_money decimal(10, 2) comment '结存成本单价',
-  check_total_money decimal(10, 2) comment '结存金额',
-  after_change_check_money decimal(10, 2) comment '调整后成本单价',
-  change_check_total_money decimal(10, 2) comment '调整金额'
+  check_money double(10, 2) comment '结存成本单价',
+  check_total_money double(10, 2) comment '结存金额',
+  after_change_check_money double(10, 2) comment '调整后成本单价',
+  change_check_total_money double(10, 2) comment '调整金额',
+  in_quantity int comment '盘盈数量',
+  in_money double(10, 2) comment '盘盈金额',
+  out_quantity int comment '盘亏数量',
+  out_money double(10, 2) comment '盘亏金额',
+  remark varchar(255) comment '备注'
 ) engine InnoDB default charset=utf8;
 
 
@@ -834,15 +844,15 @@ create table storage_check_order_1(
   goods_sku_id int not null comment '商品规格编号',
   in_warehouse_id int comment '入库仓库',
   in_quantity int comment '入库数量',
-  in_money decimal(10, 2) comment '入库成本单价',
-  in_total_money decimal(10, 2) comment '入库成本金额',
+  in_money double(10, 2) comment '入库成本单价',
+  in_total_money double(10, 2) comment '入库成本金额',
   out_warehouse_id int comment '出库仓库',
   out_quantity int comment '出库数量',
-  out_money decimal(10, 2) comment '出库成本单价',
-  out_total_money decimal(10, 2) comment '出库成本金额',
+  out_money double(10, 2) comment '出库成本单价',
+  out_total_money double(10, 2) comment '出库成本金额',
   check_quantity int not null comment '结存数量',
-  check_money decimal(10, 2) not null comment '结存成本单价',
-  check_total_money decimal(10, 2) not null comment '结存成本金额',
+  check_money double(10, 2) not null comment '结存成本单价',
+  check_total_money double(10, 2) not null comment '结存成本金额',
   user_id varchar(50) not null comment '经手人'
 ) engine InnoDB default charset=utf8;
 
@@ -872,7 +882,7 @@ create table fund_order_1(
   apply_order_id varchar(50) not null comment '来源订单',
   order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
   bank_account_id varchar(20) not null comment '银行账户编号',
-  money decimal(10, 2) not null comment '金额',
+  money double(10, 2) not null comment '金额',
   user_id varchar(50) not null comment '经手人',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;

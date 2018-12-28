@@ -1,9 +1,6 @@
 package com.yeta.pps.mapper;
 
-import com.yeta.pps.po.OrderGoodsSku;
 import com.yeta.pps.vo.OrderGoodsSkuVo;
-
-import java.util.List;
 
 /**
  * @author YETA
@@ -20,6 +17,4 @@ public interface MyOrderGoodsSkuMapper {
     int updateOrderGoodsSku(OrderGoodsSkuVo orderGoodsSkuVo);
 
     int updateOperatedQuantity(OrderGoodsSkuVo orderGoodsSkuVo);
-
-    List<OrderGoodsSku> findAllOrderGoodsSku(OrderGoodsSkuVo orderGoodsSkuVo);
 }

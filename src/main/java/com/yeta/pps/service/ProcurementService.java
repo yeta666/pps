@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 @Service
 public class ProcurementService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProcurementService.class);
-
     @Autowired
     private MyProcurementMapper myProcurementMapper;
 
@@ -108,7 +106,7 @@ public class ProcurementService {
         //设置初始属性
         procurementApplyOrderVo.setCreateTime(new Date());
         procurementApplyOrderVo.setClearStatus((byte) 0);
-        procurementApplyOrderVo.setClearedMoney(new BigDecimal(0));
+        procurementApplyOrderVo.setClearedMoney(0.0);
         procurementApplyOrderVo.setNotClearedMoney(procurementApplyOrderVo.getOrderMoney());
 
         //新增采购申请单
@@ -132,6 +130,7 @@ public class ProcurementService {
             orderGoodsSkuVo.setOrderId(procurementApplyOrderVo.getId());
             orderGoodsSkuVo.setFinishQuantity(0);
             orderGoodsSkuVo.setNotFinishQuantity(quantity);
+            orderGoodsSkuVo.setOperatedQuantity(0);
 
             //新增
             if (myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo) != 1) {
@@ -287,6 +286,8 @@ public class ProcurementService {
             orderGoodsSkuVo.setOrderId(procurementApplyOrderVo.getId());
             orderGoodsSkuVo.setFinishQuantity(0);
             orderGoodsSkuVo.setNotFinishQuantity(orderGoodsSkuVo.getQuantity());
+            orderGoodsSkuVo.setOperatedQuantity(0);
+
             //新增
             if (myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo) != 1) {
                 throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
@@ -419,9 +420,9 @@ public class ProcurementService {
         procurementResultOrderVo.setCreateTime(new Date());
         procurementResultOrderVo.setOrderStatus((byte) -2);
         procurementResultOrderVo.setTotalQuantity(-procurementResultOrderVo.getTotalQuantity());
-        procurementResultOrderVo.setTotalMoney(new BigDecimal(-procurementResultOrderVo.getTotalMoney().doubleValue()));
-        procurementResultOrderVo.setTotalDiscountMoney(new BigDecimal(-procurementResultOrderVo.getTotalDiscountMoney().doubleValue()));
-        procurementResultOrderVo.setOrderMoney(new BigDecimal(-procurementResultOrderVo.getOrderMoney().doubleValue()));
+        procurementResultOrderVo.setTotalMoney(-procurementResultOrderVo.getTotalMoney());
+        procurementResultOrderVo.setTotalDiscountMoney(-procurementResultOrderVo.getTotalDiscountMoney());
+        procurementResultOrderVo.setOrderMoney(-procurementResultOrderVo.getOrderMoney());
         procurementResultOrderVo.setUserId(userId);
         procurementResultOrderVo.setRemark(remark);
 
@@ -512,10 +513,8 @@ public class ProcurementService {
         titles.add(new Title("单据编号", "id"));
         titles.add(new Title("单据类型", "type"));
         titles.add(new Title("单据日期", "createTime"));
-        titles.add(new Title("单据状态", "orderStatus"));
         titles.add(new Title("来源订单", "applyOrderId"));
-        titles.add(new Title("来源订单单据状态", "procurementApplyOrderVo.orderStatus"));
-        titles.add(new Title("来源订单结算状态", "procurementApplyOrderVo.clearStatus"));
+        titles.add(new Title("结算状态", "procurementApplyOrderVo.clearStatus"));
         titles.add(new Title("供应商", "procurementApplyOrderVo.supplierName"));
         titles.add(new Title("入库仓库", "procurementApplyOrderVo.inWarehouseName"));
         titles.add(new Title("出库仓库", "procurementApplyOrderVo.outWarehouseName"));

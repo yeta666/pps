@@ -6,7 +6,6 @@ import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 
 public class FundOrderVo {
@@ -61,7 +60,7 @@ public class FundOrderVo {
      * 金额
      */
     @NotNull(message = CommonResponse.MESSAGE3)
-    private BigDecimal money;
+    private Double money;
 
     /**
      * 经手人
@@ -94,7 +93,7 @@ public class FundOrderVo {
         this.sellApplyOrderVo = sellApplyOrderVo;
     }
 
-    public FundOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Date createTime, @NotBlank(message = CommonResponse.MESSAGE3) String applyOrderId, Byte orderStatus, @NotBlank(message = CommonResponse.MESSAGE3) String bankAccountId, @NotNull(message = CommonResponse.MESSAGE3) BigDecimal money, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public FundOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Date createTime, @NotBlank(message = CommonResponse.MESSAGE3) String applyOrderId, Byte orderStatus, @NotBlank(message = CommonResponse.MESSAGE3) String bankAccountId, @NotNull(message = CommonResponse.MESSAGE3) Double money, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
@@ -187,11 +186,11 @@ public class FundOrderVo {
         this.bankAccountId = bankAccountId;
     }
 
-    public BigDecimal getMoney() {
+    public Double getMoney() {
         return money;
     }
 
-    public void setMoney(BigDecimal money) {
+    public void setMoney(Double money) {
         this.money = money;
     }
 

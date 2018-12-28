@@ -4,7 +4,6 @@ import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 
 public class GoodsSkuVo {
 
@@ -29,19 +28,19 @@ public class GoodsSkuVo {
      * 进价
      */
     @NotNull(message = CommonResponse.MESSAGE3)
-    private BigDecimal purchasePrice;
+    private Double purchasePrice;
 
     /**
      * 零售价
      */
     @NotNull(message = CommonResponse.MESSAGE3)
-    private BigDecimal retailPrice;
+    private Double retailPrice;
 
     /**
      * vip售价
      */
     @NotNull(message = CommonResponse.MESSAGE3)
-    private BigDecimal vipPrice;
+    private Double vipPrice;
 
     /**
      * 积分
@@ -72,9 +71,9 @@ public class GoodsSkuVo {
 
     private Integer checkQuantity;
 
-    private BigDecimal checkMoney;
+    private Double checkMoney;
 
-    private BigDecimal checkTotalMoney;
+    private Double checkTotalMoney;
 
     public GoodsSkuVo() {
     }
@@ -107,27 +106,27 @@ public class GoodsSkuVo {
         this.goodsId = goodsId;
     }
 
-    public BigDecimal getPurchasePrice() {
+    public Double getPurchasePrice() {
         return purchasePrice;
     }
 
-    public void setPurchasePrice(BigDecimal purchasePrice) {
+    public void setPurchasePrice(Double purchasePrice) {
         this.purchasePrice = purchasePrice;
     }
 
-    public BigDecimal getRetailPrice() {
+    public Double getRetailPrice() {
         return retailPrice;
     }
 
-    public void setRetailPrice(BigDecimal retailPrice) {
+    public void setRetailPrice(Double retailPrice) {
         this.retailPrice = retailPrice;
     }
 
-    public BigDecimal getVipPrice() {
+    public Double getVipPrice() {
         return vipPrice;
     }
 
-    public void setVipPrice(BigDecimal vipPrice) {
+    public void setVipPrice(Double vipPrice) {
         this.vipPrice = vipPrice;
     }
 
@@ -180,19 +179,19 @@ public class GoodsSkuVo {
         this.checkQuantity = checkQuantity;
     }
 
-    public BigDecimal getCheckMoney() {
+    public Double getCheckMoney() {
         return checkMoney;
     }
 
-    public void setCheckMoney(BigDecimal checkMoney) {
+    public void setCheckMoney(Double checkMoney) {
         this.checkMoney = checkMoney;
     }
 
-    public BigDecimal getCheckTotalMoney() {
+    public Double getCheckTotalMoney() {
         return checkTotalMoney;
     }
 
-    public void setCheckTotalMoney(BigDecimal checkTotalMoney) {
+    public void setCheckTotalMoney(Double checkTotalMoney) {
         this.checkTotalMoney = checkTotalMoney;
     }
 

@@ -316,7 +316,6 @@
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
         <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
-            <result column="pao_order_status" property="orderStatus" />
             <result column="pao_clear_status" property="clearStatus" />
             <result column="supplier_name" property="supplierName" />
             <result column="in_warehouse_id" property="inWarehouseId" />
@@ -337,7 +336,6 @@
             pro.order_money,
             u.name as user_name,
             pro.remark,
-            pao.order_status as pao_order_status,
             pao.clear_status as pao_clear_status,
             s.name as supplier_name,
             pao.in_warehouse_id,

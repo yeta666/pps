@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 
 public class StorageCheckOrderVo {
@@ -74,12 +73,12 @@ public class StorageCheckOrderVo {
     /**
      * 入库成本单价
      */
-    private BigDecimal inMoney;
+    private Double inMoney;
 
     /**
      * 入库成本金额
      */
-    private BigDecimal inTotalMoney;
+    private Double inTotalMoney;
 
     /**
      * 出库仓库编号
@@ -96,12 +95,12 @@ public class StorageCheckOrderVo {
     /**
      * 出库成本单价
      */
-    private BigDecimal outMoney;
+    private Double outMoney;
 
     /**
      * 出库成本金额
      */
-    private BigDecimal outTotalMoney;
+    private Double outTotalMoney;
 
     /**
      * 结存数量
@@ -111,12 +110,12 @@ public class StorageCheckOrderVo {
     /**
      * 结存成本单价
      */
-    private BigDecimal checkMoney;
+    private Double checkMoney;
 
     /**
      * 结存成本金额
      */
-    private BigDecimal checkTotalMoney;
+    private Double checkTotalMoney;
 
     /**
      * 经手人编号
@@ -277,19 +276,19 @@ public class StorageCheckOrderVo {
         this.inQuantity = inQuantity;
     }
 
-    public BigDecimal getInMoney() {
+    public Double getInMoney() {
         return inMoney;
     }
 
-    public void setInMoney(BigDecimal inMoney) {
+    public void setInMoney(Double inMoney) {
         this.inMoney = inMoney;
     }
 
-    public BigDecimal getInTotalMoney() {
+    public Double getInTotalMoney() {
         return inTotalMoney;
     }
 
-    public void setInTotalMoney(BigDecimal inTotalMoney) {
+    public void setInTotalMoney(Double inTotalMoney) {
         this.inTotalMoney = inTotalMoney;
     }
 
@@ -317,19 +316,19 @@ public class StorageCheckOrderVo {
         this.outQuantity = outQuantity;
     }
 
-    public BigDecimal getOutMoney() {
+    public Double getOutMoney() {
         return outMoney;
     }
 
-    public void setOutMoney(BigDecimal outMoney) {
+    public void setOutMoney(Double outMoney) {
         this.outMoney = outMoney;
     }
 
-    public BigDecimal getOutTotalMoney() {
+    public Double getOutTotalMoney() {
         return outTotalMoney;
     }
 
-    public void setOutTotalMoney(BigDecimal outTotalMoney) {
+    public void setOutTotalMoney(Double outTotalMoney) {
         this.outTotalMoney = outTotalMoney;
     }
 
@@ -341,19 +340,19 @@ public class StorageCheckOrderVo {
         this.checkQuantity = checkQuantity;
     }
 
-    public BigDecimal getCheckMoney() {
+    public Double getCheckMoney() {
         return checkMoney;
     }
 
-    public void setCheckMoney(BigDecimal checkMoney) {
+    public void setCheckMoney(Double checkMoney) {
         this.checkMoney = checkMoney;
     }
 
-    public BigDecimal getCheckTotalMoney() {
+    public Double getCheckTotalMoney() {
         return checkTotalMoney;
     }
 
-    public void setCheckTotalMoney(BigDecimal checkTotalMoney) {
+    public void setCheckTotalMoney(Double checkTotalMoney) {
         this.checkTotalMoney = checkTotalMoney;
     }
 

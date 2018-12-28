@@ -1,23 +1,19 @@
 package com.yeta.pps.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
 public class StorageResultOrderVo {
 
-    /**
-     * 店铺编号
-     */
     @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
 
+    @NotNull(message = CommonResponse.MESSAGE3)
     private List<OrderGoodsSkuVo> details;
 
     /**
@@ -26,7 +22,7 @@ public class StorageResultOrderVo {
     private String id;
 
     /**
-     * 单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单
+     * 单据类型
      */
     @NotNull(message = CommonResponse.MESSAGE3)
     private Byte type;
@@ -47,22 +43,11 @@ public class StorageResultOrderVo {
     private Byte orderStatus;
 
     /**
-     * 往来单位类型，1：供应商，2：客户
-     */
-    public Byte targetType;
-
-    /**
      * 往来单位编号
      */
     public String targetId;
 
     public String targetName;
-
-    @JsonIgnore
-    public String clientName;
-
-    @JsonIgnore
-    public String supplierName;
 
     /**
      * 仓库编号
@@ -73,14 +58,40 @@ public class StorageResultOrderVo {
     private String warehouseName;
 
     /**
-     * 总商品数量
+     * 总数量
      */
+    @NotNull(message = CommonResponse.MESSAGE3)
     private Integer totalQuantity;
 
     /**
-     * 总商品金额
+     * 总金额
      */
-    private BigDecimal totalMoney;
+    private Double totalMoney;
+
+    /**
+     * 总库存数量
+     */
+    private Integer totalCheckQuantity;
+
+    /**
+     * 总报溢数量
+     */
+    private Integer totalInQuantity;
+
+    /**
+     * 总报溢金额
+     */
+    private Double totalInMoney;
+
+    /**
+     * 总报损数量
+     */
+    private Integer totalOutQuantity;
+
+    /**
+     * 总报损金额
+     */
+    private Double totalOutMoney;
 
     /**
      * 经手人
@@ -94,38 +105,6 @@ public class StorageResultOrderVo {
      * 单据备注
      */
     private String remark;
-
-    /**
-     * 商品规格编号
-     */
-    private Integer goodsSkuId;
-
-    private String sku;
-
-    /**
-     * 结存数量
-     */
-    private Integer checkQuantity;
-
-    /**
-     * 结存成本单价
-     */
-    private BigDecimal checkMoney;
-
-    /**
-     * 结存金额
-     */
-    private BigDecimal checkTotalMoney;
-
-    /**
-     * 调整后成本单价
-     */
-    private BigDecimal afterChangeCheckMoney;
-
-    /**
-     * 调整金额
-     */
-    private BigDecimal changeCheckTotalMoney;
 
     public StorageResultOrderVo() {
     }
@@ -215,14 +194,6 @@ public class StorageResultOrderVo {
         this.orderStatus = orderStatus;
     }
 
-    public Byte getTargetType() {
-        return targetType;
-    }
-
-    public void setTargetType(Byte targetType) {
-        this.targetType = targetType;
-    }
-
     public String getTargetId() {
         return targetId;
     }
@@ -237,22 +208,6 @@ public class StorageResultOrderVo {
 
     public void setTargetName(String targetName) {
         this.targetName = targetName;
-    }
-
-    public String getClientName() {
-        return clientName;
-    }
-
-    public void setClientName(String clientName) {
-        this.clientName = clientName;
-    }
-
-    public String getSupplierName() {
-        return supplierName;
-    }
-
-    public void setSupplierName(String supplierName) {
-        this.supplierName = supplierName;
     }
 
     public Integer getWarehouseId() {
@@ -279,12 +234,52 @@ public class StorageResultOrderVo {
         this.totalQuantity = totalQuantity;
     }
 
-    public BigDecimal getTotalMoney() {
+    public Double getTotalMoney() {
         return totalMoney;
     }
 
-    public void setTotalMoney(BigDecimal totalMoney) {
+    public void setTotalMoney(Double totalMoney) {
         this.totalMoney = totalMoney;
+    }
+
+    public Integer getTotalCheckQuantity() {
+        return totalCheckQuantity;
+    }
+
+    public void setTotalCheckQuantity(Integer totalCheckQuantity) {
+        this.totalCheckQuantity = totalCheckQuantity;
+    }
+
+    public Integer getTotalInQuantity() {
+        return totalInQuantity;
+    }
+
+    public void setTotalInQuantity(Integer totalInQuantity) {
+        this.totalInQuantity = totalInQuantity;
+    }
+
+    public Double getTotalInMoney() {
+        return totalInMoney;
+    }
+
+    public void setTotalInMoney(Double totalInMoney) {
+        this.totalInMoney = totalInMoney;
+    }
+
+    public Integer getTotalOutQuantity() {
+        return totalOutQuantity;
+    }
+
+    public void setTotalOutQuantity(Integer totalOutQuantity) {
+        this.totalOutQuantity = totalOutQuantity;
+    }
+
+    public Double getTotalOutMoney() {
+        return totalOutMoney;
+    }
+
+    public void setTotalOutMoney(Double totalOutMoney) {
+        this.totalOutMoney = totalOutMoney;
     }
 
     public String getUserId() {
@@ -311,62 +306,6 @@ public class StorageResultOrderVo {
         this.remark = remark;
     }
 
-    public Integer getGoodsSkuId() {
-        return goodsSkuId;
-    }
-
-    public void setGoodsSkuId(Integer goodsSkuId) {
-        this.goodsSkuId = goodsSkuId;
-    }
-
-    public String getSku() {
-        return sku;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
-
-    public Integer getCheckQuantity() {
-        return checkQuantity;
-    }
-
-    public void setCheckQuantity(Integer checkQuantity) {
-        this.checkQuantity = checkQuantity;
-    }
-
-    public BigDecimal getCheckMoney() {
-        return checkMoney;
-    }
-
-    public void setCheckMoney(BigDecimal checkMoney) {
-        this.checkMoney = checkMoney;
-    }
-
-    public BigDecimal getCheckTotalMoney() {
-        return checkTotalMoney;
-    }
-
-    public void setCheckTotalMoney(BigDecimal checkTotalMoney) {
-        this.checkTotalMoney = checkTotalMoney;
-    }
-
-    public BigDecimal getAfterChangeCheckMoney() {
-        return afterChangeCheckMoney;
-    }
-
-    public void setAfterChangeCheckMoney(BigDecimal afterChangeCheckMoney) {
-        this.afterChangeCheckMoney = afterChangeCheckMoney;
-    }
-
-    public BigDecimal getChangeCheckTotalMoney() {
-        return changeCheckTotalMoney;
-    }
-
-    public void setChangeCheckTotalMoney(BigDecimal changeCheckTotalMoney) {
-        this.changeCheckTotalMoney = changeCheckTotalMoney;
-    }
-
     @Override
     public String toString() {
         return "StorageResultOrderVo{" +
@@ -378,25 +317,20 @@ public class StorageResultOrderVo {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", orderStatus=" + orderStatus +
-                ", targetType=" + targetType +
                 ", targetId='" + targetId + '\'' +
                 ", targetName='" + targetName + '\'' +
-                ", clientName='" + clientName + '\'' +
-                ", supplierName='" + supplierName + '\'' +
                 ", warehouseId=" + warehouseId +
                 ", warehouseName='" + warehouseName + '\'' +
                 ", totalQuantity=" + totalQuantity +
                 ", totalMoney=" + totalMoney +
+                ", totalCheckQuantity=" + totalCheckQuantity +
+                ", totalInQuantity=" + totalInQuantity +
+                ", totalInMoney=" + totalInMoney +
+                ", totalOutQuantity=" + totalOutQuantity +
+                ", totalOutMoney=" + totalOutMoney +
                 ", userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +
                 ", remark='" + remark + '\'' +
-                ", goodsSkuId=" + goodsSkuId +
-                ", sku='" + sku + '\'' +
-                ", checkQuantity=" + checkQuantity +
-                ", checkMoney=" + checkMoney +
-                ", checkTotalMoney=" + checkTotalMoney +
-                ", afterChangeCheckMoney=" + afterChangeCheckMoney +
-                ", changeCheckTotalMoney=" + changeCheckTotalMoney +
                 '}';
     }
 }

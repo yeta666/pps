@@ -1,41 +1,16 @@
 package com.yeta.pps.vo;
 
-import com.yeta.pps.util.CommonResponse;
-
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-
 public class OrderGoodsSkuVo {
 
-    /**
-     * 店铺id
-     */
-    @NotNull(message = CommonResponse.MESSAGE3)
     private Integer storeId;
 
-    private Integer changeQuantity;
-
-    private String goodsName;
-
-    private String goodsId;
-
-    private String goodsBarCode;
-
-    private String goodsSkuSku;
-
-    private BigDecimal goodsSkuPurchasePrice;
-
-    private BigDecimal goodsSkuRetailPrice;
-
-    private BigDecimal goodsSkuVipPrice;
-
     /**
-     * 采购申请订单/商品规格关系编号
+     * 订单/商品规格关系编号
      */
     private Integer id;
 
     /**
-     * 入库或出库，1：入库，0：出库
+     * 类型，1：入库，0：出库
      */
     private Byte type;
 
@@ -48,6 +23,24 @@ public class OrderGoodsSkuVo {
      * 商品规格编号
      */
     private Integer goodsSkuId;
+
+    private String goodsSkuSku;
+
+    private Double goodsSkuPurchasePrice;
+
+    private Double goodsSkuRetailPrice;
+
+    private Double goodsSkuVipPrice;
+
+    private Integer integral;
+
+    private String goodsId;
+
+    private String goodsName;
+
+    private String goodsBarCode;
+
+    private Integer changeQuantity;
 
     /**
      * 总数量
@@ -67,17 +60,62 @@ public class OrderGoodsSkuVo {
     /**
      * 金额
      */
-    private BigDecimal money;
+    private Double money;
 
     /**
      * 优惠金额
      */
-    private BigDecimal discountMoney;
+    private Double discountMoney;
 
     /**
      * 已操作数量
      */
-    private Integer operatedQuantity = 0;
+    private Integer operatedQuantity;
+
+    /**
+     * 结存数量/盘点数量
+     */
+    private Integer checkQuantity;
+
+    /**
+     * 结存成本单价
+     */
+    private Double checkMoney;
+
+    /**
+     * 结存金额
+     */
+    private Double checkTotalMoney;
+
+    /**
+     * 调整后成本单价
+     */
+    private Double afterChangeCheckMoney;
+
+    /**
+     * 调整金额
+     */
+    private Double changeCheckTotalMoney;
+
+    /**
+     * 盘盈数量
+     */
+    private Integer inQuantity;
+
+    /**
+     * 盘盈金额
+     */
+    private Double inMoney;
+
+    /**
+     * 盘亏数量
+     */
+    private Integer outQuantity;
+
+    /**
+     * 盘亏金额
+     */
+    private Double outMoney;
 
     /**
      * 备注
@@ -87,25 +125,30 @@ public class OrderGoodsSkuVo {
     public OrderGoodsSkuVo() {
     }
 
-    public OrderGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String orderId) {
+    public OrderGoodsSkuVo(Integer quantity, Integer finishQuantity) {
+        this.quantity = quantity;
+        this.finishQuantity = finishQuantity;
+    }
+
+    public OrderGoodsSkuVo(Integer storeId, String orderId) {
         this.storeId = storeId;
         this.orderId = orderId;
     }
 
-    public OrderGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer id, Integer goodsSkuId, Integer operatedQuantity) {
+    public OrderGoodsSkuVo(Integer storeId, Integer id, Integer goodsSkuId, Integer operatedQuantity) {
         this.storeId = storeId;
         this.id = id;
         this.goodsSkuId = goodsSkuId;
         this.operatedQuantity = operatedQuantity;
     }
 
-    public OrderGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String orderId, Integer notFinishQuantity) {
+    public OrderGoodsSkuVo(Integer storeId, String orderId, Integer notFinishQuantity) {
         this.storeId = storeId;
         this.orderId = orderId;
         this.notFinishQuantity = notFinishQuantity;
     }
 
-    public OrderGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Byte type, String orderId, Integer goodsSkuId, Integer quantity, Integer finishQuantity, Integer notFinishQuantity, BigDecimal money, BigDecimal discountMoney, String remark) {
+    public OrderGoodsSkuVo(Integer storeId, Byte type, String orderId, Integer goodsSkuId, Integer quantity, Integer finishQuantity, Integer notFinishQuantity, Double money, Double discountMoney, String remark) {
         this.storeId = storeId;
         this.type = type;
         this.orderId = orderId;
@@ -124,70 +167,6 @@ public class OrderGoodsSkuVo {
 
     public void setStoreId(Integer storeId) {
         this.storeId = storeId;
-    }
-
-    public Integer getChangeQuantity() {
-        return changeQuantity;
-    }
-
-    public void setChangeQuantity(Integer changeQuantity) {
-        this.changeQuantity = changeQuantity;
-    }
-
-    public String getGoodsName() {
-        return goodsName;
-    }
-
-    public void setGoodsName(String goodsName) {
-        this.goodsName = goodsName;
-    }
-
-    public String getGoodsId() {
-        return goodsId;
-    }
-
-    public void setGoodsId(String goodsId) {
-        this.goodsId = goodsId;
-    }
-
-    public String getGoodsBarCode() {
-        return goodsBarCode;
-    }
-
-    public void setGoodsBarCode(String goodsBarCode) {
-        this.goodsBarCode = goodsBarCode;
-    }
-
-    public String getGoodsSkuSku() {
-        return goodsSkuSku;
-    }
-
-    public void setGoodsSkuSku(String goodsSkuSku) {
-        this.goodsSkuSku = goodsSkuSku;
-    }
-
-    public BigDecimal getGoodsSkuPurchasePrice() {
-        return goodsSkuPurchasePrice;
-    }
-
-    public void setGoodsSkuPurchasePrice(BigDecimal goodsSkuPurchasePrice) {
-        this.goodsSkuPurchasePrice = goodsSkuPurchasePrice;
-    }
-
-    public BigDecimal getGoodsSkuRetailPrice() {
-        return goodsSkuRetailPrice;
-    }
-
-    public void setGoodsSkuRetailPrice(BigDecimal goodsSkuRetailPrice) {
-        this.goodsSkuRetailPrice = goodsSkuRetailPrice;
-    }
-
-    public BigDecimal getGoodsSkuVipPrice() {
-        return goodsSkuVipPrice;
-    }
-
-    public void setGoodsSkuVipPrice(BigDecimal goodsSkuVipPrice) {
-        this.goodsSkuVipPrice = goodsSkuVipPrice;
     }
 
     public Integer getId() {
@@ -222,6 +201,78 @@ public class OrderGoodsSkuVo {
         this.goodsSkuId = goodsSkuId;
     }
 
+    public String getGoodsSkuSku() {
+        return goodsSkuSku;
+    }
+
+    public void setGoodsSkuSku(String goodsSkuSku) {
+        this.goodsSkuSku = goodsSkuSku;
+    }
+
+    public Double getGoodsSkuPurchasePrice() {
+        return goodsSkuPurchasePrice;
+    }
+
+    public void setGoodsSkuPurchasePrice(Double goodsSkuPurchasePrice) {
+        this.goodsSkuPurchasePrice = goodsSkuPurchasePrice;
+    }
+
+    public Double getGoodsSkuRetailPrice() {
+        return goodsSkuRetailPrice;
+    }
+
+    public void setGoodsSkuRetailPrice(Double goodsSkuRetailPrice) {
+        this.goodsSkuRetailPrice = goodsSkuRetailPrice;
+    }
+
+    public Double getGoodsSkuVipPrice() {
+        return goodsSkuVipPrice;
+    }
+
+    public void setGoodsSkuVipPrice(Double goodsSkuVipPrice) {
+        this.goodsSkuVipPrice = goodsSkuVipPrice;
+    }
+
+    public Integer getIntegral() {
+        return integral;
+    }
+
+    public void setIntegral(Integer integral) {
+        this.integral = integral;
+    }
+
+    public String getGoodsId() {
+        return goodsId;
+    }
+
+    public void setGoodsId(String goodsId) {
+        this.goodsId = goodsId;
+    }
+
+    public String getGoodsName() {
+        return goodsName;
+    }
+
+    public void setGoodsName(String goodsName) {
+        this.goodsName = goodsName;
+    }
+
+    public String getGoodsBarCode() {
+        return goodsBarCode;
+    }
+
+    public void setGoodsBarCode(String goodsBarCode) {
+        this.goodsBarCode = goodsBarCode;
+    }
+
+    public Integer getChangeQuantity() {
+        return changeQuantity;
+    }
+
+    public void setChangeQuantity(Integer changeQuantity) {
+        this.changeQuantity = changeQuantity;
+    }
+
     public Integer getQuantity() {
         return quantity;
     }
@@ -246,19 +297,19 @@ public class OrderGoodsSkuVo {
         this.notFinishQuantity = notFinishQuantity;
     }
 
-    public BigDecimal getMoney() {
+    public Double getMoney() {
         return money;
     }
 
-    public void setMoney(BigDecimal money) {
+    public void setMoney(Double money) {
         this.money = money;
     }
 
-    public BigDecimal getDiscountMoney() {
+    public Double getDiscountMoney() {
         return discountMoney;
     }
 
-    public void setDiscountMoney(BigDecimal discountMoney) {
+    public void setDiscountMoney(Double discountMoney) {
         this.discountMoney = discountMoney;
     }
 
@@ -268,6 +319,78 @@ public class OrderGoodsSkuVo {
 
     public void setOperatedQuantity(Integer operatedQuantity) {
         this.operatedQuantity = operatedQuantity;
+    }
+
+    public Integer getCheckQuantity() {
+        return checkQuantity;
+    }
+
+    public void setCheckQuantity(Integer checkQuantity) {
+        this.checkQuantity = checkQuantity;
+    }
+
+    public Double getCheckMoney() {
+        return checkMoney;
+    }
+
+    public void setCheckMoney(Double checkMoney) {
+        this.checkMoney = checkMoney;
+    }
+
+    public Double getCheckTotalMoney() {
+        return checkTotalMoney;
+    }
+
+    public void setCheckTotalMoney(Double checkTotalMoney) {
+        this.checkTotalMoney = checkTotalMoney;
+    }
+
+    public Double getAfterChangeCheckMoney() {
+        return afterChangeCheckMoney;
+    }
+
+    public void setAfterChangeCheckMoney(Double afterChangeCheckMoney) {
+        this.afterChangeCheckMoney = afterChangeCheckMoney;
+    }
+
+    public Double getChangeCheckTotalMoney() {
+        return changeCheckTotalMoney;
+    }
+
+    public void setChangeCheckTotalMoney(Double changeCheckTotalMoney) {
+        this.changeCheckTotalMoney = changeCheckTotalMoney;
+    }
+
+    public Integer getInQuantity() {
+        return inQuantity;
+    }
+
+    public void setInQuantity(Integer inQuantity) {
+        this.inQuantity = inQuantity;
+    }
+
+    public Double getInMoney() {
+        return inMoney;
+    }
+
+    public void setInMoney(Double inMoney) {
+        this.inMoney = inMoney;
+    }
+
+    public Integer getOutQuantity() {
+        return outQuantity;
+    }
+
+    public void setOutQuantity(Integer outQuantity) {
+        this.outQuantity = outQuantity;
+    }
+
+    public Double getOutMoney() {
+        return outMoney;
+    }
+
+    public void setOutMoney(Double outMoney) {
+        this.outMoney = outMoney;
     }
 
     public String getRemark() {
@@ -282,24 +405,34 @@ public class OrderGoodsSkuVo {
     public String toString() {
         return "OrderGoodsSkuVo{" +
                 "storeId=" + storeId +
-                ", changeQuantity=" + changeQuantity +
-                ", goodsName='" + goodsName + '\'' +
-                ", goodsId='" + goodsId + '\'' +
-                ", goodsBarCode='" + goodsBarCode + '\'' +
-                ", goodsSkuSku='" + goodsSkuSku + '\'' +
-                ", goodsSkuPurchasePrice=" + goodsSkuPurchasePrice +
-                ", goodsSkuRetailPrice=" + goodsSkuRetailPrice +
-                ", goodsSkuVipPrice=" + goodsSkuVipPrice +
                 ", id=" + id +
                 ", type=" + type +
                 ", orderId='" + orderId + '\'' +
                 ", goodsSkuId=" + goodsSkuId +
+                ", goodsSkuSku='" + goodsSkuSku + '\'' +
+                ", goodsSkuPurchasePrice=" + goodsSkuPurchasePrice +
+                ", goodsSkuRetailPrice=" + goodsSkuRetailPrice +
+                ", goodsSkuVipPrice=" + goodsSkuVipPrice +
+                ", integral=" + integral +
+                ", goodsId='" + goodsId + '\'' +
+                ", goodsName='" + goodsName + '\'' +
+                ", goodsBarCode='" + goodsBarCode + '\'' +
+                ", changeQuantity=" + changeQuantity +
                 ", quantity=" + quantity +
                 ", finishQuantity=" + finishQuantity +
                 ", notFinishQuantity=" + notFinishQuantity +
                 ", money=" + money +
                 ", discountMoney=" + discountMoney +
                 ", operatedQuantity=" + operatedQuantity +
+                ", checkQuantity=" + checkQuantity +
+                ", checkMoney=" + checkMoney +
+                ", checkTotalMoney=" + checkTotalMoney +
+                ", afterChangeCheckMoney=" + afterChangeCheckMoney +
+                ", changeCheckTotalMoney=" + changeCheckTotalMoney +
+                ", inQuantity=" + inQuantity +
+                ", inMoney=" + inMoney +
+                ", outQuantity=" + outQuantity +
+                ", outMoney=" + outMoney +
                 ", remark='" + remark + '\'' +
                 '}';
     }

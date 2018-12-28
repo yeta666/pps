@@ -111,13 +111,13 @@
         select id, type, create_time, apply_order_id, order_status, quantity, logistics_company, waybill_number, user_id, remark from storage_order_${storeId} where id = #{id};
     </select>
 
-    <!--其他入/出库单、报溢/损单、成本调价单-->
+    <!--其他入/出库单、报溢/损单、成本调价单、库存盘点单-->
 
     <insert id="addStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo">
         insert into
-            storage_result_order_${storeId} (id, type, create_time, order_status, target_type, target_id, warehouse_id, total_quantity, total_money, user_id, remark, goods_sku_id, check_quantity, check_money, check_total_money, after_change_check_money, change_check_total_money)
+            storage_result_order_${storeId} (id, type, create_time, order_status, target_id, warehouse_id, total_quantity, total_money, total_check_quantity, total_in_quantity, total_in_money, total_out_quantity, total_out_money, user_id, remark)
         values
-            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{targetType}, #{targetId}, #{warehouseId}, #{totalQuantity}, #{totalMoney}, #{userId}, #{remark}, #{goodsSkuId}, #{checkQuantity}, #{checkMoney}, #{checkTotalMoney}, #{afterChangeCheckMoney}, #{changeCheckTotalMoney});
+            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{targetId}, #{warehouseId}, #{totalQuantity}, #{totalMoney}, #{totalCheckQuantity}, #{totalInQuantity}, #{totalInMoney}, #{totalOutQuantity}, #{totalOutMoney}, #{userId}, #{remark});
     </insert>
 
     <update id="redDashedStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo">
@@ -128,26 +128,20 @@
         select
             count(0)
         from
-            (
+        (
                 (
                     (
-                        (
-                            storage_result_order_${storeId} as sro
-                            left join warehouse_${storeId} as w on sro.warehouse_id = w.id
-                        )
-                        left join user_${storeId} as u on sro.user_id = u.id
+                        storage_result_order_${storeId} as sro
+                        left join warehouse_${storeId} as w on sro.warehouse_id = w.id
                     )
-                    left join supplier_${storeId} as s on sro.target_id = s.id
+                    left join user_${storeId} as u on sro.user_id = u.id
                 )
-                left join client as c on sro.target_id = c.id
+                left join supplier_${storeId} as s on sro.target_id = s.id
             )
-        left join goods_sku_${storeId} as gs on gs.id = sro.goods_sku_id
+        left join client as c on sro.target_id = c.id
         where sro.type = #{type}
         <if test="id != null">
             and sro.id = #{id}
-        </if>
-        <if test="targetName != null">
-            and (c.name like concat('%', #{targetName}, '%') or s.name like concat('%', #{targetName}, '%'))
         </if>
         <if test="startTime != null and endTime != null">
             and date(sro.create_time) between #{startTime} and #{endTime}
@@ -161,45 +155,35 @@
             sro.type,
             sro.create_time,
             sro.order_status,
-            sro.target_type,
             sro.target_id,
-            c.name as client_name,
-            s.name as supplier_name,
+            if (c.name is not null, c.name, s.name) as target_name,
             sro.warehouse_id,
             w.name as warehouse_name,
             sro.total_quantity,
             sro.total_money,
+            sro.total_check_quantity,
+            sro.total_in_quantity,
+            sro.total_in_money,
+            sro.total_out_quantity,
+            sro.total_out_money,
             sro.user_id,
             u.name as u_name,
-            sro.remark,
-            sro.goods_sku_id,
-            gs.sku,
-            sro.check_quantity,
-            sro.check_money,
-            sro.check_total_money,
-            sro.after_change_check_money,
-            sro.change_check_total_money
+            sro.remark
         from
             (
                 (
                     (
-                        (
-                            storage_result_order_${vo.storeId} as sro
-                            left join warehouse_${vo.storeId} as w on sro.warehouse_id = w.id
-                        )
-                        left join user_${vo.storeId} as u on sro.user_id = u.id
+                        storage_result_order_${vo.storeId} as sro
+                        left join warehouse_${vo.storeId} as w on sro.warehouse_id = w.id
                     )
-                    left join supplier_${vo.storeId} as s on sro.target_id = s.id
+                    left join user_${vo.storeId} as u on sro.user_id = u.id
                 )
-                left join client as c on sro.target_id = c.id
+                left join supplier_${vo.storeId} as s on sro.target_id = s.id
             )
-        left join goods_sku_${vo.storeId} as gs on gs.id = sro.goods_sku_id
+        left join client as c on sro.target_id = c.id
         where sro.type = #{vo.type}
         <if test="vo.id != null">
             and sro.id = #{vo.id}
-        </if>
-        <if test="vo.targetName != null">
-            and (c.name like concat('%', #{vo.targetName}, '%') or s.name like concat('%', #{vo.targetName}, '%'))
         </if>
         <if test="vo.startTime != null and vo.endTime != null">
             and date(sro.create_time) between #{vo.startTime} and #{vo.endTime}
@@ -208,83 +192,89 @@
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <resultMap id="storageResultOrderVoMap2" type="com.yeta.pps.vo.StorageResultOrderVo">
+    <resultMap id="storageResultOrderVoMap" type="com.yeta.pps.vo.StorageResultOrderVo">
         <id column="id" property="id" />
         <result column="type" property="type" />
         <result column="create_time" property="createTime" />
-        <result column="target_type" property="targetType" />
         <result column="target_id" property="targetId" />
-        <result column="client_name" property="clientName" />
-        <result column="supplier_name" property="supplierName" />
+        <result column="target_name" property="targetName" />
         <result column="order_status" property="orderStatus" />
         <result column="warehouse_id" property="warehouseId" />
         <result column="warehouse_name" property="warehouseName" />
         <result column="total_quantity" property="totalQuantity" />
         <result column="total_money" property="totalMoney" />
+        <result column="total_check_quantity" property="totalCheckQuantity" />
+        <result column="total_in_quantity" property="totalInQuantity" />
+        <result column="total_in_money" property="totalInMoney" />
+        <result column="total_out_quantity" property="totalOutQuantity" />
+        <result column="total_out_money" property="totalOutMoney" />
         <result column="user_id" property="userId" />
-        <result column="user_name" property="userName" />
+        <result column="u_name" property="userName" />
         <result column="remark" property="remark" />
-        <result column="goods_sku_id" property="goodsSkuId" />
-        <result column="check_quantity" property="checkQuantity" />
-        <result column="check_money" property="checkMoney" />
-        <result column="check_total_money" property="checkTotalMoney" />
-        <result column="after_change_check_money" property="afterChangeCheckMoney" />
-        <result column="change_check_total_money" property="changeCheckTotalMoney" />
         <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
             <result column="ogs_id" property="id" />
             <result column="ogs_type" property="type" />
+            <result column="ogs_order_id" property="orderId" />
             <result column="ogs_goods_sku_id" property="goodsSkuId" />
-            <result column="ogs_quantity" property="quantity" />
-            <result column="ogs_finish_quantity" property="finishQuantity" />
-            <result column="ogs_not_finish_quantity" property="notFinishQuantity" />
-            <result column="ogs_money" property="money" />
-            <result column="ogs_discount_money" property="discountMoney" />
-            <result column="ogs_remark" property="remark" />
-            <result column="g_name" property="goodsName" />
-            <result column="g_id" property="goodsId" />
-            <result column="g_bar_code" property="goodsBarCode" />
             <result column="gs_sku" property="goodsSkuSku" />
-            <result column="gs_purchase_price" property="goodsSkuPurchasePrice" />
+            <result column="g_id" property="goodsId" />
+            <result column="g_name" property="goodsName" />
+            <result column="g_bar_code" property="goodsBarCode" />
+            <result column="ogs_quantity" property="quantity" />
+            <result column="ogs_money" property="money" />
+            <result column="ogs_check_quantity" property="checkQuantity" />
+            <result column="ogs_check_money" property="checkMoney" />
+            <result column="ogs_check_total_money" property="checkTotalMoney" />
+            <result column="ogs_after_change_check_money" property="afterChangeCheckMoney" />
+            <result column="ogs_change_check_total_money" property="changeCheckTotalMoney" />
+            <result column="ogs_in_quantity" property="inQuantity" />
+            <result column="ogs_in_money" property="inMoney" />
+            <result column="ogs_out_quantity" property="outQuantity" />
+            <result column="ogs_out_money" property="outMoney" />
+            <result column="ogs_remark" property="remark" />
         </collection>
     </resultMap>
 
-    <select id="findStorageResultOrderDetailById" parameterType="com.yeta.pps.vo.StorageResultOrderVo" resultMap="storageResultOrderVoMap2">
+    <select id="findStorageResultOrderDetailById" parameterType="com.yeta.pps.vo.StorageResultOrderVo" resultMap="storageResultOrderVoMap">
         select
             sro.id,
             sro.type,
             sro.create_time,
             sro.order_status,
-            sro.target_type,
             sro.target_id,
-            c.name as client_name,
-            s.name as supplier_name,
+            if (c.name is not null, c.name, s.name) as target_name,
             sro.warehouse_id,
             w.name as warehouse_name,
             sro.total_quantity,
             sro.total_money,
+            sro.total_check_quantity,
+            sro.total_in_quantity,
+            sro.total_in_money,
+            sro.total_out_quantity,
+            sro.total_out_money,
             sro.user_id,
-            sro.goods_sku_id,
-            sro.check_quantity,
-            sro.check_money,
-            sro.check_total_money,
-            sro.after_change_check_money,
-            sro.change_check_total_money,
             u.name as u_name,
             sro.remark,
             ogs.id as ogs_id,
             ogs.type as ogs_type,
+            ogs.order_id as ogs_order_id,
             ogs.goods_sku_id as ogs_goods_sku_id,
-            ogs.quantity as ogs_quantity,
-            ogs.finish_quantity as ogs_finish_quantity,
-            ogs.not_finish_quantity as ogs_not_finish_quantity,
-            ogs.money as ogs_money,
-            ogs.discount_money as ogs_discount_money,
-            ogs.remark as ogs_remark,
-            g.name as g_name,
-            g.id as g_id,
-            g.bar_code as g_bar_code,
             gs.sku as gs_sku,
-            gs.purchase_price as gs_purchase_price
+            g.id as g_id,
+            g.name as g_name,
+            g.bar_code as g_bar_code,
+            ogs.quantity as ogs_quantity,
+            ogs.money as ogs_money,
+            ogs.check_quantity as ogs_check_quantity,
+            ogs.check_money as ogs_check_money,
+            ogs.check_total_money as ogs_check_total_money,
+            ogs.after_change_check_money as ogs_after_change_check_money,
+            ogs.change_check_total_money as ogs_change_check_total_money,
+            ogs.in_quantity as ogs_in_quantity,
+            ogs.in_money as ogs_in_money,
+            ogs.out_quantity as ogs_out_quantity,
+            ogs.out_money as ogs_out_money,
+            ogs.remark as ogs_remark
         from
             (
                 (

@@ -5,7 +5,6 @@ import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 
 /**
  * @author YETA
@@ -85,12 +84,12 @@ public class WarehouseGoodsSkuVo {
     /**
      * 期初成本单价
      */
-    private BigDecimal openingMoney;
+    private Double openingMoney;
 
     /**
      * 期初金额
      */
-    private BigDecimal openingTotalMoney;
+    private Double openingTotalMoney;
 
     /**
      * 经手人
@@ -233,19 +232,19 @@ public class WarehouseGoodsSkuVo {
         this.openingQuantity = openingQuantity;
     }
 
-    public BigDecimal getOpeningMoney() {
+    public Double getOpeningMoney() {
         return openingMoney;
     }
 
-    public void setOpeningMoney(BigDecimal openingMoney) {
+    public void setOpeningMoney(Double openingMoney) {
         this.openingMoney = openingMoney;
     }
 
-    public BigDecimal getOpeningTotalMoney() {
+    public Double getOpeningTotalMoney() {
         return openingTotalMoney;
     }
 
-    public void setOpeningTotalMoney(BigDecimal openingTotalMoney) {
+    public void setOpeningTotalMoney(Double openingTotalMoney) {
         this.openingTotalMoney = openingTotalMoney;
     }
 

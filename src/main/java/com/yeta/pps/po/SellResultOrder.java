@@ -1,6 +1,5 @@
 package com.yeta.pps.po;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 public class SellResultOrder {
@@ -38,27 +37,27 @@ public class SellResultOrder {
     /**
      * 总商品金额
      */
-    private BigDecimal totalMoney;
+    private Double totalMoney;
 
     /**
      * 总优惠金额
      */
-    private BigDecimal totalDiscountMoney;
+    private Double totalDiscountMoney;
 
     /**
      * 本单金额
      */
-    private BigDecimal orderMoney;
+    private Double orderMoney;
 
     /**
      * 成本
      */
-    private BigDecimal costMoney;
+    private Double costMoney;
 
     /**
      * 毛利
      */
-    private BigDecimal grossMarginMoney;
+    private Double grossMarginMoney;
 
     /**
      * 经手人
@@ -73,7 +72,7 @@ public class SellResultOrder {
     public SellResultOrder() {
     }
 
-    public SellResultOrder(BigDecimal totalMoney, BigDecimal totalDiscountMoney, BigDecimal orderMoney) {
+    public SellResultOrder(Double totalMoney, Double totalDiscountMoney, Double orderMoney) {
         this.totalMoney = totalMoney;
         this.totalDiscountMoney = totalDiscountMoney;
         this.orderMoney = orderMoney;
@@ -192,7 +191,7 @@ public class SellResultOrder {
      *
      * @return total_money - 总商品金额
      */
-    public BigDecimal getTotalMoney() {
+    public Double getTotalMoney() {
         return totalMoney;
     }
 
@@ -201,7 +200,7 @@ public class SellResultOrder {
      *
      * @param totalMoney 总商品金额
      */
-    public void setTotalMoney(BigDecimal totalMoney) {
+    public void setTotalMoney(Double totalMoney) {
         this.totalMoney = totalMoney;
     }
 
@@ -210,7 +209,7 @@ public class SellResultOrder {
      *
      * @return total_discount_money - 总优惠金额
      */
-    public BigDecimal getTotalDiscountMoney() {
+    public Double getTotalDiscountMoney() {
         return totalDiscountMoney;
     }
 
@@ -219,7 +218,7 @@ public class SellResultOrder {
      *
      * @param totalDiscountMoney 总优惠金额
      */
-    public void setTotalDiscountMoney(BigDecimal totalDiscountMoney) {
+    public void setTotalDiscountMoney(Double totalDiscountMoney) {
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
@@ -228,7 +227,7 @@ public class SellResultOrder {
      *
      * @return order_money - 本单金额
      */
-    public BigDecimal getOrderMoney() {
+    public Double getOrderMoney() {
         return orderMoney;
     }
 
@@ -237,7 +236,7 @@ public class SellResultOrder {
      *
      * @param orderMoney 本单金额
      */
-    public void setOrderMoney(BigDecimal orderMoney) {
+    public void setOrderMoney(Double orderMoney) {
         this.orderMoney = orderMoney;
     }
 
@@ -246,7 +245,7 @@ public class SellResultOrder {
      *
      * @return cost_money - 成本
      */
-    public BigDecimal getCostMoney() {
+    public Double getCostMoney() {
         return costMoney;
     }
 
@@ -255,7 +254,7 @@ public class SellResultOrder {
      *
      * @param costMoney 成本
      */
-    public void setCostMoney(BigDecimal costMoney) {
+    public void setCostMoney(Double costMoney) {
         this.costMoney = costMoney;
     }
 
@@ -264,7 +263,7 @@ public class SellResultOrder {
      *
      * @return gross_margin_money - 毛利
      */
-    public BigDecimal getGrossMarginMoney() {
+    public Double getGrossMarginMoney() {
         return grossMarginMoney;
     }
 
@@ -273,7 +272,7 @@ public class SellResultOrder {
      *
      * @param grossMarginMoney 毛利
      */
-    public void setGrossMarginMoney(BigDecimal grossMarginMoney) {
+    public void setGrossMarginMoney(Double grossMarginMoney) {
         this.grossMarginMoney = grossMarginMoney;
     }
 

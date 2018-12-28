@@ -5,7 +5,6 @@ import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -57,27 +56,27 @@ public class SellResultOrderVo {
     /**
      * 总商品金额
      */
-    private BigDecimal totalMoney;
+    private Double totalMoney;
 
     /**
      * 总优惠金额
      */
-    private BigDecimal totalDiscountMoney;
+    private Double totalDiscountMoney;
 
     /**
      * 本单金额
      */
-    private BigDecimal orderMoney;
+    private Double orderMoney;
 
     /**
      * 成本
      */
-    private BigDecimal costMoney;
+    private Double costMoney;
 
     /**
      * 毛利
      */
-    private BigDecimal grossMarginMoney;
+    private Double grossMarginMoney;
 
     /**
      * 经手人
@@ -93,7 +92,7 @@ public class SellResultOrderVo {
     public SellResultOrderVo() {
     }
 
-    public SellResultOrderVo(BigDecimal costMoney) {
+    public SellResultOrderVo(Double costMoney) {
         this.costMoney = costMoney;
     }
 
@@ -115,7 +114,7 @@ public class SellResultOrderVo {
         this.id = id;
     }
 
-    public SellResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, BigDecimal totalMoney, BigDecimal totalDiscountMoney, BigDecimal orderMoney, BigDecimal costMoney, BigDecimal grossMarginMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public SellResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, Double costMoney, Double grossMarginMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
@@ -212,43 +211,43 @@ public class SellResultOrderVo {
         this.totalQuantity = totalQuantity;
     }
 
-    public BigDecimal getTotalMoney() {
+    public Double getTotalMoney() {
         return totalMoney;
     }
 
-    public void setTotalMoney(BigDecimal totalMoney) {
+    public void setTotalMoney(Double totalMoney) {
         this.totalMoney = totalMoney;
     }
 
-    public BigDecimal getTotalDiscountMoney() {
+    public Double getTotalDiscountMoney() {
         return totalDiscountMoney;
     }
 
-    public void setTotalDiscountMoney(BigDecimal totalDiscountMoney) {
+    public void setTotalDiscountMoney(Double totalDiscountMoney) {
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
-    public BigDecimal getOrderMoney() {
+    public Double getOrderMoney() {
         return orderMoney;
     }
 
-    public void setOrderMoney(BigDecimal orderMoney) {
+    public void setOrderMoney(Double orderMoney) {
         this.orderMoney = orderMoney;
     }
 
-    public BigDecimal getCostMoney() {
+    public Double getCostMoney() {
         return costMoney;
     }
 
-    public void setCostMoney(BigDecimal costMoney) {
+    public void setCostMoney(Double costMoney) {
         this.costMoney = costMoney;
     }
 
-    public BigDecimal getGrossMarginMoney() {
+    public Double getGrossMarginMoney() {
         return grossMarginMoney;
     }
 
-    public void setGrossMarginMoney(BigDecimal grossMarginMoney) {
+    public void setGrossMarginMoney(Double grossMarginMoney) {
         this.grossMarginMoney = grossMarginMoney;
     }
 

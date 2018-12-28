@@ -2,11 +2,9 @@ package com.yeta.pps.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yeta.pps.util.CommonResponse;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -58,17 +56,17 @@ public class ProcurementResultOrderVo {
     /**
      * 总商品金额
      */
-    private BigDecimal totalMoney;
+    private Double totalMoney;
 
     /**
      * 总优惠金额
      */
-    private BigDecimal totalDiscountMoney;
+    private Double totalDiscountMoney;
 
     /**
      * 本单金额
      */
-    private BigDecimal orderMoney;
+    private Double orderMoney;
 
     /**
      * 经手人
@@ -102,7 +100,7 @@ public class ProcurementResultOrderVo {
         this.id = id;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, BigDecimal totalMoney, BigDecimal totalDiscountMoney, BigDecimal orderMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
@@ -197,27 +195,27 @@ public class ProcurementResultOrderVo {
         this.totalQuantity = totalQuantity;
     }
 
-    public BigDecimal getTotalMoney() {
+    public Double getTotalMoney() {
         return totalMoney;
     }
 
-    public void setTotalMoney(BigDecimal totalMoney) {
+    public void setTotalMoney(Double totalMoney) {
         this.totalMoney = totalMoney;
     }
 
-    public BigDecimal getTotalDiscountMoney() {
+    public Double getTotalDiscountMoney() {
         return totalDiscountMoney;
     }
 
-    public void setTotalDiscountMoney(BigDecimal totalDiscountMoney) {
+    public void setTotalDiscountMoney(Double totalDiscountMoney) {
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
-    public BigDecimal getOrderMoney() {
+    public Double getOrderMoney() {
         return orderMoney;
     }
 
-    public void setOrderMoney(BigDecimal orderMoney) {
+    public void setOrderMoney(Double orderMoney) {
         this.orderMoney = orderMoney;
     }
 

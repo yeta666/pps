@@ -26,6 +26,15 @@ public class InventoryUtil {
     private MyStorageMapper myStorageMapper;
 
     /**
+     * 返回四舍五入2位小数的方法
+     * @param number
+     * @return
+     */
+    public double getNumber(double number) {
+        return (double) Math.round(number * 100) / 100;
+    }
+
+    /**
      * 库存期初设置
      * @param vo
      * @return
@@ -71,12 +80,11 @@ public class InventoryUtil {
             storageCheckOrderVo.setCheckTotalMoney(vo.getOpeningTotalMoney());
         } else {
             int changeQuantity = vo.getOpeningQuantity() + sVo.getCheckQuantity();
-            double changeMoney = (vo.getOpeningTotalMoney().doubleValue() + sVo.getCheckTotalMoney().doubleValue()) / changeQuantity;
-            double changeTotalMoney = changeQuantity * changeMoney;
-
+            double changeTotalMoney = vo.getOpeningTotalMoney().doubleValue() + sVo.getCheckTotalMoney().doubleValue();
+            double changeMoney = getNumber(changeTotalMoney / changeQuantity);
             storageCheckOrderVo.setCheckQuantity(changeQuantity);
-            storageCheckOrderVo.setCheckMoney(new BigDecimal(changeMoney));
-            storageCheckOrderVo.setCheckTotalMoney(new BigDecimal(changeTotalMoney));
+            storageCheckOrderVo.setCheckMoney(changeMoney);
+            storageCheckOrderVo.setCheckTotalMoney(changeTotalMoney);
         }
 
         if (myStorageMapper.addStorageCheckOrder(storageCheckOrderVo) != 1) {
@@ -86,15 +94,20 @@ public class InventoryUtil {
 
     /**
      * 新增库存对账记录的方法
-     * @param flag 1：入库，0：出库，3：销售退换货入库，4：成本调价单
+     * @param flag 0：出库，1：入库，2：销售退换货入库，3：成本调价单
      * @param vo
      * @return
      */
     @Transactional
-    public double addStorageCheckOrder(int flag, StorageCheckOrderVo vo, StorageResultOrderVo rVo) {
-        //查询该商品规格的库存对账记录
+    public double addStorageCheckOrder(int flag, StorageCheckOrderVo vo, OrderGoodsSkuVo orderGoodsSkuVo) {
+        //查询该商品规格的最新库存对账记录
         StorageCheckOrderVo sVo = myStorageMapper.findLastCheckMoney(new StorageCheckOrderVo(vo.getStoreId(), vo.getGoodsSkuId()));
         if (sVo == null) {
+            throw new CommonException("库存记账失败");
+        }
+
+        //验证结存是否正确
+        if (orderGoodsSkuVo.getCheckQuantity() != sVo.getCheckQuantity() || orderGoodsSkuVo.getCheckMoney().doubleValue() != sVo.getCheckMoney().doubleValue() || orderGoodsSkuVo.getCheckTotalMoney().doubleValue() != sVo.getCheckTotalMoney().doubleValue()) {
             throw new CommonException("库存记账失败");
         }
 
@@ -102,60 +115,53 @@ public class InventoryUtil {
         double changeTotalMoney;
         double changeMoney;
         switch (flag) {
-            case 1:     //成本可能变
-                changeQuantity = vo.getInQuantity() + sVo.getCheckQuantity();
-                changeMoney = (vo.getInTotalMoney().doubleValue() + sVo.getCheckTotalMoney().doubleValue()) / changeQuantity;
-                break;
-
             case 0:     //成本不变
                 changeQuantity = sVo.getCheckQuantity() - vo.getOutQuantity();
-                changeMoney = sVo.getCheckMoney().doubleValue();
+                changeTotalMoney = sVo.getCheckTotalMoney().doubleValue() - getNumber(vo.getOutQuantity() * sVo.getCheckMoney().doubleValue());
+                changeMoney = getNumber(changeTotalMoney / changeQuantity);
                 vo.setOutMoney(sVo.getCheckMoney());
-                vo.setOutTotalMoney(new BigDecimal(vo.getOutQuantity() * sVo.getCheckMoney().doubleValue()));
+                vo.setOutTotalMoney(getNumber(vo.getOutQuantity() * sVo.getCheckMoney().doubleValue()));
                 break;
 
-            case 3:     //成本不变
+            case 1:     //成本可能变
+                changeQuantity = vo.getInQuantity() + sVo.getCheckQuantity();
+                changeTotalMoney = getNumber(vo.getInTotalMoney().doubleValue()) + sVo.getCheckTotalMoney().doubleValue();
+                changeMoney = getNumber(changeTotalMoney / changeQuantity);
+                break;
+
+            case 2:     //成本不变
                 changeQuantity = sVo.getCheckQuantity() + vo.getInQuantity();
-                changeMoney = sVo.getCheckMoney().doubleValue();
+                changeTotalMoney = sVo.getCheckTotalMoney().doubleValue() + getNumber(vo.getInQuantity() * sVo.getCheckMoney().doubleValue());
+                changeMoney = getNumber(changeTotalMoney / changeQuantity);
                 vo.setInMoney(sVo.getCheckMoney());
-                vo.setInTotalMoney(new BigDecimal(vo.getInQuantity() * sVo.getCheckMoney().doubleValue()));
+                vo.setInTotalMoney(getNumber(vo.getInQuantity() * sVo.getCheckMoney().doubleValue()));
                 break;
 
-            case 4:
+            case 3:
                 //获取参数
-                int checkQuantity = rVo.getCheckQuantity();
-                double checkMoney = rVo.getCheckMoney().doubleValue();
-                double checkTotalMoney = rVo.getCheckTotalMoney().doubleValue();
-                double afterChangeCheckMoney = rVo.getAfterChangeCheckMoney().doubleValue();
-                double changeCheckTotalMoney = rVo.getChangeCheckTotalMoney().doubleValue();
-                double changeCheckTotalMoney1 = (double) Math.round((checkQuantity * afterChangeCheckMoney - checkTotalMoney) * 100) / 100;
+                int checkQuantity = orderGoodsSkuVo.getCheckQuantity();     //库存数量
+                double afterChangeCheckMoney = orderGoodsSkuVo.getAfterChangeCheckMoney().doubleValue();       //调价后成本价
+                double checkTotalMoney = orderGoodsSkuVo.getCheckTotalMoney().doubleValue();
+                double changeCheckTotalMoney = orderGoodsSkuVo.getChangeCheckTotalMoney().doubleValue();
+                double check = getNumber(getNumber(checkQuantity * afterChangeCheckMoney) - checkTotalMoney);
 
                 //判断参数
-                if (checkQuantity != sVo.getCheckQuantity() || checkMoney != sVo.getCheckMoney().doubleValue() || checkTotalMoney != sVo.getCheckTotalMoney().doubleValue() ||
-                        changeCheckTotalMoney1 != changeCheckTotalMoney || changeCheckTotalMoney == 0) {
+                if (check != changeCheckTotalMoney || changeCheckTotalMoney == 0) {
                     throw new CommonException("库存记账失败");
                 }
 
                 changeQuantity = checkQuantity;
                 changeMoney = afterChangeCheckMoney;
-
-                if (changeCheckTotalMoney > 0) {
-                    vo.setInWarehouseId(rVo.getWarehouseId());
-                    vo.setInTotalMoney(new BigDecimal(changeCheckTotalMoney));
-                } else {
-                    vo.setOutWarehouseId(rVo.getWarehouseId());
-                    vo.setOutTotalMoney(new BigDecimal(-changeCheckTotalMoney));
-                }
+                changeTotalMoney = getNumber(checkQuantity * afterChangeCheckMoney);
                 break;
 
             default:
                 throw new CommonException("库存记账失败");
         }
 
-        changeTotalMoney = changeQuantity * changeMoney;
         vo.setCheckQuantity(changeQuantity);
-        vo.setCheckMoney(new BigDecimal(changeMoney));
-        vo.setCheckTotalMoney(new BigDecimal(changeTotalMoney));
+        vo.setCheckMoney(changeMoney);
+        vo.setCheckTotalMoney(changeTotalMoney);
 
         if (myStorageMapper.addStorageCheckOrder(vo) != 1) {
             throw new CommonException("库存记账失败");
@@ -166,7 +172,7 @@ public class InventoryUtil {
 
     /**
      * 红冲库存记账记录
-     * @param flag 1：原来是入库，0：原来是出库，4：原来是成本调价单入库，4：原来是成本调价单出库
+     * @param flag 0：原来是出库，1：原来是入库，2：原来是成本调价单入库，3：原来是成本调价单出库
      * @param vo
      */
     @Transactional
@@ -184,23 +190,8 @@ public class InventoryUtil {
 
         int changeQuantity;
         double changeMoney;
+        double changeTotalMoney;
         switch (flag) {
-            case 1:
-                //红冲
-                if (myStorageMapper.redDashedInStorageCheckOrder(vo) != 1) {
-                    throw new CommonException("红冲库存记账记录失败");
-                }
-
-                //获取红冲蓝单
-                vo = myStorageMapper.findInStorageCheckOrder(vo);
-
-                changeQuantity = lastVo.getCheckQuantity() - vo.getInQuantity();
-                changeMoney = (lastVo.getCheckTotalMoney().doubleValue() - vo.getInTotalMoney().doubleValue()) / changeQuantity;
-                vo.setInQuantity(-vo.getInQuantity());
-                vo.setInMoney(new BigDecimal(-vo.getInMoney().doubleValue()));
-                vo.setInTotalMoney(new BigDecimal(-vo.getInTotalMoney().doubleValue()));
-                break;
-
             case 0:
                 //红冲
                 if (myStorageMapper.redDashedOutStorageCheckOrder(vo) != 1) {
@@ -211,13 +202,31 @@ public class InventoryUtil {
                 vo = myStorageMapper.findOutStorageCheckOrder(vo);
 
                 changeQuantity = lastVo.getCheckQuantity() + vo.getOutQuantity();
-                changeMoney = (lastVo.getCheckTotalMoney().doubleValue() + vo.getOutTotalMoney().doubleValue()) / changeQuantity;
+                changeTotalMoney = lastVo.getCheckTotalMoney().doubleValue() + vo.getOutTotalMoney().doubleValue();
+                changeMoney = getNumber(changeTotalMoney / changeQuantity);
                 vo.setOutQuantity(-vo.getOutQuantity());
-                vo.setOutMoney(new BigDecimal(-vo.getOutMoney().doubleValue()));
-                vo.setOutTotalMoney(new BigDecimal(-vo.getOutTotalMoney().doubleValue()));
+                vo.setOutMoney(-vo.getOutMoney().doubleValue());
+                vo.setOutTotalMoney(-vo.getOutTotalMoney().doubleValue());
                 break;
 
-            case 4:
+            case 1:
+                //红冲
+                if (myStorageMapper.redDashedInStorageCheckOrder(vo) != 1) {
+                    throw new CommonException("红冲库存记账记录失败");
+                }
+
+                //获取红冲蓝单
+                vo = myStorageMapper.findInStorageCheckOrder(vo);
+
+                changeQuantity = lastVo.getCheckQuantity() - vo.getInQuantity();
+                changeTotalMoney = lastVo.getCheckTotalMoney().doubleValue() - vo.getInTotalMoney().doubleValue();
+                changeMoney = getNumber(changeTotalMoney / changeQuantity);
+                vo.setInQuantity(-vo.getInQuantity());
+                vo.setInMoney(-vo.getInMoney().doubleValue());
+                vo.setInTotalMoney(-vo.getInTotalMoney().doubleValue());
+                break;
+
+            case 2:
                 //红冲
                 if (myStorageMapper.redDashedInStorageCheckOrder(vo) != 1) {
                     throw new CommonException("红冲库存记账记录失败");
@@ -231,9 +240,10 @@ public class InventoryUtil {
                 vo.setOutTotalMoney(vo.getInTotalMoney());
                 vo.setInTotalMoney(null);
                 changeQuantity = lastVo.getCheckQuantity();
-                changeMoney = (lastVo.getCheckTotalMoney().doubleValue() - vo.getOutTotalMoney().doubleValue()) / changeQuantity;
+                changeTotalMoney = lastVo.getCheckTotalMoney().doubleValue() - vo.getOutTotalMoney().doubleValue();
+                changeMoney = getNumber(changeTotalMoney / changeQuantity);
                 break;
-            case 5:
+            case 3:
                 //红冲
                 if (myStorageMapper.redDashedOutStorageCheckOrder(vo) != 1) {
                     throw new CommonException("红冲库存记账记录失败");
@@ -247,7 +257,8 @@ public class InventoryUtil {
                 vo.setInTotalMoney(vo.getOutTotalMoney());
                 vo.setOutTotalMoney(null);
                 changeQuantity = lastVo.getCheckQuantity();
-                changeMoney = (lastVo.getCheckTotalMoney().doubleValue() + vo.getInTotalMoney().doubleValue()) / changeQuantity;
+                changeTotalMoney = lastVo.getCheckTotalMoney().doubleValue() + vo.getInTotalMoney().doubleValue();
+                changeMoney = getNumber(changeTotalMoney / changeQuantity);
                 break;
 
             default:
@@ -260,8 +271,8 @@ public class InventoryUtil {
         vo.setOrderStatus((byte) -2);
         vo.setUserId(userId);
         vo.setCheckQuantity(changeQuantity);
-        vo.setCheckMoney(new BigDecimal(changeMoney));
-        vo.setCheckTotalMoney(new BigDecimal(changeQuantity * changeMoney));
+        vo.setCheckMoney(changeMoney);
+        vo.setCheckTotalMoney(changeTotalMoney);
 
         //新增红冲红单
         if (myStorageMapper.addStorageCheckOrder(vo) != 1) {

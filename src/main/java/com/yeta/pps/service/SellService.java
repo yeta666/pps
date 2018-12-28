@@ -34,9 +34,6 @@ public class SellService {
     private MyOrderGoodsSkuMapper myOrderGoodsSkuMapper;
 
     @Autowired
-    private MyFundMapper myFundMapper;
-
-    @Autowired
     private MyWarehouseMapper myWarehouseMapper;
 
     @Autowired
@@ -84,7 +81,7 @@ public class SellService {
                 sellApplyOrderVo.setOutSentQuantity(sellApplyOrderVo.getOutTotalQuantity());
                 sellApplyOrderVo.setOutNotSentQuantity(0);
                 sellApplyOrderVo.setClearedMoney(sellApplyOrderVo.getOrderMoney());
-                sellApplyOrderVo.setNotClearedMoney(new BigDecimal(0));
+                sellApplyOrderVo.setNotClearedMoney(0.0);
                 break;
 
             case 2:     //销售订单
@@ -100,7 +97,7 @@ public class SellService {
                 sellApplyOrderVo.setClearStatus((byte) 0);      //未完成
                 sellApplyOrderVo.setOutSentQuantity(0);
                 sellApplyOrderVo.setOutNotSentQuantity(sellApplyOrderVo.getOutTotalQuantity());
-                sellApplyOrderVo.setClearedMoney(new BigDecimal(0));
+                sellApplyOrderVo.setClearedMoney(0.0);
                 sellApplyOrderVo.setNotClearedMoney(sellApplyOrderVo.getOrderMoney());
                 break;
 
@@ -118,7 +115,7 @@ public class SellService {
                 sellApplyOrderVo.setClearStatus((byte) 0);      //未完成
                 sellApplyOrderVo.setInReceivedQuantity(0);
                 sellApplyOrderVo.setInNotReceivedQuantity(sellApplyOrderVo.getInTotalQuantity());
-                sellApplyOrderVo.setClearedMoney(new BigDecimal(0));
+                sellApplyOrderVo.setClearedMoney(0.0);
                 sellApplyOrderVo.setNotClearedMoney(sellApplyOrderVo.getOrderMoney());
                 break;
 
@@ -139,7 +136,7 @@ public class SellService {
                 sellApplyOrderVo.setInNotReceivedQuantity(sellApplyOrderVo.getInTotalQuantity());
                 sellApplyOrderVo.setOutSentQuantity(0);
                 sellApplyOrderVo.setOutNotSentQuantity(sellApplyOrderVo.getOutTotalQuantity());
-                sellApplyOrderVo.setClearedMoney(new BigDecimal(0));
+                sellApplyOrderVo.setClearedMoney(0.0);
                 sellApplyOrderVo.setNotClearedMoney(sellApplyOrderVo.getOrderMoney());
                 break;
 
@@ -159,8 +156,8 @@ public class SellService {
         }
 
         //判断钱
-        if (sellApplyOrderVo.getDiscountMoney().doubleValue() + discountCouponMoney != sellApplyOrderVo.getTotalDiscountMoney().doubleValue() ||
-                sellApplyOrderVo.getOrderMoney().doubleValue() + sellApplyOrderVo.getTotalDiscountMoney().doubleValue() != sellApplyOrderVo.getTotalMoney().doubleValue()) {
+        if (sellApplyOrderVo.getDiscountMoney() + discountCouponMoney != sellApplyOrderVo.getTotalDiscountMoney() ||
+                sellApplyOrderVo.getOrderMoney() + sellApplyOrderVo.getTotalDiscountMoney() != sellApplyOrderVo.getTotalMoney()) {
             LOG.info("新增销售申请单，钱不正确，类型【{}】", type);
             throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
         }
@@ -173,7 +170,7 @@ public class SellService {
 
         //新增销售申请单/商品规格关系
         List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId));
-        SellResultOrderVo sellResultOrderVo = new SellResultOrderVo(new BigDecimal(0));
+        SellResultOrderVo sellResultOrderVo = new SellResultOrderVo(0.0);
         orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
             //判断参数
             if (orderGoodsSkuVo.getType() == null || orderGoodsSkuVo.getGoodsSkuId() == null || orderGoodsSkuVo.getQuantity() == null || orderGoodsSkuVo.getMoney() == null || orderGoodsSkuVo.getDiscountMoney() == null) {
@@ -187,6 +184,7 @@ public class SellService {
             if (type == 1) {
                 orderGoodsSkuVo.setFinishQuantity(orderGoodsSkuVo.getQuantity());
                 orderGoodsSkuVo.setNotFinishQuantity(0);
+                orderGoodsSkuVo.setOperatedQuantity(0);
 
                 //减库存
                 inventoryUtil.updateInventoryMethod((byte) 0, new WarehouseGoodsSkuVo(storeId, sellApplyOrderVo.getOutWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
@@ -205,10 +203,11 @@ public class SellService {
                 double costMoney = inventoryUtil.addStorageCheckOrder(0, storageCheckOrderVo, null);
 
                 //统计成本
-                sellResultOrderVo.setCostMoney(new BigDecimal(sellResultOrderVo.getCostMoney().doubleValue() + costMoney * orderGoodsSkuVo.getQuantity()));
+                sellResultOrderVo.setCostMoney(sellResultOrderVo.getCostMoney() + costMoney * orderGoodsSkuVo.getQuantity());
             } else {
                 orderGoodsSkuVo.setFinishQuantity(0);
                 orderGoodsSkuVo.setNotFinishQuantity(orderGoodsSkuVo.getQuantity());
+                orderGoodsSkuVo.setOperatedQuantity(0);
 
                 //修改库存相关
                 Integer warehouseId = null;
@@ -257,7 +256,7 @@ public class SellService {
             sellResultOrderVo.setTotalMoney(sellApplyOrderVo.getTotalMoney());
             sellResultOrderVo.setTotalDiscountMoney(sellApplyOrderVo.getTotalDiscountMoney());
             sellResultOrderVo.setOrderMoney(sellApplyOrderVo.getOrderMoney());
-            sellResultOrderVo.setGrossMarginMoney(new BigDecimal(sellResultOrderVo.getOrderMoney().doubleValue() - sellResultOrderVo.getCostMoney().doubleValue()));
+            sellResultOrderVo.setGrossMarginMoney(sellResultOrderVo.getOrderMoney() - sellResultOrderVo.getCostMoney());
             sellResultOrderVo.setUserId(sellApplyOrderVo.getUserId());
             sellResultOrderVo.setRemark(sellApplyOrderVo.getRemark());
             if (mySellMapper.addResultOrder(sellResultOrderVo) != 1) {
@@ -409,6 +408,8 @@ public class SellService {
             orderGoodsSkuVo.setOrderId(sellApplyOrderVo.getId());
             orderGoodsSkuVo.setFinishQuantity(0);
             orderGoodsSkuVo.setNotFinishQuantity(orderGoodsSkuVo.getQuantity());
+            orderGoodsSkuVo.setOperatedQuantity(0);
+
             //新增
             if (myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo) != 1) {
                 LOG.info("修改销售申请单，插入销售申请单/商品规格关系数据失败，类型【{}】", type);
@@ -551,11 +552,11 @@ public class SellService {
         sellResultOrderVo.setCreateTime(new Date());
         sellResultOrderVo.setOrderStatus((byte) -2);
         sellResultOrderVo.setTotalQuantity(-sellResultOrderVo.getTotalQuantity());
-        sellResultOrderVo.setTotalMoney(new BigDecimal(-sellResultOrderVo.getTotalMoney().doubleValue()));
-        sellResultOrderVo.setTotalDiscountMoney(new BigDecimal(-sellResultOrderVo.getTotalDiscountMoney().doubleValue()));
-        sellResultOrderVo.setOrderMoney(new BigDecimal(-sellResultOrderVo.getOrderMoney().doubleValue()));
-        sellResultOrderVo.setCostMoney(new BigDecimal(-sellResultOrderVo.getCostMoney().doubleValue()));
-        sellResultOrderVo.setGrossMarginMoney(new BigDecimal(-sellResultOrderVo.getGrossMarginMoney().doubleValue()));
+        sellResultOrderVo.setTotalMoney(-sellResultOrderVo.getTotalMoney());
+        sellResultOrderVo.setTotalDiscountMoney(-sellResultOrderVo.getTotalDiscountMoney());
+        sellResultOrderVo.setOrderMoney(-sellResultOrderVo.getOrderMoney());
+        sellResultOrderVo.setCostMoney(-sellResultOrderVo.getCostMoney());
+        sellResultOrderVo.setGrossMarginMoney(-sellResultOrderVo.getGrossMarginMoney());
         sellResultOrderVo.setUserId(userId);
         sellResultOrderVo.setRemark(remark);
 
@@ -643,13 +644,12 @@ public class SellService {
         titles.add(new Title("单据类型", "type"));
         titles.add(new Title("单据日期", "createTime"));
         titles.add(new Title("来源订单", "applyOrderId"));
-        titles.add(new Title("来源订单单据状态", "sellApplyOrderVo.orderStatus"));
-        titles.add(new Title("来源订单结算状态", "sellApplyOrderVo.clearStatus"));
+        titles.add(new Title("结算状态", "sellApplyOrderVo.clearStatus"));
+        titles.add(new Title("入库仓库", "sellApplyOrderVo.inWarehouseName"));
+        titles.add(new Title("出库仓库", "sellApplyOrderVo.outWarehouseName"));
         titles.add(new Title("客户", "sellApplyOrderVo.client.name"));
         titles.add(new Title("电话", "sellApplyOrderVo.client.phone"));
         titles.add(new Title("会员卡号", "sellApplyOrderVo.client.membershipNumber"));
-        titles.add(new Title("入库仓库", "sellApplyOrderVo.inWarehouseName"));
-        titles.add(new Title("出库仓库", "sellApplyOrderVo.outWarehouseName"));
         titles.add(new Title("总商品数量", "totalQuantity"));
         titles.add(new Title("总订单金额", "totalMoney"));
         titles.add(new Title("总优惠金额", "totalDiscountMoney"));

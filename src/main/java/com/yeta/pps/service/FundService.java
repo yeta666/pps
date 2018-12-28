@@ -152,7 +152,7 @@ public class FundService {
         fundOrderVo.setId("HC_" + fundOrderVo.getId());
         fundOrderVo.setCreateTime(new Date());
         fundOrderVo.setOrderStatus((byte) -2);
-        fundOrderVo.setMoney(new BigDecimal(-fundOrderVo.getMoney().doubleValue()));
+        fundOrderVo.setMoney(-fundOrderVo.getMoney().doubleValue());
         if (myFundMapper.addFundOrder(fundOrderVo) != 1) {
             throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
         }
