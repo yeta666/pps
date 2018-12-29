@@ -1,6 +1,5 @@
 package com.yeta.pps.po;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 public class ProcurementApplyOrder {
@@ -83,27 +82,27 @@ public class ProcurementApplyOrder {
     /**
      * 总商品金额
      */
-    private BigDecimal totalMoney;
+    private Double totalMoney;
 
     /**
      * 总优惠金额
      */
-    private BigDecimal totalDiscountMoney;
+    private Double totalDiscountMoney;
 
     /**
      * 本单金额
      */
-    private BigDecimal orderMoney;
+    private Double orderMoney;
 
     /**
      * 已结算金额
      */
-    private BigDecimal clearedMoney;
+    private Double clearedMoney;
 
     /**
      * 未结算金额
      */
-    private BigDecimal notClearedMoney;
+    private Double notClearedMoney;
 
     /**
      * 经手人编号
@@ -238,43 +237,43 @@ public class ProcurementApplyOrder {
         this.outNotSentQuantity = outNotSentQuantity;
     }
 
-    public BigDecimal getTotalMoney() {
+    public Double getTotalMoney() {
         return totalMoney;
     }
 
-    public void setTotalMoney(BigDecimal totalMoney) {
+    public void setTotalMoney(Double totalMoney) {
         this.totalMoney = totalMoney;
     }
 
-    public BigDecimal getTotalDiscountMoney() {
+    public Double getTotalDiscountMoney() {
         return totalDiscountMoney;
     }
 
-    public void setTotalDiscountMoney(BigDecimal totalDiscountMoney) {
+    public void setTotalDiscountMoney(Double totalDiscountMoney) {
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
-    public BigDecimal getOrderMoney() {
+    public Double getOrderMoney() {
         return orderMoney;
     }
 
-    public void setOrderMoney(BigDecimal orderMoney) {
+    public void setOrderMoney(Double orderMoney) {
         this.orderMoney = orderMoney;
     }
 
-    public BigDecimal getClearedMoney() {
+    public Double getClearedMoney() {
         return clearedMoney;
     }
 
-    public void setClearedMoney(BigDecimal clearedMoney) {
+    public void setClearedMoney(Double clearedMoney) {
         this.clearedMoney = clearedMoney;
     }
 
-    public BigDecimal getNotClearedMoney() {
+    public Double getNotClearedMoney() {
         return notClearedMoney;
     }
 
-    public void setNotClearedMoney(BigDecimal notClearedMoney) {
+    public void setNotClearedMoney(Double notClearedMoney) {
         this.notClearedMoney = notClearedMoney;
     }
 

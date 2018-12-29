@@ -11,7 +11,7 @@ import java.util.List;
 
 public class GoodsVo {
 
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     private List<GoodsLabel> goodsLabels;
@@ -24,13 +24,13 @@ public class GoodsVo {
     /**
      * 商品名
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     /**
      * 条码
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String barCode;
 
     /**
@@ -43,7 +43,7 @@ public class GoodsVo {
     /**
      * 上架状态，0：未上架，1：已上架
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte putaway;
 
     /**
@@ -82,12 +82,12 @@ public class GoodsVo {
         this.typeId = typeId;
     }
 
-    public GoodsVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+    public GoodsVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public GoodsVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String barCode, Integer typeId, @NotBlank(message = CommonResponse.MESSAGE3) Byte putaway) {
+    public GoodsVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String barCode, Integer typeId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) Byte putaway) {
         this.storeId = storeId;
         this.id = id;
         this.barCode = barCode;

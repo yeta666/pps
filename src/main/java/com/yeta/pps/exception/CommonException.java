@@ -1,7 +1,5 @@
 package com.yeta.pps.exception;
 
-import com.yeta.pps.util.CommonResponse;
-
 /**
  * 自定义异常
  * @author YETA
@@ -9,29 +7,20 @@ import com.yeta.pps.util.CommonResponse;
  */
 public class CommonException extends RuntimeException {
 
-    private Integer code;
-
     private String message;
+
+    private String detail;
 
     public CommonException() {
     }
 
     public CommonException(String message) {
-        this.code = CommonResponse.CODE0;
         this.message = message;
     }
 
-    public CommonException(Integer code, String message) {
-        this.code = code;
+    public CommonException(String message, String detail) {
         this.message = message;
-    }
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public void setCode(Integer code) {
-        this.code = code;
+        this.detail = detail;
     }
 
     @Override
@@ -43,11 +32,19 @@ public class CommonException extends RuntimeException {
         this.message = message;
     }
 
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
     @Override
     public String toString() {
         return "CommonException{" +
-                "code=" + code +
                 ", message='" + message + '\'' +
+                ", detail='" + detail + '\'' +
                 '}';
     }
 }

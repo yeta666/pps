@@ -34,9 +34,9 @@ public class SupplierService {
     public CommonResponse add(SupplierVo supplierVo) {
         //新增
         if (mySupplierMapper.add(supplierVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -49,10 +49,10 @@ public class SupplierService {
         supplierVos.stream().forEach(supplierVo -> {
             //删除供应商
             if (mySupplierMapper.delete(supplierVo) != 1) {
-                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                throw new CommonException(CommonResponse.DELETE_ERROR);
             }
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -63,9 +63,9 @@ public class SupplierService {
     public CommonResponse update(SupplierVo supplierVo) {
         //修改
         if (mySupplierMapper.update(supplierVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -90,11 +90,11 @@ public class SupplierService {
             titles.add(new Title("传真", "fax"));
             titles.add(new Title("备注", "remark"));
             CommonResult commonResult = new CommonResult(titles, suppliers, pageVo);
-            return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+            return CommonResponse.success(commonResult);
         }
         //不分页
         List<Supplier> suppliers = mySupplierMapper.findAll(supplierVo);
-        return new CommonResponse(CommonResponse.CODE1, suppliers, CommonResponse.MESSAGE1);
+        return CommonResponse.success(suppliers);
     }
 
     /**
@@ -105,8 +105,8 @@ public class SupplierService {
     public CommonResponse findById(SupplierVo supplierVo) {
         Supplier supplier = mySupplierMapper.findById(supplierVo);
         if (supplier == null) {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, supplier, CommonResponse.MESSAGE1);
+        return CommonResponse.success(supplier);
     }
 }

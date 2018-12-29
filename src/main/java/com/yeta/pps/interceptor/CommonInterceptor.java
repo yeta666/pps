@@ -78,7 +78,7 @@ public class CommonInterceptor implements HandlerInterceptor {
         String requestToken = request.getHeader("token");
         if (requestToken == null || "".equals(requestToken)) {
             LOG.info("请求访问【{}】，请求token为空，拦截", uri);
-            throw new CommonException(CommonResponse.CODE14, CommonResponse.MESSAGE14);
+            throw new CommonException(CommonResponse.PERMISSION_ERROR);
         }
 
         //判断该用户id是否已经存在于在线用户列表
@@ -101,7 +101,7 @@ public class CommonInterceptor implements HandlerInterceptor {
 
         //如果不存在
         LOG.info("请求访问【{}】，token超时或未登录，拦截", uri);
-        throw new CommonException(CommonResponse.CODE14, CommonResponse.MESSAGE14);
+        throw new CommonException(CommonResponse.PERMISSION_ERROR);
     }
 
     /**

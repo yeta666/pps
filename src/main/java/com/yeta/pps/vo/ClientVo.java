@@ -19,7 +19,7 @@ public class ClientVo {
     /**
      * 姓名
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     /**
@@ -45,13 +45,13 @@ public class ClientVo {
     /**
      * 电话
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String phone;
 
     /**
      * 客户级别编号
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer levelId;
 
     private ClientLevel clientLevel;
@@ -85,7 +85,7 @@ public class ClientVo {
     /**
      * 会员卡号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String membershipNumber;
 
     /**
@@ -117,7 +117,7 @@ public class ClientVo {
         this.id = id;
     }
 
-    public ClientVo(String id, @NotBlank(message = CommonResponse.MESSAGE3) String phone) {
+    public ClientVo(String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String phone) {
         this.id = id;
         this.phone = phone;
     }
@@ -134,12 +134,13 @@ public class ClientVo {
         this.identifyingCode = identifyingCode;
     }
 
-    public ClientVo(String id, @NotBlank(message = CommonResponse.MESSAGE3) String name, @NotBlank(message = CommonResponse.MESSAGE3) String phone, @NotNull(message = CommonResponse.MESSAGE3) Integer levelId, @NotBlank(message = CommonResponse.MESSAGE3) String membershipNumber) {
+    public ClientVo(String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String name, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String phone, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer levelId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String membershipNumber, Byte disabled) {
         this.id = id;
         this.name = name;
         this.phone = phone;
         this.levelId = levelId;
         this.membershipNumber = membershipNumber;
+        this.disabled = disabled;
     }
 
     public String getId() {

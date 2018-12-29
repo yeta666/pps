@@ -10,31 +10,31 @@ public class SupplierVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
      * 供应商编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String id;
 
     /**
      * 供应商名称
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     /**
      * 联系人
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String contacts;
 
     /**
      * 联系电话
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String contactNumber;
 
     /**
@@ -55,7 +55,7 @@ public class SupplierVo {
     public SupplierVo() {
     }
 
-    public SupplierVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotBlank(message = CommonResponse.MESSAGE3) String id, @NotBlank(message = CommonResponse.MESSAGE3) String name) {
+    public SupplierVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String name) {
         this.storeId = storeId;
         this.id = id;
         this.name = name;

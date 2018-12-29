@@ -13,7 +13,7 @@ public class SellResultOrderVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     private SellApplyOrderVo sellApplyOrderVo;
@@ -81,7 +81,7 @@ public class SellResultOrderVo {
     /**
      * 经手人
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String userId;
 
     /**
@@ -96,25 +96,25 @@ public class SellResultOrderVo {
         this.costMoney = costMoney;
     }
 
-    public SellResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+    public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public SellResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
         this.remark = remark;
     }
 
-    public SellResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, SellApplyOrderVo sellApplyOrderVo, String id) {
+    public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, SellApplyOrderVo sellApplyOrderVo, String id) {
         this.storeId = storeId;
         this.sellApplyOrderVo = sellApplyOrderVo;
         this.id = id;
     }
 
-    public SellResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, Double costMoney, Double grossMarginMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, Double costMoney, Double grossMarginMoney, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;

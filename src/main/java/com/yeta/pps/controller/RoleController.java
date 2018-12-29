@@ -128,17 +128,17 @@ public class RoleController {
     }
 
     /**
-     * 根据用户id或角色id查询功能接口
+     * 根据用户编号或角色编号查询对应的功能接口
      * @param storeId
      * @param userId
      * @param roleId
      * @return
      */
-    @ApiOperation(value = "根据用户id或角色id查询功能，传用户id用于登陆之后获取菜单栏，传角色id用于修改角色对应的权限时先获取")
+    @ApiOperation(value = "根据用户编号或角色编号查询对应的功能，传用户编号用于登陆之后获取菜单栏，传角色编号用于修改角色对应的权限时先获取")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "userId", value = "用户id", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "roleId", value = "角色id", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "userId", value = "用户编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "roleId", value = "角色编号", required = false, paramType = "query", dataType = "int"),
     })
     @GetMapping(value = "/roles/functions")
     public CommonResponse findRoleFunction(@RequestParam(value = "storeId") Integer storeId,

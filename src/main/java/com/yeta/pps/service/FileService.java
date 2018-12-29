@@ -68,12 +68,8 @@ public class FileService implements CommandLineRunner {
             dir = "goods/";
         } else if (type == 2) {     //银行账户
             dir = "bank_account/";
-        } else if (type == 3) {     //订单
-            dir = "order/";
-        } else if (type == 4) {     //系统
-            dir = "system/";
         } else {
-            return new CommonResponse(CommonResponse.CODE12, null, CommonResponse.MESSAGE12);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
         //保存文件
         File file = new File(upload, dir);
@@ -83,7 +79,7 @@ public class FileService implements CommandLineRunner {
         File file1 = new File(file, System.currentTimeMillis() + multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf(".")));
         multipartFile.transferTo(file1);
         //返回图片路径
-        return new CommonResponse(CommonResponse.CODE1, "/upload/" + dir + file1.getName(), CommonResponse.MESSAGE1);
+        return CommonResponse.success("/upload/" + dir + file1.getName());
     }
 
     /**

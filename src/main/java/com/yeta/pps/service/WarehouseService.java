@@ -42,7 +42,7 @@ public class WarehouseService {
     public CommonResponse add(WarehouseVo warehouseVo) {
         //新增
         if (myWarehouseMapper.add(warehouseVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
 
         //查询所有商品规格
@@ -50,10 +50,11 @@ public class WarehouseService {
         goodsSkus.stream().forEach(goodsSku -> {
             //新增商品规格仓库关系
             if (myGoodsMapper.initializeOpening(new WarehouseGoodsSkuVo(warehouseVo.getStoreId(), warehouseVo.getId(), goodsSku.getId())) != 1) {
-                throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                throw new CommonException(CommonResponse.ADD_ERROR);
             }
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success();
     }
 
     /**
@@ -66,14 +67,15 @@ public class WarehouseService {
         warehouseVos.stream().forEach(warehouseVo -> {
             //判断仓库是否使用
             if (myUserMapper.findAll(new UserVo(warehouseVo.getStoreId(), warehouseVo.getId())).size() > 0) {
-                throw new CommonException(CommonResponse.CODE18, CommonResponse.MESSAGE18);
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
+
             //删除仓库
             if (myWarehouseMapper.delete(warehouseVo) != 1) {
-                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                throw new CommonException(CommonResponse.DELETE_ERROR);
             }
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -84,13 +86,14 @@ public class WarehouseService {
     public CommonResponse update(WarehouseVo warehouseVo) {
         //判断参数
         if (warehouseVo.getId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //修改
         if (myWarehouseMapper.update(warehouseVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -105,6 +108,7 @@ public class WarehouseService {
             pageVo.setTotalPage((int) Math.ceil(myWarehouseMapper.findCount(warehouseVo) * 1.0 / pageVo.getPageSize()));
             pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
             List<Warehouse> warehouses = myWarehouseMapper.findAllPaged(warehouseVo, pageVo);
+
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("仓库名", "name"));
@@ -114,11 +118,12 @@ public class WarehouseService {
             titles.add(new Title("邮编", "postcode"));
             titles.add(new Title("备注", "remark"));
             CommonResult commonResult = new CommonResult(titles, warehouses, pageVo);
-            return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+
+            return CommonResponse.success(commonResult);
         }
         //不分页
         List<Warehouse> warehouses = myWarehouseMapper.findAll(warehouseVo);
-        return new CommonResponse(CommonResponse.CODE1, warehouses, CommonResponse.MESSAGE1);
+        return CommonResponse.success(warehouses);
     }
 
     /**
@@ -130,8 +135,8 @@ public class WarehouseService {
         //根据仓库id查询仓库
         Warehouse warehouse = myWarehouseMapper.findById(warehouseVo);
         if (warehouse == null) {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, warehouse, CommonResponse.MESSAGE1);
+        return CommonResponse.success(warehouse);
     }
 }

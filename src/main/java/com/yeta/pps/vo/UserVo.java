@@ -12,7 +12,7 @@ public class UserVo {
      * 店铺id
      * 用于接收参数
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -90,7 +90,7 @@ public class UserVo {
     public UserVo() {
     }
 
-    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
+    public UserVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId) {
         this.storeId = storeId;
     }
 
@@ -98,18 +98,18 @@ public class UserVo {
         this.id = id;
     }
 
-    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+    public UserVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer roleId, String name) {
+    public UserVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer roleId, String name) {
         this.storeId = storeId;
         this.roleId = roleId;
         this.name = name;
     }
 
-    public UserVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer warehouseId) {
+    public UserVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer warehouseId) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
     }

@@ -284,13 +284,14 @@ public class ClientController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查找所有客户", notes = "分页、筛选查找，除了客户级别都是模糊查询")
+    @ApiOperation(value = "查找所有客户", notes = "筛选查找，除了客户级别都是模糊查询")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "客户编号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "name", value = "客户姓名", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "phone", value = "电话", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "membershipNumber", value = "会员卡号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "levelId", value = "客户级别编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "disabled", value = "是否禁用", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
     })
@@ -300,9 +301,10 @@ public class ClientController {
                                                                 @RequestParam(value = "phone", required = false) String phone,
                                                                 @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
                                                                 @RequestParam(value = "levelId", required = false) Integer levelId,
+                                                                @RequestParam(value = "disabled") Byte disabled,
                                                                 @RequestParam(value = "page") Integer page,
                                                                 @RequestParam(value = "pageSize") Integer pageSize) {
-        return clientService.findAll(new ClientVo(id, name, phone, levelId, membershipNumber), new PageVo(page, pageSize));
+        return clientService.findAll(new ClientVo(id, name, phone, levelId, membershipNumber, disabled), new PageVo(page, pageSize));
     }
 
     /**
@@ -319,7 +321,8 @@ public class ClientController {
             @ApiImplicitParam(name = "name", value = "姓名", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "phone", value = "电话", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "membershipNumber", value = "会员卡号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "levelId", value = "客户级别id", required = false, paramType = "query", dataType = "int")
+            @ApiImplicitParam(name = "levelId", value = "客户级别id", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "disabled", value = "是否禁用", required = false, paramType = "query", dataType = "int")
     })
     @GetMapping(value = "/clients/export")
     public void exportClient(@RequestParam(value = "id", required = false) String id,
@@ -327,8 +330,9 @@ public class ClientController {
                              @RequestParam(value = "phone", required = false) String phone,
                              @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
                              @RequestParam(value = "levelId", required = false) Integer levelId,
+                             @RequestParam(value = "disabled") Byte disabled,
                              HttpServletResponse response) throws IOException {
-        clientService.exportClient(new ClientVo(id, name, phone, levelId, membershipNumber), response);
+        clientService.exportClient(new ClientVo(id, name, phone, levelId, membershipNumber, disabled), response);
     }
 
     /**

@@ -14,10 +14,10 @@ public class ProcurementApplyOrderVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     List<OrderGoodsSkuVo> details;
 
     private String supplierName;
@@ -44,7 +44,7 @@ public class ProcurementApplyOrderVo {
     /**
      * 单据类型，1：采购订单，2：采购退货申请，3,：采购换货申请
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte type;
 
     /**
@@ -72,7 +72,7 @@ public class ProcurementApplyOrderVo {
     /**
      * 供应商编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String supplierId;
 
     /**
@@ -118,19 +118,19 @@ public class ProcurementApplyOrderVo {
     /**
      * 总商品金额
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double totalMoney;
 
     /**
      * 总优惠金额
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double totalDiscountMoney;
 
     /**
      * 本单金额
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double orderMoney;
 
     /**
@@ -146,7 +146,7 @@ public class ProcurementApplyOrderVo {
     /**
      * 经手人编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String userId;
 
     /**
@@ -163,19 +163,19 @@ public class ProcurementApplyOrderVo {
         this.endTime = endTime;
     }
 
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
         this.remark = remark;
     }
 
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String supplierName, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Byte orderStatus, Byte clearStatus) {
+    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String supplierName, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type, Byte orderStatus, Byte clearStatus) {
         this.storeId = storeId;
         this.supplierName = supplierName;
         this.startTime = startTime;

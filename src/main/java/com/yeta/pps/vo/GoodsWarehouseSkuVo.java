@@ -10,7 +10,7 @@ public class GoodsWarehouseSkuVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -131,19 +131,19 @@ public class GoodsWarehouseSkuVo {
     public GoodsWarehouseSkuVo() {
     }
 
-    public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+    public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, String name, Integer typeId) {
+    public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, String name, Integer typeId) {
         this.storeId = storeId;
         this.id = id;
         this.name = name;
         this.typeId = typeId;
     }
 
-    public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, String name, Integer typeId, Integer warehouseId, Byte flag) {
+    public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, String name, Integer typeId, Integer warehouseId, Byte flag) {
         this.storeId = storeId;
         this.id = id;
         this.name = name;

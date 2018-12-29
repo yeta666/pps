@@ -43,7 +43,7 @@ public class IntegralUtil {
             //增加客户积分
             if (myClientMapper.increaseIntegral(storeIntegralVo) != 1) {        //还没有数据
                 if (myClientMapper.addStoreIntegral(storeIntegralVo) != 1) {
-                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
             }
             //新增客户积分明细
@@ -55,7 +55,7 @@ public class IntegralUtil {
                     storeIntegralVo.getIntegral(),
                     myClientMapper.findStoreIntegralByStoreIdAndClientId(storeIntegralVo).getIntegral(),
                     resultOrderId)) != 1) {
-                throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
         }
     }

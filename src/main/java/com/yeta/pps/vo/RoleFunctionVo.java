@@ -9,7 +9,7 @@ public class RoleFunctionVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -30,12 +30,12 @@ public class RoleFunctionVo {
     public RoleFunctionVo() {
     }
 
-    public RoleFunctionVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer roleId) {
+    public RoleFunctionVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer roleId) {
         this.storeId = storeId;
         this.roleId = roleId;
     }
 
-    public RoleFunctionVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer roleId, Integer functionId) {
+    public RoleFunctionVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer roleId, Integer functionId) {
         this.storeId = storeId;
         this.roleId = roleId;
         this.functionId = functionId;

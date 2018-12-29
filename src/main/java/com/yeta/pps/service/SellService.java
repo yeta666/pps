@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 @Service
 public class SellService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SellService.class);
-
     @Autowired
     private MySellMapper mySellMapper;
 
@@ -65,17 +63,17 @@ public class SellService {
         //优惠券的钱
         double discountCouponMoney = 0;
 
-        //判断是零售单/销售订单/销售退货申请单/销售换货申请单
+        //判断是新增类型
         switch (type) {
             case 1:     //零售单
                 //判断参数
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null || sellApplyOrderVo.getBankAccountId() == null) {
-                    LOG.info("新增销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，出库仓库【{}】，出库数量：【{}】，银行账户编号：【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getOutWarehouseId(), sellApplyOrderVo.getOutTotalQuantity(), sellApplyOrderVo.getBankAccountId());
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
 
                 //设置初始属性
                 sellApplyOrderVo.setId("LSD_" + UUID.randomUUID().toString().replace("-", ""));
+                sellApplyOrderVo.setCreateTime(new Date());
                 sellApplyOrderVo.setOrderStatus((byte) 6);       //已发
                 sellApplyOrderVo.setClearStatus((byte) 1);      //已完成
                 sellApplyOrderVo.setOutSentQuantity(sellApplyOrderVo.getOutTotalQuantity());
@@ -87,13 +85,13 @@ public class SellService {
             case 2:     //销售订单
                 //判断参数
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null) {
-                    LOG.info("新增销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，出库仓库【{}】，出库数量：【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getOutWarehouseId(), sellApplyOrderVo.getOutTotalQuantity());
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
 
                 //设置初始属性
                 sellApplyOrderVo.setId("XXDD_" + UUID.randomUUID().toString().replace("-", ""));
-                sellApplyOrderVo.setOrderStatus((byte) 4);       //已发
+                sellApplyOrderVo.setCreateTime(new Date());
+                sellApplyOrderVo.setOrderStatus((byte) 4);       //未发
                 sellApplyOrderVo.setClearStatus((byte) 0);      //未完成
                 sellApplyOrderVo.setOutSentQuantity(0);
                 sellApplyOrderVo.setOutNotSentQuantity(sellApplyOrderVo.getOutTotalQuantity());
@@ -105,12 +103,12 @@ public class SellService {
                 //判断参数
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getInWarehouseId() == null || sellApplyOrderVo.getInTotalQuantity() == null ||
                         sellApplyOrderVo.getResultOrderId() == null) {
-                    LOG.info("新增销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，入库仓库【{}】，入库数量：【{}】，来源订单【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getInWarehouseId(), sellApplyOrderVo.getInTotalQuantity(), sellApplyOrderVo.getResultOrderId());
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
 
                 //设置初始属性
                 sellApplyOrderVo.setId("XXTHSQD_" + UUID.randomUUID().toString().replace("-", ""));
+                sellApplyOrderVo.setCreateTime(new Date());
                 sellApplyOrderVo.setOrderStatus((byte) 1);       //未收
                 sellApplyOrderVo.setClearStatus((byte) 0);      //未完成
                 sellApplyOrderVo.setInReceivedQuantity(0);
@@ -124,12 +122,12 @@ public class SellService {
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getInWarehouseId() == null || sellApplyOrderVo.getInTotalQuantity() == null ||
                         sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null ||
                         sellApplyOrderVo.getResultOrderId() == null) {
-                    LOG.info("新增销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，入库仓库【{}】，入库数量：【{}】，出库仓库【{}】，出库数量【{}】，来源订单【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getInWarehouseId(), sellApplyOrderVo.getInTotalQuantity(), sellApplyOrderVo.getOutWarehouseId(), sellApplyOrderVo.getOutTotalQuantity(), sellApplyOrderVo.getResultOrderId());
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
 
                 //设置初始属性
                 sellApplyOrderVo.setId("XXHHSQD_" + UUID.randomUUID().toString().replace("-", ""));
+                sellApplyOrderVo.setCreateTime(new Date());
                 sellApplyOrderVo.setOrderStatus((byte) 7);       //未收未发
                 sellApplyOrderVo.setClearStatus((byte) 0);      //未完成
                 sellApplyOrderVo.setInReceivedQuantity(0);
@@ -141,12 +139,8 @@ public class SellService {
                 break;
 
             default:
-                LOG.info("新增销售申请单，参数不匹配，类型：【{}】", type);
-                return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
-
-        //设置初始属性
-        sellApplyOrderVo.setCreateTime(new Date());
 
         //判断优惠券
         if (sellApplyOrderVo.getDiscountCouponId() != null) {
@@ -158,14 +152,12 @@ public class SellService {
         //判断钱
         if (sellApplyOrderVo.getDiscountMoney() + discountCouponMoney != sellApplyOrderVo.getTotalDiscountMoney() ||
                 sellApplyOrderVo.getOrderMoney() + sellApplyOrderVo.getTotalDiscountMoney() != sellApplyOrderVo.getTotalMoney()) {
-            LOG.info("新增销售申请单，钱不正确，类型【{}】", type);
-            throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
         //新增销售申请单
         if (mySellMapper.addApplyOrder(sellApplyOrderVo) != 1) {
-            LOG.info("新增销售申请单，插入销售申请单数据失败，类型【{}】", type);
-            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
 
         //新增销售申请单/商品规格关系
@@ -174,14 +166,13 @@ public class SellService {
         orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
             //判断参数
             if (orderGoodsSkuVo.getType() == null || orderGoodsSkuVo.getGoodsSkuId() == null || orderGoodsSkuVo.getQuantity() == null || orderGoodsSkuVo.getMoney() == null || orderGoodsSkuVo.getDiscountMoney() == null) {
-                LOG.info("新增销售申请单，商品规格参数不匹配，类型：【{}】，商品规格类型：【{}】，商品规格编号：【{}】，数量：【{}】，金额：【{}】，优惠金额：【{}】", type, orderGoodsSkuVo.getType(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getMoney(), orderGoodsSkuVo.getDiscountMoney());
-                throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
 
             //设置初始属性
             orderGoodsSkuVo.setStoreId(sellApplyOrderVo.getStoreId());
             orderGoodsSkuVo.setOrderId(sellApplyOrderVo.getId());
-            if (type == 1) {
+            if (type == 1) {        //零售单新增结果单
                 orderGoodsSkuVo.setFinishQuantity(orderGoodsSkuVo.getQuantity());
                 orderGoodsSkuVo.setNotFinishQuantity(0);
                 orderGoodsSkuVo.setOperatedQuantity(0);
@@ -229,17 +220,16 @@ public class SellService {
 
             //新增
             if (myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo) != 1) {
-                LOG.info("新增销售申请单，插入销售申请单/商品规格关系数据失败，类型【{}】", type);
-                throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                throw new CommonException(CommonResponse.ADD_ERROR);
             }
 
             //修改销售出库单对应的商品规格已操作数量
-            if (type == 3 || (type == 4 && orderGoodsSkuVo.getType() == 1)) {
+            if (type == 3 || (type == 4 && orderGoodsSkuVo.getType() == 1)) {       //如果是销售退/换货申请单
                 if (orderGoodsSkuVo.getId() == null) {
-                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
                 if (myOrderGoodsSkuMapper.updateOperatedQuantity(new OrderGoodsSkuVo(sellApplyOrderVo.getStoreId(), orderGoodsSkuVo.getId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity())) != 1) {
-                    throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                    throw new CommonException(CommonResponse.ADD_ERROR);
                 }
             }
         });
@@ -260,8 +250,7 @@ public class SellService {
             sellResultOrderVo.setUserId(sellApplyOrderVo.getUserId());
             sellResultOrderVo.setRemark(sellApplyOrderVo.getRemark());
             if (mySellMapper.addResultOrder(sellResultOrderVo) != 1) {
-                LOG.info("新增零售单，插入零售结果单失败");
-                throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                throw new CommonException(CommonResponse.ADD_ERROR);
             }
 
             //修改客户积分相关信息
@@ -270,10 +259,9 @@ public class SellService {
 
         //修改客户最近交易时间
         if (myClientMapper.updateLastDealTime(new ClientVo(sellApplyOrderVo.getClientId())) != 1) {
-            LOG.info("新增零售单，修改客户最近交易时间错误，客户编号：【{}】", sellApplyOrderVo.getClientId());
-            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+            throw new CommonException(CommonResponse.ADD_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -287,20 +275,21 @@ public class SellService {
             //获取销售申请订单
             SellApplyOrderVo applyOrderVo =  mySellMapper.findApplyOrderDetailById(sellApplyOrderVo);
             if (applyOrderVo == null || applyOrderVo.getDetails().size() == 0) {
-                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                throw new CommonException(CommonResponse.DELETE_ERROR);
             }
+
             //判断单据状态
             Byte orderStatus = applyOrderVo.getOrderStatus();
             if (orderStatus != 1 && orderStatus != 4 && orderStatus != 7) {     //1：未收，4：未发，7：未收未发
-                LOG.info("删除销售申请单，单据状态已不可删除【{}】", orderStatus);
-                throw new CommonException(CommonResponse.CODE19, "【 " + applyOrderVo.getId() + "】" + CommonResponse.MESSAGE19);
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.STATUS_ERROR);
             }
+
             //判断结算状态
             Byte clearStatus = applyOrderVo.getClearStatus();
             if (clearStatus != 0) {     //0：未完成
-                LOG.info("删除销售申请单，结算状态已不可删除【{}】", clearStatus);
-                throw new CommonException(CommonResponse.CODE19, "【 " + applyOrderVo.getId() + "】" + CommonResponse.MESSAGE19);
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.STATUS_ERROR);
             }
+
             //修改商品规格可操作数量
             if (applyOrderVo.getType() == 3 || applyOrderVo.getType() == 4) {
                 List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = applyOrderVo.getDetails().stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("1")).collect(Collectors.toList());        //采购退换申请单或采购换货申请单中入库的的商品规格
@@ -313,21 +302,23 @@ public class SellService {
                         orderGoodsSkuVo.setStoreId(sellApplyOrderVo.getStoreId());
                         orderGoodsSkuVo.setOperatedQuantity(-changeQuantity);
                         if (myOrderGoodsSkuMapper.updateOperatedQuantity(orderGoodsSkuVo) != 1) {
-                            throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                            throw new CommonException(CommonResponse.DELETE_ERROR);
                         }
                     }
                 });
             }
+
             //删除销售申请订单
             if (mySellMapper.deleteApplyOrder(sellApplyOrderVo) != 1) {
-                LOG.info("删除销售申请单，删除数据失败，单据编号：【{}】", sellApplyOrderVo.getId());
-                throw new CommonException(CommonResponse.CODE8, "【 " + applyOrderVo.getId() + "】" + CommonResponse.MESSAGE8);
+                throw new CommonException(CommonResponse.DELETE_ERROR);
             }
+
             //删除销售申请订单/商品规格关系
             OrderGoodsSkuVo orderGoodsSkuVo = new OrderGoodsSkuVo(sellApplyOrderVo.getStoreId(), applyOrderVo.getId());
             myOrderGoodsSkuMapper.deleteOrderGoodsSku(orderGoodsSkuVo);
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+
+        return CommonResponse.success();
     }
 
     /**
@@ -340,69 +331,69 @@ public class SellService {
         //获取销售申请订单
         SellApplyOrder sellApplyOrder = mySellMapper.findApplyOrderById(sellApplyOrderVo);
         if (sellApplyOrder == null) {
-            LOG.info("修改销售申请单，单据编号不存在【{}】", sellApplyOrderVo.getId());
-            throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
+
         //判断单据状态
         Byte orderStatus = sellApplyOrder.getOrderStatus();
         if (orderStatus != 1 && orderStatus != 4 && orderStatus != 7) {     //1：未收，4：未发，7：未收未发
-            LOG.info("修改销售申请单，单据状态已不可修改【{}】", orderStatus);
-            throw new CommonException(CommonResponse.CODE19, "【 " + sellApplyOrder.getId() + "】" + CommonResponse.MESSAGE19);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
         }
+
         //判断结算状态
         Byte clearStatus = sellApplyOrder.getClearStatus();
         if (clearStatus != 0) {     //0：未完成
-            LOG.info("修改销售申请单，结算状态已不可修改【{}】", clearStatus);
-            throw new CommonException(CommonResponse.CODE19, "【 " + sellApplyOrder.getId() + "】" + CommonResponse.MESSAGE19);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
         }
-        List<OrderGoodsSkuVo> orderGoodsSkuVos = sellApplyOrderVo.getDetails();
+
         //判断是销售订单/销售退货申请/销售换货申请
+        List<OrderGoodsSkuVo> orderGoodsSkuVos = sellApplyOrderVo.getDetails();
         Byte type = sellApplyOrder.getType();
         switch (type) {
-            //销售订单
-            case 2:
+            case 2:     //销售订单
                 //判断参数
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null) {
-                    LOG.info("修改销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，出库仓库【{}】，出库数量：【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getOutWarehouseId(), sellApplyOrderVo.getOutTotalQuantity());
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
                 break;
-            //销售退货申请单
-            case 3:
+
+            case 3:     //销售退货申请单
                 //判断参数
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getInWarehouseId() == null || sellApplyOrderVo.getInTotalQuantity() == null ||
                         sellApplyOrderVo.getResultOrderId() == null) {
-                    LOG.info("修改销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，入库仓库【{}】，入库数量：【{}】，来源订单【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getInWarehouseId(), sellApplyOrderVo.getInTotalQuantity(), sellApplyOrderVo.getResultOrderId());
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
                 break;
-            //销售换货申请单
-            case 4:
+
+            case 4:     //销售换货申请单
                 //判断参数
                 if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getInWarehouseId() == null || sellApplyOrderVo.getInTotalQuantity() == null ||
                         sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null ||
                         sellApplyOrderVo.getResultOrderId() == null) {
-                    LOG.info("修改销售申请单，参数不匹配，类型：【{}】，商品规格数量：【{}】，入库仓库【{}】，入库数量：【{}】，出库仓库【{}】，出库数量【{}】，来源订单【{}】", type, orderGoodsSkuVos.size(), sellApplyOrderVo.getInWarehouseId(), sellApplyOrderVo.getInTotalQuantity(), sellApplyOrderVo.getOutWarehouseId(), sellApplyOrderVo.getOutTotalQuantity(), sellApplyOrderVo.getResultOrderId());
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
                 break;
+
             default:
-                LOG.info("新增销售申请单，参数不匹配，类型：【{}】", type);
-                return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //修改销售申请订单
         if (mySellMapper.updateApplyOrder(sellApplyOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
+
         //删除销售申请订单/商品规格关系
         myOrderGoodsSkuMapper.deleteOrderGoodsSku(new OrderGoodsSkuVo(sellApplyOrderVo.getStoreId(), sellApplyOrderVo.getId()));
+
         //新增销售申请订单/商品规格关系
         orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
             //判断参数
-            if (orderGoodsSkuVo.getType() == null || orderGoodsSkuVo.getGoodsSkuId() == null || orderGoodsSkuVo.getQuantity() == null || orderGoodsSkuVo.getMoney() == null || orderGoodsSkuVo.getDiscountMoney() == null) {
-                LOG.info("修改销售申请单，商品规格参数不匹配，类型：【{}】，商品规格类型：【{}】，商品规格编号：【{}】，数量：【{}】，金额：【{}】，优惠金额：【{}】", type, orderGoodsSkuVo.getType(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getMoney(), orderGoodsSkuVo.getDiscountMoney());
-                throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+            if (orderGoodsSkuVo.getType() == null || orderGoodsSkuVo.getGoodsSkuId() == null ||
+                    orderGoodsSkuVo.getQuantity() == null || orderGoodsSkuVo.getMoney() == null || orderGoodsSkuVo.getDiscountMoney() == null) {
+                throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
+
             //设置初始属性
             orderGoodsSkuVo.setStoreId(sellApplyOrderVo.getStoreId());
             orderGoodsSkuVo.setOrderId(sellApplyOrderVo.getId());
@@ -412,11 +403,11 @@ public class SellService {
 
             //新增
             if (myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo) != 1) {
-                LOG.info("修改销售申请单，插入销售申请单/商品规格关系数据失败，类型【{}】", type);
-                throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+
+        return CommonResponse.success();
     }
 
     /**
@@ -427,9 +418,9 @@ public class SellService {
     public CommonResponse updateApplyOrderRemark(SellApplyOrderVo sellApplyOrderVo) {
         //修改备注
         if (mySellMapper.updateApplyOrderRemark(sellApplyOrderVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -443,6 +434,7 @@ public class SellService {
         pageVo.setTotalPage((int) Math.ceil(mySellMapper.findCountApplyOrder(sellApplyOrderVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<SellApplyOrderVo> sellApplyOrderVos = mySellMapper.findAllPagedApplyOrder(sellApplyOrderVo, pageVo);
+        
         //补上仓库名
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellApplyOrderVo.getStoreId()));
         sellApplyOrderVos.stream().forEach(vo -> {
@@ -455,6 +447,7 @@ public class SellService {
                 }
             });
         });
+        
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("单据编号", "id"));
@@ -495,7 +488,8 @@ public class SellService {
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, sellApplyOrderVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -504,14 +498,14 @@ public class SellService {
      * @return
      */
     public CommonResponse findApplyOrderDetailById(SellApplyOrderVo sellApplyOrderVo) {
-        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellApplyOrderVo.getStoreId()));
         //根据单据编号查询单据详情
         sellApplyOrderVo = mySellMapper.findApplyOrderDetailById(sellApplyOrderVo);
         if (sellApplyOrderVo == null || sellApplyOrderVo.getDetails().size() == 0) {
-            LOG.info("根据单据编号查询销售申请单详情，数据错误，单据编号：【{}】", sellApplyOrderVo.getId());
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
+
         //补上仓库名
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellApplyOrderVo.getStoreId()));
         for (Warehouse warehouse : warehouses) {
             if (sellApplyOrderVo.getInWarehouseId() == warehouse.getId()) {
                 sellApplyOrderVo.setInWarehouseName(warehouse.getName());
@@ -520,7 +514,8 @@ public class SellService {
                 sellApplyOrderVo.setOutWarehouseName(warehouse.getName());
             }
         }
-        return new CommonResponse(CommonResponse.CODE1, sellApplyOrderVo, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success(sellApplyOrderVo);
     }
 
     //销售结果订单
@@ -539,7 +534,7 @@ public class SellService {
 
         //红冲
         if (mySellMapper.redDashed(sellResultOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
 
         //获取红冲蓝单
@@ -562,7 +557,7 @@ public class SellService {
 
         //新增红冲红单
         if (mySellMapper.addResultOrder(sellResultOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
 
         //修改库存相关
@@ -570,7 +565,7 @@ public class SellService {
         for (OrderGoodsSkuVo orderGoodsSkuVo : orderGoodsSkuVos) {
             //已经退换货的结果单不能红冲
             if (orderGoodsSkuVo.getOperatedQuantity() > 0) {
-                throw new CommonException("该销售出库单已经发生退换货，不能红冲，单据编号：【" + oldResultOrderId + "】");
+                throw new CommonException(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
             }
 
             if (orderGoodsSkuVo.getType() == 0) {        //原来是出库
@@ -586,8 +581,7 @@ public class SellService {
                 //红冲库存记账记录
                 inventoryUtil.redDashedStorageCheckOrder(1, new StorageCheckOrderVo(storeId, oldResultOrderId, orderGoodsSkuVo.getGoodsSkuId(), userId));
             } else {
-                LOG.info("商品规格类型不正确【{}】", orderGoodsSkuVo.getType());
-                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
         }
 
@@ -606,13 +600,13 @@ public class SellService {
                     orderGoodsSkuVo.setStoreId(storeId);
                     orderGoodsSkuVo.setOperatedQuantity(-changeQuantity);
                     if (myOrderGoodsSkuMapper.updateOperatedQuantity(orderGoodsSkuVo) != 1) {
-                        throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                        throw new CommonException(CommonResponse.UPDATE_ERROR);
                     }
                 }
             });
         }
 
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -626,6 +620,7 @@ public class SellService {
         pageVo.setTotalPage((int) Math.ceil(mySellMapper.findCountResultOrder(sellResultOrderVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<SellResultOrderVo> sellResultOrderVos = mySellMapper.findAllPagedResultOrder(sellResultOrderVo, pageVo);
+        
         //补上仓库名
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellResultOrderVo.getStoreId()));
         sellResultOrderVos.stream().forEach(vo -> {
@@ -638,6 +633,7 @@ public class SellService {
                 }
             });
         });
+        
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("单据编号", "id"));
@@ -659,7 +655,8 @@ public class SellService {
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, sellResultOrderVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -668,14 +665,14 @@ public class SellService {
      * @return
      */
     public CommonResponse findResultOrderDetailById(SellResultOrderVo sellResultOrderVo) {
-        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellResultOrderVo.getStoreId()));
         //根据单据编号查询单据详情
         sellResultOrderVo = mySellMapper.findResultOrderDetailById(sellResultOrderVo);
         if (sellResultOrderVo == null || sellResultOrderVo.getDetails().size() == 0) {
-            LOG.info("根据单据编号查询销售结果订单详情，数据错误，单据编号：【{}】", sellResultOrderVo.getId());
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
+
         //补上仓库名
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellResultOrderVo.getStoreId()));
         for (Warehouse warehouse : warehouses) {
             if (sellResultOrderVo.getSellApplyOrderVo().getInWarehouseId() == warehouse.getId()) {
                 sellResultOrderVo.getSellApplyOrderVo().setInWarehouseName(warehouse.getName());
@@ -684,6 +681,7 @@ public class SellService {
                 sellResultOrderVo.getSellApplyOrderVo().setOutWarehouseName(warehouse.getName());
             }
         }
-        return new CommonResponse(CommonResponse.CODE1, sellResultOrderVo, CommonResponse.MESSAGE1);
+
+        return CommonResponse.success(sellResultOrderVo);
     }
 }

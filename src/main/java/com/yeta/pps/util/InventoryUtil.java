@@ -45,18 +45,18 @@ public class InventoryUtil {
         if (vo.getStoreId() == null || vo.getWarehouseId() == null || vo.getGoodsSkuId() == null ||
                 vo.getOpeningQuantity() == null || vo.getOpeningMoney() == null || vo.getOpeningTotalMoney() == null ||
                 vo.getOpeningQuantity() * vo.getOpeningMoney().doubleValue() != vo.getOpeningTotalMoney().doubleValue()) {
-            throw new CommonException("设置库存期初失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
         //判断库存期初是否存在
         WarehouseGoodsSkuVo warehouseGoodsSkuVo = myGoodsMapper.findWarehouseGoodsSku(vo);
         if (warehouseGoodsSkuVo == null) {
-            throw new CommonException("设置库存期初失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
         //修改库存期初
         if (myGoodsMapper.updateOpening(vo) != 1) {
-            throw new CommonException("设置库存期初失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
         //创建库存对账记录对象
@@ -88,7 +88,7 @@ public class InventoryUtil {
         }
 
         if (myStorageMapper.addStorageCheckOrder(storageCheckOrderVo) != 1) {
-            throw new CommonException("库存记账失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
     }
 
@@ -103,12 +103,12 @@ public class InventoryUtil {
         //查询该商品规格的最新库存对账记录
         StorageCheckOrderVo sVo = myStorageMapper.findLastCheckMoney(new StorageCheckOrderVo(vo.getStoreId(), vo.getGoodsSkuId()));
         if (sVo == null) {
-            throw new CommonException("库存记账失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
         //验证结存是否正确
         if (orderGoodsSkuVo.getCheckQuantity() != sVo.getCheckQuantity() || orderGoodsSkuVo.getCheckMoney().doubleValue() != sVo.getCheckMoney().doubleValue() || orderGoodsSkuVo.getCheckTotalMoney().doubleValue() != sVo.getCheckTotalMoney().doubleValue()) {
-            throw new CommonException("库存记账失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
         int changeQuantity;
@@ -147,7 +147,7 @@ public class InventoryUtil {
 
                 //判断参数
                 if (check != changeCheckTotalMoney || changeCheckTotalMoney == 0) {
-                    throw new CommonException("库存记账失败");
+                    throw new CommonException(CommonResponse.INVENTORY_ERROR);
                 }
 
                 changeQuantity = checkQuantity;
@@ -156,7 +156,7 @@ public class InventoryUtil {
                 break;
 
             default:
-                throw new CommonException("库存记账失败");
+                throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
         vo.setCheckQuantity(changeQuantity);
@@ -164,7 +164,7 @@ public class InventoryUtil {
         vo.setCheckTotalMoney(changeTotalMoney);
 
         if (myStorageMapper.addStorageCheckOrder(vo) != 1) {
-            throw new CommonException("库存记账失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
         return changeMoney;
@@ -179,7 +179,7 @@ public class InventoryUtil {
     public void redDashedStorageCheckOrder(int flag, StorageCheckOrderVo vo) {
         //判断参数
         if (vo.getStoreId() == null || vo.getOrderId() == null || vo.getGoodsSkuId() == null) {
-            throw new CommonException("红冲库存记账记录失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
         Integer storeId = vo.getStoreId();
@@ -195,7 +195,7 @@ public class InventoryUtil {
             case 0:
                 //红冲
                 if (myStorageMapper.redDashedOutStorageCheckOrder(vo) != 1) {
-                    throw new CommonException("红冲库存记账记录失败");
+                    throw new CommonException(CommonResponse.INVENTORY_ERROR);
                 }
 
                 //获取红冲蓝单
@@ -212,7 +212,7 @@ public class InventoryUtil {
             case 1:
                 //红冲
                 if (myStorageMapper.redDashedInStorageCheckOrder(vo) != 1) {
-                    throw new CommonException("红冲库存记账记录失败");
+                    throw new CommonException(CommonResponse.INVENTORY_ERROR);
                 }
 
                 //获取红冲蓝单
@@ -229,7 +229,7 @@ public class InventoryUtil {
             case 2:
                 //红冲
                 if (myStorageMapper.redDashedInStorageCheckOrder(vo) != 1) {
-                    throw new CommonException("红冲库存记账记录失败");
+                    throw new CommonException(CommonResponse.INVENTORY_ERROR);
                 }
 
                 //获取红冲蓝单
@@ -243,10 +243,11 @@ public class InventoryUtil {
                 changeTotalMoney = lastVo.getCheckTotalMoney().doubleValue() - vo.getOutTotalMoney().doubleValue();
                 changeMoney = getNumber(changeTotalMoney / changeQuantity);
                 break;
+
             case 3:
                 //红冲
                 if (myStorageMapper.redDashedOutStorageCheckOrder(vo) != 1) {
-                    throw new CommonException("红冲库存记账记录失败");
+                    throw new CommonException(CommonResponse.INVENTORY_ERROR);
                 }
 
                 //获取红冲蓝单
@@ -262,7 +263,7 @@ public class InventoryUtil {
                 break;
 
             default:
-                throw new CommonException("红冲库存记账记录失败");
+                throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
         //设置红冲红单
@@ -276,7 +277,7 @@ public class InventoryUtil {
 
         //新增红冲红单
         if (myStorageMapper.addStorageCheckOrder(vo) != 1) {
-            throw new CommonException("库存记账失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
     }
 
@@ -290,21 +291,24 @@ public class InventoryUtil {
         //判断参数
         if (vo.getStoreId() == null || vo.getWarehouseId() == null || vo.getGoodsSkuId() == null ||
                 vo.getRealInventory() == null || vo.getCanUseInventory() == null || vo.getBookInventory() == null) {
-            throw new CommonException("修改库存失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
+
         switch (flag) {
             case 1:
                 if (myGoodsMapper.increaseInventory(vo) != 1) {
-                    throw new CommonException("修改库存失败");
+                    throw new CommonException(CommonResponse.INVENTORY_ERROR);
                 }
                 break;
+
             case 0:
                 if (myGoodsMapper.decreaseInventory(vo) != 1) {
-                    throw new CommonException("修改库存失败");
+                    throw new CommonException(CommonResponse.INVENTORY_ERROR);
                 }
                 break;
+
             default:
-                throw new CommonException("修改库存失败");
+                throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
     }
 
@@ -318,21 +322,24 @@ public class InventoryUtil {
         //判断参数
         if (vo.getStoreId() == null || vo.getWarehouseId() == null || vo.getGoodsSkuId() == null ||
                 vo.getNotSentQuantity() == null || vo.getNotReceivedQuantity() == null) {
-            throw new CommonException("修改库存待发货数量或待收货数量失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
+
         switch (flag) {
             case 1:
                 if (myGoodsMapper.increaseNotQuantity(vo) != 1) {
-                    throw new CommonException("修改库存待发货数量或待收货数量失败");
+                    throw new CommonException(CommonResponse.INVENTORY_ERROR);
                 }
                 break;
+
             case 0:
                 if (myGoodsMapper.decreaseNotQuantity(vo) != 1) {
-                    throw new CommonException("修改库存待发货数量或待收货数量失败");
+                    throw new CommonException(CommonResponse.INVENTORY_ERROR);
                 }
                 break;
+
             default:
-                throw new CommonException("修改库存待发货数量或待收货数量失败");
+                throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
     }
 
@@ -344,10 +351,11 @@ public class InventoryUtil {
     public void updateLimitInventoryMethod( WarehouseGoodsSkuVo vo) {
         //判断参数
         if (vo.getStoreId() == null || vo.getWarehouseId() == null || vo.getGoodsSkuId() == null) {
-            throw new CommonException("修改库存上限或下限失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
+
         if (myGoodsMapper.updateLimitInventoryMethod(vo) != 1) {
-            throw new CommonException("修改库存上限或下限失败");
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
     }
 }

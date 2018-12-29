@@ -14,7 +14,7 @@ public class MembershipNumber {
     /**
      * 会员卡号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String number;
 
     /**
@@ -29,11 +29,11 @@ public class MembershipNumber {
         this.id = id;
     }
 
-    public MembershipNumber(@NotBlank(message = CommonResponse.MESSAGE3) String number) {
+    public MembershipNumber(@NotBlank(message = CommonResponse.PARAMETER_ERROR) String number) {
         this.number = number;
     }
 
-    public MembershipNumber(@NotBlank(message = CommonResponse.MESSAGE3) String number, Byte disabled) {
+    public MembershipNumber(@NotBlank(message = CommonResponse.PARAMETER_ERROR) String number, Byte disabled) {
         this.number = number;
         this.disabled = disabled;
     }

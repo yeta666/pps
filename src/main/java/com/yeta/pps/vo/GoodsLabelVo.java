@@ -10,7 +10,7 @@ public class GoodsLabelVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -21,7 +21,7 @@ public class GoodsLabelVo {
     /**
      * 商品标签名
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     public GoodsLabelVo() {
@@ -36,7 +36,7 @@ public class GoodsLabelVo {
         this.id = id;
     }
 
-    public GoodsLabelVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotBlank(message = CommonResponse.MESSAGE3) String name) {
+    public GoodsLabelVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String name) {
         this.storeId = storeId;
         this.name = name;
     }

@@ -11,19 +11,19 @@ public class IncomeExpensesVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
      * 科目编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String id;
 
     /**
      * 科目名称
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     /**
@@ -36,24 +36,24 @@ public class IncomeExpensesVo {
      * 借贷，1：贷，2：借
      */
     @Column(name = "debit_credit")
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte debitCredit;
 
     /**
      * 收支，1：收入，2：支出
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte type;
 
     public IncomeExpensesVo() {
     }
 
-    public IncomeExpensesVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotNull(message = CommonResponse.MESSAGE3) Byte type) {
+    public IncomeExpensesVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type) {
         this.storeId = storeId;
         this.type = type;
     }
 
-    public IncomeExpensesVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotBlank(message = CommonResponse.MESSAGE3) String id) {
+    public IncomeExpensesVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String id) {
         this.storeId = storeId;
         this.id = id;
     }

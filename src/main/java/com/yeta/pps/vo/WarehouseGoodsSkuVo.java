@@ -15,7 +15,7 @@ public class WarehouseGoodsSkuVo {
     /**
      * 店铺编号
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -27,13 +27,13 @@ public class WarehouseGoodsSkuVo {
     /**
      * 仓库编号
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer warehouseId;
 
     /**
      * 商品规格编号
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer goodsSkuId;
 
     /**
@@ -94,24 +94,24 @@ public class WarehouseGoodsSkuVo {
     /**
      * 经手人
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String userId;
 
     public WarehouseGoodsSkuVo() {
     }
 
-    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotNull(message = CommonResponse.MESSAGE3) Integer warehouseId) {
+    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer warehouseId) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
     }
 
-    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotNull(message = CommonResponse.MESSAGE3) Integer warehouseId, @NotNull(message = CommonResponse.MESSAGE3) Integer goodsSkuId) {
+    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer warehouseId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer goodsSkuId) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
         this.goodsSkuId = goodsSkuId;
     }
 
-    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotNull(message = CommonResponse.MESSAGE3) Integer warehouseId, @NotNull(message = CommonResponse.MESSAGE3) Integer goodsSkuId, Integer realInventory, Integer canUseInventory, Integer bookInventory) {
+    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer warehouseId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer goodsSkuId, Integer realInventory, Integer canUseInventory, Integer bookInventory) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
         this.goodsSkuId = goodsSkuId;
@@ -120,7 +120,7 @@ public class WarehouseGoodsSkuVo {
         this.bookInventory = bookInventory;
     }
 
-    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotNull(message = CommonResponse.MESSAGE3) Integer warehouseId, @NotNull(message = CommonResponse.MESSAGE3) Integer goodsSkuId, Integer notSentQuantity, Integer notReceivedQuantity) {
+    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer warehouseId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer goodsSkuId, Integer notSentQuantity, Integer notReceivedQuantity) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
         this.goodsSkuId = goodsSkuId;

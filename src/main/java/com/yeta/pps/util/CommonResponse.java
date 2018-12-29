@@ -7,50 +7,25 @@ package com.yeta.pps.util;
  */
 public class CommonResponse<T> {
 
-    public static final Integer CODE0 = 1111;
-    public static final Integer CODE1 = 1001;
-    public static final Integer CODE2 = 1002;
-    public static final Integer CODE3 = 1003;
-    public static final Integer CODE4 = 1004;
-    public static final Integer CODE5 = 1005;
-    public static final Integer CODE6 = 1006;
-    public static final Integer CODE7 = 1007;
-    public static final Integer CODE8 = 1008;
-    public static final Integer CODE9 = 1009;
-    public static final Integer CODE10 = 1010;
-    public static final Integer CODE11 = 1011;
-    public static final Integer CODE12 = 1012;
-    public static final Integer CODE13 = 1013;
-    public static final Integer CODE14 = 1014;
-    public static final Integer CODE15 = 1015;
-    public static final Integer CODE16 = 1016;
-    public static final Integer CODE17 = 1017;
-    public static final Integer CODE18 = 1018;
-    public static final Integer CODE19 = 1019;
-    public static final Integer CODE20 = 1020;
+    public static final Integer SUCCESS_CODE = 1001;
+    public static final Integer ERROR_CODE = 1002;
+    public static final Integer EXCEPTION_CODE = 1003;
 
-    //...
-
-    public static final String MESSAGE1 = "请求成功";
-    public static final String MESSAGE2 = "出现异常";
-    public static final String MESSAGE3 = "参数不匹配";
-    public static final String MESSAGE4 = "验证码错误";
-    public static final String MESSAGE5 = "用户名或密码错误";
-    public static final String MESSAGE6 = "权限不足";
-    public static final String MESSAGE7 = "新增数据失败";
-    public static final String MESSAGE8 = "删除数据失败";
-    public static final String MESSAGE9 = "修改数据失败";
-    public static final String MESSAGE10 = "查询数据失败";
-    public static final String MESSAGE11 = "重复登陆";
-    public static final String MESSAGE12 = "文件上传失败";
-    public static final String MESSAGE13 = "下载失败";
-    public static final String MESSAGE14 = "token错误";
-    public static final String MESSAGE15 = "会员卡号错误";
-    public static final String MESSAGE16 = "邀请人错误";
-    public static final String MESSAGE17 = "导入失败，填入的关联数据不正确";
-    public static final String MESSAGE18 = "已被使用，无法完成操作";
-    public static final String MESSAGE19 = "单据状态或结算状态已进入不可删除或修改状态";
-    public static final String MESSAGE20 = "如果订单已结算，需要先红冲收/付款单，然后结果订单，最后红冲收/发货单";
+    public static final String SUCCESS_MESSAGE = "请求成功";
+    public static final String PARAMETER_ERROR = "参数不匹配";
+    public static final String ADD_ERROR = "新增数据失败";
+    public static final String DELETE_ERROR = "删除数据失败";
+    public static final String USED_ERROR = "已被使用，无法完成操作";
+    public static final String STATUS_ERROR = "单据状态或结算状态已进入不可操作阶段";
+    public static final String UPDATE_ERROR = "修改数据失败";
+    public static final String FIND_ERROR = "查询数据失败";
+    public static final String PERMISSION_ERROR = "权限不足";
+    public static final String IMPORT_ERROR = "导入数据失败";
+    public static final String NEED_ERROR = "导入数据标红列必填";
+    public static final String EXPORT_ERROR = "导出数据失败";
+    public static final String LOGIN_ERROR = "登陆失败";
+    public static final String EXCEPTION_ERROR = "服务器内部错误";
+    public static final String INVENTORY_ERROR = "库存相关操作错误";
 
     private Integer code;
 
@@ -58,18 +33,45 @@ public class CommonResponse<T> {
 
     private String message;
 
+    private String detail;
+
     public CommonResponse() {
     }
 
-    public CommonResponse(Integer code, T data, String message) {
+    private CommonResponse(Integer code, String message, String detail) {
         this.code = code;
-        this.data = data;
         this.message = message;
+        this.detail = detail;
     }
 
-    public CommonResponse(String message) {
-        this.code = CODE0;
-        this.message = message;
+    public static CommonResponse success() {
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode(SUCCESS_CODE);
+        commonResponse.setMessage(SUCCESS_MESSAGE);
+        return commonResponse;
+    }
+
+    public static CommonResponse success(Object data) {
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode(SUCCESS_CODE);
+        commonResponse.setData(data);
+        commonResponse.setMessage(SUCCESS_MESSAGE);
+        return commonResponse;
+    }
+
+    public static CommonResponse error(String message) {
+        CommonResponse commonResponse = new CommonResponse();
+        commonResponse.setCode(ERROR_CODE);
+        commonResponse.setMessage(message);
+        return commonResponse;
+    }
+
+    public static CommonResponse error(String message, String detail) {
+        return new CommonResponse(ERROR_CODE, message, detail);
+    }
+
+    public static CommonResponse exception(String detail) {
+        return new CommonResponse(EXCEPTION_CODE, EXCEPTION_ERROR, detail);
     }
 
     public Integer getCode() {
@@ -96,12 +98,21 @@ public class CommonResponse<T> {
         this.message = message;
     }
 
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
     @Override
     public String toString() {
         return "CommonResponse{" +
                 "code=" + code +
                 ", data=" + data +
                 ", message='" + message + '\'' +
+                ", detail='" + detail + '\'' +
                 '}';
     }
 }

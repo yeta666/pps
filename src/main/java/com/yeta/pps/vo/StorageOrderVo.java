@@ -12,7 +12,7 @@ public class StorageOrderVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -23,7 +23,7 @@ public class StorageOrderVo {
     /**
      * 单据类型，1：采购订单收货单，2：退换货申请收货单，3：销售订单发货单，4：退换货申请发货单
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte type;
 
     /**
@@ -35,7 +35,7 @@ public class StorageOrderVo {
     /**
      * 来源订单
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String applyOrderId;
 
     private ProcurementApplyOrderVo procurementApplyOrderVo;
@@ -50,7 +50,7 @@ public class StorageOrderVo {
     /**
      * 数量
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer quantity;
 
     /**
@@ -66,7 +66,7 @@ public class StorageOrderVo {
     /**
      * 经手人
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String userId;
 
     private String userName;
@@ -79,14 +79,14 @@ public class StorageOrderVo {
     public StorageOrderVo() {
     }
 
-    public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public StorageOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
         this.remark = remark;
     }
 
-    public StorageOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, ProcurementApplyOrderVo procurementApplyOrderVo, SellApplyOrderVo sellApplyOrderVo) {
+    public StorageOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type, ProcurementApplyOrderVo procurementApplyOrderVo, SellApplyOrderVo sellApplyOrderVo) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;

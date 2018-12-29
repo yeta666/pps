@@ -34,9 +34,9 @@ public class IncomeExpensesService {
     public CommonResponse add(IncomeExpensesVo incomeExpensesVo) {
         //新增
         if (myIncomeExpensesMapper.add(incomeExpensesVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -49,10 +49,10 @@ public class IncomeExpensesService {
         incomeExpensesVos.stream().forEach(incomeExpensesVo -> {
             //删除收支费用
             if (myIncomeExpensesMapper.delete(incomeExpensesVo) != 1) {
-                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                throw new CommonException(CommonResponse.DELETE_ERROR);
             }
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -63,9 +63,9 @@ public class IncomeExpensesService {
     public CommonResponse update(IncomeExpensesVo incomeExpensesVo) {
         //修改
         if (myIncomeExpensesMapper.update(incomeExpensesVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -88,11 +88,11 @@ public class IncomeExpensesService {
             titles.add(new Title("借贷", "debitCredit"));
             titles.add(new Title("账户类型", "type"));
             CommonResult commonResult = new CommonResult(titles, incomeExpenses, pageVo);
-            return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+            return CommonResponse.success(commonResult);
         }
         //不分页
         List<IncomeExpenses> incomeExpenses = myIncomeExpensesMapper.findAll(incomeExpensesVo);
-        return new CommonResponse(CommonResponse.CODE1, incomeExpenses, CommonResponse.MESSAGE1);
+        return CommonResponse.success(incomeExpenses);
     }
 
     /**
@@ -103,8 +103,8 @@ public class IncomeExpensesService {
     public CommonResponse findById(IncomeExpensesVo incomeExpensesVo) {
         IncomeExpenses incomeExpenses = myIncomeExpensesMapper.findById(incomeExpensesVo);
         if (incomeExpenses == null) {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, incomeExpenses, CommonResponse.MESSAGE1);
+        return CommonResponse.success(incomeExpenses);
     }
 }

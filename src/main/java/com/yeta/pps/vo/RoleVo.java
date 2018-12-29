@@ -10,7 +10,7 @@ public class RoleVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -21,22 +21,22 @@ public class RoleVo {
     /**
      * 角色名
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     public RoleVo() {
     }
 
-    public RoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
+    public RoleVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId) {
         this.storeId = storeId;
     }
 
-    public RoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer id) {
+    public RoleVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public RoleVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String name) {
+    public RoleVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String name) {
         this.storeId = storeId;
         this.name = name;
     }

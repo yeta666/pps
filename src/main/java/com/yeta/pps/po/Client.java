@@ -12,13 +12,13 @@ public class Client {
     /**
      * 客户编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String id;
 
     /**
      * 姓名
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     /**
@@ -29,13 +29,13 @@ public class Client {
     /**
      * 密码
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String password;
 
     /**
      * 电话
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String phone;
 
     /**
@@ -95,7 +95,7 @@ public class Client {
     public Client() {
     }
 
-    public Client(@NotBlank(message = CommonResponse.MESSAGE3) String name, @NotBlank(message = CommonResponse.MESSAGE3) String phone, String membershipNumber) {
+    public Client(@NotBlank(message = CommonResponse.PARAMETER_ERROR) String name, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String phone, String membershipNumber) {
         this.name = name;
         this.phone = phone;
         this.membershipNumber = membershipNumber;

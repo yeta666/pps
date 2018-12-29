@@ -29,7 +29,7 @@ public class FunctionService {
         List<Function> functions =  functionMapper.selectAll();
         List<Integer> ids = new ArrayList<>();
         functions.stream().forEach(function -> ids.add(function.getId()));
-        return new CommonResponse(CommonResponse.CODE1, ids, CommonResponse.MESSAGE1);
+        return CommonResponse.success(ids);
     }
 }
 

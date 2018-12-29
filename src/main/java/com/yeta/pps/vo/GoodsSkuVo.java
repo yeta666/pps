@@ -10,7 +10,7 @@ public class GoodsSkuVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -21,37 +21,37 @@ public class GoodsSkuVo {
     /**
      * 商品货号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String goodsId;
 
     /**
      * 进价
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double purchasePrice;
 
     /**
      * 零售价
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double retailPrice;
 
     /**
      * vip售价
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double vipPrice;
 
     /**
      * 积分
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer integral;
 
     /**
      * 规格
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String sku;
 
     /**
@@ -80,6 +80,11 @@ public class GoodsSkuVo {
 
     public GoodsSkuVo(Integer storeId) {
         this.storeId = storeId;
+    }
+
+    public GoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String goodsId) {
+        this.storeId = storeId;
+        this.goodsId = goodsId;
     }
 
     public Integer getStoreId() {

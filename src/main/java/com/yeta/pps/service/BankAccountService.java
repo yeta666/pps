@@ -34,9 +34,9 @@ public class BankAccountService {
     public CommonResponse add(BankAccountVo bankAccountVo) {
         //新增
         if (myBankAccountMapper.add(bankAccountVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -49,10 +49,10 @@ public class BankAccountService {
         bankAccountVos.stream().forEach(bankAccountVo -> {
             //删除银行账户
             if (myBankAccountMapper.delete(bankAccountVo) != 1) {
-                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                throw new CommonException(CommonResponse.DELETE_ERROR);
             }
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -63,9 +63,9 @@ public class BankAccountService {
     public CommonResponse update(BankAccountVo bankAccountVo) {
         //修改
         if (myBankAccountMapper.update(bankAccountVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -91,11 +91,11 @@ public class BankAccountService {
             titles.add(new Title("收款码", "qrCode"));
             titles.add(new Title("是否用于订货平台", "procurement"));
             CommonResult commonResult = new CommonResult(titles, bankAccounts, pageVo);
-            return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+            return CommonResponse.success(commonResult);
         }
         //不分页
         List<BankAccount> bankAccounts = myBankAccountMapper.findAll(bankAccountVo);
-        return new CommonResponse(CommonResponse.CODE1, bankAccounts, CommonResponse.MESSAGE1);
+        return CommonResponse.success(bankAccounts);
     }
 
     /**
@@ -106,8 +106,8 @@ public class BankAccountService {
     public CommonResponse findById(BankAccountVo bankAccountVo) {
         BankAccount bankAccount = myBankAccountMapper.findById(bankAccountVo);
         if (bankAccount == null) {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, bankAccount, CommonResponse.MESSAGE1);
+        return CommonResponse.success(bankAccount);
     }
 }

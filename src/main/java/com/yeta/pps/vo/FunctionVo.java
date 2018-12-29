@@ -10,7 +10,7 @@ public class FunctionVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -26,13 +26,13 @@ public class FunctionVo {
     /**
      * 功能id集合
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Set<Integer> functionIds;
 
     public FunctionVo() {
     }
 
-    public FunctionVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String userId, Integer roleId) {
+    public FunctionVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String userId, Integer roleId) {
         this.storeId = storeId;
         this.userId = userId;
         this.roleId = roleId;

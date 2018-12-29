@@ -10,7 +10,7 @@ public class GoodsPropertyValueVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     private String propertyKeyName;
@@ -25,23 +25,23 @@ public class GoodsPropertyValueVo {
     /**
      * 商品属性值
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     /**
      * 商品属性名id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer propertyKeyId;
 
     public GoodsPropertyValueVo() {
     }
 
-    public GoodsPropertyValueVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
+    public GoodsPropertyValueVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId) {
         this.storeId = storeId;
     }
 
-    public GoodsPropertyValueVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer id, @NotNull(message = CommonResponse.MESSAGE3) Integer propertyKeyId) {
+    public GoodsPropertyValueVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer propertyKeyId) {
         this.storeId = storeId;
         this.id = id;
         this.propertyKeyId = propertyKeyId;

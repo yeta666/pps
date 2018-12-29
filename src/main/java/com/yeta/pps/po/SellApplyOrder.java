@@ -1,6 +1,5 @@
 package com.yeta.pps.po;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 public class SellApplyOrder {
@@ -88,12 +87,12 @@ public class SellApplyOrder {
     /**
      * 总商品金额
      */
-    private BigDecimal totalMoney;
+    private Double totalMoney;
 
     /**
      * 直接优惠金额
      */
-    private BigDecimal discountMoney;
+    private Double discountMoney;
 
     /**
      * 优惠券编号
@@ -103,22 +102,22 @@ public class SellApplyOrder {
     /**
      * 总优惠金额
      */
-    private BigDecimal totalDiscountMoney;
+    private Double totalDiscountMoney;
 
     /**
      * 本单金额
      */
-    private BigDecimal orderMoney;
+    private Double orderMoney;
 
     /**
      * 已结算金额
      */
-    private BigDecimal clearedMoney;
+    private Double clearedMoney;
 
     /**
      * 未结算金额
      */
-    private BigDecimal notClearedMoney;
+    private Double notClearedMoney;
 
     /**
      * 经手人编号
@@ -426,7 +425,7 @@ public class SellApplyOrder {
      *
      * @return total_money - 总商品金额
      */
-    public BigDecimal getTotalMoney() {
+    public Double getTotalMoney() {
         return totalMoney;
     }
 
@@ -435,7 +434,7 @@ public class SellApplyOrder {
      *
      * @param totalMoney 总商品金额
      */
-    public void setTotalMoney(BigDecimal totalMoney) {
+    public void setTotalMoney(Double totalMoney) {
         this.totalMoney = totalMoney;
     }
 
@@ -444,7 +443,7 @@ public class SellApplyOrder {
      *
      * @return discount_money - 直接优惠金额
      */
-    public BigDecimal getDiscountMoney() {
+    public Double getDiscountMoney() {
         return discountMoney;
     }
 
@@ -453,7 +452,7 @@ public class SellApplyOrder {
      *
      * @param discountMoney 直接优惠金额
      */
-    public void setDiscountMoney(BigDecimal discountMoney) {
+    public void setDiscountMoney(Double discountMoney) {
         this.discountMoney = discountMoney;
     }
 
@@ -480,7 +479,7 @@ public class SellApplyOrder {
      *
      * @return total_discount_money - 总优惠金额
      */
-    public BigDecimal getTotalDiscountMoney() {
+    public Double getTotalDiscountMoney() {
         return totalDiscountMoney;
     }
 
@@ -489,7 +488,7 @@ public class SellApplyOrder {
      *
      * @param totalDiscountMoney 总优惠金额
      */
-    public void setTotalDiscountMoney(BigDecimal totalDiscountMoney) {
+    public void setTotalDiscountMoney(Double totalDiscountMoney) {
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
@@ -498,7 +497,7 @@ public class SellApplyOrder {
      *
      * @return order_money - 本单金额
      */
-    public BigDecimal getOrderMoney() {
+    public Double getOrderMoney() {
         return orderMoney;
     }
 
@@ -507,7 +506,7 @@ public class SellApplyOrder {
      *
      * @param orderMoney 本单金额
      */
-    public void setOrderMoney(BigDecimal orderMoney) {
+    public void setOrderMoney(Double orderMoney) {
         this.orderMoney = orderMoney;
     }
 
@@ -516,7 +515,7 @@ public class SellApplyOrder {
      *
      * @return cleared_money - 已结算金额
      */
-    public BigDecimal getClearedMoney() {
+    public Double getClearedMoney() {
         return clearedMoney;
     }
 
@@ -525,7 +524,7 @@ public class SellApplyOrder {
      *
      * @param clearedMoney 已结算金额
      */
-    public void setClearedMoney(BigDecimal clearedMoney) {
+    public void setClearedMoney(Double clearedMoney) {
         this.clearedMoney = clearedMoney;
     }
 
@@ -534,7 +533,7 @@ public class SellApplyOrder {
      *
      * @return not_cleared_money - 未结算金额
      */
-    public BigDecimal getNotClearedMoney() {
+    public Double getNotClearedMoney() {
         return notClearedMoney;
     }
 
@@ -543,7 +542,7 @@ public class SellApplyOrder {
      *
      * @param notClearedMoney 未结算金额
      */
-    public void setNotClearedMoney(BigDecimal notClearedMoney) {
+    public void setNotClearedMoney(Double notClearedMoney) {
         this.notClearedMoney = notClearedMoney;
     }
 

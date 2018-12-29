@@ -10,7 +10,7 @@ public class WarehouseVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -21,7 +21,7 @@ public class WarehouseVo {
     /**
      * 仓库名
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     /**
@@ -52,16 +52,16 @@ public class WarehouseVo {
     public WarehouseVo() {
     }
 
-    public WarehouseVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
+    public WarehouseVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId) {
         this.storeId = storeId;
     }
 
-    public WarehouseVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer id) {
+    public WarehouseVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public WarehouseVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, @NotBlank(message = CommonResponse.MESSAGE3) String name) {
+    public WarehouseVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String name) {
         this.storeId = storeId;
         this.name = name;
     }

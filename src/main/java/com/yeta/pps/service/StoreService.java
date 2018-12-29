@@ -47,7 +47,7 @@ public class StoreService {
     public CommonResponse add(Store store) {
         //新增店铺
         if (storeMapper.add(store) != 1) {
-            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+            throw new CommonException(CommonResponse.ADD_ERROR);
         }
         Integer storeId = store.getId();
         try {
@@ -59,7 +59,7 @@ public class StoreService {
             tableMapper.addGoodsLabel(storeId);
             tableMapper.addGoodsPropertyKey(storeId);
             tableMapper.addGoodsPropertyValue(storeId);
-            tableMapper.addGoodsSku(storeId);
+            tableMapper.addGoodsSkuMethod(storeId);
             tableMapper.addGoodsType(storeId);
             tableMapper.addIncomeExpenses(storeId);
             tableMapper.addOrderGoodsSku(storeId);
@@ -101,9 +101,10 @@ public class StoreService {
             tableMapper.deleteUserRole(storeId);
             tableMapper.deleteWarehouse(storeId);*/
             //TODO
-            throw new CommonException(CommonResponse.CODE2, e.getMessage());
+            throw new CommonException(CommonResponse.ADD_ERROR, e.getMessage());
         }
-        return new CommonResponse(CommonResponse.CODE1, store, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success(store);
     }
 
     /**
@@ -117,7 +118,7 @@ public class StoreService {
         //角色
         //用户角色关系
         //角色功能关系
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -128,13 +129,13 @@ public class StoreService {
     public CommonResponse update(Store store) {
         //判断参数
         if (store.getId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
         //修改
         if (storeMapper.update(store) != 1) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -157,10 +158,10 @@ public class StoreService {
             titles.add(new Title("店长", "boss"));
             titles.add(new Title("电话", "phone"));
             CommonResult commonResult = new CommonResult(titles, stores, pageVo);
-            return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+            return CommonResponse.success(commonResult);
         }
         //不分页
         List<Store> stores = storeMapper.findAll();
-        return new CommonResponse(CommonResponse.CODE1, stores, CommonResponse.MESSAGE1);
+        return CommonResponse.success(stores);
     }
 }

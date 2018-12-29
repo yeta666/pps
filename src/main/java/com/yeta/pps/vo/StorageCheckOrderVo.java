@@ -9,7 +9,7 @@ import java.util.Date;
 
 public class StorageCheckOrderVo {
 
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -129,19 +129,19 @@ public class StorageCheckOrderVo {
     public StorageCheckOrderVo() {
     }
 
-    public StorageCheckOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer goodsSkuId) {
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer goodsSkuId) {
         this.storeId = storeId;
         this.goodsSkuId = goodsSkuId;
     }
 
-    public StorageCheckOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String orderId, Integer goodsSkuId, String userId) {
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String orderId, Integer goodsSkuId, String userId) {
         this.storeId = storeId;
         this.orderId = orderId;
         this.goodsSkuId = goodsSkuId;
         this.userId = userId;
     }
 
-    public StorageCheckOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId) {
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId) {
         this.storeId = storeId;
         this.startTime = startTime;
         this.endTime = endTime;

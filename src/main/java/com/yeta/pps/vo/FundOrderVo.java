@@ -13,7 +13,7 @@ public class FundOrderVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
@@ -24,7 +24,7 @@ public class FundOrderVo {
     /**
      * 单单据类型，1：付款单，2：收款单
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte type;
 
     /**
@@ -36,7 +36,7 @@ public class FundOrderVo {
     /**
      * 来源订单
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String applyOrderId;
 
     private ProcurementApplyOrderVo procurementApplyOrderVo;
@@ -51,7 +51,7 @@ public class FundOrderVo {
     /**
      * 银行账户编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String bankAccountId;
 
     private BankAccount bankAccount;
@@ -59,13 +59,13 @@ public class FundOrderVo {
     /**
      * 金额
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double money;
 
     /**
      * 经手人
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String userId;
 
     private String userName;
@@ -78,14 +78,14 @@ public class FundOrderVo {
     public FundOrderVo() {
     }
 
-    public FundOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public FundOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
         this.remark = remark;
     }
 
-    public FundOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, ProcurementApplyOrderVo procurementApplyOrderVo, SellApplyOrderVo sellApplyOrderVo) {
+    public FundOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type, ProcurementApplyOrderVo procurementApplyOrderVo, SellApplyOrderVo sellApplyOrderVo) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
@@ -93,7 +93,7 @@ public class FundOrderVo {
         this.sellApplyOrderVo = sellApplyOrderVo;
     }
 
-    public FundOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Date createTime, @NotBlank(message = CommonResponse.MESSAGE3) String applyOrderId, Byte orderStatus, @NotBlank(message = CommonResponse.MESSAGE3) String bankAccountId, @NotNull(message = CommonResponse.MESSAGE3) Double money, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public FundOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type, Date createTime, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String applyOrderId, Byte orderStatus, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String bankAccountId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Double money, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;

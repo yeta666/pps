@@ -15,10 +15,10 @@ public class SellApplyOrderVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     List<OrderGoodsSkuVo> details;
 
     private String inWarehouseName;
@@ -48,7 +48,7 @@ public class SellApplyOrderVo {
     /**
      * 单据类型，1：零售单，2：销售订单，3：销售退货申请单，4：销售换货申请单
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte type;
 
     /**
@@ -66,7 +66,7 @@ public class SellApplyOrderVo {
     /**
      * 产生方式，1：线下录单，2：线上下单
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte prodcingWay;
 
     /**
@@ -82,7 +82,7 @@ public class SellApplyOrderVo {
     /**
      * 客户编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String clientId;
 
     private Client client;
@@ -130,13 +130,13 @@ public class SellApplyOrderVo {
     /**
      * 总商品金额
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double totalMoney;
 
     /**
      * 直接优惠金额
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double discountMoney;
 
     /**
@@ -147,13 +147,13 @@ public class SellApplyOrderVo {
     /**
      * 总优惠金额
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double totalDiscountMoney;
 
     /**
      * 本单金额
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double orderMoney;
 
     /**
@@ -169,7 +169,7 @@ public class SellApplyOrderVo {
     /**
      * 经手人编号
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String userId;
 
     /**
@@ -180,12 +180,12 @@ public class SellApplyOrderVo {
     public SellApplyOrderVo() {
     }
 
-    public SellApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+    public SellApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public SellApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public SellApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
@@ -198,7 +198,7 @@ public class SellApplyOrderVo {
         this.client = client;
     }
 
-    public SellApplyOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.MESSAGE3) Byte type, Byte orderStatus, Byte clearStatus, Client client) {
+    public SellApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type, Byte orderStatus, Byte clearStatus, Client client) {
         this.storeId = storeId;
         this.startTime = startTime;
         this.endTime = endTime;

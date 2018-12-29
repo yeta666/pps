@@ -16,19 +16,19 @@ public class ClientLevel {
     /**
      * 客户级别
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     /**
      * 级别价格类型，1：零售价，2：vip售价
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte priceType;
 
     /**
      * 级别默认价格，级别价格类型*0.几
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private BigDecimal price;
 
     public ClientLevel() {
@@ -38,7 +38,7 @@ public class ClientLevel {
         this.id = id;
     }
 
-    public ClientLevel(@NotBlank(message = CommonResponse.MESSAGE3) String name) {
+    public ClientLevel(@NotBlank(message = CommonResponse.PARAMETER_ERROR) String name) {
         this.name = name;
     }
 

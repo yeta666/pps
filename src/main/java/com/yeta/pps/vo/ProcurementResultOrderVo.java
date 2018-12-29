@@ -13,7 +13,7 @@ public class ProcurementResultOrderVo {
     /**
      * 店铺编号
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     private ProcurementApplyOrderVo procurementApplyOrderVo;
@@ -71,7 +71,7 @@ public class ProcurementResultOrderVo {
     /**
      * 经手人
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String userId;
 
     /**
@@ -82,25 +82,25 @@ public class ProcurementResultOrderVo {
     public ProcurementResultOrderVo() {
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
         this.remark = remark;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id) {
+    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id) {
         this.storeId = storeId;
         this.procurementApplyOrderVo = procurementApplyOrderVo;
         this.id = id;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;

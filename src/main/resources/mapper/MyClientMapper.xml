@@ -69,7 +69,7 @@
     </select>
 
     <select id="findMembershipNumberByNumber" parameterType="com.yeta.pps.po.MembershipNumber" resultType="com.yeta.pps.po.MembershipNumber">
-        select id, number, disabled from membership_number where number = #{number};
+        select id, number, disabled from membership_number where number = #{number} and disabled = 0;
     </select>
 
     <!--客户级别-->
@@ -171,6 +171,10 @@
         and
             c.level_id = #{levelId}
         </if>
+        <if test="disabled != null">
+        and
+            c.disabled = #{disabled}
+        </if>
     </select>
 
     <resultMap id="clientVoMap" type="com.yeta.pps.vo.ClientVo">
@@ -243,6 +247,10 @@
         and
             c.level_id = #{clientVo.levelId}
         </if>
+        <if test="clientVo.disabled != null">
+        and
+            c.disabled = #{clientVo.disabled}
+        </if>
         limit
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
@@ -292,6 +300,10 @@
         <if test="levelId != null">
         and
             c.level_id = #{levelId}
+        </if>
+        <if test="disabled != null">
+            and
+            c.disabled = #{disabled}
         </if>
     </select>
 

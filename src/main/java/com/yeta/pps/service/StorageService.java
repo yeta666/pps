@@ -7,8 +7,7 @@ import com.yeta.pps.po.SellResultOrder;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.omg.PortableInterceptor.SUCCESSFUL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,9 +67,10 @@ public class StorageService {
                     if (oldApplyOrderStatus == 1 || oldApplyOrderStatus == 2) {     //采购订单
                         applyOrderStatus = 3;
                     } else {
-                        throw new CommonException(CommonResponse.CODE0, "申请订单状态错误");
+                        throw new CommonException(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
                     }
                     break;
+
                 case 2:
                     if (oldApplyOrderStatus == 1 || oldApplyOrderStatus == 2) {     //销售：退
                         applyOrderStatus = 3;
@@ -81,16 +81,18 @@ public class StorageService {
                     } else if (oldApplyOrderStatus == 7 || oldApplyOrderStatus == 10) {     //采购：换/销售：换
                         applyOrderStatus = 13;
                     } else {
-                        throw new CommonException(CommonResponse.CODE0, "申请订单状态错误");
+                        throw new CommonException(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
                     }
                     break;
+
                 case 3:
                     if (oldApplyOrderStatus == 4 || oldApplyOrderStatus == 5) {     //销售订单
                         applyOrderStatus = 6;
                     } else {
-                        throw new CommonException(CommonResponse.CODE0, "申请订单状态错误");
+                        throw new CommonException(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
                     }
                     break;
+
                 case 4:
                     if (oldApplyOrderStatus == 4 || oldApplyOrderStatus == 5) {      //采购：退
                         applyOrderStatus = 6;
@@ -101,11 +103,12 @@ public class StorageService {
                     } else if (oldApplyOrderStatus == 13 || oldApplyOrderStatus == 14) {        //采购：换/销售：换
                         applyOrderStatus = 15;
                     } else {
-                        throw new CommonException(CommonResponse.CODE0, "申请订单状态错误");
+                        throw new CommonException(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
                     }
                     break;
+
                 default:
-                    throw new CommonException(CommonResponse.CODE0, "收/发货单据类型错误");
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
         } else if (change < notFinish && change + finish < total) {     //部分完成
             switch (type) {
@@ -113,9 +116,10 @@ public class StorageService {
                     if (oldApplyOrderStatus == 1 || oldApplyOrderStatus == 2) {        //采购订单
                         applyOrderStatus = 2;
                     } else {
-                        throw new CommonException(CommonResponse.CODE0, "申请订单状态错误");
+                        throw new CommonException(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
                     }
                     break;
+
                 case 2:
                     if (oldApplyOrderStatus == 1 || oldApplyOrderStatus == 2) {     //销售：退
                         applyOrderStatus = 2;
@@ -126,16 +130,18 @@ public class StorageService {
                     } else if (oldApplyOrderStatus == 9 || oldApplyOrderStatus == 12) {     //采购：换/销售：换
                         applyOrderStatus = 12;
                     } else {
-                        throw new CommonException(CommonResponse.CODE0, "申请订单状态错误");
+                        throw new CommonException(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
                     }
                     break;
+
                 case 3:
                     if (oldApplyOrderStatus == 4 || oldApplyOrderStatus == 5) {      //销售订单
                         applyOrderStatus = 5;
                     } else {
-                        throw new CommonException(CommonResponse.CODE0, "申请订单状态错误");
+                        throw new CommonException(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
                     }
                     break;
+
                 case 4:
                     if (oldApplyOrderStatus == 4 || oldApplyOrderStatus == 5) {     //采购：退
                         applyOrderStatus = 5;
@@ -146,15 +152,17 @@ public class StorageService {
                     } else if (oldApplyOrderStatus == 13 || oldApplyOrderStatus == 14) {        //采购：换/销售：换
                         applyOrderStatus = 14;
                     } else {
-                        throw new CommonException(CommonResponse.CODE0, "申请订单状态错误");
+                        throw new CommonException(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
                     }
                     break;
+
                 default:
-                    throw new CommonException(CommonResponse.CODE0, "收/发货单据类型错误");
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
         } else {        //错误
-            throw new CommonException(CommonResponse.CODE0, "收/发货数量错误");
+            throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
+
         return applyOrderStatus;
     }
 
@@ -170,14 +178,16 @@ public class StorageService {
         switch (flag) {
             case 1:
                 if (myProcurementMapper.updateApplyOrderOrderStatusAndQuantity(storageOrderVo) != 1) {
-                    throw new CommonException(CommonResponse.CODE0, "修改申请订单单据状态和完成数量失败");
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
                 break;
+
             case 2:
                 if (mySellMapper.updateApplyOrderOrderStatusAndQuantity(storageOrderVo) != 1) {
-                    throw new CommonException(CommonResponse.CODE0, "修改申请订单单据状态和完成数量失败");
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
                 break;
+
             default:
                 break;
         }
@@ -195,18 +205,18 @@ public class StorageService {
         vos.stream().forEach(vo -> {
             //判断参数
             if (vo.getId() == null || vo.getGoodsSkuId() == null || vo.getChangeQuantity() == null) {
-                throw new CommonException(CommonResponse.CODE0, "商品规格参数不匹配");
+                throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
             vo.setStoreId(storeId);
             //修改商品规格完成情况
             if (myOrderGoodsSkuMapper.updateOrderGoodsSku(vo) != 1) {
-                throw new CommonException(CommonResponse.CODE0, "修改商品规格完成情况失败");
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
             //统计数量
             check.setFinishQuantity(check.getFinishQuantity() + vo.getChangeQuantity());
         });
         if (check.getQuantity() != check.getFinishQuantity()) {
-            throw new CommonException(CommonResponse.CODE0, "商品规格数量之和与总数量不对应");
+            throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
     }
 
@@ -375,7 +385,7 @@ public class StorageService {
                             storageOrderVo.getUserId(),
                             storageOrderVo.getRemark()
                     )) != 1) {
-                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                throw new CommonException(CommonResponse.ADD_ERROR);
             }
         } else if (pVo == null && sVo != null) {        //销售相关
             orderGoodsSkuVos = storageOrderVo.getSellApplyOrderVo().getDetails();
@@ -405,7 +415,7 @@ public class StorageService {
                             storageOrderVo.getUserId(),
                             storageOrderVo.getRemark()
                     )) != 1) {
-                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                throw new CommonException(CommonResponse.ADD_ERROR);
             }
         }
         return resultOrderId;
@@ -795,6 +805,7 @@ public class StorageService {
         //获取参数
         int storeId = storageOrderVo.getStoreId();
         String applyOrderId = storageOrderVo.getApplyOrderId();
+
         //判断参数、查询申请订单
         ProcurementApplyOrderVo pVo = null;
         SellApplyOrderVo sVo = null;
@@ -803,49 +814,62 @@ public class StorageService {
             if (storageOrderVo.getProcurementApplyOrderVo().getDetails() == null || storageOrderVo.getProcurementApplyOrderVo().getDetails().size() == 0) {
                 throw new CommonException("参数不匹配：【申请订单商品规格为空】");
             }
+
             //查询申请订单
             pVo = myProcurementMapper.findApplyOrderDetailById(new ProcurementApplyOrderVo(storeId, applyOrderId));
             if (pVo == null || pVo.getDetails() == null || pVo.getDetails().size() == 0) {
                 throw new CommonException("申请订单编号错误");
             }
+
         } else if (storageOrderVo.getProcurementApplyOrderVo() == null && storageOrderVo.getSellApplyOrderVo() != null) {       //销售相关
             //判断参数
             if (storageOrderVo.getSellApplyOrderVo().getDetails() == null || storageOrderVo.getSellApplyOrderVo().getDetails().size() == 0) {
                 throw new CommonException("参数不匹配：【申请订单商品规格为空】");
             }
+
             //查询申请订单
             sVo = mySellMapper.findApplyOrderDetailById(new SellApplyOrderVo(storeId, applyOrderId));
             if (sVo == null || sVo.getDetails() == null || sVo.getDetails().size() == 0) {
                 throw new CommonException("申请订单编号错误");
             }
+
         } else {
             throw new CommonException("参数不匹配：【申请订单为空】");
         }
+
         //判断新增收/发货单类型
         Byte type = storageOrderVo.getType();
         switch (type) {
             case 1:     //采购订单收货单
                 cgshd(storageOrderVo, pVo, sVo);
                 break;
+
             case 2:     //退换货申请收货单
                 thhsqshd(storageOrderVo, pVo, sVo);
                 break;
+
             case 3:     //销售订单发货单
                 xsfhd(storageOrderVo, pVo, sVo);
                 break;
+
             case 4:     //退换货申请发货单
                 thhsqfhd(storageOrderVo, pVo, sVo);
                 break;
+
             default:
-                return new CommonResponse(CommonResponse.CODE0, null, "收/发货单类型错误");
+                throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
+
+        //设置初始属性
         storageOrderVo.setCreateTime(new Date());
         storageOrderVo.setOrderStatus((byte) 1);
+
         //新增收/发货单
         if (myStorageMapper.addStorageOrder(storageOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            throw new CommonException(CommonResponse.ADD_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+
+        return CommonResponse.success();
     }
 
     /**
@@ -862,7 +886,7 @@ public class StorageService {
 
         //红冲
         if (myStorageMapper.redDashed(storageOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
 
         //查询红冲蓝单
@@ -879,9 +903,9 @@ public class StorageService {
 
         //新增红冲红单
         if (myStorageMapper.addStorageOrder(storageOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -895,8 +919,9 @@ public class StorageService {
         pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountStorageOrder(storageOrderVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<StorageOrderVo> storageOrderVos = myStorageMapper.findAllPagedStorageOrder(storageOrderVo, pageVo);
+        
+        //补上仓库名
         if (storageOrderVos.size() > 0) {
-            //补上仓库名
             List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storageOrderVo.getStoreId()));
             storageOrderVos.stream().forEach(vo -> {
                 warehouses.stream().forEach(warehouse -> {
@@ -909,6 +934,7 @@ public class StorageService {
                 });
             });
         }
+        
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("单据编号", "id"));
@@ -928,7 +954,8 @@ public class StorageService {
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, storageOrderVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success(commonResult);
     }
 
     //其他入/出库单、报溢/损单、成本调价单、库存盘点单
@@ -948,7 +975,7 @@ public class StorageService {
                 //判断参数
                 if (storageResultOrderVo.getDetails().size() == 0 ||
                         storageResultOrderVo.getTargetId() == null || storageResultOrderVo.getTotalMoney() == null) {
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
                 storageResultOrderVo.setId("QTRKD_" + UUID.randomUUID().toString().replace("-", ""));
                 flag = 1;
@@ -958,7 +985,7 @@ public class StorageService {
                 //判断参数
                 if (storageResultOrderVo.getDetails().size() == 0 ||
                         storageResultOrderVo.getTargetId() == null || storageResultOrderVo.getTotalMoney() == null) {
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
                 storageResultOrderVo.setId("QTCKD_" + UUID.randomUUID().toString().replace("-", ""));
                 flag = 0;
@@ -967,7 +994,7 @@ public class StorageService {
             case 3:     //报溢单
                 //判断参数
                 if (storageResultOrderVo.getDetails().size() == 0 || storageResultOrderVo.getTotalMoney() == null) {
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
                 storageResultOrderVo.setId("BYD_" + UUID.randomUUID().toString().replace("-", ""));
                 flag = 1;
@@ -976,7 +1003,7 @@ public class StorageService {
             case 4:     //报损单
                 //判断参数
                 if (storageResultOrderVo.getDetails().size() == 0 || storageResultOrderVo.getTotalMoney() == null) {
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
                 storageResultOrderVo.setId("BSD_" + UUID.randomUUID().toString().replace("-", ""));
                 flag = 0;
@@ -985,7 +1012,7 @@ public class StorageService {
             case 5:     //成本调价单
                 //判断参数
                 if (storageResultOrderVo.getDetails().size() == 0 || storageResultOrderVo.getTotalMoney() == null) {
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
                 storageResultOrderVo.setId("CBTJD_" + UUID.randomUUID().toString().replace("-", ""));
                 flag = 2;
@@ -996,14 +1023,14 @@ public class StorageService {
                 if (storageResultOrderVo.getDetails().size() == 0 || storageResultOrderVo.getTotalCheckQuantity() == null ||
                         storageResultOrderVo.getTotalInQuantity() == null || storageResultOrderVo.getTotalInMoney() == null ||
                         storageResultOrderVo.getTotalOutQuantity() == null || storageResultOrderVo.getTotalOutMoney() == null) {
-                    return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
                 storageResultOrderVo.setId("KCPDD_" + UUID.randomUUID().toString().replace("-", ""));
                 flag = 3;
                 break;
 
             default:
-                return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
         //设置初始属性
@@ -1012,13 +1039,13 @@ public class StorageService {
 
         //新增单据
         if (myStorageMapper.addStorageResultOrder(storageResultOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
 
         //新增单据/商品规格关系
         addOrderGoodsSku(flag, storageResultOrderVo);
 
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -1059,7 +1086,7 @@ public class StorageService {
                 if (vo.getGoodsSkuId() == null || vo.getType() == null || vo.getType() != flag ||
                         vo.getQuantity() == null || vo.getMoney() == null ||
                         vo.getCheckQuantity() == null || vo.getCheckMoney() == null || vo.getCheckTotalMoney() == null){
-                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
                 //设置初始属性
@@ -1068,7 +1095,7 @@ public class StorageService {
 
                 //新增单据/商品规格关系
                 if (myOrderGoodsSkuMapper.addOrderGoodsSku(vo) != 1) {
-                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
                 //修改库存
@@ -1099,7 +1126,7 @@ public class StorageService {
                 if (vo.getGoodsSkuId() == null ||
                         vo.getCheckQuantity() == null || vo.getCheckMoney() == null || vo.getCheckTotalMoney() == null ||
                         vo.getAfterChangeCheckMoney() == null || vo.getChangeCheckTotalMoney() == null){
-                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
                 //设置初始属性
@@ -1108,7 +1135,7 @@ public class StorageService {
 
                 //新增单据/商品规格关系
                 if (myOrderGoodsSkuMapper.addOrderGoodsSku(vo) != 1) {
-                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
                 //统计数量和金额
@@ -1138,7 +1165,7 @@ public class StorageService {
                         vo.getCheckQuantity() == null || vo.getCheckMoney() == null || vo.getCheckTotalMoney() == null ||
                         vo.getInQuantity() == null || vo.getInMoney() == null ||
                         vo.getOutQuantity() == null || vo.getOutMoney() == null){
-                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
                 //设置初始属性
@@ -1147,7 +1174,7 @@ public class StorageService {
 
                 //新增单据/商品规格关系
                 if (myOrderGoodsSkuMapper.addOrderGoodsSku(vo) != 1) {
-                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
                 //统计数量和金额
@@ -1160,10 +1187,10 @@ public class StorageService {
 
                 //验证盘点数量、库存数量、盘盈/盘亏数量是否正确
                 if (vo.getInQuantity() > 0 && vo.getInQuantity() != vo.getQuantity() - vo.getCheckQuantity()) {
-                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
                 if (vo.getOutQuantity() > 0 && vo.getOutQuantity() != vo.getCheckQuantity() - vo.getQuantity()) {
-                    throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
             });
 
@@ -1238,7 +1265,7 @@ public class StorageService {
     public CommonResponse redDashedStorageResultOrder(StorageResultOrderVo storageResultOrderVo) {
         //判断参数
         if (storageResultOrderVo.getId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
         //获取参数
@@ -1248,7 +1275,7 @@ public class StorageService {
 
         //红冲
         if (myStorageMapper.redDashedStorageResultOrder(storageResultOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
 
         //查询红冲蓝单
@@ -1291,7 +1318,7 @@ public class StorageService {
                     //红冲库存记账记录
                     inventoryUtil.redDashedStorageCheckOrder(1, new StorageCheckOrderVo(storeId, oldResultOrderId, vo.getGoodsSkuId(), userId));
                 } else {
-                    throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
             });
 
@@ -1307,19 +1334,19 @@ public class StorageService {
                     //红冲库存记账记录
                     inventoryUtil.redDashedStorageCheckOrder(3, new StorageCheckOrderVo(storeId, oldResultOrderId, vo.getGoodsSkuId(), userId));
                 } else {
-                    throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
             });
         } else if (type == 6) {     //库存盘点单
-            throw new CommonException(CommonResponse.CODE3, CommonResponse.MESSAGE3);
+            throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
 
         //新增红冲红单
         if (myStorageMapper.addStorageResultOrder(storageResultOrderVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
 
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -1333,6 +1360,7 @@ public class StorageService {
         pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountStorageResultOrder(storageResultOrderVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<StorageResultOrderVo> storageResultOrderVos = myStorageMapper.findAllPagedStorageResultOrder(storageResultOrderVo, pageVo);
+        
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("单据编号", "id"));
@@ -1356,7 +1384,8 @@ public class StorageService {
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, storageResultOrderVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -1366,7 +1395,7 @@ public class StorageService {
      */
     public CommonResponse findStorageResultOrderDetailById(StorageResultOrderVo storageResultOrderVo) {
         storageResultOrderVo = myStorageMapper.findStorageResultOrderDetailById(storageResultOrderVo);
-        return new CommonResponse(CommonResponse.CODE1, storageResultOrderVo, CommonResponse.MESSAGE1);
+        return CommonResponse.success(storageResultOrderVo);
     }
 
     //查库存
@@ -1415,7 +1444,8 @@ public class StorageService {
         titles.add(new Title("成本单价", "costMoney"));
         titles.add(new Title("成本金额", "totalCostMoney"));
         CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -1429,6 +1459,7 @@ public class StorageService {
         pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountDistributionByGoodsId(goodsWarehouseSkuVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<GoodsWarehouseSkuVo> goodsWarehouseSkuVos = myStorageMapper.findPagedDistributionByGoodsId(goodsWarehouseSkuVo, pageVo);
+        
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("商品货号", "id"));
@@ -1441,7 +1472,8 @@ public class StorageService {
         titles.add(new Title("可用库存", "canUseInventory"));
         titles.add(new Title("账面库存", "bookInventory"));
         CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -1455,6 +1487,7 @@ public class StorageService {
         pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountOrderByGoodsId(storageCheckOrderVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<StorageCheckOrderVo> storageCheckOrderVos = myStorageMapper.findPagedOrderByGoodsId(storageCheckOrderVo, pageVo);
+        
         //补上仓库名
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storageCheckOrderVo.getStoreId()));
         storageCheckOrderVos.stream().forEach(vo -> {
@@ -1465,6 +1498,7 @@ public class StorageService {
                 vo.setOutWarehouseName(warehouses.stream().filter(warehouse -> warehouse.getId().toString().equals(vo.getOutWarehouseId().toString())).findFirst().get().getName());
             }
         });
+        
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("单据编号", "orderId"));
@@ -1487,7 +1521,8 @@ public class StorageService {
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, storageCheckOrderVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -1501,12 +1536,12 @@ public class StorageService {
         pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountSkuByGoodsId(goodsWarehouseSkuVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<GoodsWarehouseSkuVo> goodsWarehouseSkuVos = myStorageMapper.findPagedSkuByGoodsId(goodsWarehouseSkuVo, pageVo);
+        
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("商品货号", "id"));
         titles.add(new Title("商品名", "name"));
         titles.add(new Title("条码", "barCode"));
-        /*titles.add(new Title("skus", "skus"));*/
         titles.add(new Title("商品规格", "sku"));
         titles.add(new Title("实物库存", "realInventory"));
         titles.add(new Title("待发货数量", "notSentQuantity"));
@@ -1514,7 +1549,8 @@ public class StorageService {
         titles.add(new Title("可用库存", "canUseInventory"));
         titles.add(new Title("账面库存", "bookInventory"));
         CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -1553,7 +1589,8 @@ public class StorageService {
         titles.add(new Title("成本单价", "costMoney"));
         titles.add(new Title("成本金额", "totalCostMoney"));
         CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -1583,7 +1620,6 @@ public class StorageService {
         titles.add(new Title("分类", "typeName"));
         titles.add(new Title("图片", "image"));
         titles.add(new Title("仓库", "warehouseName"));
-        /*titles.add(new Title("skus", "skus"));*/
         titles.add(new Title("商品规格", "sku"));
         switch (goodsWarehouseSkuVo.getFlag()) {
             case 0:     //按仓库查库存
@@ -1611,17 +1647,18 @@ public class StorageService {
                 break;
             case 4:     //设置库存期初
                 if (goodsWarehouseSkuVo.getWarehouseId() == null) {
-                    throw new CommonException(CommonResponse.MESSAGE3);
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
                 titles.add(new Title("期初数量", "openingQuantity"));
                 titles.add(new Title("期初成本单价", "openingMoney"));
                 titles.add(new Title("期初金额", "openingTotalMoney"));
                 break;
             default:
-                return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
         CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+
+        return CommonResponse.success(commonResult);
     }
 
     //库存预警
@@ -1634,7 +1671,7 @@ public class StorageService {
     @Transactional
     public CommonResponse updateLimitInventory(WarehouseGoodsSkuVo vo) {
         inventoryUtil.updateLimitInventoryMethod(vo);
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     //库存期初
@@ -1648,6 +1685,6 @@ public class StorageService {
     public CommonResponse addWarehouseGoodsSku(WarehouseGoodsSkuVo vo) {
         //库存期初设置
         inventoryUtil.addOrUpdateWarehouseGoodsSku(vo);
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 }

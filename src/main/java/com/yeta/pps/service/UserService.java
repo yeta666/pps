@@ -62,7 +62,7 @@ public class UserService {
         //创建验证码图片
         File file = new File(FileService.download, System.currentTimeMillis() + ".jpg");
         CommonUtil.outputImage(w * iCode.length(), h, file, iCode);
-        return new CommonResponse(CommonResponse.CODE1, "/download/" + file.getName(), CommonResponse.MESSAGE1);
+        return CommonResponse.success("/download/" + file.getName());
     }
 
     /**
@@ -74,31 +74,35 @@ public class UserService {
     public CommonResponse login(UserVo userVo, HttpServletRequest request) {
         //判断参数
         if (userVo.getIdentifyingCode() == null || userVo.getUsername() == null || userVo.getPassword() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //判断验证码
         String iCode = userVo.getIdentifyingCode().toUpperCase();
         HttpSession session = request.getSession();
         Object siCode = session.getAttribute("identifyingCode");
         if (siCode == null || !siCode.equals(iCode)) {
-            return new CommonResponse(CommonResponse.CODE4, null, CommonResponse.MESSAGE4);
+            return CommonResponse.error(CommonResponse.LOGIN_ERROR, "验证码错误");
         }
+
         //判断用户名、密码
         User user = myUserMapper.findByUsernameAndPassword(userVo);
         if (user == null) {
-            return new CommonResponse(CommonResponse.CODE5, null, CommonResponse.MESSAGE5);
+            return CommonResponse.error(CommonResponse.LOGIN_ERROR, "用户名或密码错误");
         }
+
         //判断用户是否已禁用
         if (user.getDisabled() == 1) {
-            return new CommonResponse(CommonResponse.CODE6, null, CommonResponse.MESSAGE6);
+            return CommonResponse.error(CommonResponse.LOGIN_ERROR, "该账号已禁用");
         }
+
         //判断用户是否已登陆
         String userId = user.getId();
         ServletContext servletContext = session.getServletContext();
         ConcurrentSkipListSet<String> onlineIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineIds");
         for (String onlineId: onlineIds) {
             if (onlineId.equals(userId)) {
-                return new CommonResponse(CommonResponse.CODE11, null, CommonResponse.MESSAGE11);
+                return CommonResponse.error(CommonResponse.LOGIN_ERROR, "重复登陆");
             }
         }
         //设置已登陆
@@ -107,7 +111,7 @@ public class UserService {
         session.setMaxInactiveInterval(60 * 60);      //60分钟
         userVo.setId(userId);
         userVo.setToken(CommonUtil.getMd5(userId));        //token就是md5加密后的用户id
-        return new CommonResponse(CommonResponse.CODE1, userVo, CommonResponse.MESSAGE1);
+        return CommonResponse.success(userVo);
     }
 
     /**
@@ -129,7 +133,7 @@ public class UserService {
             }
         }
         session.invalidate();
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -142,35 +146,37 @@ public class UserService {
         //判断参数
         if (userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null || userVo.getPhone() == null ||
                 userVo.getWarehouseId() == null || userVo.getRoles() == null || userVo.getRoles().size() == 0) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //判断仓库id是否存在
         WarehouseVo warehouseVo = new WarehouseVo(userVo.getStoreId(), userVo.getWarehouseId());
         if (myWarehouseMapper.findById(warehouseVo) == null) {
-            LOG.info("仓库id【{}】不存在，新增用户失败...", userVo.getWarehouseId());
-            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
+
         //新增用户
         userVo.setId(UUID.randomUUID().toString().replace("-", ""));
         userVo.setDisabled(0);
         if (myUserMapper.add(userVo) != 1) {
-            throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+           return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
+
         //新增用户角色关系
         List<Role> roles = userVo.getRoles();
         roles.stream().forEach(role -> {
             RoleVo roleVo = new RoleVo(userVo.getStoreId(), role.getId());
             if (myRoleMapper.findById(roleVo) == null) {
-                LOG.info("角色id【{}】不存在，新增用户失败...", role.getId());
-                throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
+
             //新增用户角色关系
             UserRoleVo userRoleVo = new UserRoleVo(userVo.getStoreId(), userVo.getId(), role.getId());
             if (myUserMapper.addUserRole(userRoleVo) != 1) {
-                throw new CommonException(CommonResponse.CODE7, CommonResponse.MESSAGE7);
+                throw new CommonException(CommonResponse.ADD_ERROR);
             }
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -183,15 +189,13 @@ public class UserService {
         userVos.stream().forEach(userVo -> {
             //删除用户
             if (myUserMapper.delete(userVo) != 1) {
-                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                throw new CommonException(CommonResponse.DELETE_ERROR);
             }
+
             //删除用户角色关系
-            UserRoleVo userRoleVo = new UserRoleVo(userVo.getStoreId(), userVo.getId());
-            if (myUserMapper.deleteAllUserRole(userRoleVo) != 1) {
-                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
-            }
+            myUserMapper.deleteAllUserRole(new UserRoleVo(userVo.getStoreId(), userVo.getId()));
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -204,37 +208,42 @@ public class UserService {
         //判断参数
         if (userVo.getId() == null || userVo.getName() == null || userVo.getPassword() == null || userVo.getPhone() == null || userVo.getDisabled() == null ||
                 userVo.getWarehouseId() == null || userVo.getRoles() == null || userVo.getRoles().size() == 0) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //判断仓库id是否存在
         WarehouseVo warehouseVo = new WarehouseVo(userVo.getStoreId(), userVo.getWarehouseId());
         if (myWarehouseMapper.findById(warehouseVo) == null) {
-            LOG.info("仓库id【{}】不存在，修改用户失败...", userVo.getWarehouseId());
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //修改用户信息
         if (myUserMapper.update(userVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
+
         //删除用户角色关系
         UserRoleVo userRoleVo = new UserRoleVo(userVo.getStoreId(), userVo.getId());
         if (myUserMapper.deleteAllUserRole(userRoleVo) != 1) {
-            throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
+
         //新增用户角色关系
         List<Role> roles = userVo.getRoles();
         roles.stream().forEach(role -> {
             RoleVo roleVo = new RoleVo(userVo.getStoreId(), role.getId());
             if (myRoleMapper.findById(roleVo) == null) {
-                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
+            
             //新增用户角色关系
             UserRoleVo userRoleVo1 = new UserRoleVo(userVo.getStoreId(), userVo.getId(), role.getId());
             if (myUserMapper.addUserRole(userRoleVo1) != 1) {
-                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+
+        return CommonResponse.success();
     }
 
     /**
@@ -260,7 +269,8 @@ public class UserService {
         titles.add(new Title("岗位", "roles"));
         titles.add(new Title("备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, userVos, pageVo);
-        return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+        
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -271,8 +281,8 @@ public class UserService {
     public CommonResponse findById(UserVo userVo) {
         userVo = myUserMapper.findById(userVo);
         if (userVo == null) {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, userVo, CommonResponse.MESSAGE1);
+        return CommonResponse.success(userVo);
     }
 }

@@ -10,10 +10,10 @@ import java.util.List;
 
 public class StorageResultOrderVo {
 
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private List<OrderGoodsSkuVo> details;
 
     /**
@@ -24,7 +24,7 @@ public class StorageResultOrderVo {
     /**
      * 单据类型
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte type;
 
     /**
@@ -52,7 +52,7 @@ public class StorageResultOrderVo {
     /**
      * 仓库编号
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer warehouseId;
 
     private String warehouseName;
@@ -60,7 +60,7 @@ public class StorageResultOrderVo {
     /**
      * 总数量
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer totalQuantity;
 
     /**
@@ -96,7 +96,7 @@ public class StorageResultOrderVo {
     /**
      * 经手人
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String userId;
 
     private String userName;
@@ -109,19 +109,19 @@ public class StorageResultOrderVo {
     public StorageResultOrderVo() {
     }
 
-    public StorageResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id) {
+    public StorageResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public StorageResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, @NotBlank(message = CommonResponse.MESSAGE3) String userId, String remark) {
+    public StorageResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
         this.remark = remark;
     }
 
-    public StorageResultOrderVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, String id, Byte type, Date startTime, Date endTime, String targetName) {
+    public StorageResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, Byte type, Date startTime, Date endTime, String targetName) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;

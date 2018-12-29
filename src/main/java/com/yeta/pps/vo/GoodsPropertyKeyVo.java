@@ -12,7 +12,7 @@ public class GoodsPropertyKeyVo {
     /**
      * 店铺id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     private String typeName;
@@ -27,23 +27,23 @@ public class GoodsPropertyKeyVo {
     /**
      * 商品属性名
      */
-    @NotBlank(message = CommonResponse.MESSAGE3)
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     /**
      * 商品分类id
      */
-    @NotNull(message = CommonResponse.MESSAGE3)
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer typeId;
 
     public GoodsPropertyKeyVo() {
     }
 
-    public GoodsPropertyKeyVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId) {
+    public GoodsPropertyKeyVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId) {
         this.storeId = storeId;
     }
 
-    public GoodsPropertyKeyVo(@NotNull(message = CommonResponse.MESSAGE3) Integer storeId, Integer id, @NotNull(message = CommonResponse.MESSAGE3) Integer typeId) {
+    public GoodsPropertyKeyVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer typeId) {
         this.storeId = storeId;
         this.id = id;
         this.typeId = typeId;

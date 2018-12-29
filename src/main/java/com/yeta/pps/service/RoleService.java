@@ -40,13 +40,14 @@ public class RoleService {
     public CommonResponse add(RoleVo roleVo) {
         //判断参数
         if (roleVo.getName() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+        
         //新增
         if (myRoleMapper.add(roleVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE7, null, CommonResponse.MESSAGE7);
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -61,17 +62,19 @@ public class RoleService {
             UserRoleVo userRoleVo = new UserRoleVo(roleVo.getStoreId(), roleVo.getId());
             List<Role> roles = myUserMapper.findUserRole(userRoleVo);
             if (roles != null && roles.size() > 0) {
-                throw new CommonException(CommonResponse.CODE18, CommonResponse.MESSAGE18);
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
+
             //删除角色
             if (myRoleMapper.delete(roleVo) != 1) {
-                throw new CommonException(CommonResponse.CODE8, CommonResponse.MESSAGE8);
+                throw new CommonException(CommonResponse.DELETE_ERROR);
             }
+
             //删除角色功能关系
             RoleFunctionVo roleFunctionVo = new RoleFunctionVo(roleVo.getStoreId(), roleVo.getId());
             myRoleMapper.deleteRoleFunction(roleFunctionVo);
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -82,13 +85,14 @@ public class RoleService {
     public CommonResponse update(RoleVo roleVo) {
         //判断参数
         if (roleVo.getId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //修改
         if (myRoleMapper.update(roleVo) != 1) {
-            return new CommonResponse(CommonResponse.CODE9, null, CommonResponse.MESSAGE9);
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
@@ -103,15 +107,18 @@ public class RoleService {
             pageVo.setTotalPage((int) Math.ceil(myRoleMapper.findCount(roleVo) * 1.0 / pageVo.getPageSize()));
             pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
             List<Role> roles = myRoleMapper.findAllPaged(roleVo, pageVo);
+
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("岗位名", "name"));
             CommonResult commonResult = new CommonResult(titles, roles, pageVo);
-            return new CommonResponse(CommonResponse.CODE1, commonResult, CommonResponse.MESSAGE1);
+
+            return CommonResponse.success(commonResult);
         }
+        
         //不分页
         List<Role> roles = myRoleMapper.findAll(roleVo);
-        return new CommonResponse(CommonResponse.CODE1, roles, CommonResponse.MESSAGE1);
+        return CommonResponse.success(roles);
     }
 
     /**
@@ -122,9 +129,9 @@ public class RoleService {
     public CommonResponse findById(RoleVo roleVo) {
         Role role = myRoleMapper.findById(roleVo);
         if (role == null) {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
-        return new CommonResponse(CommonResponse.CODE1, role, CommonResponse.MESSAGE1);
+        return CommonResponse.success(role);
     }
 
     //
@@ -138,51 +145,58 @@ public class RoleService {
     public CommonResponse updateRoleFunction(FunctionVo functionVo) {
         //判断参数
         if (functionVo.getRoleId() == null) {
-            return new CommonResponse(CommonResponse.CODE3, null, CommonResponse.MESSAGE3);
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //删除角色/功能关系
         RoleFunctionVo roleFunctionVo = new RoleFunctionVo(functionVo.getStoreId(), functionVo.getRoleId());
         myRoleMapper.deleteRoleFunction(roleFunctionVo);
+
         //新增角色/功能关系
         functionVo.getFunctionIds().stream().forEach(functionId -> {
             roleFunctionVo.setFunctionId(functionId);
             if (myRoleMapper.addRoleFunction(roleFunctionVo) != 1) {
-                throw new CommonException(CommonResponse.CODE9, CommonResponse.MESSAGE9);
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
         });
-        return new CommonResponse(CommonResponse.CODE1, null, CommonResponse.MESSAGE1);
+        return CommonResponse.success();
     }
 
     /**
-     * 根据用户id查找对应的功能
+     * 根据用户编号或角色编号查询对应的功能
      * @param functionVo
      * @return
      */
     public CommonResponse findRoleFunction(FunctionVo functionVo) {
         //判断参数
         Set<Integer> functionIds = new HashSet<>();
+
+        //判断查询类型
         if (functionVo.getUserId() != null && functionVo.getRoleId() == null) {
             //获取用户对应的角色
             UserRoleVo userRoleVo = new UserRoleVo(functionVo.getStoreId(), functionVo.getUserId());
             List<Role> roles = myUserMapper.findUserRole(userRoleVo);
             if (roles.size() == 0) {
-                return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+                return CommonResponse.error(CommonResponse.FIND_ERROR);
             }
+
             //查询角色对应的功能
             roles.stream().forEach(role -> {
                 RoleFunctionVo roleFunctionVo = new RoleFunctionVo(functionVo.getStoreId(), role.getId());
                 List<Function> functions = myRoleMapper.findRoleFunction(roleFunctionVo);
                 functions.stream().forEach(function -> functionIds.add(function.getId()));
             });
-            return new CommonResponse(CommonResponse.CODE1, functionIds, CommonResponse.MESSAGE1);
+            return CommonResponse.success(functionIds);
+
         } else if (functionVo.getUserId() == null && functionVo.getRoleId() != null) {
             //查询角色对应的功能
             RoleFunctionVo roleFunctionVo = new RoleFunctionVo(functionVo.getStoreId(), functionVo.getRoleId());
             List<Function> functions = myRoleMapper.findRoleFunction(roleFunctionVo);
             functions.stream().forEach(function -> functionIds.add(function.getId()));
-            return new CommonResponse(CommonResponse.CODE1, functionIds, CommonResponse.MESSAGE1);
+            return CommonResponse.success(functionIds);
+
         } else {
-            return new CommonResponse(CommonResponse.CODE10, null, CommonResponse.MESSAGE10);
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
     }
 }
