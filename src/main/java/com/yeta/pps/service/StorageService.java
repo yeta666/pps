@@ -7,7 +7,6 @@ import com.yeta.pps.po.SellResultOrder;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
-import org.omg.PortableInterceptor.SUCCESSFUL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -266,7 +265,7 @@ public class StorageService {
             storageCheckOrderVo.setOutWarehouseId(outWarehouseId);
             storageCheckOrderVo.setOutQuantity(vo.getQuantity());
             storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
-            costMoney += inventoryUtil.addStorageCheckOrder(0, storageCheckOrderVo, null) * vo.getQuantity();
+            costMoney += inventoryUtil.addStorageCheckOrderMethod(0, storageCheckOrderVo, null) * vo.getQuantity();
         }
 
         List<OrderGoodsSkuVo> inVos = vos.stream().filter(vo -> vo.getType() == 1).collect(Collectors.toList());
@@ -286,11 +285,11 @@ public class StorageService {
             storageCheckOrderVo.setInQuantity(vo.getQuantity());
             storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
             if (pVo != null && sVo == null) {       //采购相关
-                storageCheckOrderVo.setInMoney(inventoryUtil.getNumber((vo.getMoney() - vo.getDiscountMoney()) / vo.getQuantity()));
-                storageCheckOrderVo.setInTotalMoney(inventoryUtil.getNumber(storageCheckOrderVo.getInQuantity() * storageCheckOrderVo.getInMoney()));
-                inventoryUtil.addStorageCheckOrder(1, storageCheckOrderVo, null);
+                storageCheckOrderVo.setInMoney(inventoryUtil.getNumberMethod((vo.getMoney() - vo.getDiscountMoney()) / vo.getQuantity()));
+                storageCheckOrderVo.setInTotalMoney(inventoryUtil.getNumberMethod(storageCheckOrderVo.getInQuantity() * storageCheckOrderVo.getInMoney()));
+                inventoryUtil.addStorageCheckOrderMethod(1, storageCheckOrderVo, null);
             } else if (pVo == null && sVo != null) {        //销售相关
-                costMoney -= inventoryUtil.addStorageCheckOrder(2, storageCheckOrderVo, null) * vo.getQuantity();
+                costMoney -= inventoryUtil.addStorageCheckOrderMethod(2, storageCheckOrderVo, null) * vo.getQuantity();
             }
         }
 
@@ -432,6 +431,7 @@ public class StorageService {
         orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
             orderGoodsSkuVo.setStoreId(storeId);
             orderGoodsSkuVo.setOrderId(resultOrderId);
+            orderGoodsSkuVo.setOperatedQuantity(0);
             myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo);
         });
     }
@@ -490,10 +490,10 @@ public class StorageService {
             storageCheckOrderVo.setGoodsSkuId(vo.getGoodsSkuId());
             storageCheckOrderVo.setInWarehouseId(pVo.getInWarehouseId());
             storageCheckOrderVo.setInQuantity(vo.getChangeQuantity());
-            storageCheckOrderVo.setInMoney(inventoryUtil.getNumber((vo.getMoney() - vo.getDiscountMoney()) / vo.getChangeQuantity()));
-            storageCheckOrderVo.setInTotalMoney(inventoryUtil.getNumber(storageCheckOrderVo.getInQuantity() * storageCheckOrderVo.getInMoney()));
+            storageCheckOrderVo.setInMoney(inventoryUtil.getNumberMethod((vo.getMoney() - vo.getDiscountMoney()) / vo.getChangeQuantity()));
+            storageCheckOrderVo.setInTotalMoney(inventoryUtil.getNumberMethod(storageCheckOrderVo.getInQuantity() * storageCheckOrderVo.getInMoney()));
             storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
-            inventoryUtil.addStorageCheckOrder(1, storageCheckOrderVo, null);
+            inventoryUtil.addStorageCheckOrderMethod(1, storageCheckOrderVo, null);
         }
     }
 
@@ -590,7 +590,7 @@ public class StorageService {
                     storageCheckOrderVo.setInWarehouseId(sVo.getInWarehouseId());
                     storageCheckOrderVo.setInQuantity(vo.getChangeQuantity());
                     storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
-                    costMoney += inventoryUtil.addStorageCheckOrder(2, storageCheckOrderVo, null) * vo.getChangeQuantity();
+                    costMoney += inventoryUtil.addStorageCheckOrderMethod(2, storageCheckOrderVo, null) * vo.getChangeQuantity();
                 }
 
                 //新增结果订单
@@ -671,7 +671,7 @@ public class StorageService {
             storageCheckOrderVo.setOutWarehouseId(sVo.getOutWarehouseId());
             storageCheckOrderVo.setOutQuantity(vo.getChangeQuantity());
             storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
-            costMoney += inventoryUtil.addStorageCheckOrder(0, storageCheckOrderVo, null) * vo.getChangeQuantity();
+            costMoney += inventoryUtil.addStorageCheckOrderMethod(0, storageCheckOrderVo, null) * vo.getChangeQuantity();
         }
 
         //新增结果订单
@@ -682,7 +682,7 @@ public class StorageService {
 
         //修改客户积分信息
         if (applyOrderStatus == 6) {        //发货完成
-            integralUtil.updateIntegralMethod(storeId, sVo.getClient().getId(), resultOrderId, myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId)), orderGoodsSkuVos);
+            integralUtil.updateIntegralMethod(1, storeId, sVo.getClient().getId(), resultOrderId, myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId)), orderGoodsSkuVos);
         }
     }
 
@@ -740,7 +740,7 @@ public class StorageService {
                     storageCheckOrderVo.setOutWarehouseId(pVo.getOutWarehouseId());
                     storageCheckOrderVo.setOutQuantity(vo.getChangeQuantity());
                     storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
-                    inventoryUtil.addStorageCheckOrder(0, storageCheckOrderVo, null);
+                    inventoryUtil.addStorageCheckOrderMethod(0, storageCheckOrderVo, null);
                 }
             } else if (pVo.getType() == 3) {        //采购换货发货
                 //修改库存相关
@@ -1110,13 +1110,13 @@ public class StorageService {
                 if (flag == 0) {
                     storageCheckOrderVo.setOutWarehouseId(warehouseId);
                     storageCheckOrderVo.setOutQuantity(vo.getQuantity());
-                    inventoryUtil.addStorageCheckOrder(flag, storageCheckOrderVo, vo);
+                    inventoryUtil.addStorageCheckOrderMethod(flag, storageCheckOrderVo, vo);
                 } else if (flag == 1) {
                     storageCheckOrderVo.setInWarehouseId(warehouseId);
                     storageCheckOrderVo.setInQuantity(vo.getQuantity());
                     storageCheckOrderVo.setInMoney((vo.getMoney()) / vo.getQuantity());
                     storageCheckOrderVo.setInTotalMoney(storageCheckOrderVo.getInQuantity() * storageCheckOrderVo.getInMoney());
-                    inventoryUtil.addStorageCheckOrder(flag, storageCheckOrderVo, vo);
+                    inventoryUtil.addStorageCheckOrderMethod(flag, storageCheckOrderVo, vo);
                 }
             });
 
@@ -1155,7 +1155,7 @@ public class StorageService {
                     storageCheckOrderVo.setOutWarehouseId(storageResultOrderVo.getWarehouseId());
                     storageCheckOrderVo.setOutTotalMoney(-vo.getChangeCheckTotalMoney());
                 }
-                inventoryUtil.addStorageCheckOrder(3, storageCheckOrderVo, vo);
+                inventoryUtil.addStorageCheckOrderMethod(3, storageCheckOrderVo, vo);
             });
 
         } else if (flag == 3) {     //库存盘点单
@@ -1310,13 +1310,13 @@ public class StorageService {
                     inventoryUtil.updateInventoryMethod(1, warehouseGoodsSkuVo);
 
                     //红冲库存记账记录
-                    inventoryUtil.redDashedStorageCheckOrder(0, new StorageCheckOrderVo(storeId, oldResultOrderId, vo.getGoodsSkuId(), userId));
+                    inventoryUtil.redDashedStorageCheckOrderMethod(0, new StorageCheckOrderVo(storeId, oldResultOrderId, vo.getGoodsSkuId(), userId));
                 } else if (vo.getType() == 1) {     //原来是入库
                     //减少商品规格库存
                     inventoryUtil.updateInventoryMethod(0, warehouseGoodsSkuVo);
 
                     //红冲库存记账记录
-                    inventoryUtil.redDashedStorageCheckOrder(1, new StorageCheckOrderVo(storeId, oldResultOrderId, vo.getGoodsSkuId(), userId));
+                    inventoryUtil.redDashedStorageCheckOrderMethod(1, new StorageCheckOrderVo(storeId, oldResultOrderId, vo.getGoodsSkuId(), userId));
                 } else {
                     throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
@@ -1329,10 +1329,10 @@ public class StorageService {
             vos.stream().forEach(vo -> {
                 if (vo.getChangeCheckTotalMoney() > 0) {        //原来是入库
                     //红冲库存记账记录
-                    inventoryUtil.redDashedStorageCheckOrder(2, new StorageCheckOrderVo(storeId, oldResultOrderId, vo.getGoodsSkuId(), userId));
+                    inventoryUtil.redDashedStorageCheckOrderMethod(2, new StorageCheckOrderVo(storeId, oldResultOrderId, vo.getGoodsSkuId(), userId));
                 } else if (vo.getChangeCheckTotalMoney() < 0) {     //原来是出库
                     //红冲库存记账记录
-                    inventoryUtil.redDashedStorageCheckOrder(3, new StorageCheckOrderVo(storeId, oldResultOrderId, vo.getGoodsSkuId(), userId));
+                    inventoryUtil.redDashedStorageCheckOrderMethod(3, new StorageCheckOrderVo(storeId, oldResultOrderId, vo.getGoodsSkuId(), userId));
                 } else {
                     throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
@@ -1579,7 +1579,6 @@ public class StorageService {
         titles.add(new Title("条码", "barCode"));
         titles.add(new Title("分类", "typeName"));
         titles.add(new Title("图片", "image"));
-        /*titles.add(new Title("skus", "skus"));*/
         titles.add(new Title("商品规格", "sku"));
         titles.add(new Title("实物库存", "realInventory"));
         titles.add(new Title("待发货数量", "notSentQuantity"));
@@ -1684,7 +1683,7 @@ public class StorageService {
     @Transactional
     public CommonResponse addWarehouseGoodsSku(WarehouseGoodsSkuVo vo) {
         //库存期初设置
-        inventoryUtil.addOrUpdateWarehouseGoodsSku(vo);
+        inventoryUtil.addOrUpdateWarehouseGoodsSkuMethod(vo);
         return CommonResponse.success();
     }
 }

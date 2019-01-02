@@ -26,6 +26,11 @@ public class SupplierVo {
     private String name;
 
     /**
+     * 预付款余额
+     */
+    private Double advanceMoney;
+
+    /**
      * 联系人
      */
     @NotBlank(message = CommonResponse.PARAMETER_ERROR)
@@ -55,10 +60,21 @@ public class SupplierVo {
     public SupplierVo() {
     }
 
-    public SupplierVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String name) {
+    public SupplierVo(Integer storeId, String id) {
+        this.storeId = storeId;
+        this.id = id;
+    }
+
+    public SupplierVo(Integer storeId, String id, String name) {
         this.storeId = storeId;
         this.id = id;
         this.name = name;
+    }
+
+    public SupplierVo(Integer storeId, String id, Double advanceMoney) {
+        this.storeId = storeId;
+        this.id = id;
+        this.advanceMoney = advanceMoney;
     }
 
     public Integer getStoreId() {
@@ -83,6 +99,14 @@ public class SupplierVo {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Double getAdvanceMoney() {
+        return advanceMoney;
+    }
+
+    public void setAdvanceMoney(Double advanceMoney) {
+        this.advanceMoney = advanceMoney;
     }
 
     public String getContacts() {
@@ -131,6 +155,7 @@ public class SupplierVo {
                 "storeId=" + storeId +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", advanceMoney=" + advanceMoney +
                 ", contacts='" + contacts + '\'' +
                 ", contactNumber='" + contactNumber + '\'' +
                 ", contactAddress='" + contactAddress + '\'' +

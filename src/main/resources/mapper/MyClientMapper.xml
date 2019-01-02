@@ -317,10 +317,10 @@
         </if>
     </select>
 
-    <!--店铺/积分关系-->
+    <!--店铺/积分、预收款关系-->
 
     <insert id="addStoreIntegral" parameterType="com.yeta.pps.vo.StoreIntegralVo">
-        insert into store_integral (store_id, client_id, integral) values (#{storeId}, #{clientId}, #{integral});
+        insert into store_integral (store_id, client_id, integral, advance_money) values (#{storeId}, #{clientId}, #{integral}, #{advanceMoney});
     </insert>
         
     <delete id="deleteStoreIntegralByClientId" parameterType="com.yeta.pps.vo.StoreIntegralVo">
@@ -333,6 +333,10 @@
 
     <update id="decreaseIntegral" parameterType="com.yeta.pps.vo.StoreIntegralVo">
         update store_integral set integral = integral - #{integral} where store_id = #{storeId} and client_id = #{clientId} and integral - #{integral} &gt;= 0;
+    </update>
+    
+    <update id="updateAdvanceMoney" parameterType="com.yeta.pps.vo.StoreIntegralVo">
+        update store_integral set advance_money = advance_money + #{advanceMoney} where store_id = #{storeId} and client_id = #{clientId} and advance_money + #{advanceMoney} &gt;= 0;
     </update>
     
     <select id="findCountStoreIntegral" parameterType="com.yeta.pps.vo.StoreIntegralVo" resultType="java.lang.Integer">
@@ -362,6 +366,7 @@
         <result column="store_id" property="storeId" />
         <result column="client_id" property="clientId" />
         <result column="integral" property="integral" />
+        <result column="advance_money" property="advanceMoney" />
         <collection property="store" ofType="com.yeta.pps.po.Store">
             <id column="s_id" property="id" />
             <result column="s_name" property="name" />
@@ -398,6 +403,7 @@
             si.store_id,
             si.client_id,
             si.integral,
+            si.advance_money,
             s.id as s_id,
             s.name as s_name,
             s.address as s_address,
@@ -442,7 +448,7 @@
     </select>
 
     <select id="findStoreIntegralByStoreIdAndClientId" parameterType="com.yeta.pps.vo.StoreIntegralVo" resultType="com.yeta.pps.vo.StoreIntegralVo">
-        select id, store_id, client_id, integral from store_integral where store_id = #{storeId} and client_id = #{clientId};
+        select id, store_id, client_id, integral, advance_money from store_integral where store_id = #{storeId} and client_id = #{clientId};
     </select>
 
     <!--客户/积分明细关系-->

@@ -3,7 +3,10 @@
 <mapper namespace="com.yeta.pps.mapper.MySupplierMapper" >
 
     <insert id="add" parameterType="com.yeta.pps.vo.SupplierVo">
-        insert into supplier_${storeId} (id, name, contacts, contact_number, contact_address, fax, remark) values (#{id}, #{name}, #{contacts}, #{contactNumber}, #{contactAddress}, #{fax}, #{remark});
+        insert into
+            supplier_${storeId} (id, name, advance_money, contacts, contact_number, contact_address, fax, remark)
+        values
+            (#{id}, #{name}, 0, #{contacts}, #{contactNumber}, #{contactAddress}, #{fax}, #{remark});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.SupplierVo">
@@ -11,7 +14,22 @@
     </delete>
 
     <update id="update" parameterType="com.yeta.pps.vo.SupplierVo">
-        update supplier_${storeId} set name = #{name}, contacts = #{contacts}, contact_number = #{contactNumber}, contact_address = #{contactAddress}, fax = #{fax}, remark = #{remark} where id = #{id};
+        update
+            supplier_${storeId}
+        set
+            name = #{name}, contacts = #{contacts}, contact_number = #{contactNumber}, contact_address = #{contactAddress}, fax = #{fax}, remark = #{remark}
+        where
+            id = #{id};
+    </update>
+    
+    <update id="updateAdvanceMoney" parameterType="com.yeta.pps.vo.SupplierVo">
+        update
+            supplier_${storeId}
+        set
+            advance_money = advance_money + #{advanceMoney}
+        where
+            id = #{id}
+        and advance_money + #{advanceMoney} &gt;= 0;
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.SupplierVo" resultType="java.lang.Integer">
@@ -27,9 +45,9 @@
         </if>
     </select>
 
-    <select id="findAllPaged" resultType="com.yeta.pps.po.Supplier">
+    <select id="findAllPaged" resultType="com.yeta.pps.vo.SupplierVo">
         select
-            id, name, contacts, contact_number, contact_address, fax, remark
+            id, name, advance_money, contacts, contact_number, contact_address, fax, remark
         from
             supplier_${supplierVo.storeId}
         where
@@ -42,15 +60,15 @@
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findAll" parameterType="com.yeta.pps.vo.SupplierVo" resultType="com.yeta.pps.po.Supplier">
+    <select id="findAll" parameterType="com.yeta.pps.vo.SupplierVo" resultType="com.yeta.pps.vo.SupplierVo">
         select
-            id, name, contacts, contact_number, contact_address, fax, remark
+            id, name, advance_money, contacts, contact_number, contact_address, fax, remark
         from
             supplier_${storeId};
     </select>
 
-    <select id="findById" parameterType="com.yeta.pps.vo.SupplierVo" resultType="com.yeta.pps.po.Supplier">
-        select id, name, contacts, contact_number, contact_address, fax, remark from supplier_${storeId} where id = #{id};
+    <select id="findById" parameterType="com.yeta.pps.vo.SupplierVo" resultType="com.yeta.pps.vo.SupplierVo">
+        select id, name, advance_money, contacts, contact_number, contact_address, fax, remark from supplier_${storeId} where id = #{id};
     </select>
 
 </mapper>

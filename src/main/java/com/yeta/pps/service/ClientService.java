@@ -629,6 +629,7 @@ public class ClientService {
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("积分", "integral"));
+        titles.add(new Title("预收款余额", "advanceMoney"));
         if (storeIntegralVo.getClientId() != null && storeIntegralVo.getStoreId() == null) {        //客户自己查询在每个店铺的积分
             addTitlesMethod(1, titles);
         } else if (storeIntegralVo.getClientId() == null && storeIntegralVo.getStoreId() != null) {     //店铺查询在本店有积分的客户

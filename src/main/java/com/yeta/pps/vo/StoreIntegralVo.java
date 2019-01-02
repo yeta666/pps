@@ -13,7 +13,7 @@ public class StoreIntegralVo {
     private ClientVo clientVo;
 
     /**
-     * 店铺/客户积分关系编号
+     * 店铺/积分、预收款关系编号
      */
     private String id;
 
@@ -32,6 +32,11 @@ public class StoreIntegralVo {
      */
     private Integer integral;
 
+    /**
+     * 预收款余额
+     */
+    private Double advanceMoney;
+
     public StoreIntegralVo() {
     }
 
@@ -40,10 +45,17 @@ public class StoreIntegralVo {
         this.clientId = clientId;
     }
 
-    public StoreIntegralVo(Integer storeId, String clientId, Integer integral) {
+    public StoreIntegralVo(Integer storeId, String clientId, Double advanceMoney) {
+        this.storeId = storeId;
+        this.clientId = clientId;
+        this.advanceMoney = advanceMoney;
+    }
+
+    public StoreIntegralVo(Integer storeId, String clientId, Integer integral, Double advanceMoney) {
         this.storeId = storeId;
         this.clientId = clientId;
         this.integral = integral;
+        this.advanceMoney = advanceMoney;
     }
 
     public Store getStore() {
@@ -94,6 +106,14 @@ public class StoreIntegralVo {
         this.integral = integral;
     }
 
+    public Double getAdvanceMoney() {
+        return advanceMoney;
+    }
+
+    public void setAdvanceMoney(Double advanceMoney) {
+        this.advanceMoney = advanceMoney;
+    }
+
     @Override
     public String toString() {
         return "StoreIntegralVo{" +
@@ -103,6 +123,7 @@ public class StoreIntegralVo {
                 ", storeId=" + storeId +
                 ", clientId='" + clientId + '\'' +
                 ", integral=" + integral +
+                ", advanceMoney=" + advanceMoney +
                 '}';
     }
 }

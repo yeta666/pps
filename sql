@@ -31,14 +31,7 @@ create table client(
 ) engine InnoDB default charset=utf8;
 
 
-/*店铺/积分关系*/
-drop table if exists store_integral;
-create table store_integral(
-  id int primary key auto_increment comment '店铺/客户积分关系编号',
-  store_id int not null comment '店铺编号',
-  client_id varchar(50) not null comment '客户编号',
-  integral int not null comment '积分'
-) engine InnoDB default charset=utf8;
+
 
 
 /*客户/积分明细关系*/
@@ -556,11 +549,13 @@ insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price,
 insert into goods_sku_1 (goods_id, sku, purchase_price, retail_price, vip_price, integral) values ('sp002', '[{"key":"品牌","value":"美的"},{"key":"单位","value":"个"}]', 10, 30, 20, 66);
 
 
+/*银行账户*/
 drop table if exists bank_account_1;
 create table bank_account_1(
   id varchar(20) not null primary key comment '科目编号',
   name varchar(20) not null comment '科目名称',
   type tinyint not null comment '账户类型，1：现金，2：银行卡，3：支付宝，4：微信',
+  opening_money double(10, 2) not null comment '期初金额',
   head varchar(20) comment '户主名',
   account varchar(50) comment '账户',
   gathering tinyint default 0 comment '是否用于商城收款，0：否，1：是',
@@ -568,13 +563,15 @@ create table bank_account_1(
   procurement tinyint default 0 comment '是否用于订货平台，0：否，1：是'
 ) engine InnoDB default charset=utf8;
 
-insert into bank_account_1 (id, name, type) VALUES ('1001', '库存现金', 1);
-insert into bank_account_1 (id, name, type) VALUES ('1002', '银行存款', 2);
-insert into bank_account_1 (id, name, type) VALUES ('100201', '微信账户', 3);
-insert into bank_account_1 (id, name, type) VALUES ('100202', '支付宝账户', 4);
-insert into bank_account_1 (id, name, type) VALUES ('100203', '建设银行', 2);
-insert into bank_account_1 (id, name, type) VALUES ('100204', '招商银行', 2);
-insert into bank_account_1 (id, name, type) VALUES ('100205', '华夏银行', 2);
+insert into bank_account_1 (id, name, type, opening_money) VALUES ('1001', '库存现金', 1, 0.0);
+insert into bank_account_1 (id, name, type, opening_money) VALUES ('1002', '银行存款', 2, 0.0);
+insert into bank_account_1 (id, name, type, opening_money) VALUES ('100201', '微信账户', 3, 0.0);
+insert into bank_account_1 (id, name, type, opening_money) VALUES ('100202', '支付宝账户', 4, 0.0);
+insert into bank_account_1 (id, name, type, opening_money) VALUES ('100203', '建设银行', 2, 0.0);
+insert into bank_account_1 (id, name, type, opening_money) VALUES ('100204', '招商银行', 2, 0.0);
+insert into bank_account_1 (id, name, type, opening_money) VALUES ('100205', '华夏银行', 2, 0.0);
+
+
 
 drop table income_expenses_1;
 create table income_expenses_1(
@@ -632,10 +629,41 @@ insert into income_expenses_1 (id, name, debit_credit, type) values ('6111', '�
 insert into income_expenses_1 (id, name, debit_credit, type) values ('6301', '营业外收入', 1, 1);
 
 
+/*收/付款单，预收/付款单*/
+drop table if exists fund_order_1;
+create table fund_order_1(
+  id varchar(50) primary key comment '单据编号',
+  type tinyint not null comment '单据类型，1：收款单，2：付款单，3：预收款单，4：预付款单',
+  create_time datetime not null comment '单据日期',
+  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  order_id varchar(50) comment '结算单据编号',
+  target_id varchar(50) not null comment '往来单位编号',
+  money double(10, 2) not null comment '金额',
+  discount_money double(10, 2) not null comment '优惠金额',
+  bank_account_id varchar(20) not null comment '银行账户编号',
+  advance_money double(10, 2) not null comment '使用预收/付款',
+  user_id varchar(50) not null comment '经手人',
+  remark varchar(255) comment '单据备注'
+) engine InnoDB default charset=utf8;
+
+
+/*店铺/积分、预收款关系*/
+drop table if exists store_integral;
+create table store_integral(
+  id int primary key auto_increment comment '店铺/客户积分关系编号',
+  store_id int not null comment '店铺编号',
+  client_id varchar(50) not null comment '客户编号',
+  integral int not null comment '积分',
+  advance_money double(10, 2) not null comment '预收款余额'
+) engine InnoDB default charset=utf8;
+
+
+/*供应商*/
 drop table supplier_1;
 create table supplier_1 (
   id varchar(20) not null primary key comment '供应商编号',
   name varchar(50) not null comment '供应商名称',
+  advance_money double(10, 2) comment '预付款余额',
   contacts varchar(20) not null comment '联系人',
   contact_number varchar(20) not null comment '联系电话',
   contact_address varchar(100) comment '联系地址',
@@ -643,14 +671,7 @@ create table supplier_1 (
   remark varchar(200) comment '备注'
 ) engine InnoDB default charset=utf8;
 
-insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys001', '美特斯邦威', '小明', '17760041487', '', '', '');
-insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys002', '耐克', '小明', '17760041487', '', '', '');
-insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys003', '阿迪达斯', '小明', '17760041487', '', '', '');
-insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys004', '新百伦', '小明', '17760041487', '', '', '');
-insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys005', '雅鹿', '小明', '17760041487', '', '', '');
-insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys006', 'HSTYLE/韩都衣舍', '小明', '17760041487', '', '', '');
-insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys007', '森马', '小明', '17760041487', '', '', '');
-insert into supplier_1 (id, name, contacts, contact_number, contact_address, fax, remark) VALUES ('gys008', '秋水伊人', '小明', '17760041487', '', '', '');
+insert into supplier_1 (id, name, advance_money, contacts, contact_number, contact_address, fax, remark) VALUES ('gys001', '美特斯邦威', 0, '小明', '17760041487', '', '', '');
 
 
 
@@ -756,15 +777,6 @@ create table sell_result_order_1(
   user_id varchar(50) not null comment '经手人',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
-
-
-
-
-
-
-
-
-
 
 
 /*仓库/商品规格关系*/
@@ -873,19 +885,38 @@ create table storage_order_1(
 ) engine InnoDB default charset=utf8;
 
 
-/*收付款单*/
-drop table if exists fund_order_1;
-create table fund_order_1(
-  id varchar(50) primary key comment '单据编号',
-  type tinyint not null comment '单据类型，1：付款单，2：收款单',
-  create_time datetime not null comment '单据日期',
-  apply_order_id varchar(50) not null comment '来源订单',
+/*资金对账*/
+drop table if exists fund_check_order_1;
+create table fund_check_order_1(
+  id int primary key auto_increment comment '资金对账记录编号',
+  order_id varchar(50) not null comment '单据编号',
+  create_time datetime not null comment '创建时间',
   order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  target_id varchar(50) comment '往来单位编号',
   bank_account_id varchar(20) not null comment '银行账户编号',
-  money double(10, 2) not null comment '金额',
+  in_money double(10, 2) not null comment '收入金额',
+  out_money double(10, 2) not null comment '支出金额',
+  balance_money double(10, 2) not null comment '当前余额',
+  user_id varchar(50) comment '经手人',
+  remark varchar(200) comment '备注'
+) engine InnoDB default charset=utf8;
+
+
+/*其他收入单、费用单*/
+drop table if exists fund_result_order_1;
+create table fund_result_order_1(
+  id varchar(50) primary key comment '单据编号',
+  type tinyint not null comment '单据类型，1：其他收入单，2：费用单',
+  create_time datetime not null comment '单据日期',
+  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  target_id varchar(50) comment '往来单位编号',
   user_id varchar(50) not null comment '经手人',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
+
+
+
+
 
 
 

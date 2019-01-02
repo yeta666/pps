@@ -79,19 +79,27 @@ public class StorageOrderVo {
     public StorageOrderVo() {
     }
 
-    public StorageOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
+    public StorageOrderVo(Integer storeId, String id, String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
         this.remark = remark;
     }
 
-    public StorageOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type, ProcurementApplyOrderVo procurementApplyOrderVo, SellApplyOrderVo sellApplyOrderVo) {
+    public StorageOrderVo(Integer storeId, String id, Byte type, ProcurementApplyOrderVo procurementApplyOrderVo, SellApplyOrderVo sellApplyOrderVo) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
         this.procurementApplyOrderVo = procurementApplyOrderVo;
         this.sellApplyOrderVo = sellApplyOrderVo;
+    }
+
+    public StorageOrderVo(Integer storeId, Byte type, String applyOrderId, Byte orderStatus, Integer quantity) {
+        this.storeId = storeId;
+        this.type = type;
+        this.applyOrderId = applyOrderId;
+        this.orderStatus = orderStatus;
+        this.quantity = quantity;
     }
 
     public Integer getStoreId() {

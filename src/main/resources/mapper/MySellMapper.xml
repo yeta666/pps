@@ -47,9 +47,11 @@
         update
             sell_apply_order_${storeId}
         set
-            clear_status = #{orderStatus}, cleared_money = cleared_money + #{money}, not_cleared_money = not_cleared_money - #{money}
+            clear_status = #{orderStatus},
+            cleared_money = cleared_money + #{money} + #{discountMoney} + #{advanceMoney},
+            not_cleared_money = not_cleared_money - #{money} - #{discountMoney} - #{advanceMoney}
         where
-            id = #{applyOrderId}
+            id = #{orderId}
     </update>
 
     <select id="findCountApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultType="java.lang.Integer">
@@ -203,7 +205,7 @@
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findApplyOrderById" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultType="com.yeta.pps.po.SellApplyOrder">
+    <select id="findApplyOrderById" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultType="com.yeta.pps.vo.SellApplyOrderVo">
         select
             id, type, create_time, result_order_id, prodcing_way, order_status, clear_status, client_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, discount_money, discount_coupon_id, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark
         from

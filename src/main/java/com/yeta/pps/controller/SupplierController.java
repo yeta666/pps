@@ -1,6 +1,5 @@
 package com.yeta.pps.controller;
 
-import com.yeta.pps.po.Supplier;
 import com.yeta.pps.service.SupplierService;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
@@ -91,10 +90,10 @@ public class SupplierController {
             @ApiImplicitParam(name = "pageSize", value = "每次显示条数", required = false, paramType = "query", dataType = "int")
     })
     @GetMapping(value = "/suppliers")
-    public CommonResponse<CommonResult<List<Supplier>>> findAll(@RequestParam(value = "storeId") Integer storeId,
-                                                                @RequestParam(value = "name", required = false) String name,
-                                                                @RequestParam(value = "page", required = false) Integer page,
-                                                                @RequestParam(value = "pageSize", required = false) Integer pageSize) {
+    public CommonResponse<CommonResult<List<SupplierVo>>> findAll(@RequestParam(value = "storeId") Integer storeId,
+                                                                  @RequestParam(value = "name", required = false) String name,
+                                                                  @RequestParam(value = "page", required = false) Integer page,
+                                                                  @RequestParam(value = "pageSize", required = false) Integer pageSize) {
         return supplierService.findAll(new SupplierVo(storeId, null, name), new PageVo(page, pageSize));
     }
 
@@ -110,8 +109,8 @@ public class SupplierController {
             @ApiImplicitParam(name = "supplierId", value = "供应商id", required = true, paramType = "path", dataType = "String")
     })
     @GetMapping(value = "/suppliers/{supplierId}")
-    public CommonResponse<Supplier> findById(@RequestParam(value = "storeId") Integer storeId,
-                                             @PathVariable(value = "supplierId") String supplierId) {
+    public CommonResponse<SupplierVo> findById(@RequestParam(value = "storeId") Integer storeId,
+                                               @PathVariable(value = "supplierId") String supplierId) {
         return supplierService.findById(new SupplierVo(storeId, supplierId, null));
     }
 }

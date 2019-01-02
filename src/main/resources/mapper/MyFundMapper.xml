@@ -6,13 +6,13 @@
 
     <insert id="addFundOrder" parameterType="com.yeta.pps.vo.FundOrderVo">
         insert into
-            fund_order_${storeId} (id, type, create_time, apply_order_id, order_status, bank_account_id, money, user_id, remark)
+            fund_order_${storeId} (id, type, create_time, order_id, target_id, order_status, bank_account_id, discount_money, money, advance_money, user_id, remark)
         values
-            (#{id}, #{type}, #{createTime}, #{applyOrderId}, #{orderStatus}, #{bankAccountId}, #{money}, #{userId}, #{remark});
+            (#{id}, #{type}, #{createTime}, #{orderId}, #{targetId}, #{orderStatus}, #{bankAccountId}, #{discountMoney}, #{money}, #{advanceMoney}, #{userId}, #{remark});
     </insert>
 
     <update id="redDashed" parameterType="com.yeta.pps.vo.FundOrderVo">
-        update fund_order_${storeId} set create_time = now(), order_status = -1, user_id = #{userId}, remark = #{remark} where id = #{id} and order_status &gt; 0;
+        update fund_order_${storeId} set order_status = -1 where id = #{id} and order_status &gt; 0;
     </update>
 
     <select id="findCountFundOrder" parameterType="com.yeta.pps.vo.FundOrderVo" resultType="java.lang.Integer">
@@ -22,150 +22,237 @@
             (
                 (
                     (
-                        (
-                            (
-                                fund_order_${storeId} as fo
-                                left join procurement_apply_order_${storeId} as pao on fo.apply_order_id = pao.id
-                            )
-                            left join user_${storeId} as u on fo.user_id = u.id
-                        )
-                        left join bank_account_${storeId} as ba on fo.bank_account_id = ba.id
+                        fund_order_${storeId} as fo
+                        left join user_${storeId} as u on fo.user_id = u.id
                     )
-                    left join supplier_${storeId} as s on pao.supplier_id = s.id
+                    left join bank_account_${storeId} as ba on fo.bank_account_id = ba.id
                 )
-                left join sell_apply_order_${storeId} as sao on fo.apply_order_id = sao.id
+                left join supplier_${storeId} as s on fo.target_id = s.id
             )
-        left join client as c on sao.client_id = c.id
-        where
-        fo.type = #{type}
+        left join client as c on fo.target_id = c.id
+        where fo.type = #{type}
         <if test="id != null">
-            and
-            fo.id = #{id}
+            and fo.id = #{id}
         </if>
-        <if test="procurementApplyOrderVo.supplierName != null">
-            and
-            s.name like concat('%', #{procurementApplyOrderVo.supplierName}, '%')
+        <if test="targetName != null">
+            and s.name like concat('%', #{targetName}, '%') or c.name like concat('%', #{targetName}, '%')
         </if>
-        <if test="procurementApplyOrderVo.startTime != null and procurementApplyOrderVo.endTime != null">
-            and
-            date(fo.create_time) between #{procurementApplyOrderVo.startTime} and #{procurementApplyOrderVo.endTime}
+        <if test="startTime != null and endTime != null">
+            and date(fo.create_time) between #{startTime} and #{endTime}
         </if>
-        <if test="sellApplyOrderVo.client.name != null">
-            and
-            c.name like concat('%', #{sellApplyOrderVo.client.name}, '%')
-        </if>
-        <if test="sellApplyOrderVo.client.phone != null">
-            and
-            c.phone like concat('%', #{sellApplyOrderVo.client.phone}, '%')
-        </if>
-        <if test="sellApplyOrderVo.client.membershipNumber != null">
-            and
-            c.membershipNumber like concat('%', #{sellApplyOrderVo.client.membershipNumber}, '%')
-        </if>
-        <if test="sellApplyOrderVo.startTime != null and sellApplyOrderVo.endTime != null">
-            and
-            date(fo.create_time) between #{sellApplyOrderVo.startTime} and #{sellApplyOrderVo.endTime}
-        </if>
-        order by
-            fo.create_time desc;
+        order by fo.create_time desc;
     </select>
 
-    <resultMap id="fundOrderVoMap" type="com.yeta.pps.vo.FundOrderVo">
-        <id column="id" property="id" />
-        <result column="type" property="type" />
-        <result column="create_time" property="createTime" />
-        <result column="apply_order_id" property="applyOrderId" />
-        <result column="order_status" property="orderStatus" />
-        <result column="money" property="money" />
-        <result column="user_name" property="userName" />
-        <result column="remark" property="remark" />
-        <collection property="bankAccount" ofType="com.yeta.pps.po.BankAccount">
-            <result column="ba_name" property="name" />
-            <result column="ba_account" property="account" />
-        </collection>
-        <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
-            <result column="supplier_name" property="supplierName" />
-        </collection>
-        <collection property="sellApplyOrderVo" ofType="com.yeta.pps.vo.SellApplyOrderVo">
-            <collection property="client" ofType="com.yeta.pps.po.Client">
-                <result column="client_name" property="name" />
-                <result column="client_phone" property="phone" />
-                <result column="client_membership_number" property="membershipNumber" />
-            </collection>
-        </collection>
-    </resultMap>
-
-    <select id="findAllPagedFundOrder" resultMap="fundOrderVoMap">
+    <select id="findAllPagedFundOrder" resultType="com.yeta.pps.vo.FundOrderVo">
         select
             fo.id,
             fo.type,
             fo.create_time,
-            fo.apply_order_id,
+            fo.order_id,
+            fo.target_id,
+            if (s.name is not null, s.name, c.name) as target_name,
             fo.order_status,
-            ba.name as ba_name,
-            ba.account as ba_account,
+            fo.bank_account_id,
+            ba.name as bank_account,
+            fo.discount_money,
             fo.money,
+            fo.advance_money,
+            fo.user_id as user_id,
             u.name as user_name,
-            fo.remark,
-            s.name as supplier_name,
-            c.name as client_name,
-            c.phone as client_phone,
-            c.membership_number as client_membership_number
+            fo.remark
         from
             (
                 (
                     (
-                        (
-                            (
-                                fund_order_${fundOrderVo.storeId} as fo
-                                left join procurement_apply_order_${fundOrderVo.storeId} as pao on fo.apply_order_id = pao.id
-                            )
-                            left join user_${fundOrderVo.storeId} as u on fo.user_id = u.id
-                        )
-                        left join bank_account_${fundOrderVo.storeId} as ba on fo.bank_account_id = ba.id
+                        fund_order_${fundOrderVo.storeId} as fo
+                        left join user_${fundOrderVo.storeId} as u on fo.user_id = u.id
                     )
-                    left join supplier_${fundOrderVo.storeId} as s on pao.supplier_id = s.id
+                    left join bank_account_${fundOrderVo.storeId} as ba on fo.bank_account_id = ba.id
                 )
-                left join sell_apply_order_${fundOrderVo.storeId} as sao on fo.apply_order_id = sao.id
+                left join supplier_${fundOrderVo.storeId} as s on fo.target_id = s.id
             )
-        left join client as c on sao.client_id = c.id
+        left join client as c on fo.target_id = c.id
         where
             fo.type = #{fundOrderVo.type}
         <if test="fundOrderVo.id != null">
         and
             fo.id = #{fundOrderVo.id}
         </if>
-        <if test="fundOrderVo.procurementApplyOrderVo.supplierName != null">
+        <if test="fundOrderVo.targetName != null">
         and
-            s.name like concat('%', #{fundOrderVo.procurementApplyOrderVo.supplierName}, '%')
+            s.name like concat('%', #{fundOrderVo.targetName}, '%') or c.name like concat('%', #{fundOrderVo.targetName}, '%')
         </if>
-        <if test="fundOrderVo.procurementApplyOrderVo.startTime != null and fundOrderVo.procurementApplyOrderVo.endTime != null">
+        <if test="fundOrderVo.startTime != null and fundOrderVo.endTime != null">
         and
-            date(fo.create_time) between #{fundOrderVo.procurementApplyOrderVo.startTime} and #{fundOrderVo.procurementApplyOrderVo.endTime}
+            date(fo.create_time) between #{fundOrderVo.startTime} and #{fundOrderVo.endTime}
         </if>
-        <if test="fundOrderVo.sellApplyOrderVo.client.name != null">
-        and
-            c.name like concat('%', #{fundOrderVo.sellApplyOrderVo.client.name}, '%')
-        </if>
-        <if test="fundOrderVo.sellApplyOrderVo.client.phone != null">
-        and
-            c.phone like concat('%', #{fundOrderVo.sellApplyOrderVo.client.phone}, '%')
-        </if>
-        <if test="fundOrderVo.sellApplyOrderVo.client.membershipNumber != null">
-        and
-            c.membershipNumber like concat('%', #{fundOrderVo.sellApplyOrderVo.client.membershipNumber}, '%')
-        </if>
-        <if test="fundOrderVo.sellApplyOrderVo.startTime != null and fundOrderVo.sellApplyOrderVo.endTime != null">
-        and
-            date(fo.create_time) between #{fundOrderVo.sellApplyOrderVo.startTime} and #{fundOrderVo.sellApplyOrderVo.endTime}
-        </if>
-        order by
-            fo.create_time desc
-        limit
-            #{pageVo.start}, #{pageVo.pageSize};
+        order by fo.create_time desc
+        limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findFundOrderById" parameterType="com.yeta.pps.vo.FundOrderVo" resultType="com.yeta.pps.vo.FundOrderVo">
-        select id, type, create_time, apply_order_id, order_status, bank_account_id, money, user_id, remark from fund_order_${storeId} where id = #{id};
+        select id, type, create_time, order_id, target_id, order_status, bank_account_id, discount_money, money, advance_money, user_id, remark from fund_order_${storeId} where id = #{id};
     </select>
+
+    <!--资金对账-->
+
+    <insert id="addFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo">
+        insert into
+            fund_check_order_${storeId} (order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id)
+        value
+            (#{orderId}, #{createTime}, #{orderStatus}, #{targetId}, #{bankAccountId}, #{inMoney}, #{outMoney}, #{balanceMoney}, #{userId});
+    </insert>
+
+    <update id="redDashedFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo">
+        update fund_check_order_${storeId} set order_status = -1 where order_id = #{orderId} and order_status &gt; 0;
+    </update>
+
+    <select id="findSumFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo" resultType="com.yeta.pps.vo.FundCheckOrderVo">
+        select
+            sum(fco.in_money) AS in_money,
+            sum(fco.out_money) AS out_money,
+            (
+                select
+                    balance_money
+                from
+                    fund_check_order_${storeId}
+                where
+                    date(create_time) between #{startTime} and #{endTime}
+                and bank_account_id = #{bankAccountId}
+                order by
+                    create_time desc
+                limit 1
+            ) as balance_money
+        from
+            bank_account_${storeId} as ba
+        left join fund_check_order_${storeId} as fco on fco.bank_account_id = ba.id
+        where
+            date(fco.create_time) between #{startTime} and #{endTime}
+        and fco.bank_account_id = #{bankAccountId}
+    </select>
+
+    <select id="findCountFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                (
+                    (
+                        (
+                            (
+                                (
+                                    fund_check_order_${storeId} as fco
+                                    left join fund_order_${storeId} as fo on fo.id = fco.id
+                                )
+                                left join sell_result_order_${storeId} as sro on sro.id = fco.id
+                            )
+                            left join fund_result_order_${storeId} as fro on fro.id = fco.id
+                        )
+                        left join client as c on c.id = fo.target_id
+                    )
+                    left join supplier_${storeId} as s on s.id = fo.target_id
+                )
+                left join user_${storeId} as u on u.id = fco.user_id
+            )
+        left join bank_account_${storeId} as ba on ba.id = fco.bank_account_id
+        where date(fco.create_time) between #{startTime} and #{endTime}
+        <if test="bankAccountId != null">
+            and fco.bank_account_id = #{bankAccountId}
+        </if>
+        <if test="targetName != null">
+            and c.name like concat('%', #{targetname}, '%') or s.name like concat('%', #{targetname}, '%')
+        </if>
+    </select>
+
+    <select id="findAllPagedFundCheckOrder" resultType="com.yeta.pps.vo.FundCheckOrderVo">
+        select
+            fco.id,
+            fco.order_id,
+            if (fo.type = 1,
+                '收款单',
+            if (fo.type = 2,
+                '付款单',
+            if (fo.type = 3,
+                '预收款单',
+            if (fo.type = 4,
+                '预付款单',
+            if (sro.type = 1,
+                '零售单',
+            if (fro.type = 1,
+                '其他收入单',
+            if (fro.type = 2,
+                '费用单',
+                null
+            ))))))) as type_name,
+            fco.create_time,
+            fco.order_status,
+            fco.target_id,
+            if (s.name is not null, s.name, c.name) as target_name,
+            fo.order_id as apply_order_id,
+            fco.bank_account_id,
+            ba.name as bank_account,
+            fco.in_money,
+            fco.out_money,
+            fco.balance_money,
+            fco.user_id,
+            u.name as user_name,
+            if (fo.remark is not null,
+                fo.remark,
+            if (sro.remark is not null,
+                sro.remark,
+            if (fro.remark is not null,
+                fro.remark,
+                null
+            ))) as remark
+            from
+                (
+                    (
+                        (
+                            (
+                                (
+                                    (
+                                        fund_check_order_${vo.storeId} as fco
+                                        left join fund_order_${vo.storeId} as fo on fo.id = fco.id
+                                    )
+                                    left join sell_result_order_${vo.storeId} as sro on sro.id = fco.id
+                                )
+                                left join fund_result_order_${vo.storeId} as fro on fro.id = fco.id
+                            )
+                            left join client as c on c.id = fo.target_id
+                        )
+                        left join supplier_${vo.storeId} as s on s.id = fo.target_id
+                    )
+                    left join user_${vo.storeId} as u on u.id = fco.user_id
+                )
+            left join bank_account_${vo.storeId} as ba on ba.id = fco.bank_account_id
+            where date(fco.create_time) between #{vo.startTime} and #{vo.endTime}
+            <if test="vo.bankAccountId != null">
+                and fco.bank_account_id = #{vo.bankAccountId}
+            </if>
+            <if test="vo.targetName != null">
+                and c.name like concat('%', #{vo.targetname}, '%') or s.name like concat('%', #{vo.targetname}, '%')
+            </if>
+            limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findFundCheckOrderByOrderId" parameterType="com.yeta.pps.vo.FundCheckOrderVo" resultType="com.yeta.pps.vo.FundCheckOrderVo">
+        select
+            id, order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id
+        from
+            fund_check_order_${storeId}
+        where
+            order_id = #{orderId};
+    </select>
+
+    <select id="findLastBalanceMoney" parameterType="com.yeta.pps.vo.FundCheckOrderVo" resultType="com.yeta.pps.vo.FundCheckOrderVo">
+        select
+            id, order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id
+        from
+            fund_check_order_${storeId}
+        where
+            bank_account_id = #{bankAccountId}
+        order by create_time desc
+        limit 1;
+    </select>
+
 </mapper>

@@ -24,7 +24,8 @@ public class IntegralUtil {
     private MyClientMapper myClientMapper;
 
     /**
-     * 客户积分相关方法
+     * 增加或减少客户积分的方案
+     * @param flag 0：减少，1：增加
      * @param storeId
      * @param clientId
      * @param resultOrderId
@@ -32,26 +33,38 @@ public class IntegralUtil {
      * @param orderGoodsSkuVos
      */
     @Transactional
-    public void updateIntegralMethod(Integer storeId, String clientId, String resultOrderId, List<GoodsSku> goodsSkus, List<OrderGoodsSkuVo> orderGoodsSkuVos) {
+    public void updateIntegralMethod(int flag, Integer storeId, String clientId, String resultOrderId, List<GoodsSku> goodsSkus, List<OrderGoodsSkuVo> orderGoodsSkuVos) {
         //统计积分
-        StoreIntegralVo storeIntegralVo = new StoreIntegralVo(storeId, clientId, 0);
+        StoreIntegralVo storeIntegralVo = new StoreIntegralVo(storeId, clientId, 0, 0.0);
         orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
             GoodsSku goodsSku = goodsSkus.stream().filter(sku -> sku.getId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst().get();
             storeIntegralVo.setIntegral(storeIntegralVo.getIntegral() + goodsSku.getIntegral());
         });
         if (storeIntegralVo.getIntegral() > 0) {
-            //增加客户积分
-            if (myClientMapper.increaseIntegral(storeIntegralVo) != 1) {        //还没有数据
-                if (myClientMapper.addStoreIntegral(storeIntegralVo) != 1) {
+            if (flag == 0) {        //减少积分
+                //减少客户积分
+                if (myClientMapper.decreaseIntegral(storeIntegralVo) != 1) {
                     throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
+            } else if (flag == 1) {     //增加积分
+                //增加客户积分
+                if (myClientMapper.findStoreIntegralByStoreIdAndClientId(storeIntegralVo) != null) {
+                    if (myClientMapper.increaseIntegral(storeIntegralVo) != 1) {
+                        throw new CommonException(CommonResponse.UPDATE_ERROR);
+                    }
+                } else {
+                    if (myClientMapper.addStoreIntegral(storeIntegralVo) != 1) {
+                        throw new CommonException(CommonResponse.UPDATE_ERROR);
+                    }
+                }
             }
+
             //新增客户积分明细
             if (myClientMapper.addIntegralDetail(new ClientIntegralDetailVo(
                     storeId,
                     clientId,
                     new Date(),
-                    (byte) 1,
+                    (byte) flag,
                     storeIntegralVo.getIntegral(),
                     myClientMapper.findStoreIntegralByStoreIdAndClientId(storeIntegralVo).getIntegral(),
                     resultOrderId)) != 1) {

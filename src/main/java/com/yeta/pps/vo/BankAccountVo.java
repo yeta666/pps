@@ -22,14 +22,17 @@ public class BankAccountVo {
     /**
      * 科目名称
      */
-    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String name;
 
     /**
      * 账户类型，1：现金，2：银行卡，3：支付宝，4：微信
      */
-    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte type;
+
+    /**
+     * 期初金额
+     */
+    private Double openingMoney;
 
     /**
      * 户主名
@@ -56,14 +59,29 @@ public class BankAccountVo {
      */
     private Byte procurement;
 
+    /**
+     * 借方发生额
+     */
+    private Double inMoney;
+
+    /**
+     * 贷方发生额
+     */
+    private Double outMoney;
+
+    /**
+     * 期末余额
+     */
+    private Double balanceMoney;
+
     public BankAccountVo() {
     }
 
-    public BankAccountVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId) {
+    public BankAccountVo(Integer storeId) {
         this.storeId = storeId;
     }
 
-    public BankAccountVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String id) {
+    public BankAccountVo(Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
@@ -98,6 +116,14 @@ public class BankAccountVo {
 
     public void setType(Byte type) {
         this.type = type;
+    }
+
+    public Double getOpeningMoney() {
+        return openingMoney;
+    }
+
+    public void setOpeningMoney(Double openingMoney) {
+        this.openingMoney = openingMoney;
     }
 
     public String getHead() {
@@ -140,6 +166,30 @@ public class BankAccountVo {
         this.procurement = procurement;
     }
 
+    public Double getInMoney() {
+        return inMoney;
+    }
+
+    public void setInMoney(Double inMoney) {
+        this.inMoney = inMoney;
+    }
+
+    public Double getOutMoney() {
+        return outMoney;
+    }
+
+    public void setOutMoney(Double outMoney) {
+        this.outMoney = outMoney;
+    }
+
+    public Double getBalanceMoney() {
+        return balanceMoney;
+    }
+
+    public void setBalanceMoney(Double balanceMoney) {
+        this.balanceMoney = balanceMoney;
+    }
+
     @Override
     public String toString() {
         return "BankAccountVo{" +
@@ -147,11 +197,15 @@ public class BankAccountVo {
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", type=" + type +
+                ", openingMoney=" + openingMoney +
                 ", head='" + head + '\'' +
                 ", account='" + account + '\'' +
                 ", gathering=" + gathering +
                 ", qrCode='" + qrCode + '\'' +
                 ", procurement=" + procurement +
+                ", inMoney=" + inMoney +
+                ", outMoney=" + outMoney +
+                ", balanceMoney=" + balanceMoney +
                 '}';
     }
 }

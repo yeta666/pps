@@ -83,6 +83,8 @@ public interface MyClientMapper {
 
     int decreaseIntegral(StoreIntegralVo storeIntegralVo);
 
+    int updateAdvanceMoney(StoreIntegralVo storeIntegralVo);
+
     int findCountStoreIntegral(StoreIntegralVo storeIntegralVo);
 
     List<StoreIntegralVo> findAllPagedStoreIntegral(@Param(value = "storeIntegralVo") StoreIntegralVo storeIntegralVo,

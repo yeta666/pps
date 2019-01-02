@@ -47,9 +47,11 @@
         update
             procurement_apply_order_${storeId}
         set
-            clear_status = #{orderStatus}, cleared_money = cleared_money + #{money}, not_cleared_money = not_cleared_money - #{money}
+            clear_status = #{orderStatus},
+            cleared_money = cleared_money + #{money} + #{discountMoney} + #{advanceMoney},
+            not_cleared_money = not_cleared_money - #{money} - #{discountMoney} - #{advanceMoney}
         where
-            id = #{applyOrderId}
+            id = #{orderId}
     </update>
 
     <select id="findCountApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultType="java.lang.Integer">

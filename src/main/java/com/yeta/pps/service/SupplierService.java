@@ -2,7 +2,6 @@ package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MySupplierMapper;
-import com.yeta.pps.po.Supplier;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
@@ -79,7 +78,7 @@ public class SupplierService {
             //查询所有页数
             pageVo.setTotalPage((int) Math.ceil(mySupplierMapper.findCount(supplierVo) * 1.0 / pageVo.getPageSize()));
             pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-            List<Supplier> suppliers = mySupplierMapper.findAllPaged(supplierVo, pageVo);
+            List<SupplierVo> supplierVos = mySupplierMapper.findAllPaged(supplierVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("供应商编号", "id"));
@@ -89,12 +88,12 @@ public class SupplierService {
             titles.add(new Title("联系地址", "contactAddress"));
             titles.add(new Title("传真", "fax"));
             titles.add(new Title("备注", "remark"));
-            CommonResult commonResult = new CommonResult(titles, suppliers, pageVo);
+            CommonResult commonResult = new CommonResult(titles, supplierVos, pageVo);
             return CommonResponse.success(commonResult);
         }
         //不分页
-        List<Supplier> suppliers = mySupplierMapper.findAll(supplierVo);
-        return CommonResponse.success(suppliers);
+        List<SupplierVo> supplierVos = mySupplierMapper.findAll(supplierVo);
+        return CommonResponse.success(supplierVos);
     }
 
     /**
@@ -103,10 +102,10 @@ public class SupplierService {
      * @return
      */
     public CommonResponse findById(SupplierVo supplierVo) {
-        Supplier supplier = mySupplierMapper.findById(supplierVo);
-        if (supplier == null) {
+        supplierVo = mySupplierMapper.findById(supplierVo);
+        if (supplierVo == null) {
             return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
-        return CommonResponse.success(supplier);
+        return CommonResponse.success(supplierVo);
     }
 }

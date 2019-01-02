@@ -1,6 +1,5 @@
 package com.yeta.pps.controller;
 
-import com.yeta.pps.po.BankAccount;
 import com.yeta.pps.service.BankAccountService;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
@@ -89,9 +88,9 @@ public class BankAccountController {
             @ApiImplicitParam(name = "pageSize", value = "每次显示条数", required = false, paramType = "query", dataType = "int")
     })
     @GetMapping(value = "/bankAccounts")
-    public CommonResponse<CommonResult<List<BankAccount>>> findAll(@RequestParam(value = "storeId") Integer storeId,
-                                                                   @RequestParam(value = "page", required = false) Integer page,
-                                                                   @RequestParam(value = "pageSize", required = false) Integer pageSize) {
+    public CommonResponse<CommonResult<List<BankAccountVo>>> findAll(@RequestParam(value = "storeId") Integer storeId,
+                                                                     @RequestParam(value = "page", required = false) Integer page,
+                                                                     @RequestParam(value = "pageSize", required = false) Integer pageSize) {
         return bankAccountService.findAll(new BankAccountVo(storeId), new PageVo(page, pageSize));
     }
 
@@ -107,8 +106,8 @@ public class BankAccountController {
             @ApiImplicitParam(name = "bankAccountId", value = "银行账户id", required = true, paramType = "path", dataType = "String")
     })
     @GetMapping(value = "/bankAccounts/{bankAccountId}")
-    public CommonResponse<BankAccount> findById(@RequestParam(value = "storeId") Integer storeId,
-                                                @PathVariable(value = "bankAccountId") String bankAccountId) {
+    public CommonResponse<BankAccountVo> findById(@RequestParam(value = "storeId") Integer storeId,
+                                                  @PathVariable(value = "bankAccountId") String bankAccountId) {
         return bankAccountService.findById(new BankAccountVo(storeId, bankAccountId));
     }
 }

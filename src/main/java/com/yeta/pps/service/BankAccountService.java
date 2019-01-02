@@ -2,7 +2,6 @@ package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyBankAccountMapper;
-import com.yeta.pps.po.BankAccount;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
@@ -32,6 +31,10 @@ public class BankAccountService {
      * @return
      */
     public CommonResponse add(BankAccountVo bankAccountVo) {
+        //判断参数
+        if (bankAccountVo.getName() == null || bankAccountVo.getType() == null) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
         //新增
         if (myBankAccountMapper.add(bankAccountVo) != 1) {
             return CommonResponse.error(CommonResponse.ADD_ERROR);
@@ -79,23 +82,24 @@ public class BankAccountService {
             //查询所有页数
             pageVo.setTotalPage((int) Math.ceil(myBankAccountMapper.findCount(bankAccountVo) * 1.0 / pageVo.getPageSize()));
             pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-            List<BankAccount> bankAccounts = myBankAccountMapper.findAllPaged(bankAccountVo, pageVo);
+            List<BankAccountVo> bankAccountVos = myBankAccountMapper.findAllPaged(bankAccountVo, pageVo);
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("科目编号", "id"));
             titles.add(new Title("科目名称", "name"));
             titles.add(new Title("账户类型", "type"));
+            titles.add(new Title("期初金额", "openingMoney"));
             titles.add(new Title("户主名", "head"));
             titles.add(new Title("账户", "account"));
             titles.add(new Title("是否用于商城收款", "gathering"));
             titles.add(new Title("收款码", "qrCode"));
             titles.add(new Title("是否用于订货平台", "procurement"));
-            CommonResult commonResult = new CommonResult(titles, bankAccounts, pageVo);
+            CommonResult commonResult = new CommonResult(titles, bankAccountVos, pageVo);
             return CommonResponse.success(commonResult);
         }
         //不分页
-        List<BankAccount> bankAccounts = myBankAccountMapper.findAll(bankAccountVo);
-        return CommonResponse.success(bankAccounts);
+        List<BankAccountVo> bankAccountVos = myBankAccountMapper.findAll(bankAccountVo);
+        return CommonResponse.success(bankAccountVos);
     }
 
     /**
@@ -104,10 +108,10 @@ public class BankAccountService {
      * @return
      */
     public CommonResponse findById(BankAccountVo bankAccountVo) {
-        BankAccount bankAccount = myBankAccountMapper.findById(bankAccountVo);
-        if (bankAccount == null) {
+        bankAccountVo = myBankAccountMapper.findById(bankAccountVo);
+        if (bankAccountVo == null) {
             return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
-        return CommonResponse.success(bankAccount);
+        return CommonResponse.success(bankAccountVo);
     }
 }

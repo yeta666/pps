@@ -7,13 +7,10 @@ import com.yeta.pps.po.SellApplyOrder;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,10 +38,16 @@ public class SellService {
     private MyClientMapper myClientMapper;
 
     @Autowired
+    private MyFundMapper myFundMapper;
+
+    @Autowired
     private InventoryUtil inventoryUtil;
 
     @Autowired
     private IntegralUtil integralUtil;
+
+    @Autowired
+    private FundUtil fundUtil;
 
     //销售申请订单
 
@@ -59,6 +62,12 @@ public class SellService {
         Integer storeId = sellApplyOrderVo.getStoreId();
         List<OrderGoodsSkuVo> orderGoodsSkuVos = sellApplyOrderVo.getDetails();
         Byte type = sellApplyOrderVo.getType();
+        if (type == 3 || type == 4) {
+            SellResultOrderVo srVo = mySellMapper.findResultOrderDetailById(new SellResultOrderVo(storeId, sellApplyOrderVo.getResultOrderId()));
+            if (srVo == null || srVo.getOrderStatus() < 0) {
+                return CommonResponse.error(CommonResponse.ADD_ERROR, CommonResponse.STATUS_ERROR);
+            }
+        }
 
         //优惠券的钱
         double discountCouponMoney = 0;
@@ -191,7 +200,7 @@ public class SellService {
                 storageCheckOrderVo.setOutWarehouseId(sellApplyOrderVo.getOutWarehouseId());
                 storageCheckOrderVo.setOutQuantity(orderGoodsSkuVo.getQuantity());
                 storageCheckOrderVo.setUserId(sellApplyOrderVo.getUserId());
-                double costMoney = inventoryUtil.addStorageCheckOrder(0, storageCheckOrderVo, null);
+                double costMoney = inventoryUtil.addStorageCheckOrderMethod(0, storageCheckOrderVo, null);
 
                 //统计成本
                 sellResultOrderVo.setCostMoney(sellResultOrderVo.getCostMoney() + costMoney * orderGoodsSkuVo.getQuantity());
@@ -254,7 +263,30 @@ public class SellService {
             }
 
             //修改客户积分相关信息
-            integralUtil.updateIntegralMethod(storeId, sellApplyOrderVo.getClientId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
+            integralUtil.updateIntegralMethod(1, storeId, sellApplyOrderVo.getClientId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
+
+            //记录资金对账记录
+            FundCheckOrderVo vo = new FundCheckOrderVo();
+            vo.setStoreId(storeId);
+            vo.setOrderId(sellApplyOrderVo.getId());
+            vo.setCreateTime(new Date());
+            vo.setOrderStatus((byte) 1);
+            vo.setBankAccountId(sellApplyOrderVo.getBankAccountId());
+            vo.setUserId(sellApplyOrderVo.getUserId());
+            vo.setRemark(sellApplyOrderVo.getRemark());
+
+            //查询最新的资金对账记录
+            FundCheckOrderVo lastVo = myFundMapper.findLastBalanceMoney(vo);
+            if (lastVo == null) {
+                throw new CommonException(CommonResponse.ADD_ERROR);
+            }
+
+            vo.setInMoney(sellApplyOrderVo.getOrderMoney());
+            vo.setOutMoney(0.0);
+            vo.setBalanceMoney(lastVo.getBalanceMoney() + sellApplyOrderVo.getOrderMoney());
+            if (myFundMapper.addFundCheckOrder(vo) != 1) {
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
+            }
         }
 
         //修改客户最近交易时间
@@ -329,26 +361,26 @@ public class SellService {
     @Transactional
     public CommonResponse updateApplyOrder(SellApplyOrderVo sellApplyOrderVo) {
         //获取销售申请订单
-        SellApplyOrder sellApplyOrder = mySellMapper.findApplyOrderById(sellApplyOrderVo);
-        if (sellApplyOrder == null) {
+        SellApplyOrderVo vo = mySellMapper.findApplyOrderById(sellApplyOrderVo);
+        if (vo == null) {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
 
         //判断单据状态
-        Byte orderStatus = sellApplyOrder.getOrderStatus();
+        Byte orderStatus = vo.getOrderStatus();
         if (orderStatus != 1 && orderStatus != 4 && orderStatus != 7) {     //1：未收，4：未发，7：未收未发
             return CommonResponse.error(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
         }
 
         //判断结算状态
-        Byte clearStatus = sellApplyOrder.getClearStatus();
+        Byte clearStatus = vo.getClearStatus();
         if (clearStatus != 0) {     //0：未完成
             return CommonResponse.error(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
         }
 
         //判断是销售订单/销售退货申请/销售换货申请
         List<OrderGoodsSkuVo> orderGoodsSkuVos = sellApplyOrderVo.getDetails();
-        Byte type = sellApplyOrder.getType();
+        Byte type = vo.getType();
         switch (type) {
             case 2:     //销售订单
                 //判断参数
@@ -560,6 +592,12 @@ public class SellService {
             throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
 
+        //查询该结果单对应的申请单
+        SellApplyOrderVo applyOrderVo = mySellMapper.findApplyOrderDetailById(new SellApplyOrderVo(storeId, sellResultOrderVo.getApplyOrderId()));
+        List<OrderGoodsSkuVo> applyOrderDetails = applyOrderVo.getDetails();
+        List<OrderGoodsSkuVo> applyOrderInVos = applyOrderDetails.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("1")).collect(Collectors.toList());
+        List<OrderGoodsSkuVo> applyOrderOutVos = applyOrderDetails.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("0")).collect(Collectors.toList());
+
         //修改库存相关
         List<OrderGoodsSkuVo> orderGoodsSkuVos = sellResultOrderVo.getDetails();
         for (OrderGoodsSkuVo orderGoodsSkuVo : orderGoodsSkuVos) {
@@ -573,22 +611,116 @@ public class SellService {
                 inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storeId, sellResultOrderVo.getSellApplyOrderVo().getOutWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
 
                 //红冲库存记账记录
-                inventoryUtil.redDashedStorageCheckOrder(0, new StorageCheckOrderVo(storeId, oldResultOrderId, orderGoodsSkuVo.getGoodsSkuId(), userId));
+                inventoryUtil.redDashedStorageCheckOrderMethod(0, new StorageCheckOrderVo(storeId, oldResultOrderId, orderGoodsSkuVo.getGoodsSkuId(), userId));
+
+                if (applyOrderVo.getType() != 1) {
+                    //减少完成数量
+                    Optional<OrderGoodsSkuVo> optional = applyOrderOutVos.stream().filter(applyOrderInVo -> applyOrderInVo.getGoodsSkuId().toString().equals(orderGoodsSkuVo.getGoodsSkuId().toString())).findFirst();
+                    if (!optional.isPresent()) {
+                        throw new CommonException(CommonResponse.UPDATE_ERROR);
+                    }
+                    OrderGoodsSkuVo applyOrderInVo = optional.get();
+                    applyOrderInVo.setStoreId(storeId);
+                    applyOrderInVo.setChangeQuantity(-orderGoodsSkuVo.getQuantity());
+                    if (myOrderGoodsSkuMapper.updateOrderGoodsSku(applyOrderInVo) != 1) {
+                        throw new CommonException(CommonResponse.UPDATE_ERROR);
+                    }
+                    applyOrderVo.setOutSentQuantity(applyOrderVo.getOutSentQuantity() - orderGoodsSkuVo.getQuantity());
+                    applyOrderVo.setOutNotSentQuantity(applyOrderVo.getOutNotSentQuantity() + orderGoodsSkuVo.getQuantity());
+                }
             } else if (orderGoodsSkuVo.getType() == 1) {     //原来是入库
                 //减少商品规格库存
                 inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storeId, sellResultOrderVo.getSellApplyOrderVo().getInWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
 
                 //红冲库存记账记录
-                inventoryUtil.redDashedStorageCheckOrder(1, new StorageCheckOrderVo(storeId, oldResultOrderId, orderGoodsSkuVo.getGoodsSkuId(), userId));
+                inventoryUtil.redDashedStorageCheckOrderMethod(1, new StorageCheckOrderVo(storeId, oldResultOrderId, orderGoodsSkuVo.getGoodsSkuId(), userId));
+
+                if (applyOrderVo.getType() != 1) {
+                    //减少完成数量
+                    Optional<OrderGoodsSkuVo> optional = applyOrderInVos.stream().filter(applyOrderInVo -> applyOrderInVo.getGoodsSkuId().toString().equals(orderGoodsSkuVo.getGoodsSkuId().toString())).findFirst();
+                    if (!optional.isPresent()) {
+                        throw new CommonException(CommonResponse.UPDATE_ERROR);
+                    }
+                    OrderGoodsSkuVo applyOrderInVo = optional.get();
+                    applyOrderInVo.setStoreId(storeId);
+                    applyOrderInVo.setChangeQuantity(-orderGoodsSkuVo.getQuantity());
+                    if (myOrderGoodsSkuMapper.updateOrderGoodsSku(applyOrderInVo) != 1) {
+                        throw new CommonException(CommonResponse.UPDATE_ERROR);
+                    }
+                    applyOrderVo.setInReceivedQuantity(applyOrderVo.getInReceivedQuantity() - orderGoodsSkuVo.getQuantity());
+                    applyOrderVo.setInNotReceivedQuantity(applyOrderVo.getInNotReceivedQuantity() + orderGoodsSkuVo.getQuantity());
+                }
             } else {
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
         }
 
+        //修改申请订单的单据状态和完成数量
+        Byte orderStatus = null;
+        switch (applyOrderVo.getType()) {
+            case 2:     //销售订单
+                if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //未发
+                    orderStatus = 4;
+                } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //部分发
+                    orderStatus = 5;
+                } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //已发
+                    orderStatus = 6;
+                }
+                if (mySellMapper.updateApplyOrderOrderStatusAndQuantity(new StorageOrderVo(storeId, (byte) 3, applyOrderVo.getId(), orderStatus, applyOrderVo.getOutSentQuantity() - applyOrderVo.getOutTotalQuantity())) != 1) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                break;
+            case 3:     //销售退货申请单
+                if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity() == applyOrderVo.getInTotalQuantity()) {        //未收
+                    orderStatus = 1;
+                } else if (applyOrderVo.getInReceivedQuantity() > 0 && applyOrderVo.getInNotReceivedQuantity() < applyOrderVo.getInTotalQuantity()) {        //部分收
+                    orderStatus = 2;
+                } else if (applyOrderVo.getInReceivedQuantity() == applyOrderVo.getInTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {        //已收
+                    orderStatus = 3;
+                }
+                if (mySellMapper.updateApplyOrderOrderStatusAndQuantity(new StorageOrderVo(storeId, (byte) 2, applyOrderVo.getId(), orderStatus, applyOrderVo.getInReceivedQuantity() - applyOrderVo.getInTotalQuantity())) != 1) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                break;
+            case 4:     //销售换货申请单
+                if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity() == applyOrderVo.getInTotalQuantity()) {        //未收
+                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //未收未发
+                        orderStatus = 7;
+                    } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //未收部分发
+                        orderStatus = 8;
+                    } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //未收已发
+                        orderStatus = 9;
+                    }
+                } else if (applyOrderVo.getInReceivedQuantity() > 0 && applyOrderVo.getInNotReceivedQuantity() < applyOrderVo.getInTotalQuantity()) {        //部分收
+                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //部分收未发
+                        orderStatus = 10;
+                    } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //部分收部分发
+                        orderStatus = 11;
+                    } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //部分收已发
+                        orderStatus = 12;
+                    }
+                } else if (applyOrderVo.getInReceivedQuantity() == applyOrderVo.getInTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {        //已收
+                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //已收未发
+                        orderStatus = 13;
+                    } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //已收部分发
+                        orderStatus = 14;
+                    } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //已收已发
+                        orderStatus = 15;
+                    }
+                }
+                if (mySellMapper.updateApplyOrderOrderStatusAndQuantity(new StorageOrderVo(storeId, (byte) 2, applyOrderVo.getId(), orderStatus, applyOrderVo.getInReceivedQuantity() - applyOrderVo.getInTotalQuantity())) != 1) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                if (mySellMapper.updateApplyOrderOrderStatusAndQuantity(new StorageOrderVo(storeId, (byte) 4, applyOrderVo.getId(), orderStatus, applyOrderVo.getOutSentQuantity() - applyOrderVo.getOutTotalQuantity())) != 1) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                break;
+            default:
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+
         //修改商品规格可操作数量
         if (sellResultOrderVo.getType() == 3 || sellResultOrderVo.getType() == 4) {
-            //查询该销售退货单或销售换货单对应的销售退货申请单或销售换货申请单
-            SellApplyOrderVo applyOrderVo = mySellMapper.findApplyOrderDetailById(new SellApplyOrderVo(storeId, sellResultOrderVo.getApplyOrderId()));
             List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = applyOrderVo.getDetails().stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("1")).collect(Collectors.toList());        //采购退换申请单或采购换货申请单中出库的的商品规格
             //查询该销售退货申请单或销售换货申请单对应的销售出库单
             SellResultOrderVo resultOrderVo = mySellMapper.findResultOrderDetailById(new SellResultOrderVo(storeId, applyOrderVo.getResultOrderId()));
@@ -604,6 +736,9 @@ public class SellService {
                     }
                 }
             });
+        } else if (sellResultOrderVo.getType() == 1) {      //零售单红冲资金对账记录、减少客户积分
+            //TODO
+            fundUtil.redDashedFundCheckOrderMethod(new FundCheckOrderVo(storeId, sellResultOrderVo.getApplyOrderId(), userId));
         }
 
         return CommonResponse.success();

@@ -1,6 +1,5 @@
 package com.yeta.pps.mapper;
 
-import com.yeta.pps.po.Supplier;
 import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.SupplierVo;
 import org.apache.ibatis.annotations.Param;
@@ -15,11 +14,13 @@ public interface MySupplierMapper {
 
     int update(SupplierVo supplierVo);
 
+    int updateAdvanceMoney(SupplierVo supplierVo);
+
     int findCount(SupplierVo supplierVo);
 
-    List<Supplier> findAll(SupplierVo supplierVo);
+    List<SupplierVo> findAll(SupplierVo supplierVo);
 
-    List<Supplier> findAllPaged(@Param(value = "supplierVo") SupplierVo supplierVo, @Param(value = "pageVo") PageVo pageVo);
+    List<SupplierVo> findAllPaged(@Param(value = "supplierVo") SupplierVo supplierVo, @Param(value = "pageVo") PageVo pageVo);
 
-    Supplier findById(SupplierVo supplierVo);
+    SupplierVo findById(SupplierVo supplierVo);
 }

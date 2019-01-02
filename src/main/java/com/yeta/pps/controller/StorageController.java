@@ -383,7 +383,7 @@ public class StorageController {
      */
     @ApiOperation(value = "库存期初设置")
     @ApiImplicitParam(name = "warehouseGoodsSkuVo", value = "storeId, warehouseId, goodsSkuId, openingQuantity, openingMoney, openingTotalMoney, userId必填", required = true, paramType = "body", dataType = "WarehouseGoodsSkuVo")
-    @PostMapping(value = "/storage/inventory/opening")
+    @PutMapping(value = "/storage/inventory/opening")
     public CommonResponse addWarehouseGoodsSku(@RequestBody @Valid WarehouseGoodsSkuVo warehouseGoodsSkuVo) {
         return storageService.addWarehouseGoodsSku(warehouseGoodsSkuVo);
     }

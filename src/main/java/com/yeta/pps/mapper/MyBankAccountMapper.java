@@ -1,6 +1,5 @@
 package com.yeta.pps.mapper;
 
-import com.yeta.pps.po.BankAccount;
 import com.yeta.pps.vo.BankAccountVo;
 import com.yeta.pps.vo.PageVo;
 import org.apache.ibatis.annotations.Param;
@@ -15,11 +14,13 @@ public interface MyBankAccountMapper {
 
     int update(BankAccountVo bankAccountVo);
 
+    int updateOpening(BankAccountVo bankAccountVo);
+
     int findCount(BankAccountVo bankAccountVo);
 
-    List<BankAccount> findAll(BankAccountVo bankAccountVo);
+    List<BankAccountVo> findAll(BankAccountVo bankAccountVo);
 
-    List<BankAccount> findAllPaged(@Param(value = "bankAccountVo") BankAccountVo bankAccountVo, @Param(value = "pageVo") PageVo pageVo);
+    List<BankAccountVo> findAllPaged(@Param(value = "bankAccountVo") BankAccountVo bankAccountVo, @Param(value = "pageVo") PageVo pageVo);
 
-    BankAccount findById(BankAccountVo bankAccountVo);
+    BankAccountVo findById(BankAccountVo bankAccountVo);
 }
