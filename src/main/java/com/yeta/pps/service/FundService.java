@@ -3,17 +3,12 @@ package com.yeta.pps.service;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.ProcurementApplyOrder;
-import com.yeta.pps.po.SellApplyOrder;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
-import org.omg.CORBA.COMM_FAILURE;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,9 +42,6 @@ public class FundService {
 
     @Autowired
     private FundUtil fundUtil;
-
-    @Autowired
-    private IntegralUtil integralUtil;
 
     /**
      * 查询预收/付款余额
@@ -278,6 +270,7 @@ public class FundService {
         vo.setOrderId(fundOrderVo.getId());
         vo.setCreateTime(new Date());
         vo.setOrderStatus((byte) 1);
+        vo.setTargetId(fundOrderVo.getTargetId());
         vo.setBankAccountId(fundOrderVo.getBankAccountId());
         vo.setUserId(fundOrderVo.getUserId());
         vo.setRemark(fundOrderVo.getRemark());
@@ -528,4 +521,143 @@ public class FundService {
         return CommonResponse.success(commonResult);
     }
 
+
+    //其他收入单/费用单
+
+    /**
+     * 新增其他收入单/费用单
+     * @param fundResultOrderVo
+     * @return
+     */
+    @Transactional
+    public CommonResponse addFundResultOrder(FundResultOrderVo fundResultOrderVo) {
+
+        //设置库存对账记录
+        FundCheckOrderVo fundCheckOrderVo = new FundCheckOrderVo();
+        fundCheckOrderVo.setStoreId(fundResultOrderVo.getStoreId());
+        fundCheckOrderVo.setCreateTime(new Date());
+        fundCheckOrderVo.setOrderStatus((byte) 1);
+        fundCheckOrderVo.setTargetId(fundResultOrderVo.getTargetId());
+        fundCheckOrderVo.setBankAccountId(fundResultOrderVo.getBankAccountId());
+
+        //查询最新的资金对账记录
+        FundCheckOrderVo lastVo = myFundMapper.findLastBalanceMoney(new FundCheckOrderVo(fundResultOrderVo.getStoreId(), null, null, fundResultOrderVo.getBankAccountId()));
+        if (lastVo == null) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
+        //判断新增类型
+        byte type = fundResultOrderVo.getType();
+        switch (type) {
+            case 1:     //其他收入单:
+                //判断参数
+                if (fundResultOrderVo.getTargetId() == null) {
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+                }
+
+                fundResultOrderVo.setId("QTSRD_" + UUID.randomUUID().toString().replace("-", ""));
+
+                fundCheckOrderVo.setOrderId(fundResultOrderVo.getId());
+                fundCheckOrderVo.setInMoney(fundResultOrderVo.getMoney());
+                fundCheckOrderVo.setOutMoney(0.0);
+                fundCheckOrderVo.setBalanceMoney(lastVo.getBalanceMoney() + fundResultOrderVo.getMoney());
+                break;
+
+            case 2:     //费用单:
+                fundResultOrderVo.setId("YBFYD_" + UUID.randomUUID().toString().replace("-", ""));
+
+                fundCheckOrderVo.setOrderId(fundResultOrderVo.getId());
+                fundCheckOrderVo.setInMoney(0.0);
+                fundCheckOrderVo.setOutMoney(fundResultOrderVo.getMoney());
+                fundCheckOrderVo.setBalanceMoney(lastVo.getBalanceMoney() - fundResultOrderVo.getMoney());
+                break;
+
+            default:
+                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
+        //设置初始属性
+        fundResultOrderVo.setCreateTime(new Date());
+        fundResultOrderVo.setOrderStatus((byte) 1);
+
+        //新增
+        if (myFundMapper.addFundResultOrder(fundResultOrderVo) != 1) {
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
+        }
+
+        //记录资金对账记录
+        if (myFundMapper.addFundCheckOrder(fundCheckOrderVo) != 1) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+        
+        return CommonResponse.success();
+    }
+
+    /**
+     * 红冲其他收入单/费用单
+     * @param fundResultOrderVo
+     * @return
+     */
+    @Transactional
+    public CommonResponse redDashedResultOrder(FundResultOrderVo fundResultOrderVo) {
+        //获取参数
+        Integer storeId = fundResultOrderVo.getStoreId();
+        String userId = fundResultOrderVo.getUserId();
+        String remark = fundResultOrderVo.getRemark();
+
+        //红冲
+        if (myFundMapper.redDashedFundResultOrder(fundResultOrderVo) != 1) {
+            return CommonResponse.error(CommonResponse.UPDATE_ERROR);
+        }
+
+        //获取红冲蓝单
+        fundResultOrderVo = myFundMapper.findFundResultOrderById(fundResultOrderVo);
+
+        //红冲资金记账记录
+        fundUtil.redDashedFundCheckOrderMethod(new FundCheckOrderVo(storeId, fundResultOrderVo.getId(), userId));
+
+
+        //设置红冲红单
+        fundResultOrderVo.setStoreId(storeId);
+        fundResultOrderVo.setId("HC_" + fundResultOrderVo.getId());
+        fundResultOrderVo.setCreateTime(new Date());
+        fundResultOrderVo.setOrderStatus((byte) -2);
+        fundResultOrderVo.setMoney(-fundResultOrderVo.getMoney());
+        fundResultOrderVo.setUserId(userId);
+        fundResultOrderVo.setRemark(remark);
+
+        //新增红冲红单
+        if (myFundMapper.addFundResultOrder(fundResultOrderVo) != 1) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+
+        return CommonResponse.success();
+    }
+
+    /**
+     * 查询其他收入单/费用单
+     * @param fundResultOrderVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findAllFundResultOrder(FundResultOrderVo fundResultOrderVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myFundMapper.findCountFundResultOrder(fundResultOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<FundCheckOrderVo> fundCheckOrderVos = myFundMapper.findAllPagedFundResultOrder(fundResultOrderVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "id"));
+        titles.add(new Title("创建时间", "createTime"));
+        titles.add(new Title("往来单位", "targetName"));
+        titles.add(new Title("账户", "bankAccount"));
+        titles.add(new Title("金额", "money"));
+        titles.add(new Title("收支名称", "incomeExpenses"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, fundCheckOrderVos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
 }

@@ -530,6 +530,9 @@ public class SellService {
      * @return
      */
     public CommonResponse findApplyOrderDetailById(SellApplyOrderVo sellApplyOrderVo) {
+        //获取参数
+        Integer storeId = sellApplyOrderVo.getStoreId();
+
         //根据单据编号查询单据详情
         sellApplyOrderVo = mySellMapper.findApplyOrderDetailById(sellApplyOrderVo);
         if (sellApplyOrderVo == null || sellApplyOrderVo.getDetails().size() == 0) {
@@ -537,7 +540,7 @@ public class SellService {
         }
 
         //补上仓库名
-        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellApplyOrderVo.getStoreId()));
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storeId));
         for (Warehouse warehouse : warehouses) {
             if (sellApplyOrderVo.getInWarehouseId() == warehouse.getId()) {
                 sellApplyOrderVo.setInWarehouseName(warehouse.getName());
@@ -800,6 +803,9 @@ public class SellService {
      * @return
      */
     public CommonResponse findResultOrderDetailById(SellResultOrderVo sellResultOrderVo) {
+        //获取参数
+        Integer storeId = sellResultOrderVo.getStoreId();
+
         //根据单据编号查询单据详情
         sellResultOrderVo = mySellMapper.findResultOrderDetailById(sellResultOrderVo);
         if (sellResultOrderVo == null || sellResultOrderVo.getDetails().size() == 0) {
@@ -807,7 +813,7 @@ public class SellService {
         }
 
         //补上仓库名
-        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellResultOrderVo.getStoreId()));
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storeId));
         for (Warehouse warehouse : warehouses) {
             if (sellResultOrderVo.getSellApplyOrderVo().getInWarehouseId() == warehouse.getId()) {
                 sellResultOrderVo.getSellApplyOrderVo().setInWarehouseName(warehouse.getName());

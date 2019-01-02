@@ -255,4 +255,108 @@
         limit 1;
     </select>
 
+    <!--其他收入单/费用单-->
+
+    <insert id="addFundResultOrder" parameterType="com.yeta.pps.vo.FundResultOrderVo">
+        insert into
+            fund_result_order_${storeId} (id, type, create_time, order_status, target_id, bank_account_id, money, income_expenses_id, user_id, remark)
+        value
+            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{targetId}, #{bankAccountId}, #{money}, #{incomeExpensesId}, #{userId}, #{remark});
+    </insert>
+
+    <update id="redDashedFundResultOrder" parameterType="com.yeta.pps.vo.FundResultOrderVo">
+        update fund_result_order_${storeId} set order_status = -1 where id = #{id} and order_status &gt; 0;
+    </update>
+
+    <select id="findCountFundResultOrder" parameterType="com.yeta.pps.vo.FundResultOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                (
+                    (
+                        (
+                            fund_result_order_${storeId} as fro
+                            left join bank_account_${storeId} as ba on ba.id = fro.bank_account_id
+                        )
+                        left join income_expenses_${storeId} as ie on ie.id = fro.income_expenses_id
+                    )
+                    left join client as c on c.id = fro.target_id
+                )
+                left join supplier_${storeId} as s on s.id = fro.target_id
+            )
+        left join user_${storeId} as u on u.id = fro.user_id
+        where fro.type = #{type}
+        <if test="startTime != null and endTime != null">
+            and date(fro.create_time) between #{startTime} and #{endTime}
+        </if>
+        <if test="id != null">
+            and fro.id = #{id}
+        </if>
+        <if test="targetName != null">
+            and c.name like concat('%', #{targetName}, '%') or s.name like concat('%', #{targetName}, '%')
+        </if>
+        <if test="bankAccountId != null">
+            and fro.bank_account_id = #{bankAccountId}
+        </if>
+        <if test="incomeExpensesId != null">
+            and fro.income_expenses_id = #{incomeExpensesId}
+        </if>
+        order by fro.create_time desc;
+    </select>
+
+    <select id="findAllPagedFundResultOrder" resultType="com.yeta.pps.vo.FundResultOrderVo">
+        select
+            fro.id,
+            fro.type,
+            fro.create_time,
+            fro.order_status,
+            fro.target_id,
+            if (c.name is not null, c.name, s.name) as target_name,
+            fro.bank_account_id,
+            ba.name as bank_account,
+            fro.money,
+            fro.income_expenses_id,
+            ie.name as income_expenses,
+            fro.user_id,
+            u.name as user_name,
+            fro.remark
+        from
+            (
+                (
+                    (
+                        (
+                            fund_result_order_${vo.storeId} as fro
+                            left join bank_account_${vo.storeId} as ba on ba.id = fro.bank_account_id
+                        )
+                        left join income_expenses_${vo.storeId} as ie on ie.id = fro.income_expenses_id
+                    )
+                    left join client as c on c.id = fro.target_id
+                )
+                left join supplier_${vo.storeId} as s on s.id = fro.target_id
+            )
+        left join user_${vo.storeId} as u on u.id = fro.user_id
+        where fro.type = #{vo.type}
+        <if test="vo.startTime != null and vo.endTime != null">
+            and date(fro.create_time) between #{vo.startTime} and #{vo.endTime}
+        </if>
+        <if test="vo.id != null">
+            and fro.id = #{vo.id}
+        </if>
+        <if test="vo.targetName != null">
+            and c.name like concat('%', #{vo.targetName}, '%') or s.name like concat('%', #{vo.targetName}, '%')
+        </if>
+        <if test="vo.bankAccountId != null">
+            and fro.bank_account_id = #{vo.bankAccountId}
+        </if>
+        <if test="vo.incomeExpensesId != null">
+            and fro.income_expenses_id = #{vo.incomeExpensesId}
+        </if>
+        order by fro.create_time desc
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findFundResultOrderById" parameterType="com.yeta.pps.vo.FundResultOrderVo" resultType="com.yeta.pps.vo.FundResultOrderVo">
+        select id, type, create_time, order_status, target_id, bank_account_id, money, income_expenses_id, user_id, remark from fund_result_order_${storeId} where id = #{id};
+    </select>
 </mapper>

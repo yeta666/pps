@@ -4,25 +4,25 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.util.CommonResponse;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-public class FundCheckOrderVo {
+public class FundResultOrderVo {
 
     @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer storeId;
 
     /**
-     * 资金对账记录编号
-     */
-    private Integer id;
-
-    /**
      * 单据编号
      */
-    private String orderId;
+    private String id;
 
-    private String typeName;
+    /**
+     * 单据类型
+     */
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
+    private Byte type;
 
     /**
      * 创建时间
@@ -41,8 +41,6 @@ public class FundCheckOrderVo {
      */
     private Byte orderStatus;
 
-    private String applyOrderId;
-
     /**
      * 往来单位编号
      */
@@ -53,60 +51,54 @@ public class FundCheckOrderVo {
     /**
      * 银行账户编号
      */
-    @JsonIgnore
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String bankAccountId;
 
     private String bankAccount;
 
     /**
-     * 收入金额
+     * 金额
      */
-    private Double inMoney;
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
+    private Double money;
 
     /**
-     * 支出金额
+     * 收支费用编号
      */
-    private Double outMoney;
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
+    private String incomeExpensesId;
 
-    /**
-     * 当前余额
-     */
-    private Double balanceMoney;
+    private String incomeExpenses;
 
     /**
      * 经手人编号
      */
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String userId;
 
     private String userName;
 
     private String remark;
 
-    public FundCheckOrderVo() {
+    public FundResultOrderVo() {
     }
 
-    public FundCheckOrderVo(Integer storeId, String orderId) {
+    public FundResultOrderVo(Integer storeId, String id, String userId, String remark) {
         this.storeId = storeId;
-        this.orderId = orderId;
-    }
-
-    public FundCheckOrderVo(Integer storeId, String orderId, String userId) {
-        this.storeId = storeId;
-        this.orderId = orderId;
+        this.id = id;
         this.userId = userId;
+        this.remark = remark;
     }
 
-    public FundCheckOrderVo(Integer storeId, Date startTime, Date endTime) {
+    public FundResultOrderVo(Integer storeId, String id,Byte type, Date startTime, Date endTime, String targetName, String bankAccountId, String incomeExpensesId) {
         this.storeId = storeId;
+        this.id = id;
+        this.type = type;
         this.startTime = startTime;
         this.endTime = endTime;
-    }
-
-    public FundCheckOrderVo(Integer storeId, Date startTime, Date endTime, String bankAccountId) {
-        this.storeId = storeId;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.targetName = targetName;
         this.bankAccountId = bankAccountId;
+        this.incomeExpensesId = incomeExpensesId;
     }
 
     public Integer getStoreId() {
@@ -117,28 +109,20 @@ public class FundCheckOrderVo {
         this.storeId = storeId;
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getOrderId() {
-        return orderId;
+    public Byte getType() {
+        return type;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
-    }
-
-    public String getTypeName() {
-        return typeName;
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
+    public void setType(Byte type) {
+        this.type = type;
     }
 
     public Date getCreateTime() {
@@ -173,14 +157,6 @@ public class FundCheckOrderVo {
         this.orderStatus = orderStatus;
     }
 
-    public String getApplyOrderId() {
-        return applyOrderId;
-    }
-
-    public void setApplyOrderId(String applyOrderId) {
-        this.applyOrderId = applyOrderId;
-    }
-
     public String getTargetId() {
         return targetId;
     }
@@ -213,28 +189,28 @@ public class FundCheckOrderVo {
         this.bankAccount = bankAccount;
     }
 
-    public Double getInMoney() {
-        return inMoney;
+    public Double getMoney() {
+        return money;
     }
 
-    public void setInMoney(Double inMoney) {
-        this.inMoney = inMoney;
+    public void setMoney(Double money) {
+        this.money = money;
     }
 
-    public Double getOutMoney() {
-        return outMoney;
+    public String getIncomeExpensesId() {
+        return incomeExpensesId;
     }
 
-    public void setOutMoney(Double outMoney) {
-        this.outMoney = outMoney;
+    public void setIncomeExpensesId(String incomeExpensesId) {
+        this.incomeExpensesId = incomeExpensesId;
     }
 
-    public Double getBalanceMoney() {
-        return balanceMoney;
+    public String getIncomeExpenses() {
+        return incomeExpenses;
     }
 
-    public void setBalanceMoney(Double balanceMoney) {
-        this.balanceMoney = balanceMoney;
+    public void setIncomeExpenses(String incomeExpenses) {
+        this.incomeExpenses = incomeExpenses;
     }
 
     public String getUserId() {
@@ -263,23 +239,21 @@ public class FundCheckOrderVo {
 
     @Override
     public String toString() {
-        return "FundCheckOrderVo{" +
+        return "FundResultOrderVo{" +
                 "storeId=" + storeId +
-                ", id=" + id +
-                ", orderId='" + orderId + '\'' +
-                ", typeName='" + typeName + '\'' +
+                ", id='" + id + '\'' +
+                ", type=" + type +
                 ", createTime=" + createTime +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", orderStatus=" + orderStatus +
-                ", applyOrderId='" + applyOrderId + '\'' +
                 ", targetId='" + targetId + '\'' +
                 ", targetName='" + targetName + '\'' +
-                ", bankAccountId=" + bankAccountId +
+                ", bankAccountId='" + bankAccountId + '\'' +
                 ", bankAccount='" + bankAccount + '\'' +
-                ", inMoney=" + inMoney +
-                ", outMoney=" + outMoney +
-                ", balanceMoney=" + balanceMoney +
+                ", money=" + money +
+                ", incomeExpensesId='" + incomeExpensesId + '\'' +
+                ", incomeExpenses='" + incomeExpenses + '\'' +
                 ", userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +
                 ", remark='" + remark + '\'' +

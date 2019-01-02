@@ -6,10 +6,7 @@ import com.yeta.pps.mapper.MyProcurementMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.ProcurementApplyOrder;
 import com.yeta.pps.po.Warehouse;
-import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.util.CommonResult;
-import com.yeta.pps.util.InventoryUtil;
-import com.yeta.pps.util.Title;
+import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -387,6 +384,9 @@ public class ProcurementService {
      * @return
      */
     public CommonResponse findApplyOrderDetailById(ProcurementApplyOrderVo procurementApplyOrderVo) {
+        //获取参数
+        Integer storeId = procurementApplyOrderVo.getStoreId();
+
         //根据单据编号查询单据详情
         procurementApplyOrderVo = myProcurementMapper.findApplyOrderDetailById(procurementApplyOrderVo);
         if (procurementApplyOrderVo == null || procurementApplyOrderVo.getDetails().size() == 0) {
@@ -394,7 +394,7 @@ public class ProcurementService {
         }
 
         //补上仓库名
-        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(procurementApplyOrderVo.getStoreId()));
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storeId));
         for (Warehouse warehouse : warehouses) {
             if (procurementApplyOrderVo.getInWarehouseId() == warehouse.getId()) {
                 procurementApplyOrderVo.setInWarehouseName(warehouse.getName());
@@ -652,6 +652,9 @@ public class ProcurementService {
      * @return
      */
     public CommonResponse findResultOrderDetailById(ProcurementResultOrderVo procurementResultOrderVo) {
+        //获取参数
+        Integer storeId = procurementResultOrderVo.getStoreId();
+
         //根据单据编号查询单据详情
         procurementResultOrderVo = myProcurementMapper.findResultOrderDetailById(procurementResultOrderVo);
         if (procurementResultOrderVo == null || procurementResultOrderVo.getDetails().size() == 0) {
@@ -659,7 +662,7 @@ public class ProcurementService {
         }
 
         //补上仓库名
-        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(procurementResultOrderVo.getStoreId()));
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storeId));
         for (Warehouse warehouse : warehouses) {
             if (procurementResultOrderVo.getProcurementApplyOrderVo().getInWarehouseId() == warehouse.getId()) {
                 procurementResultOrderVo.getProcurementApplyOrderVo().setInWarehouseName(warehouse.getName());

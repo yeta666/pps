@@ -1,6 +1,7 @@
 package com.yeta.pps.mapper;
 
 import com.yeta.pps.vo.FundCheckOrderVo;
+import com.yeta.pps.vo.FundResultOrderVo;
 import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.FundOrderVo;
 import org.apache.ibatis.annotations.Param;
@@ -42,4 +43,17 @@ public interface MyFundMapper {
     FundCheckOrderVo findFundCheckOrderByOrderId(FundCheckOrderVo fundCheckOrderVo);
 
     FundCheckOrderVo findLastBalanceMoney(FundCheckOrderVo fundCheckOrderVo);
+
+    //其他收入单/费用单
+
+    int addFundResultOrder(FundResultOrderVo fundResultOrderVo);
+
+    int redDashedFundResultOrder(FundResultOrderVo fundResultOrderVo);
+
+    int findCountFundResultOrder(FundResultOrderVo fundResultOrderVo);
+
+    List<FundCheckOrderVo> findAllPagedFundResultOrder(@Param(value = "vo") FundResultOrderVo fundResultOrderVo,
+                                                       @Param(value = "pageVo") PageVo pageVo);
+
+    FundResultOrderVo findFundResultOrderById(FundResultOrderVo fundResultOrderVo);
 }

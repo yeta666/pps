@@ -57,7 +57,7 @@ public class SupplierController {
                                  @RequestParam(value = "ids") String ids) {
         List<SupplierVo> supplierVos = new ArrayList<>();
         Arrays.asList(ids.split(",")).stream().forEach(id -> {
-            supplierVos.add(new SupplierVo(storeId, id, null));
+            supplierVos.add(new SupplierVo(storeId, id));
         });
         return supplierService.delete(supplierVos);
     }
@@ -111,6 +111,6 @@ public class SupplierController {
     @GetMapping(value = "/suppliers/{supplierId}")
     public CommonResponse<SupplierVo> findById(@RequestParam(value = "storeId") Integer storeId,
                                                @PathVariable(value = "supplierId") String supplierId) {
-        return supplierService.findById(new SupplierVo(storeId, supplierId, null));
+        return supplierService.findById(new SupplierVo(storeId, supplierId));
     }
 }

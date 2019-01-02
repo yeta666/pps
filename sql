@@ -910,9 +910,15 @@ create table fund_result_order_1(
   create_time datetime not null comment '单据日期',
   order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
   target_id varchar(50) comment '往来单位编号',
+  bank_account_id varchar(20) not null comment '账户编号',
+  money double(10, 2) not null comment '金额',
+  income_expenses_id varchar(20) not null comment '收入/支出费用编号',
   user_id varchar(50) not null comment '经手人',
   remark varchar(255) comment '单据备注'
 ) engine InnoDB default charset=utf8;
+
+
+
 
 
 
