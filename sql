@@ -918,6 +918,52 @@ create table fund_result_order_1(
 ) engine InnoDB default charset=utf8;
 
 
+/*其他收入单、费用单*/
+drop table if exists fund_result_order_1;
+create table fund_result_order_1(
+  id varchar(50) primary key comment '单据编号',
+  type tinyint not null comment '单据类型，1：其他收入单，2：费用单',
+  create_time datetime not null comment '单据日期',
+  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  target_id varchar(50) comment '往来单位编号',
+  bank_account_id varchar(20) not null comment '账户编号',
+  money double(10, 2) not null comment '金额',
+  income_expenses_id varchar(20) not null comment '收入/支出费用编号',
+  user_id varchar(50) not null comment '经手人',
+  remark varchar(255) comment '单据备注'
+) engine InnoDB default charset=utf8;
+
+
+/*优惠券*/
+drop table if exists discount_coupon_1;
+create table discount_coupon_1(
+  id int primary key auto_increment comment '优惠券编号',
+  name varchar(50) not null comment '名称',
+  type tinyint not null comment '类型，1：现金券，2：折扣券，3：满减券',
+  money double(20, 2) not null comment '金额/折扣',
+  discount_money double(20, 2) not null comment '满减券与money搭配使用',
+  start_time datetime not null comment '开始时间',
+  end_time datetime not null comment '结束时间',
+  use_offline tinyint not null comment '线下使用，0：否，1：是',
+  use_online tinyint not null comment '线上使用，0：否，1：是',
+  quantity int not null comment '数量',
+  given_quantity int not null comment '已发放数量',
+  used_quantity int not null comment '已使用数量',
+  status tinyint not null comment '状态，0：已作废，1：正常'
+) engine InnoDB default charset=utf8;
+
+
+/*客户/优惠券关系*/
+drop table if exists client_discount_coupon;
+create table client_discount_coupon(
+  id int primary key auto_increment comment '客户/优惠券关系编号',
+  store_id int not null comment '店铺编号',
+  client_id varchar(50) not null comment '客户编号',
+  discount_coupon_id int not null comment '优惠券编号',
+  quantity int not null comment '数量',
+) engine InnoDB default charset=utf8;
+
+
 
 
 

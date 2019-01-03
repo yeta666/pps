@@ -88,7 +88,7 @@ public class SellController {
             dataType = "SellApplyOrderVo"
     )
     @PutMapping(value = "/apply")
-    public CommonResponse updateApplyOrder(@RequestBody @Valid SellApplyOrderVo sellApplyOrderVo) {
+    public CommonResponse updateApplyOrder(@RequestBody SellApplyOrderVo sellApplyOrderVo) {
         return sellService.updateApplyOrder(sellApplyOrderVo);
     }
 

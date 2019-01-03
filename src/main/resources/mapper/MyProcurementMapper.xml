@@ -19,7 +19,7 @@
         update
             procurement_apply_order_${storeId}
         set
-            supplier_id = #{supplierId}, in_warehouse_id = #{inWarehouseId}, in_total_quantity = #{inTotalQuantity}, out_warehouse_id = #{outWarehouseId}, out_total_quantity = #{outTotalQuantity}, total_money = #{totalMoney}, total_discount_money = #{totalDiscountMoney}, order_money = #{orderMoney}
+            in_total_quantity = #{inTotalQuantity}, total_money = #{totalMoney}, total_discount_money = #{totalDiscountMoney}, order_money = #{orderMoney}
         where
             id = #{id};
     </update>
@@ -99,6 +99,7 @@
             pao.result_order_id,
             pao.order_status,
             pao.clear_status,
+            s.id as supplier_id,
             s.name as supplier_name,
             pao.in_warehouse_id,
             pao.in_total_quantity,

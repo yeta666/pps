@@ -157,6 +157,13 @@ public class ProcurementApplyOrderVo {
     public ProcurementApplyOrderVo() {
     }
 
+    public ProcurementApplyOrderVo(Integer inTotalQuantity, Integer outTotalQuantity, @NotNull(message = CommonResponse.PARAMETER_ERROR) Double totalMoney, @NotNull(message = CommonResponse.PARAMETER_ERROR) Double totalDiscountMoney) {
+        this.inTotalQuantity = inTotalQuantity;
+        this.outTotalQuantity = outTotalQuantity;
+        this.totalMoney = totalMoney;
+        this.totalDiscountMoney = totalDiscountMoney;
+    }
+
     public ProcurementApplyOrderVo(String supplierName, Date startTime, Date endTime) {
         this.supplierName = supplierName;
         this.startTime = startTime;

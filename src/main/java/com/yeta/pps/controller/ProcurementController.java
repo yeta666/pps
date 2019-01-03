@@ -86,7 +86,7 @@ public class ProcurementController {
             dataType = "ProcurementApplyOrderVo"
     )
     @PutMapping(value = "/apply")
-    public CommonResponse updateApplyOrder(@RequestBody @Valid ProcurementApplyOrderVo procurementApplyOrderVo) {
+    public CommonResponse updateApplyOrder(@RequestBody ProcurementApplyOrderVo procurementApplyOrderVo) {
         return procurementService.updateApplyOrder(procurementApplyOrderVo);
     }
 

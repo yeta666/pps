@@ -7,7 +7,7 @@
     <insert id="addApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo">
       insert into
             sell_apply_order_${storeId} (id, type, create_time, result_order_id, prodcing_way, order_status, clear_status, client_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, discount_money, discount_coupon_id, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark)
-        values
+      values
             (#{id}, #{type}, #{createTime}, #{resultOrderId}, #{prodcingWay}, #{orderStatus}, #{clearStatus}, #{clientId}, #{inWarehouseId}, #{inTotalQuantity}, #{inReceivedQuantity}, #{inNotReceivedQuantity}, #{outWarehouseId}, #{outTotalQuantity}, #{outSentQuantity}, #{outNotSentQuantity}, #{totalMoney}, #{discountMoney}, #{discountCouponId}, #{totalDiscountMoney}, #{orderMoney}, #{clearedMoney}, #{notClearedMoney}, #{userId}, #{remark});
     </insert>
 
@@ -19,7 +19,7 @@
         update
             sell_apply_order_${storeId}
         set
-            client_id = #{clientId}, in_warehouse_id = #{inWarehouseId}, in_total_quantity = #{inTotalQuantity}, out_warehouse_id = #{outWarehouseId}, out_total_quantity = #{outTotalQuantity}, total_money = #{totalMoney}, discount_money = #{discountMoney}, discount_coupon_id = #{discountCouponId}, total_discount_money = #{totalDiscountMoney}, order_money = #{orderMoney}
+            out_total_quantity = #{outTotalQuantity}, total_money = #{totalMoney}, discount_money = #{discountMoney}, discount_coupon_id = #{discountCouponId}, total_discount_money = #{totalDiscountMoney}, order_money = #{orderMoney}
         where
             id = #{id};
     </update>
@@ -123,6 +123,7 @@
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
         <collection property="client" ofType="com.yeta.pps.po.Client">
+            <result column="client_id" property="id" />
             <result column="client_name" property="name" />
             <result column="client_phone" property="phone" />
             <result column="client_membership_number" property="membershipNumber" />
@@ -138,6 +139,7 @@
             sao.prodcing_way,
             sao.order_status,
             sao.clear_status,
+            c.id as client_id,
             c.name as client_name,
             c.phone as client_phone,
             c.membership_number as client_membership_number,

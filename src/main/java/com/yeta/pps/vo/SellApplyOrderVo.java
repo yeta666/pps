@@ -185,6 +185,13 @@ public class SellApplyOrderVo {
         this.id = id;
     }
 
+    public SellApplyOrderVo(Integer inTotalQuantity, Integer outTotalQuantity, @NotNull(message = CommonResponse.PARAMETER_ERROR) Double totalMoney, @NotNull(message = CommonResponse.PARAMETER_ERROR) Double totalDiscountMoney) {
+        this.inTotalQuantity = inTotalQuantity;
+        this.outTotalQuantity = outTotalQuantity;
+        this.totalMoney = totalMoney;
+        this.totalDiscountMoney = totalDiscountMoney;
+    }
+
     public SellApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
         this.storeId = storeId;
         this.id = id;

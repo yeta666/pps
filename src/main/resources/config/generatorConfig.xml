@@ -57,10 +57,13 @@
         <table tableName="client_integral_detail" catalog="pps"></table>-->
         <!--<table tableName="procurement_apply_order" catalog="pps"></table>
         <table tableName="procurement_result_order" catalog="pps"></table>-->
-        <table tableName="sell_apply_order" catalog="pps"></table>
-        <table tableName="sell_result_order" catalog="pps"></table>
+        <!--<table tableName="sell_apply_order" catalog="pps"></table>
+        <table tableName="sell_result_order" catalog="pps"></table>-->
         <!--<table tableName="apply_order_goods_sku" catalog="pps"></table>-->
         <!--<table tableName="storage_order" catalog="pps"></table>-->
         <!--<table tableName="fund_order" catalog="pps"></table>-->
+
+        <table tableName="discount_coupon_1" catalog="pps"></table>
+        <table tableName="client_discount_coupon" catalog="pps"></table>
     </context>
 </generatorConfiguration>
