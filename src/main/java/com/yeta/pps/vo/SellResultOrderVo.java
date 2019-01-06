@@ -108,10 +108,11 @@ public class SellResultOrderVo {
         this.remark = remark;
     }
 
-    public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, SellApplyOrderVo sellApplyOrderVo, String id) {
+    public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, SellApplyOrderVo sellApplyOrderVo, String id, Byte type) {
         this.storeId = storeId;
         this.sellApplyOrderVo = sellApplyOrderVo;
         this.id = id;
+        this.type = type;
     }
 
     public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, Double costMoney, Double grossMarginMoney, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {

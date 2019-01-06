@@ -67,13 +67,9 @@ public class FundUtil {
         //设置红冲红单
         vo.setCreateTime(new Date());
         vo.setOrderStatus((byte) -2);
-        if (vo.getInMoney() > 0 && vo.getOutMoney() == 0) {     //原来是正向收款
+        if (vo.getInMoney() != 0 && vo.getOutMoney() == 0) {     //原来是收款
             vo.setBalanceMoney(lastVo.getBalanceMoney() - vo.getInMoney());
-        } else if (vo.getInMoney() < 0 && vo.getOutMoney() == 0) {      //原来是负向收款
-            vo.setBalanceMoney(lastVo.getBalanceMoney() + vo.getInMoney());
-        } else if (vo.getInMoney() == 0 && vo.getOutMoney() > 0) {      //原来是正向付款
-            vo.setBalanceMoney(lastVo.getBalanceMoney() + vo.getOutMoney());
-        } else if (vo.getInMoney() == 0 && vo.getOutMoney() < 0) {      //原来是负向付款
+        } else if (vo.getInMoney() == 0 && vo.getOutMoney() != 0) {      //原来是付款
             vo.setBalanceMoney(lastVo.getBalanceMoney() + vo.getOutMoney());
         }
         vo.setInMoney(-vo.getInMoney());
@@ -140,6 +136,12 @@ public class FundUtil {
         }
     }
 
+    /**
+     * 重置优惠券的方法
+     * @param storeId
+     * @param discountCouponId
+     * @param clientId
+     */
     public void backDiscountCouponMethod(Integer storeId, Integer discountCouponId, String clientId) {
         //增加客户优惠券数量
         if (myMarketingMapper.increaseClientDiscountCouponQuantity(new ClientDiscountCoupon(storeId, clientId, discountCouponId)) != 1) {

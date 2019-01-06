@@ -362,6 +362,10 @@
         and
             sro.id = #{id}
         </if>
+        <if test="type != null">
+        and
+            sro.type = #{type}
+        </if>
         <if test="sellApplyOrderVo.client.name != null">
         and
             c.name like concat('%', #{sellApplyOrderVo.client.name}, '%')
@@ -443,6 +447,10 @@
         <if test="sellResultOrderVo.id != null">
         and
             sro.id = #{sellResultOrderVo.id}
+        </if>
+        <if test="sellResultOrderVo.type != null">
+        and
+            sro.type = #{sellResultOrderVo.type}
         </if>
         <if test="sellResultOrderVo.sellApplyOrderVo.client.name != null">
         and

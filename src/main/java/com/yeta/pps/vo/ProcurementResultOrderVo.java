@@ -94,10 +94,11 @@ public class ProcurementResultOrderVo {
         this.remark = remark;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id) {
+    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id, Byte type) {
         this.storeId = storeId;
         this.procurementApplyOrderVo = procurementApplyOrderVo;
         this.id = id;
+        this.type = type;
     }
 
     public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {

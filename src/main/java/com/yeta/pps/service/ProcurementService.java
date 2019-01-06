@@ -518,60 +518,90 @@ public class ProcurementService {
         List<OrderGoodsSkuVo> orderGoodsSkuVos = procurementResultOrderVo.getDetails();
         List<OrderGoodsSkuVo> inVos = orderGoodsSkuVos.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("1")).collect(Collectors.toList());
         List<OrderGoodsSkuVo> applyOrderInVos = applyOrderDetails.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("1")).collect(Collectors.toList());
+        Integer inWarehouseId = procurementResultOrderVo.getProcurementApplyOrderVo().getInWarehouseId();
         for (OrderGoodsSkuVo inVo : inVos) {
             //已经退换货的结果单不能红冲
             if (inVo.getOperatedQuantity() > 0) {
                 throw new CommonException(CommonResponse.UPDATE_ERROR, CommonResponse.STATUS_ERROR);
             }
 
-            //减少商品规格库存
-            inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storeId, procurementResultOrderVo.getProcurementApplyOrderVo().getInWarehouseId(), inVo.getGoodsSkuId(), inVo.getQuantity(), inVo.getQuantity(), inVo.getQuantity()));
+            Integer goodsSkuId = inVo.getGoodsSkuId();
+            Integer quantity = inVo.getQuantity();
+
+            if (applyOrderVo.getType() == 1) {
+                //减少实物库存、可用库存、账面库存
+                inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storeId, inWarehouseId, goodsSkuId, quantity, quantity, quantity));
+
+                //增加待收货数量
+                inventoryUtil.updateNotQuantityMethod(1, new WarehouseGoodsSkuVo(storeId, inWarehouseId, goodsSkuId, 0, quantity));
+            } else if (applyOrderVo.getType() == 3) {
+                //减少实物库存、可用库存、账面库存
+                inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storeId, inWarehouseId, goodsSkuId, quantity, quantity, quantity));
+
+                //增加待收货数量
+                inventoryUtil.updateNotQuantityMethod(1, new WarehouseGoodsSkuVo(storeId, inWarehouseId, goodsSkuId, 0, quantity));
+            }
 
             //红冲库存记账记录
-            inventoryUtil.redDashedStorageCheckOrderMethod(1, new StorageCheckOrderVo(storeId, oldResultOrderId, inVo.getGoodsSkuId(), userId));
+            inventoryUtil.redDashedStorageCheckOrderMethod(1, new StorageCheckOrderVo(storeId, oldResultOrderId, goodsSkuId, userId));
 
             //减少完成数量
-            Optional<OrderGoodsSkuVo> optional = applyOrderInVos.stream().filter(applyOrderInVo -> applyOrderInVo.getGoodsSkuId().toString().equals(inVo.getGoodsSkuId().toString())).findFirst();
+            Optional<OrderGoodsSkuVo> optional = applyOrderInVos.stream().filter(applyOrderInVo -> applyOrderInVo.getGoodsSkuId().toString().equals(goodsSkuId.toString())).findFirst();
             if (!optional.isPresent()) {
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
             OrderGoodsSkuVo applyOrderInVo = optional.get();
             applyOrderInVo.setStoreId(storeId);
-            applyOrderInVo.setChangeQuantity(-inVo.getQuantity());
+            applyOrderInVo.setChangeQuantity(-quantity);
             if (myOrderGoodsSkuMapper.updateOrderGoodsSku(applyOrderInVo) != 1) {
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
-            applyOrderVo.setInReceivedQuantity(applyOrderVo.getInReceivedQuantity() - inVo.getQuantity());
-            applyOrderVo.setInNotReceivedQuantity(applyOrderVo.getInNotReceivedQuantity() + inVo.getQuantity());
+            applyOrderVo.setInReceivedQuantity(applyOrderVo.getInReceivedQuantity() - quantity);
+            applyOrderVo.setInNotReceivedQuantity(applyOrderVo.getInNotReceivedQuantity() + quantity);
         }
 
         List<OrderGoodsSkuVo> outVos = orderGoodsSkuVos.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("0")).collect(Collectors.toList());
         List<OrderGoodsSkuVo> applyOrderOutVos = applyOrderDetails.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("0")).collect(Collectors.toList());
+        Integer outWarehouseId = procurementResultOrderVo.getProcurementApplyOrderVo().getOutWarehouseId();
         for (OrderGoodsSkuVo outVo : outVos) {
             //已经退换货的结果单不能红冲
             if (outVo.getOperatedQuantity() > 0) {
                 throw new CommonException(CommonResponse.STATUS_ERROR);
             }
 
-            //增加商品规格库存
-            inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storeId, procurementResultOrderVo.getProcurementApplyOrderVo().getOutWarehouseId(), outVo.getGoodsSkuId(), outVo.getQuantity(), outVo.getQuantity(), outVo.getQuantity()));
+            Integer goodsSkuId = outVo.getGoodsSkuId();
+            Integer quantity = outVo.getQuantity();
+
+            if (applyOrderVo.getType() == 2) {
+                //增加实物库存、账面库存
+                inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storeId, outWarehouseId, goodsSkuId, quantity, 0, quantity));
+
+                //增加待发货数量
+                inventoryUtil.updateNotQuantityMethod(1, new WarehouseGoodsSkuVo(storeId, outWarehouseId, goodsSkuId, quantity, 0));
+            } else if (applyOrderVo.getType() == 3) {
+                //增加实物库存、账面库存
+                inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storeId, outWarehouseId, goodsSkuId, quantity, 0, quantity));
+
+                //增加待发货数量
+                inventoryUtil.updateNotQuantityMethod(1, new WarehouseGoodsSkuVo(storeId, outWarehouseId, goodsSkuId, quantity, 0));
+            }
 
             //红冲库存记账记录
-            inventoryUtil.redDashedStorageCheckOrderMethod(0, new StorageCheckOrderVo(storeId, oldResultOrderId, outVo.getGoodsSkuId(), userId));
+            inventoryUtil.redDashedStorageCheckOrderMethod(0, new StorageCheckOrderVo(storeId, oldResultOrderId, goodsSkuId, userId));
 
             //减少完成数量
-            Optional<OrderGoodsSkuVo> optional = applyOrderOutVos.stream().filter(applyOrderInVo -> applyOrderInVo.getGoodsSkuId().toString().equals(outVo.getGoodsSkuId().toString())).findFirst();
+            Optional<OrderGoodsSkuVo> optional = applyOrderOutVos.stream().filter(applyOrderInVo -> applyOrderInVo.getGoodsSkuId().toString().equals(goodsSkuId.toString())).findFirst();
             if (!optional.isPresent()) {
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
             OrderGoodsSkuVo applyOrderInVo = optional.get();
             applyOrderInVo.setStoreId(storeId);
-            applyOrderInVo.setChangeQuantity(-outVo.getQuantity());
+            applyOrderInVo.setChangeQuantity(-quantity);
             if (myOrderGoodsSkuMapper.updateOrderGoodsSku(applyOrderInVo) != 1) {
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
-            applyOrderVo.setOutSentQuantity(applyOrderVo.getOutSentQuantity() - outVo.getQuantity());
-            applyOrderVo.setOutNotSentQuantity(applyOrderVo.getOutNotSentQuantity() + outVo.getQuantity());
+            applyOrderVo.setOutSentQuantity(applyOrderVo.getOutSentQuantity() - quantity);
+            applyOrderVo.setOutNotSentQuantity(applyOrderVo.getOutNotSentQuantity() + quantity);
         }
 
         //修改申请订单的单据状态和完成数量
@@ -637,28 +667,6 @@ public class ProcurementService {
             default:
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
-
-        //修改商品规格可操作数量
-        if (procurementResultOrderVo.getType() == 2 || procurementResultOrderVo.getType() == 3) {
-            List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = applyOrderVo.getDetails().stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("0")).collect(Collectors.toList());        //采购退换申请单或采购换货申请单中出库的的商品规格
-
-            //查询该采购退货申请单或采购换货申请单对应的采购入库单
-            ProcurementResultOrderVo resultOrderVo = myProcurementMapper.findResultOrderDetailById(new ProcurementResultOrderVo(storeId, applyOrderVo.getResultOrderId()));
-            List<OrderGoodsSkuVo> resultOrderGoodsSkuVos = resultOrderVo.getDetails();      //采购入库单的商品规格
-            resultOrderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
-                Optional<OrderGoodsSkuVo> optional = applyOrderGoodsSkuVos.stream().filter(vo -> vo.getGoodsSkuId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst();
-                if (optional.isPresent()) {
-                    int changeQuantity = optional.get().getQuantity();
-                    orderGoodsSkuVo.setStoreId(storeId);
-                    orderGoodsSkuVo.setOperatedQuantity(-changeQuantity);
-                    if (myOrderGoodsSkuMapper.updateOperatedQuantity(orderGoodsSkuVo) != 1) {
-                        throw new CommonException(CommonResponse.UPDATE_ERROR);
-                    }
-                }
-            });
-        }
-
-        //修改
 
         return CommonResponse.success();
     }

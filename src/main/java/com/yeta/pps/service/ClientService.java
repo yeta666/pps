@@ -380,8 +380,7 @@ public class ClientService {
      * @return
      */
     public CommonResponse findAll(ClientVo clientVo, PageVo pageVo) {
-        //分页
-        if (pageVo.getPage() != null && pageVo.getPageSize() != null) {
+        if (pageVo.getPage() != null && pageVo.getPageSize() != null) {     //分页
             //查询所有页数
             pageVo.setTotalPage((int) Math.ceil(myClientMapper.findCount(clientVo) * 1.0 / pageVo.getPageSize()));
             pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
@@ -412,8 +411,12 @@ public class ClientService {
             titles.add(new Title("备注", "remark"));
             CommonResult commonResult = new CommonResult(titles, clientVos, pageVo);
             return CommonResponse.success(commonResult);
-        } else {
-            //不分页
+        } else {        //不分页
+            //判断参数
+            if (clientVo.getDisabled() == null) {
+                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            }
+
             List<ClientVo> clientVos = myClientMapper.findAll(clientVo);
             return CommonResponse.success(clientVos);
         }

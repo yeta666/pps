@@ -200,6 +200,7 @@ public class ProcurementController {
      * @param startTime
      * @param endTime
      * @param id
+     * @param type
      * @param page
      * @param pageSize
      * @return
@@ -211,6 +212,7 @@ public class ProcurementController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "id", value = "采购结果订单编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "类型", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
@@ -220,10 +222,11 @@ public class ProcurementController {
                                                                                            @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
                                                                                            @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
                                                                                            @RequestParam(value = "id", required = false) String id,
+                                                                                           @RequestParam(value = "type", required = false) Byte type,
                                                                                            @RequestParam(value = "page") Integer page,
                                                                                            @RequestParam(value = "pageSize") Integer pageSize) {
         ProcurementApplyOrderVo procurementApplyOrderVo = new ProcurementApplyOrderVo(supplierName, startTime, endTime);
-        return procurementService.findAllResultOrder(new ProcurementResultOrderVo(storeId, procurementApplyOrderVo, id), new PageVo(page, pageSize));
+        return procurementService.findAllResultOrder(new ProcurementResultOrderVo(storeId, procurementApplyOrderVo, id, type), new PageVo(page, pageSize));
     }
 
     /**

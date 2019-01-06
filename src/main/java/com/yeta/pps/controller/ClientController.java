@@ -292,8 +292,8 @@ public class ClientController {
             @ApiImplicitParam(name = "membershipNumber", value = "会员卡号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "levelId", value = "客户级别编号", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "disabled", value = "是否禁用", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = false, paramType = "query", dataType = "int"),
     })
     @GetMapping(value = "/clients")
     public CommonResponse<CommonResult<List<ClientVo>>> findAll(@RequestParam(value = "id", required = false) String id,
@@ -301,9 +301,9 @@ public class ClientController {
                                                                 @RequestParam(value = "phone", required = false) String phone,
                                                                 @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
                                                                 @RequestParam(value = "levelId", required = false) Integer levelId,
-                                                                @RequestParam(value = "disabled") Byte disabled,
-                                                                @RequestParam(value = "page") Integer page,
-                                                                @RequestParam(value = "pageSize") Integer pageSize) {
+                                                                @RequestParam(value = "disabled", required = false) Byte disabled,
+                                                                @RequestParam(value = "page", required = false) Integer page,
+                                                                @RequestParam(value = "pageSize", required = false) Integer pageSize) {
         return clientService.findAll(new ClientVo(id, name, phone, levelId, membershipNumber, disabled), new PageVo(page, pageSize));
     }
 

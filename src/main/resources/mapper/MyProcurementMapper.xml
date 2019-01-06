@@ -294,6 +294,10 @@
         and
             pro.id = #{id}
         </if>
+        <if test="type != null">
+        and
+            pro.type = #{type}
+        </if>
         <if test="procurementApplyOrderVo.supplierName != null">
         and
             s.name like concat('%', #{procurementApplyOrderVo.supplierName}, '%')
@@ -357,6 +361,10 @@
         <if test="procurementResultOrderVo.id != null">
         and
             pro.id = #{procurementResultOrderVo.id}
+        </if>
+        <if test="procurementResultOrderVo.type != null">
+        and
+            pro.type = #{procurementResultOrderVo.type}
         </if>
         <if test="procurementResultOrderVo.procurementApplyOrderVo.supplierName != null">
         and

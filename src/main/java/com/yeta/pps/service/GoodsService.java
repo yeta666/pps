@@ -839,7 +839,6 @@ public class GoodsService {
      */
     @Transactional
     public CommonResponse importGoods(MultipartFile multipartFile, Integer storeId) throws IOException {
-        //TODO
         //判断必填列
         //创建Excel工作簿
         HSSFWorkbook workbook = new HSSFWorkbook(multipartFile.getInputStream());

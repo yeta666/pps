@@ -599,6 +599,11 @@ public class StorageService {
                 //新增结果订单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
 
+                //修改客户积分信息
+                if (applyOrderStatus == 3) {        //收货完成
+                    integralUtil.updateIntegralMethod(0, storeId, sVo.getClient().getId(), resultOrderId, myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId)), orderGoodsSkuVos);
+                }
+
             } else if (sVo.getType() == 4) {        //销售换货收货
                 //修改库存相关
                 for (OrderGoodsSkuVo vo : orderGoodsSkuVos) {
