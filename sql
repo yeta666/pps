@@ -739,7 +739,7 @@ create table sell_apply_order_1(
   prodcing_way tinyint not null comment '产生方式，1：线下录单，2：线上下单',
   order_status tinyint not null comment '单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发',
   clear_status tinyint not null comment '结算状态：0：未完成，1：已完成',
-  client_id varchar(50) not null comment '客户编号',
+  client_id varchar(50) comment '客户编号',
   in_warehouse_id int comment '入库仓库编号，对应收货',
   in_total_quantity int comment '总收货数量',
   in_received_quantity int comment '已收货数量',

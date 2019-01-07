@@ -82,7 +82,6 @@ public class SellApplyOrderVo {
     /**
      * 客户编号
      */
-    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String clientId;
 
     private Client client;

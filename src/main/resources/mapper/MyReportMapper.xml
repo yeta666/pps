@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeta.pps.mapper.MyReportMapper" >
+
+    <select id="findProcurementIn" parameterType="com.yeta.pps.vo.ReportInventoryVo" resultType="com.yeta.pps.vo.ReportInventoryVo">
+        select 
+            if (sum(sco.in_quantity) is null, 0, sum(sco.in_quantity)) - if(sum(sco.out_quantity) is null, 0, sum(sco.out_quantity)) as procurement_in_quantity,
+            if (sum(sco.in_total_money) is null, 0, sum(sco.in_total_money)) - if(sum(sco.out_total_money) is null, 0, sum(sco.out_total_money)) as procurement_in_money
+        from 
+            (
+                (
+                    goods_${storeId} as g
+                    inner join goods_sku_${storeId} as gs on gs.goods_id = g.id
+                )
+                inner join storage_check_order_${storeId} as sco on sco.goods_sku_id = gs.id
+            )
+        inner join procurement_result_order_${storeId} as pro on pro.id = sco.order_id
+        where date(sco.create_time) between #{startTime} and #{endTime}
+        and g.id = #{id};
+    </select>
+
+    <select id="findOtherIn" parameterType="com.yeta.pps.vo.ReportInventoryVo" resultType="com.yeta.pps.vo.ReportInventoryVo">
+        select
+            if (sum(sco.in_quantity) is null, 0, sum(sco.in_quantity)) - if(sum(sco.out_quantity) is null, 0, sum(sco.out_quantity)) as other_in_quantity,
+            if (sum(sco.in_total_money) is null, 0, sum(sco.in_total_money)) - if(sum(sco.out_total_money) is null, 0, sum(sco.out_total_money)) as other_in_money
+        from
+            (
+                (
+                    goods_${storeId} as g
+                    inner join goods_sku_${storeId} as gs on gs.goods_id = g.id
+                )
+                inner join storage_check_order_${storeId} as sco on sco.goods_sku_id = gs.id
+            )
+        inner join storage_result_order_${storeId} as sro on sro.id = sco.order_id
+        where date(sco.create_time) between #{startTime} and #{endTime}
+        and g.id = #{id}
+        and sro.type = 1;
+    </select>
+
+    <select id="findSellOut" parameterType="com.yeta.pps.vo.ReportInventoryVo" resultType="com.yeta.pps.vo.ReportInventoryVo">
+        select
+            if (sum(sco.out_quantity) is null, 0, sum(sco.out_quantity)) - if(sum(sco.in_quantity) is null, 0, sum(sco.in_quantity)) as sell_out_quantity,
+            if (sum(sco.out_total_money) is null, 0, sum(sco.out_total_money)) - if(sum(sco.in_total_money) is null, 0, sum(sco.in_total_money)) as sell_out_money
+        from
+            (
+                (
+                    goods_${storeId} as g
+                    inner join goods_sku_${storeId} as gs on gs.goods_id = g.id
+                )
+                inner join storage_check_order_${storeId} as sco on sco.goods_sku_id = gs.id
+            )
+        inner join sell_result_order_${storeId} as sro on sro.id = sco.order_id
+        where date(sco.create_time) between #{startTime} and #{endTime}
+        and g.id = #{id};
+    </select>
+
+    <select id="findOtherOut" parameterType="com.yeta.pps.vo.ReportInventoryVo" resultType="com.yeta.pps.vo.ReportInventoryVo">
+        select
+            if (sum(sco.out_quantity) is null, 0, sum(sco.out_quantity)) - if(sum(sco.in_quantity) is null, 0, sum(sco.in_quantity)) as other_out_quantity,
+            if (sum(sco.out_total_money) is null, 0, sum(sco.out_total_money)) - if(sum(sco.in_total_money) is null, 0, sum(sco.in_total_money)) as other_out_money
+        from
+            (
+                (
+                    goods_${storeId} as g
+                    inner join goods_sku_${storeId} as gs on gs.goods_id = g.id
+                )
+                inner join storage_check_order_${storeId} as sco on sco.goods_sku_id = gs.id
+            )
+        inner join storage_result_order_${storeId} as sro on sro.id = sco.order_id
+        where date(sco.create_time) between #{startTime} and #{endTime}
+        and g.id = #{id}
+        and sro.type = 2;
+    </select>
+
+    <select id="findBeforeOrEnding" parameterType="com.yeta.pps.vo.StorageCheckOrderVo" resultType="com.yeta.pps.vo.StorageCheckOrderVo">
+        select
+            id, order_id, create_time, order_status, target_id, goods_sku_id, in_warehouse_id, in_quantity, in_money, in_total_money, out_warehouse_id, out_quantity, out_money, out_total_money, check_quantity, check_money, check_total_money, user_id
+        from
+            storage_check_order_${storeId} as sco
+        where sco.goods_sku_id = #{goodsSkuId}
+        <if test="flag == 1">
+            and date(sco.create_time) &lt; #{startTime}
+            order by sco.create_time desc
+        </if>
+        <if test="flag == 2">
+            and date(sco.create_time) &lt;= #{endTime}
+            order by sco.create_time desc
+        </if>
+        limit 1;
+    </select>
+
+</mapper>

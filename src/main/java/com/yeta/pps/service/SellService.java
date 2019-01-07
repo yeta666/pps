@@ -100,7 +100,7 @@ public class SellService {
             StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
             storageCheckOrderVo.setStoreId(storeId);
             storageCheckOrderVo.setOrderId(sellApplyOrderVo.getId());
-            storageCheckOrderVo.setTargetId(sellApplyOrderVo.getClientId());
+            storageCheckOrderVo.setTargetId(sellApplyOrderVo.getClientId() == null ? null : sellApplyOrderVo.getClientId());
             storageCheckOrderVo.setCreateTime(new Date());
             storageCheckOrderVo.setOrderStatus((byte) 1);
             storageCheckOrderVo.setGoodsSkuId(orderGoodsSkuVo.getGoodsSkuId());
@@ -135,8 +135,10 @@ public class SellService {
         }
 
         //修改客户积分相关信息
-        List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId));
-        integralUtil.updateIntegralMethod(1, storeId, sellApplyOrderVo.getClientId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
+        if (sellApplyOrderVo.getClientId() != null) {
+            List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId));
+            integralUtil.updateIntegralMethod(1, storeId, sellApplyOrderVo.getClientId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
+        }
 
         //记录资金对账记录
         FundCheckOrderVo vo = new FundCheckOrderVo();
@@ -144,6 +146,7 @@ public class SellService {
         vo.setOrderId(sellApplyOrderVo.getId());
         vo.setCreateTime(new Date());
         vo.setOrderStatus((byte) 1);
+        vo.setTargetId(sellApplyOrderVo.getClientId() == null ? null : sellApplyOrderVo.getClientId());
         vo.setBankAccountId(sellApplyOrderVo.getBankAccountId());
         vo.setUserId(sellApplyOrderVo.getUserId());
         vo.setRemark(sellApplyOrderVo.getRemark());
@@ -170,7 +173,7 @@ public class SellService {
         List<OrderGoodsSkuVo> orderGoodsSkuVos = sellApplyOrderVo.getDetails();
 
         //判断参数
-        if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null) {
+        if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null || sellApplyOrderVo.getClientId() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
 
@@ -208,7 +211,7 @@ public class SellService {
 
         //判断参数
         if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getInWarehouseId() == null || sellApplyOrderVo.getInTotalQuantity() == null ||
-                sellApplyOrderVo.getResultOrderId() == null) {
+                sellApplyOrderVo.getResultOrderId() == null || sellApplyOrderVo.getClientId() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
 
@@ -247,7 +250,7 @@ public class SellService {
                 sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null ||
                 sellApplyOrderVo.getInTotalQuantity() != sellApplyOrderVo.getOutTotalQuantity() ||
                 sellApplyOrderVo.getTotalMoney() != 0 || sellApplyOrderVo.getTotalDiscountMoney() != 0 || sellApplyOrderVo.getOrderMoney() != 0 ||
-                sellApplyOrderVo.getResultOrderId() == null) {
+                sellApplyOrderVo.getResultOrderId() == null || sellApplyOrderVo.getClientId() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
 

@@ -95,6 +95,13 @@ public class GoodsVo {
         this.putaway = putaway;
     }
 
+    public GoodsVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String barCode, Integer typeId) {
+        this.storeId = storeId;
+        this.id = id;
+        this.barCode = barCode;
+        this.typeId = typeId;
+    }
+
     public Integer getStoreId() {
         return storeId;
     }

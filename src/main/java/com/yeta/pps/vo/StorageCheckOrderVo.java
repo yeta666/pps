@@ -126,6 +126,9 @@ public class StorageCheckOrderVo {
 
     private String remark;
 
+    @JsonIgnore
+    private Integer flag;
+
     public StorageCheckOrderVo() {
     }
 
@@ -146,6 +149,14 @@ public class StorageCheckOrderVo {
         this.startTime = startTime;
         this.endTime = endTime;
         this.goodsSkuId = goodsSkuId;
+    }
+
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId, Integer flag) {
+        this.storeId = storeId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.goodsSkuId = goodsSkuId;
+        this.flag = flag;
     }
 
     public Integer getStoreId() {
@@ -378,6 +389,14 @@ public class StorageCheckOrderVo {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
     }
 
     @Override
