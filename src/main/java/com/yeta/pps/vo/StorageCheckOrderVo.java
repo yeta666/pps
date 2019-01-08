@@ -204,11 +204,20 @@ public class StorageCheckOrderVo {
         this.warehouseId = warehouseId;
     }
 
-    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId, Byte flag) {
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, String goodsId, Byte flag) {
+        this.storeId = storeId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.goodsId = goodsId;
+        this.flag = flag;
+    }
+
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId, Integer warehouseId, Byte flag) {
         this.storeId = storeId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.goodsSkuId = goodsSkuId;
+        this.warehouseId = warehouseId;
         this.flag = flag;
     }
 

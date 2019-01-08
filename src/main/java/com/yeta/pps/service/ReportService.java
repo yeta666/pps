@@ -2,19 +2,20 @@ package com.yeta.pps.service;
 
 import com.yeta.pps.mapper.MyGoodsMapper;
 import com.yeta.pps.mapper.MyReportMapper;
+import com.yeta.pps.mapper.MyWarehouseMapper;
+import com.yeta.pps.po.GoodsSku;
+import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
-import com.yeta.pps.vo.GoodsVo;
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.ReportInventoryVo;
-import com.yeta.pps.vo.StorageCheckOrderVo;
+import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 报表相关逻辑处理
@@ -25,10 +26,10 @@ import java.util.List;
 public class ReportService {
 
     @Autowired
-    private MyGoodsMapper myGoodsMapper;
+    private MyReportMapper myReportMapper;
 
     @Autowired
-    private MyReportMapper myReportMapper;
+    private MyGoodsMapper myGoodsMapper;
 
     /**
      * 返回四舍五入2位小数的方法
@@ -54,28 +55,36 @@ public class ReportService {
         Integer storeId = reportInventoryVo.getStoreId();
         Date startTime = reportInventoryVo.getStartTime();
         Date endTime = reportInventoryVo.getEndTime();
-        GoodsVo goodsVo = new GoodsVo(storeId, reportInventoryVo.getId(), reportInventoryVo.getBarCode(), reportInventoryVo.getTypeId());
 
         //查询所有页数
-        pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCount(goodsVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountGoods(reportInventoryVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        List<GoodsVo> gVos = myGoodsMapper.findAllPaged(goodsVo, pageVo);
+        List<ReportInventoryVo> vos = myReportMapper.findPagedGoods(reportInventoryVo, pageVo);
 
-        List<ReportInventoryVo> vos = new ArrayList<>();
-        gVos.stream().forEach(gVo -> {
-            ReportInventoryVo vo = new ReportInventoryVo(gVo.getId(), gVo.getName(), gVo.getBarCode(), gVo.getTypeId(), gVo.getTypeName(), gVo.getImage());
+        vos.stream().forEach(vo -> {
 
-            reportInventoryVo.setId(gVo.getId());
+            reportInventoryVo.setId(vo.getId());
+            StorageCheckOrderVo beforeOrEndingVo = myReportMapper.findBeforeOrEnding(new StorageCheckOrderVo(storeId, startTime, endTime, vo.getId(), (byte) 1));
+
+            //此前数量、金额
+            if (beforeOrEndingVo != null) {
+                vo.setBeforeQuantity(beforeOrEndingVo.getCheckQuantity2());
+                vo.setBeforeMoney(beforeOrEndingVo.getCheckTotalMoney2());
+            }
 
             //采购入库数量、金额
             ReportInventoryVo procurementInVo = myReportMapper.findProcurementIn(reportInventoryVo);
-            vo.setProcurementInQuantity(procurementInVo.getProcurementInQuantity());
-            vo.setProcurementInMoney(procurementInVo.getProcurementInMoney());
+            if (procurementInVo != null) {
+                vo.setProcurementInQuantity(procurementInVo.getProcurementInQuantity());
+                vo.setProcurementInMoney(procurementInVo.getProcurementInMoney());
+            }
 
             //其他入库数量、金额
             ReportInventoryVo otherInVo = myReportMapper.findOtherIn(reportInventoryVo);
-            vo.setOtherInQuantity(otherInVo.getOtherInQuantity());
-            vo.setOtherInMoney(otherInVo.getOtherInMoney());
+            if (otherInVo != null) {
+                vo.setOtherInQuantity(otherInVo.getOtherInQuantity());
+                vo.setOtherInMoney(otherInVo.getOtherInMoney());
+            }
 
             //总入库数量、金额
             vo.setTotalInQuantity(vo.getProcurementInQuantity() + vo.getOtherInQuantity());
@@ -83,35 +92,32 @@ public class ReportService {
 
             //销售出库数量、金额
             ReportInventoryVo sellOutVo = myReportMapper.findSellOut(reportInventoryVo);
-            vo.setSellOutQuantity(sellOutVo.getSellOutQuantity());
-            vo.setSellOutMoney(sellOutVo.getSellOutMoney());
+            if (sellOutVo != null) {
+                vo.setSellOutQuantity(sellOutVo.getSellOutQuantity());
+                vo.setSellOutMoney(sellOutVo.getSellOutMoney());
+            }
 
             //其他出库数量、金额
             ReportInventoryVo otherOutVo = myReportMapper.findOtherOut(reportInventoryVo);
-            vo.setOtherOutQuantity(otherOutVo.getOtherOutQuantity());
-            vo.setOtherOutMoney(otherOutVo.getOtherOutMoney());
+            if (otherOutVo != null) {
+                vo.setOtherOutQuantity(otherOutVo.getOtherOutQuantity());
+                vo.setOtherOutMoney(otherOutVo.getOtherOutMoney());
+            }
 
             //总出库数量、金额
             vo.setTotalOutQuantity(vo.getSellOutQuantity() + vo.getOtherOutQuantity());
             vo.setTotalOutMoney(getNumberMethod(vo.getSellOutMoney() + vo.getOtherOutMoney()));
 
-            gVo.getGoodsSkuVos().forEach(gsVo -> {
-                //此前数量、金额
-                StorageCheckOrderVo beforeOrEndingVo = myReportMapper.findBeforeOrEnding(new StorageCheckOrderVo(storeId, startTime, endTime, gsVo.getId(), 1));
-                if (beforeOrEndingVo != null) {
-                    vo.setBeforeQuantity(vo.getBeforeQuantity() + beforeOrEndingVo.getCheckQuantity());
-                    vo.setBeforeMoney(getNumberMethod(vo.getBeforeMoney() + beforeOrEndingVo.getCheckTotalMoney()));
-                }
+            //净入库数量、金额
+            vo.setNetInQuantity(vo.getTotalInQuantity() - vo.getTotalOutQuantity());
+            vo.setNetInMoney(vo.getTotalInMoney() - vo.getTotalOutMoney());
 
-                //期末数量、金额
-                beforeOrEndingVo = myReportMapper.findBeforeOrEnding(new StorageCheckOrderVo(storeId, startTime, endTime, gsVo.getId(), 2));
-                if (beforeOrEndingVo != null) {
-                    vo.setEndingQuantity(vo.getEndingQuantity() + beforeOrEndingVo.getCheckQuantity());
-                    vo.setEndingMoney(getNumberMethod(vo.getEndingMoney() + beforeOrEndingVo.getCheckTotalMoney()));
-                }
-            });
-
-            vos.add(vo);
+            //期末数量、金额
+            beforeOrEndingVo = myReportMapper.findBeforeOrEnding(new StorageCheckOrderVo(storeId, startTime, endTime, vo.getId(), (byte) 2));
+            if (beforeOrEndingVo != null) {
+                vo.setEndingQuantity(beforeOrEndingVo.getCheckQuantity2());
+                vo.setEndingMoney(beforeOrEndingVo.getCheckTotalMoney2());
+            }
         });
 
         //封装返回结果
@@ -160,28 +166,51 @@ public class ReportService {
         Integer storeId = reportInventoryVo.getStoreId();
         Date startTime = reportInventoryVo.getStartTime();
         Date endTime = reportInventoryVo.getEndTime();
-        GoodsVo goodsVo = new GoodsVo(storeId, reportInventoryVo.getId(), reportInventoryVo.getBarCode(), reportInventoryVo.getTypeId());
 
         //查询所有页数
-        pageVo.setTotalPage((int) Math.ceil(myGoodsMapper.findCount(goodsVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountGoodsWarehouse(reportInventoryVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        List<GoodsVo> gVos = myGoodsMapper.findAllPaged(goodsVo, pageVo);
+        List<ReportInventoryVo> vos = myReportMapper.findPagedGoodsWarehouse(reportInventoryVo, pageVo);
 
-        List<ReportInventoryVo> vos = new ArrayList<>();
-        gVos.stream().forEach(gVo -> {
-            ReportInventoryVo vo = new ReportInventoryVo(gVo.getId(), gVo.getName(), gVo.getBarCode(), gVo.getTypeId(), gVo.getTypeName(), gVo.getImage());
+        //查询所有商品规格
+        List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId));
 
-            reportInventoryVo.setId(gVo.getId());
+        vos.stream().forEach(vo -> {
+
+            reportInventoryVo.setId(vo.getId());
+            reportInventoryVo.setWarehouseId(vo.getWarehouseId());
+
+            //过滤该商品货号的商品规格
+            goodsSkus.stream().filter(goodsSku -> goodsSku.getGoodsId().equals(vo.getId())).collect(Collectors.toList()).stream().forEach(goodsSku -> {
+                StorageCheckOrderVo beforeOrEndingVo = myReportMapper.findBeforeOrEnding(new StorageCheckOrderVo(storeId, startTime, endTime, goodsSku.getId(), vo.getWarehouseId(), (byte) 1));
+
+                //此前数量、金额
+                if (beforeOrEndingVo != null) {
+                    vo.setBeforeQuantity(vo.getBeforeQuantity() + beforeOrEndingVo.getCheckQuantity());
+                    vo.setBeforeMoney(vo.getBeforeMoney() + beforeOrEndingVo.getCheckTotalMoney());
+                }
+
+                //期末数量、金额
+                beforeOrEndingVo = myReportMapper.findBeforeOrEnding(new StorageCheckOrderVo(storeId, startTime, endTime, goodsSku.getId(), vo.getWarehouseId(), (byte) 2));
+                if (beforeOrEndingVo != null) {
+                    vo.setEndingQuantity(vo.getEndingQuantity() + beforeOrEndingVo.getCheckQuantity());
+                    vo.setEndingMoney(vo.getEndingMoney() + beforeOrEndingVo.getCheckTotalMoney());
+                }
+            });
 
             //采购入库数量、金额
             ReportInventoryVo procurementInVo = myReportMapper.findProcurementIn(reportInventoryVo);
-            vo.setProcurementInQuantity(procurementInVo.getProcurementInQuantity());
-            vo.setProcurementInMoney(procurementInVo.getProcurementInMoney());
+            if (procurementInVo != null) {
+                vo.setProcurementInQuantity(procurementInVo.getProcurementInQuantity());
+                vo.setProcurementInMoney(procurementInVo.getProcurementInMoney());
+            }
 
             //其他入库数量、金额
             ReportInventoryVo otherInVo = myReportMapper.findOtherIn(reportInventoryVo);
-            vo.setOtherInQuantity(otherInVo.getOtherInQuantity());
-            vo.setOtherInMoney(otherInVo.getOtherInMoney());
+            if (otherInVo != null) {
+                vo.setOtherInQuantity(otherInVo.getOtherInQuantity());
+                vo.setOtherInMoney(otherInVo.getOtherInMoney());
+            }
 
             //总入库数量、金额
             vo.setTotalInQuantity(vo.getProcurementInQuantity() + vo.getOtherInQuantity());
@@ -189,35 +218,25 @@ public class ReportService {
 
             //销售出库数量、金额
             ReportInventoryVo sellOutVo = myReportMapper.findSellOut(reportInventoryVo);
-            vo.setSellOutQuantity(sellOutVo.getSellOutQuantity());
-            vo.setSellOutMoney(sellOutVo.getSellOutMoney());
+            if (sellOutVo != null) {
+                vo.setSellOutQuantity(sellOutVo.getSellOutQuantity());
+                vo.setSellOutMoney(sellOutVo.getSellOutMoney());
+            }
 
             //其他出库数量、金额
             ReportInventoryVo otherOutVo = myReportMapper.findOtherOut(reportInventoryVo);
-            vo.setOtherOutQuantity(otherOutVo.getOtherOutQuantity());
-            vo.setOtherOutMoney(otherOutVo.getOtherOutMoney());
+            if (otherOutVo != null) {
+                vo.setOtherOutQuantity(otherOutVo.getOtherOutQuantity());
+                vo.setOtherOutMoney(otherOutVo.getOtherOutMoney());
+            }
 
             //总出库数量、金额
             vo.setTotalOutQuantity(vo.getSellOutQuantity() + vo.getOtherOutQuantity());
             vo.setTotalOutMoney(getNumberMethod(vo.getSellOutMoney() + vo.getOtherOutMoney()));
 
-            gVo.getGoodsSkuVos().forEach(gsVo -> {
-                //此前数量、金额
-                StorageCheckOrderVo beforeOrEndingVo = myReportMapper.findBeforeOrEnding(new StorageCheckOrderVo(storeId, startTime, endTime, gsVo.getId(), 1));
-                if (beforeOrEndingVo != null) {
-                    vo.setBeforeQuantity(vo.getBeforeQuantity() + beforeOrEndingVo.getCheckQuantity());
-                    vo.setBeforeMoney(getNumberMethod(vo.getBeforeMoney() + beforeOrEndingVo.getCheckTotalMoney()));
-                }
-
-                //期末数量、金额
-                beforeOrEndingVo = myReportMapper.findBeforeOrEnding(new StorageCheckOrderVo(storeId, startTime, endTime, gsVo.getId(), 2));
-                if (beforeOrEndingVo != null) {
-                    vo.setEndingQuantity(vo.getEndingQuantity() + beforeOrEndingVo.getCheckQuantity());
-                    vo.setEndingMoney(getNumberMethod(vo.getEndingMoney() + beforeOrEndingVo.getCheckTotalMoney()));
-                }
-            });
-
-            vos.add(vo);
+            //净入库数量、金额
+            vo.setNetInQuantity(vo.getTotalInQuantity() - vo.getTotalOutQuantity());
+            vo.setNetInMoney(vo.getTotalInMoney() - vo.getTotalOutMoney());
         });
 
         //封装返回结果
@@ -227,6 +246,7 @@ public class ReportService {
         titles.add(new Title("条码", "barCode"));
         titles.add(new Title("分类", "typeName"));
         titles.add(new Title("图片", "image"));
+        titles.add(new Title("仓库", "warehouseName"));
 
         titles.add(new Title("此前数量", "beforeQuantity"));
         titles.add(new Title("此前金额", "beforeMoney"));
@@ -252,6 +272,93 @@ public class ReportService {
         titles.add(new Title("期末金额", "endingMoney"));
 
         CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 库存报表-进销存分析-其他出入库分析/报损报溢分析
+     * @param reportInventoryVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportInventoryAnalysis(ReportInventoryVo reportInventoryVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountGoods(reportInventoryVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportInventoryVo> vos = myReportMapper.findPagedGoods(reportInventoryVo, pageVo);
+
+        vos.stream().forEach(vo -> {
+            reportInventoryVo.setId(vo.getId());
+            ReportInventoryVo analysis = myReportMapper.findAnalysis(reportInventoryVo);
+            vo.setTotalOutQuantity(analysis.getTotalOutQuantity());
+            vo.setTotalOutMoney(analysis.getTotalOutMoney());
+            vo.setTotalInQuantity(analysis.getTotalInQuantity());
+            vo.setTotalInMoney(analysis.getTotalInMoney());
+        });
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("商品货号", "id"));
+        titles.add(new Title("商品名", "name"));
+        titles.add(new Title("条码", "barCode"));
+        titles.add(new Title("分类", "typeName"));
+        titles.add(new Title("图片", "image"));
+        titles.add(new Title("仓库", "warehouseName"));
+
+        switch (reportInventoryVo.getFlag()) {
+            case 1:     //其他出入库分析
+                titles.add(new Title("出库数量", "totalOutQuantity"));
+                titles.add(new Title("出库金额", "totalOutMoney"));
+                titles.add(new Title("入库数量", "totalInQuantity"));
+                titles.add(new Title("入库金额", "totalInMoney"));
+                break;
+
+            case 2:     //报损报溢分析
+                titles.add(new Title("报损数量", "totalOutQuantity"));
+                titles.add(new Title("报损金额", "totalOutMoney"));
+                titles.add(new Title("报溢数量", "totalInQuantity"));
+                titles.add(new Title("报溢金额", "totalInMoney"));
+                break;
+
+            default:
+                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 库存报表-出入库明细
+     * @param reportInventoryVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportInventoryDetails(ReportInventoryVo reportInventoryVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountDetails(reportInventoryVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<StorageCheckOrderVo> vos = myReportMapper.findPagedDetails(reportInventoryVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "orderId"));
+        titles.add(new Title("单据类型", "typeName"));
+        titles.add(new Title("创建时间", "createTime"));
+        titles.add(new Title("来源订单", "applyOrderId"));
+        titles.add(new Title("往来单位", "targetName"));
+        titles.add(new Title("商品规格", "sku"));
+        titles.add(new Title("仓库", "warehouseName"));
+        titles.add(new Title("入库数量", "inQuantity"));
+        titles.add(new Title("入库成本单价", "inMoney"));
+        titles.add(new Title("入库成本金额", "inTotalMoney"));
+        titles.add(new Title("出库数量", "outQuantity"));
+        titles.add(new Title("出库成本单价", "outMoney"));
+        titles.add(new Title("出库成本金额", "outTotalMoney"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("单据备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
         return CommonResponse.success(commonResult);
     }
 

@@ -158,35 +158,31 @@ public class ReportInventoryVo {
      */
     private Double endingMoney = 0.00;
 
+    @JsonIgnore
+    private Integer flag;
+
     public ReportInventoryVo() {
     }
 
-    public ReportInventoryVo(Integer storeId, Date startTime, Date endTime, String id, String barCode, Integer typeId) {
+    public ReportInventoryVo(Integer storeId, Date startTime, Date endTime, String id, String name, String barCode, Integer typeId) {
         this.storeId = storeId;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.id = id;
-        this.barCode = barCode;
-        this.typeId = typeId;
-    }
-
-    public ReportInventoryVo(Integer storeId, Date startTime, Date endTime, String id, String barCode, Integer typeId, Integer warehouseId) {
-        this.storeId = storeId;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.id = id;
-        this.barCode = barCode;
-        this.typeId = typeId;
-        this.warehouseId = warehouseId;
-    }
-
-    public ReportInventoryVo(String id, String name, String barCode, Integer typeId, String typeName, String image) {
         this.id = id;
         this.name = name;
         this.barCode = barCode;
         this.typeId = typeId;
-        this.typeName = typeName;
-        this.image = image;
+    }
+
+    public ReportInventoryVo(Integer storeId, Date startTime, Date endTime, String id, String name, String barCode, Integer typeId, Integer warehouseId) {
+        this.storeId = storeId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.id = id;
+        this.name = name;
+        this.barCode = barCode;
+        this.typeId = typeId;
+        this.warehouseId = warehouseId;
     }
 
     public Integer getStoreId() {
@@ -419,6 +415,14 @@ public class ReportInventoryVo {
 
     public void setEndingMoney(Double endingMoney) {
         this.endingMoney = endingMoney;
+    }
+
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
     }
 
     @Override
