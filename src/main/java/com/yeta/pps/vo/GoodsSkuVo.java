@@ -87,6 +87,11 @@ public class GoodsSkuVo {
         this.goodsId = goodsId;
     }
 
+    public GoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer id) {
+        this.storeId = storeId;
+        this.id = id;
+    }
+
     public Integer getStoreId() {
         return storeId;
     }

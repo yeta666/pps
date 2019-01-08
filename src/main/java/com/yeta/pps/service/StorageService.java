@@ -1498,24 +1498,14 @@ public class StorageService {
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<GoodsWarehouseSkuVo> goodsWarehouseSkuVos = myStorageMapper.findPagedCurrentInventory(goodsWarehouseSkuVo, pageVo);
 
-        //查询所有商品规格
-        List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId));
-
         goodsWarehouseSkuVos.stream().forEach(vo -> {
-            //根据商品货号过滤商品规格
-            List<GoodsSku> goodsSkuList = goodsSkus.stream().filter(goodsSku -> goodsSku.getGoodsId().equals(vo.getId())).collect(Collectors.toList());
-            double quantity = 0;
-            double totalMoney = 0;
-            for (GoodsSku goodsSku : goodsSkuList) {
-                //根据商品规格编号查询最新库存记账记录
-                StorageCheckOrderVo scoVo = myStorageMapper.findLastCheckMoneyByGoodsSkuId(new StorageCheckOrderVo(storeId, goodsSku.getId()));
-                if (scoVo != null) {
-                    quantity += scoVo.getCheckQuantity1();
-                    totalMoney += scoVo.getCheckTotalMoney1();
-                }
+            //根据商品规格编号查询最新库存记账记录
+            StorageCheckOrderVo scoVo = myStorageMapper.findLastCheckMoneyByGoodsId(new StorageCheckOrderVo(storeId, vo.getId()));
+            if (scoVo == null) {
+                throw new CommonException(CommonResponse.FIND_ERROR);
             }
-            vo.setCostMoney(totalMoney / quantity);
-            vo.setTotalCostMoney(totalMoney);
+            vo.setCostMoney(scoVo.getCheckMoney2());
+            vo.setTotalCostMoney(scoVo.getCheckTotalMoney2());
         });
 
         //封装返回结果
@@ -1617,9 +1607,9 @@ public class StorageService {
         titles.add(new Title("出库数量", "outQuantity"));
         titles.add(new Title("出库成本单价", "outMoney"));
         titles.add(new Title("出库成本金额", "outTotalMoney"));
-        titles.add(new Title("结存数量", "checkQuantity1"));
-        titles.add(new Title("结存成本单价", "checkMoney1"));
-        titles.add(new Title("结存成本金额", "checkTotalMoney1"));
+        titles.add(new Title("结存数量", "checkQuantity2"));
+        titles.add(new Title("结存成本单价", "checkMoney2"));
+        titles.add(new Title("结存成本金额", "checkTotalMoney2"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, storageCheckOrderVos, pageVo);
@@ -1775,9 +1765,9 @@ public class StorageService {
         titles.add(new Title("出库数量", "outQuantity"));
         titles.add(new Title("出库成本单价", "outMoney"));
         titles.add(new Title("出库成本金额", "outTotalMoney"));
-        titles.add(new Title("结存数量", "checkQuantity"));
-        titles.add(new Title("结存成本单价", "checkMoney"));
-        titles.add(new Title("结存成本金额", "checkTotalMoney"));
+        titles.add(new Title("结存数量", "checkQuantity1"));
+        titles.add(new Title("结存成本单价", "checkMoney1"));
+        titles.add(new Title("结存成本金额", "checkTotalMoney1"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, storageCheckOrderVos, pageVo);
@@ -1797,11 +1787,13 @@ public class StorageService {
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<GoodsWarehouseSkuVo> goodsWarehouseSkuVos = myStorageMapper.findPagedByWarehouse(goodsWarehouseSkuVo, pageVo);
 
-        //补上成本
+        //补上成本和售价
         goodsWarehouseSkuVos.stream().forEach(vo -> {
-            StorageCheckOrderVo storageCheckOrderVo = myStorageMapper.findLastCheckMoneyByGoodsSkuIdAndWarehouseId(new StorageCheckOrderVo(goodsWarehouseSkuVo.getStoreId(), vo.getGoodsSkuId(), vo.getWarehouseId()));
-            vo.setCostMoney(storageCheckOrderVo.getCheckMoney());
-            vo.setTotalCostMoney(storageCheckOrderVo.getCheckTotalMoney());
+            StorageCheckOrderVo scoVo = myStorageMapper.findLastCheckMoneyByGoodsSkuIdAndWarehouseId(new StorageCheckOrderVo(goodsWarehouseSkuVo.getStoreId(), vo.getGoodsSkuId(), vo.getWarehouseId()));
+            vo.setCostMoney(scoVo.getCheckMoney());
+            vo.setTotalCostMoney(scoVo.getCheckTotalMoney());
+            vo.setTotalRetailPrice(vo.getRetailPrice() * scoVo.getCheckQuantity());
+            vo.setTotalVipPrice(vo.getVipPrice() * scoVo.getCheckQuantity());
         });
 
         //封装返回结果
@@ -1820,6 +1812,12 @@ public class StorageService {
                 titles.add(new Title("待收货数量", "notReceivedQuantity"));
                 titles.add(new Title("可用库存", "canUseInventory"));
                 titles.add(new Title("账面库存", "bookInventory"));
+                titles.add(new Title("成本单价", "costMoney"));
+                titles.add(new Title("成本金额", "totalCostMoney"));
+                titles.add(new Title("零售单价", "retailPrice"));
+                titles.add(new Title("零售价值", "totalRetailPrice"));
+                titles.add(new Title("vip单价", "vipPrice"));
+                titles.add(new Title("vip价值", "totalVipPrice"));
                 break;
             case 1:     //库存预警设置
                 titles.add(new Title("库存上限", "inventoryUpperLimit"));
@@ -1849,6 +1847,43 @@ public class StorageService {
                 return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
         CommonResult commonResult = new CommonResult(titles, goodsWarehouseSkuVos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 根据商品规格编号和仓库编号查对账
+     * @param storageCheckOrderVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findStorageCheckOrderByGoodsSkuIdAndWarehouseId(StorageCheckOrderVo storageCheckOrderVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountOrderByGoodsSkuIdAndWarehouseId(storageCheckOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<StorageCheckOrderVo> storageCheckOrderVos = myStorageMapper.findPagedOrderByGoodsSkuIdAndWarehouseId(storageCheckOrderVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "orderId"));
+        titles.add(new Title("单据类型", "typeName"));
+        titles.add(new Title("创建时间", "createTime"));
+        titles.add(new Title("来源订单", "applyOrderId"));
+        titles.add(new Title("往来单位", "targetName"));
+        titles.add(new Title("商品规格", "sku"));
+        titles.add(new Title("仓库", "warehouseName"));
+        titles.add(new Title("入库数量", "inQuantity"));
+        titles.add(new Title("入库成本单价", "inMoney"));
+        titles.add(new Title("入库成本金额", "inTotalMoney"));
+        titles.add(new Title("出库数量", "outQuantity"));
+        titles.add(new Title("出库成本单价", "outMoney"));
+        titles.add(new Title("出库成本金额", "outTotalMoney"));
+        titles.add(new Title("结存数量", "checkQuantity"));
+        titles.add(new Title("结存成本单价", "checkMoney"));
+        titles.add(new Title("结存成本金额", "checkTotalMoney"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("单据备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, storageCheckOrderVos, pageVo);
 
         return CommonResponse.success(commonResult);
     }

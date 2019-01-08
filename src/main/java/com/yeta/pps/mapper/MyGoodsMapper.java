@@ -102,6 +102,8 @@ public interface MyGoodsMapper {
 
     List<GoodsSku> findAllGoodsSku(GoodsSkuVo goodsSkuVo);
 
+    GoodsSku findGoodsSkuById(GoodsSkuVo goodsSkuVo);
+
     //仓库/商品规格关系
 
     int initializeOpening(WarehouseGoodsSkuVo warehouseGoodsSkuVo);

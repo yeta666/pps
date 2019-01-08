@@ -446,6 +446,37 @@ public class StorageController {
         return storageService.findByWarehouse(new GoodsWarehouseSkuVo(storeId, id, name, typeId, warehouseId, flag), new PageVo(page, pageSize));
     }
 
+    /**
+     * 根据商品规格编号和仓库编号查对账接口
+     * @param storeId
+     * @param goodsSkuId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "根据商品规格编号和仓库编号查对账")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "goodsSkuId", value = "商品规格编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "warehouseId", value = "仓库编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
+    })
+    @GetMapping(value = "/storage/inventory/warehouse/check")
+    public CommonResponse<CommonResult<List<StorageCheckOrderVo>>> findStorageCheckOrderByGoodsSkuIdAndWarehouseId(@RequestParam(value = "storeId") Integer storeId,
+                                                                                                                   @RequestParam(value = "goodsSkuId") Integer goodsSkuId,
+                                                                                                                   @RequestParam(value = "warehouseId") Integer warehouseId,
+                                                                                                                   @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                                   @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                                   @RequestParam(value = "page") Integer page,
+                                                                                                                   @RequestParam(value = "pageSize") Integer pageSize) {
+        return storageService.findStorageCheckOrderByGoodsSkuIdAndWarehouseId(new StorageCheckOrderVo(storeId, startTime, endTime, goodsSkuId, warehouseId), new PageVo(page, pageSize));
+    }
+
     //库存预警
 
     /**

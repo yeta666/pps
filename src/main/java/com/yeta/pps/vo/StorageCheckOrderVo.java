@@ -99,34 +99,49 @@ public class StorageCheckOrderVo {
     private Double outTotalMoney = 0.0;
 
     /**
-     * 结存数量
+     * 商品规格-仓库结存数量
      */
     private Integer checkQuantity;
 
     /**
-     * 结存成本单价
+     * 商品规格-仓库结存成本单价
      */
     private Double checkMoney;
 
     /**
-     * 结存成本金额
+     * 商品规格-仓库结存成本金额
      */
     private Double checkTotalMoney;
 
     /**
-     * 结存数量
+     * 商品规格结存数量
      */
     private Integer checkQuantity1;
 
     /**
-     * 结存成本单价
+     * 商品规格结存成本单价
      */
     private Double checkMoney1;
 
     /**
-     * 结存成本金额
+     * 商品规格结存成本金额
      */
     private Double checkTotalMoney1;
+
+    /**
+     * 商品结存数量
+     */
+    private Integer checkQuantity2;
+
+    /**
+     * 商品结存成本单价
+     */
+    private Double checkMoney2;
+
+    /**
+     * 商品结存成本金额
+     */
+    private Double checkTotalMoney2;
 
     /**
      * 经手人编号
@@ -138,9 +153,14 @@ public class StorageCheckOrderVo {
     private String remark;
 
     @JsonIgnore
-    private Integer flag;
+    private Byte flag;
 
     public StorageCheckOrderVo() {
+    }
+
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String goodsId) {
+        this.storeId = storeId;
+        this.goodsId = goodsId;
     }
 
     public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer goodsSkuId) {
@@ -176,7 +196,15 @@ public class StorageCheckOrderVo {
         this.goodsSkuId = goodsSkuId;
     }
 
-    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId, Integer flag) {
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId, Integer warehouseId) {
+        this.storeId = storeId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.goodsSkuId = goodsSkuId;
+        this.warehouseId = warehouseId;
+    }
+
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId, Byte flag) {
         this.storeId = storeId;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -408,6 +436,30 @@ public class StorageCheckOrderVo {
         this.checkTotalMoney1 = checkTotalMoney1;
     }
 
+    public Integer getCheckQuantity2() {
+        return checkQuantity2;
+    }
+
+    public void setCheckQuantity2(Integer checkQuantity2) {
+        this.checkQuantity2 = checkQuantity2;
+    }
+
+    public Double getCheckMoney2() {
+        return checkMoney2;
+    }
+
+    public void setCheckMoney2(Double checkMoney2) {
+        this.checkMoney2 = checkMoney2;
+    }
+
+    public Double getCheckTotalMoney2() {
+        return checkTotalMoney2;
+    }
+
+    public void setCheckTotalMoney2(Double checkTotalMoney2) {
+        this.checkTotalMoney2 = checkTotalMoney2;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -432,11 +484,11 @@ public class StorageCheckOrderVo {
         this.remark = remark;
     }
 
-    public Integer getFlag() {
+    public Byte getFlag() {
         return flag;
     }
 
-    public void setFlag(Integer flag) {
+    public void setFlag(Byte flag) {
         this.flag = flag;
     }
 
@@ -454,6 +506,7 @@ public class StorageCheckOrderVo {
                 ", applyOrderId='" + applyOrderId + '\'' +
                 ", targetId='" + targetId + '\'' +
                 ", targetName='" + targetName + '\'' +
+                ", goodsId='" + goodsId + '\'' +
                 ", goodsSkuId=" + goodsSkuId +
                 ", sku='" + sku + '\'' +
                 ", warehouseId=" + warehouseId +
@@ -470,6 +523,9 @@ public class StorageCheckOrderVo {
                 ", checkQuantity1=" + checkQuantity1 +
                 ", checkMoney1=" + checkMoney1 +
                 ", checkTotalMoney1=" + checkTotalMoney1 +
+                ", checkQuantity2=" + checkQuantity2 +
+                ", checkMoney2=" + checkMoney2 +
+                ", checkTotalMoney2=" + checkTotalMoney2 +
                 ", userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +
                 ", remark='" + remark + '\'' +

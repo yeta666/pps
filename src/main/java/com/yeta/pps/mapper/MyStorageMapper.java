@@ -103,6 +103,11 @@ public interface MyStorageMapper {
     List<GoodsWarehouseSkuVo> findPagedByWarehouse(@Param(value = "vo") GoodsWarehouseSkuVo goodsWarehouseSkuVo,
                                                    @Param(value = "pageVo") PageVo pageVo);
 
+    int findCountOrderByGoodsSkuIdAndWarehouseId(StorageCheckOrderVo storageCheckOrderVo);
+
+    List<StorageCheckOrderVo> findPagedOrderByGoodsSkuIdAndWarehouseId(@Param(value = "vo") StorageCheckOrderVo storageCheckOrderVo,
+                                                                       @Param(value = "pageVo") PageVo pageVo);
+
     //库存对账
 
     int addStorageCheckOrder(StorageCheckOrderVo storageCheckOrderVo);
@@ -118,4 +123,6 @@ public interface MyStorageMapper {
     StorageCheckOrderVo findLastCheckMoneyByGoodsSkuIdAndWarehouseId(StorageCheckOrderVo storageCheckOrderVo);
 
     StorageCheckOrderVo findLastCheckMoneyByGoodsSkuId(StorageCheckOrderVo storageCheckOrderVo);
+
+    StorageCheckOrderVo findLastCheckMoneyByGoodsId(StorageCheckOrderVo storageCheckOrderVo);
 }

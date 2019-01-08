@@ -309,6 +309,10 @@
         select id, goods_id, sku, purchase_price, retail_price, vip_price, integral from goods_sku_${storeId};
     </select>
 
+    <select id="findGoodsSkuById" parameterType="com.yeta.pps.vo.GoodsSkuVo" resultType="com.yeta.pps.po.GoodsSku">
+        select id, goods_id, sku, purchase_price, retail_price, vip_price, integral from goods_sku_${storeId} where id = #{id};
+    </select>
+
     <!--仓库/商品规格关系-->
 
     <insert id="initializeOpening" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
