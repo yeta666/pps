@@ -204,14 +204,12 @@ public class SellApplyOrderVo {
         this.client = client;
     }
 
-    public SellApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type, Byte orderStatus, Byte clearStatus, Client client) {
+    public SellApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type, Client client) {
         this.storeId = storeId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.id = id;
         this.type = type;
-        this.orderStatus = orderStatus;
-        this.clearStatus = clearStatus;
         this.client = client;
     }
 

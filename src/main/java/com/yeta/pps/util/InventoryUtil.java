@@ -42,7 +42,7 @@ public class InventoryUtil {
         //判断参数
         if (vo.getStoreId() == null || vo.getWarehouseId() == null || vo.getGoodsSkuId() == null ||
                 vo.getOpeningQuantity() == null || vo.getOpeningMoney() == null || vo.getOpeningTotalMoney() == null ||
-                vo.getOpeningQuantity() * vo.getOpeningMoney().doubleValue() != vo.getOpeningTotalMoney().doubleValue()) {
+                vo.getOpeningQuantity() * vo.getOpeningMoney() != vo.getOpeningTotalMoney()) {
             throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
@@ -52,7 +52,7 @@ public class InventoryUtil {
             throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
-        //修改库存期初
+        //修改库存期初，只有期初都为0的时候才能修改
         if (myGoodsMapper.updateOpening(vo) != 1) {
             throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
@@ -64,25 +64,34 @@ public class InventoryUtil {
         storageCheckOrderVo.setCreateTime(new Date());
         storageCheckOrderVo.setOrderStatus((byte) 1);
         storageCheckOrderVo.setGoodsSkuId(vo.getGoodsSkuId());
-        storageCheckOrderVo.setInWarehouseId(vo.getWarehouseId());
+        storageCheckOrderVo.setWarehouseId(vo.getWarehouseId());
         storageCheckOrderVo.setInQuantity(vo.getOpeningQuantity());
         storageCheckOrderVo.setInMoney(vo.getOpeningMoney());
-        storageCheckOrderVo.setInTotalMoney(warehouseGoodsSkuVo.getOpeningTotalMoney());
+        storageCheckOrderVo.setInTotalMoney(vo.getOpeningTotalMoney());
         storageCheckOrderVo.setUserId(vo.getUserId());
 
         //查询是否有该商品规格的库存对账记录
-        StorageCheckOrderVo sVo = myStorageMapper.findLastCheckMoney(new StorageCheckOrderVo(vo.getStoreId(), vo.getGoodsSkuId()));
+        StorageCheckOrderVo sVo = myStorageMapper.findLastCheckMoneyByGoodsSkuId(new StorageCheckOrderVo(vo.getStoreId(), vo.getGoodsSkuId()));
+
         if (sVo == null) {
             storageCheckOrderVo.setCheckQuantity(vo.getOpeningQuantity());
             storageCheckOrderVo.setCheckMoney(vo.getOpeningMoney());
             storageCheckOrderVo.setCheckTotalMoney(vo.getOpeningTotalMoney());
+
+            storageCheckOrderVo.setCheckQuantity1(vo.getOpeningQuantity());
+            storageCheckOrderVo.setCheckMoney1(vo.getOpeningMoney());
+            storageCheckOrderVo.setCheckTotalMoney1(vo.getOpeningTotalMoney());
         } else {
-            int changeQuantity = vo.getOpeningQuantity() + sVo.getCheckQuantity();
-            double changeTotalMoney = vo.getOpeningTotalMoney().doubleValue() + sVo.getCheckTotalMoney().doubleValue();
-            double changeMoney = getNumberMethod(changeTotalMoney / changeQuantity);
-            storageCheckOrderVo.setCheckQuantity(changeQuantity);
-            storageCheckOrderVo.setCheckMoney(changeMoney);
-            storageCheckOrderVo.setCheckTotalMoney(changeTotalMoney);
+            storageCheckOrderVo.setCheckQuantity(vo.getOpeningQuantity());
+            storageCheckOrderVo.setCheckMoney(vo.getOpeningMoney());
+            storageCheckOrderVo.setCheckTotalMoney(vo.getOpeningTotalMoney());
+
+            int changeQuantity1 = vo.getOpeningQuantity() + sVo.getCheckQuantity1();
+            double changeTotalMoney1 = vo.getOpeningTotalMoney() + sVo.getCheckTotalMoney1();
+            double changeMoney1 = getNumberMethod(changeTotalMoney1 / changeQuantity1);
+            storageCheckOrderVo.setCheckQuantity1(changeQuantity1);
+            storageCheckOrderVo.setCheckMoney1(changeMoney1);
+            storageCheckOrderVo.setCheckTotalMoney1(changeTotalMoney1);
         }
 
         if (myStorageMapper.addStorageCheckOrder(storageCheckOrderVo) != 1) {
@@ -99,8 +108,9 @@ public class InventoryUtil {
     @Transactional
     public double addStorageCheckOrderMethod(int flag, StorageCheckOrderVo vo, OrderGoodsSkuVo orderGoodsSkuVo) {
         //查询该商品规格的最新库存对账记录
-        StorageCheckOrderVo sVo = myStorageMapper.findLastCheckMoney(new StorageCheckOrderVo(vo.getStoreId(), vo.getGoodsSkuId()));
-        if (sVo == null) {
+        StorageCheckOrderVo sVo = myStorageMapper.findLastCheckMoneyByGoodsSkuIdAndWarehouseId(new StorageCheckOrderVo(vo.getStoreId(), vo.getGoodsSkuId(), vo.getWarehouseId()));
+        StorageCheckOrderVo sVo1 = myStorageMapper.findLastCheckMoneyByGoodsSkuId(new StorageCheckOrderVo(vo.getStoreId(), vo.getGoodsSkuId()));
+        if (sVo == null || sVo1 == null) {
             throw new CommonException(CommonResponse.INVENTORY_ERROR);
         }
 
@@ -114,35 +124,53 @@ public class InventoryUtil {
         int changeQuantity;
         double changeTotalMoney;
         double changeMoney;
+
+        int changeQuantity1;
+        double changeTotalMoney1;
+        double changeMoney1;
         switch (flag) {
             case 0:     //成本不变
                 changeQuantity = sVo.getCheckQuantity() - vo.getOutQuantity();
-                changeTotalMoney = sVo.getCheckTotalMoney().doubleValue() - getNumberMethod(vo.getOutQuantity() * sVo.getCheckMoney().doubleValue());
+                changeTotalMoney = sVo.getCheckTotalMoney() - getNumberMethod(vo.getOutQuantity() * sVo.getCheckMoney());
                 changeMoney = getNumberMethod(changeTotalMoney / changeQuantity);
+
+                changeQuantity1 = sVo1.getCheckQuantity1() - vo.getOutQuantity();
+                changeTotalMoney1 = sVo1.getCheckTotalMoney1() - getNumberMethod(vo.getOutQuantity() * sVo1.getCheckMoney1());
+                changeMoney1 = getNumberMethod(changeTotalMoney1 / changeQuantity1);
+
                 vo.setOutMoney(sVo.getCheckMoney());
-                vo.setOutTotalMoney(getNumberMethod(vo.getOutQuantity() * sVo.getCheckMoney().doubleValue()));
+                vo.setOutTotalMoney(getNumberMethod(vo.getOutQuantity() * sVo.getCheckMoney()));
                 break;
 
             case 1:     //成本可能变
                 changeQuantity = vo.getInQuantity() + sVo.getCheckQuantity();
-                changeTotalMoney = getNumberMethod(vo.getInTotalMoney().doubleValue()) + sVo.getCheckTotalMoney().doubleValue();
+                changeTotalMoney = getNumberMethod(vo.getInTotalMoney()) + sVo.getCheckTotalMoney();
                 changeMoney = getNumberMethod(changeTotalMoney / changeQuantity);
+
+                changeQuantity1 = vo.getInQuantity() + sVo1.getCheckQuantity1();
+                changeTotalMoney1 = getNumberMethod(vo.getInTotalMoney()) + sVo1.getCheckTotalMoney1();
+                changeMoney1 = getNumberMethod(changeTotalMoney1 / changeQuantity1);
                 break;
 
             case 2:     //成本不变
                 changeQuantity = sVo.getCheckQuantity() + vo.getInQuantity();
-                changeTotalMoney = sVo.getCheckTotalMoney().doubleValue() + getNumberMethod(vo.getInQuantity() * sVo.getCheckMoney().doubleValue());
+                changeTotalMoney = sVo.getCheckTotalMoney() + getNumberMethod(vo.getInQuantity() * sVo.getCheckMoney());
                 changeMoney = getNumberMethod(changeTotalMoney / changeQuantity);
+
+                changeQuantity1 = sVo1.getCheckQuantity1() + vo.getInQuantity();
+                changeTotalMoney1 = sVo1.getCheckTotalMoney1() + getNumberMethod(vo.getInQuantity() * sVo1.getCheckMoney1());
+                changeMoney1 = getNumberMethod(changeTotalMoney1 / changeQuantity1);
+
                 vo.setInMoney(sVo.getCheckMoney());
-                vo.setInTotalMoney(getNumberMethod(vo.getInQuantity() * sVo.getCheckMoney().doubleValue()));
+                vo.setInTotalMoney(getNumberMethod(vo.getInQuantity() * sVo.getCheckMoney()));
                 break;
 
             case 3:
                 //获取参数
                 int checkQuantity = orderGoodsSkuVo.getCheckQuantity();     //库存数量
-                double afterChangeCheckMoney = orderGoodsSkuVo.getAfterChangeCheckMoney().doubleValue();       //调价后成本价
-                double checkTotalMoney = orderGoodsSkuVo.getCheckTotalMoney().doubleValue();
-                double changeCheckTotalMoney = orderGoodsSkuVo.getChangeCheckTotalMoney().doubleValue();
+                double afterChangeCheckMoney = orderGoodsSkuVo.getAfterChangeCheckMoney();       //调价后成本价
+                double checkTotalMoney = orderGoodsSkuVo.getCheckTotalMoney();
+                double changeCheckTotalMoney = orderGoodsSkuVo.getChangeCheckTotalMoney();
                 double check = getNumberMethod(getNumberMethod(checkQuantity * afterChangeCheckMoney) - checkTotalMoney);
 
                 //判断参数
@@ -152,7 +180,11 @@ public class InventoryUtil {
 
                 changeQuantity = checkQuantity;
                 changeMoney = afterChangeCheckMoney;
-                changeTotalMoney = getNumberMethod(checkQuantity * afterChangeCheckMoney);
+                changeTotalMoney = getNumberMethod(changeQuantity * changeMoney);
+
+                changeQuantity1 = sVo1.getCheckQuantity1();
+                changeMoney1 = getNumberMethod((sVo1.getCheckTotalMoney1() - checkTotalMoney + changeTotalMoney) / changeQuantity1);
+                changeTotalMoney1 = getNumberMethod(changeQuantity1 * changeMoney1);
                 break;
 
             default:
@@ -162,6 +194,10 @@ public class InventoryUtil {
         vo.setCheckQuantity(changeQuantity);
         vo.setCheckMoney(changeMoney);
         vo.setCheckTotalMoney(changeTotalMoney);
+
+        vo.setCheckQuantity1(changeQuantity1);
+        vo.setCheckMoney1(changeMoney1);
+        vo.setCheckTotalMoney1(changeTotalMoney1);
 
         if (myStorageMapper.addStorageCheckOrder(vo) != 1) {
             throw new CommonException(CommonResponse.INVENTORY_ERROR);
@@ -187,11 +223,16 @@ public class InventoryUtil {
         String userId = vo.getUserId();
 
         //查询最新成本
-        StorageCheckOrderVo lastVo = myStorageMapper.findLastCheckMoney(vo);
+        StorageCheckOrderVo lastVo = myStorageMapper.findLastCheckMoneyByGoodsSkuIdAndWarehouseId(vo);
+        StorageCheckOrderVo lastVo1 = myStorageMapper.findLastCheckMoneyByGoodsSkuId(vo);
 
         int changeQuantity;
         double changeMoney;
         double changeTotalMoney;
+
+        int changeQuantity1;
+        double changeMoney1;
+        double changeTotalMoney1;
         switch (flag) {
             case 0:
                 //红冲
@@ -203,11 +244,16 @@ public class InventoryUtil {
                 vo = myStorageMapper.findOutStorageCheckOrder(vo);
 
                 changeQuantity = lastVo.getCheckQuantity() + vo.getOutQuantity();
-                changeTotalMoney = lastVo.getCheckTotalMoney().doubleValue() + vo.getOutTotalMoney().doubleValue();
+                changeTotalMoney = lastVo.getCheckTotalMoney() + vo.getOutTotalMoney();
                 changeMoney = getNumberMethod(changeTotalMoney / changeQuantity);
+
+                changeQuantity1 = lastVo1.getCheckQuantity1() + vo.getOutQuantity();
+                changeTotalMoney1 = lastVo1.getCheckTotalMoney1() + vo.getOutTotalMoney();
+                changeMoney1 = getNumberMethod(changeTotalMoney1 / changeQuantity1);
+
                 vo.setOutQuantity(-vo.getOutQuantity());
-                vo.setOutMoney(-vo.getOutMoney().doubleValue());
-                vo.setOutTotalMoney(-vo.getOutTotalMoney().doubleValue());
+                vo.setOutMoney(-vo.getOutMoney());
+                vo.setOutTotalMoney(-vo.getOutTotalMoney());
                 break;
 
             case 1:
@@ -220,11 +266,16 @@ public class InventoryUtil {
                 vo = myStorageMapper.findInStorageCheckOrder(vo);
 
                 changeQuantity = lastVo.getCheckQuantity() - vo.getInQuantity();
-                changeTotalMoney = lastVo.getCheckTotalMoney().doubleValue() - vo.getInTotalMoney().doubleValue();
+                changeTotalMoney = lastVo.getCheckTotalMoney() - vo.getInTotalMoney();
                 changeMoney = getNumberMethod(changeTotalMoney / changeQuantity);
+
+                changeQuantity1 = lastVo1.getCheckQuantity1() - vo.getInQuantity();
+                changeTotalMoney1 = lastVo1.getCheckTotalMoney1() - vo.getInTotalMoney();
+                changeMoney1 = getNumberMethod(changeTotalMoney1 / changeQuantity1);
+
                 vo.setInQuantity(-vo.getInQuantity());
-                vo.setInMoney(-vo.getInMoney().doubleValue());
-                vo.setInTotalMoney(-vo.getInTotalMoney().doubleValue());
+                vo.setInMoney(-vo.getInMoney());
+                vo.setInTotalMoney(-vo.getInTotalMoney());
                 break;
 
             case 2:
@@ -236,13 +287,15 @@ public class InventoryUtil {
                 //获取红冲蓝单
                 vo = myStorageMapper.findInStorageCheckOrder(vo);
 
-                vo.setOutWarehouseId(vo.getInWarehouseId());
-                vo.setInWarehouseId(null);
                 vo.setOutTotalMoney(vo.getInTotalMoney());
-                vo.setInTotalMoney(null);
+                vo.setInTotalMoney(0.0);
                 changeQuantity = lastVo.getCheckQuantity();
-                changeTotalMoney = lastVo.getCheckTotalMoney().doubleValue() - vo.getOutTotalMoney().doubleValue();
+                changeTotalMoney = lastVo.getCheckTotalMoney() - vo.getOutTotalMoney();
                 changeMoney = getNumberMethod(changeTotalMoney / changeQuantity);
+
+                changeQuantity1 = lastVo1.getCheckQuantity1();
+                changeTotalMoney1 = lastVo1.getCheckTotalMoney1() - vo.getOutTotalMoney();
+                changeMoney1 = getNumberMethod(changeTotalMoney1 / changeQuantity1);
                 break;
 
             case 3:
@@ -254,13 +307,15 @@ public class InventoryUtil {
                 //获取红冲蓝单
                 vo = myStorageMapper.findOutStorageCheckOrder(vo);
 
-                vo.setInWarehouseId(vo.getOutWarehouseId());
-                vo.setOutWarehouseId(null);
                 vo.setInTotalMoney(vo.getOutTotalMoney());
-                vo.setOutTotalMoney(null);
+                vo.setOutTotalMoney(0.0);
                 changeQuantity = lastVo.getCheckQuantity();
-                changeTotalMoney = lastVo.getCheckTotalMoney().doubleValue() + vo.getInTotalMoney().doubleValue();
+                changeTotalMoney = lastVo.getCheckTotalMoney() + vo.getInTotalMoney();
                 changeMoney = getNumberMethod(changeTotalMoney / changeQuantity);
+
+                changeQuantity1 = lastVo1.getCheckQuantity1();
+                changeTotalMoney1 = lastVo1.getCheckTotalMoney1() + vo.getInTotalMoney();
+                changeMoney1 = getNumberMethod(changeTotalMoney1 / changeQuantity1);
                 break;
 
             default:
@@ -275,6 +330,10 @@ public class InventoryUtil {
         vo.setCheckQuantity(changeQuantity);
         vo.setCheckMoney(changeMoney);
         vo.setCheckTotalMoney(changeTotalMoney);
+
+        vo.setCheckQuantity1(changeQuantity1);
+        vo.setCheckMoney1(changeMoney1);
+        vo.setCheckTotalMoney1(changeTotalMoney1);
 
         //新增红冲红单
         if (myStorageMapper.addStorageCheckOrder(vo) != 1) {

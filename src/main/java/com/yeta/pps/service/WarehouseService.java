@@ -2,14 +2,16 @@ package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyGoodsMapper;
-import com.yeta.pps.mapper.MyUserMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.GoodsSku;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
-import com.yeta.pps.vo.*;
+import com.yeta.pps.vo.GoodsSkuVo;
+import com.yeta.pps.vo.PageVo;
+import com.yeta.pps.vo.WarehouseGoodsSkuVo;
+import com.yeta.pps.vo.WarehouseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,9 +32,6 @@ public class WarehouseService {
 
     @Autowired
     private MyGoodsMapper myGoodsMapper;
-
-    @Autowired
-    private MyUserMapper myUserMapper;
 
     /**
      * 新增仓库
@@ -65,11 +64,6 @@ public class WarehouseService {
     @Transactional
     public CommonResponse delete(List<WarehouseVo> warehouseVos) {
         warehouseVos.stream().forEach(warehouseVo -> {
-            //判断仓库是否使用
-            if (myUserMapper.findAll(new UserVo(warehouseVo.getStoreId(), warehouseVo.getId())).size() > 0) {
-                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
-            }
-
             //删除仓库
             if (myWarehouseMapper.delete(warehouseVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);

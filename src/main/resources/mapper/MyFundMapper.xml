@@ -2,6 +2,186 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.yeta.pps.mapper.MyFundMapper" >
 
+    <!--按单收款-->
+
+    <select id="findCountNotClearedSellApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                sell_apply_order_${storeId} as sao
+                left join client as c on sao.client_id = c.id
+            )
+        left join user_${storeId} as u on sao.user_id = u.id
+        where sao.clear_status = 0
+        <if test="id != null">
+            and sao.id = #{id}
+        </if>
+        <if test="type != null">
+            and sao.type = #{type}
+        </if>
+        <if test="client.name != null">
+            and c.name like concat('%', #{client.name}, '%')
+        </if>
+        <if test="client.phone != null">
+            and c.phone like concat('%', #{client.phone}, '%')
+        </if>
+        <if test="client.membershipNumber != null">
+            and c.membership_number like concat('%', #{client.membershipNumber}, '%')
+        </if>
+        <if test="startTime != null and endTime != null">
+            and date(sao.create_time) between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <resultMap id="sellApplyOrderVoMap1" type="com.yeta.pps.vo.SellApplyOrderVo">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="result_order_id" property="resultOrderId" />
+        <result column="prodcing_way" property="prodcingWay" />
+        <result column="order_status" property="orderStatus" />
+        <result column="clear_status" property="clearStatus" />
+        <result column="in_warehouse_id" property="inWarehouseId" />
+        <result column="in_total_quantity" property="inTotalQuantity" />
+        <result column="in_received_quantity" property="inReceivedQuantity" />
+        <result column="in_not_received_quantity" property="inNotReceivedQuantity" />
+        <result column="out_warehouse_id" property="outWarehouseId" />
+        <result column="out_total_quantity" property="outTotalQuantity" />
+        <result column="total_money" property="totalMoney" />
+        <result column="discount_money" property="discountMoney" />
+        <result column="discount_coupon_id" property="discountCouponId" />
+        <result column="total_discount_money" property="totalDiscountMoney" />
+        <result column="order_money" property="orderMoney" />
+        <result column="cleared_money" property="clearedMoney" />
+        <result column="not_cleared_money" property="notClearedMoney" />
+        <result column="user_name" property="userName" />
+        <result column="remark" property="remark" />
+        <collection property="client" ofType="com.yeta.pps.po.Client">
+            <result column="client_id" property="id" />
+            <result column="client_name" property="name" />
+            <result column="client_phone" property="phone" />
+            <result column="client_membership_number" property="membershipNumber" />
+        </collection>
+    </resultMap>
+
+    <select id="findPagedNotClearedSellApplyOrder" resultMap="sellApplyOrderVoMap1">
+        select
+            sao.id,
+            sao.type,
+            sao.create_time,
+            sao.result_order_id,
+            sao.prodcing_way,
+            sao.order_status,
+            sao.clear_status,
+            c.id as client_id,
+            c.name as client_name,
+            c.phone as client_phone,
+            c.membership_number as client_membership_number,
+            sao.total_money,
+            sao.discount_money,
+            sao.discount_coupon_id,
+            sao.total_discount_money,
+            sao.order_money,
+            sao.cleared_money,
+            sao.not_cleared_money,
+            u.name as user_name,
+            sao.remark
+        from
+            (
+                sell_apply_order_${vo.storeId} as sao
+                left join client as c on sao.client_id = c.id
+            )
+        left join user_${vo.storeId} as u on sao.user_id = u.id
+        where sao.clear_status = 0
+        <if test="vo.id != null">
+            and sao.id = #{vo.id}
+        </if>
+        <if test="vo.type != null">
+            and sao.type = #{vo.type}
+        </if>
+        <if test="vo.client.name != null">
+            and c.name like concat('%', #{vo.client.name}, '%')
+        </if>
+        <if test="vo.client.phone != null">
+            and c.phone like concat('%', #{vo.client.phone}, '%')
+        </if>
+        <if test="vo.client.membershipNumber != null">
+            and c.membership_number like concat('%', #{vo.client.membershipNumber}, '%')
+        </if>
+        <if test="vo.startTime != null and vo.endTime != null">
+            and date(sao.create_time) between #{vo.startTime} and #{vo.endTime}
+        </if>
+        order by sao.create_time desc
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <!--按单付款-->
+
+    <select id="findCountNotClearedProcurementApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                procurement_apply_order_${storeId} as pao
+                left join supplier_${storeId} as s on pao.supplier_id = s.id
+            )
+        left join user_${storeId} as u on pao.user_id = u.id
+        where pao.clear_status = 0
+        <if test="id != null">
+            and pao.id = #{id}
+        </if>
+        <if test="type != null">
+            and pao.type = #{type}
+        </if>
+        <if test="supplierName != null">
+            and s.name like concat('%', #{supplierName}, '%')
+        </if>
+        <if test="startTime != null and endTime != null">
+            and date(pao.create_time) between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <select id="findPagedNotClearedProcurementApplyOrder" resultType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+        select
+            pao.id,
+            pao.type,
+            pao.create_time,
+            pao.result_order_id,
+            pao.order_status,
+            pao.clear_status,
+            s.id as supplier_id,
+            s.name as supplier_name,
+            pao.total_money,
+            pao.total_discount_money,
+            pao.order_money,
+            pao.cleared_money,
+            pao.not_cleared_money,
+            u.name as user_name,
+            pao.remark
+        from
+            (
+                procurement_apply_order_${vo.storeId} as pao
+                left join supplier_${vo.storeId} as s on pao.supplier_id = s.id
+            )
+        left join user_${vo.storeId} as u on pao.user_id = u.id
+        where pao.clear_status = 0
+        <if test="vo.id != null">
+            and pao.id = #{vo.id}
+        </if>
+        <if test="vo.type != null">
+            and pao.type = #{vo.type}
+        </if>
+        <if test="vo.supplierName != null">
+            and s.name like concat('%', #{vo.supplierName}, '%')
+        </if>
+        <if test="vo.startTime != null and vo.endTime != null">
+            and date(pao.create_time) between #{vo.startTime} and #{vo.endTime}
+        </if>
+        order by pao.create_time desc
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
     <!--收/付款单-->
 
     <insert id="addFundOrder" parameterType="com.yeta.pps.vo.FundOrderVo">

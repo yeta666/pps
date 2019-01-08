@@ -128,12 +128,37 @@ public class GoodsWarehouseSkuVo {
      */
     private Double totalCostMoney;
 
+    /**
+     * 零售单价
+     */
+    private Double retailPrice;
+
+    /**
+     * 零售价值
+     */
+    private Double totalRetailPrice;
+
+    /**
+     * vip单价
+     */
+    private Double vipPrice;
+
+    /**
+     * vip价值
+     */
+    private Double totalVipPrice;
+
     public GoodsWarehouseSkuVo() {
     }
 
     public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
+    }
+
+    public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer goodsSkuId) {
+        this.storeId = storeId;
+        this.goodsSkuId = goodsSkuId;
     }
 
     public GoodsWarehouseSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, String name, Integer typeId) {
@@ -352,6 +377,38 @@ public class GoodsWarehouseSkuVo {
         this.totalCostMoney = totalCostMoney;
     }
 
+    public Double getRetailPrice() {
+        return retailPrice;
+    }
+
+    public void setRetailPrice(Double retailPrice) {
+        this.retailPrice = retailPrice;
+    }
+
+    public Double getTotalRetailPrice() {
+        return totalRetailPrice;
+    }
+
+    public void setTotalRetailPrice(Double totalRetailPrice) {
+        this.totalRetailPrice = totalRetailPrice;
+    }
+
+    public Double getVipPrice() {
+        return vipPrice;
+    }
+
+    public void setVipPrice(Double vipPrice) {
+        this.vipPrice = vipPrice;
+    }
+
+    public Double getTotalVipPrice() {
+        return totalVipPrice;
+    }
+
+    public void setTotalVipPrice(Double totalVipPrice) {
+        this.totalVipPrice = totalVipPrice;
+    }
+
     @Override
     public String toString() {
         return "GoodsWarehouseSkuVo{" +
@@ -380,6 +437,10 @@ public class GoodsWarehouseSkuVo {
                 ", openingTotalMoney=" + openingTotalMoney +
                 ", costMoney=" + costMoney +
                 ", totalCostMoney=" + totalCostMoney +
+                ", retailPrice=" + retailPrice +
+                ", totalRetailPrice=" + totalRetailPrice +
+                ", vipPrice=" + vipPrice +
+                ", totalVipPrice=" + totalVipPrice +
                 '}';
     }
 }

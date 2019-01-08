@@ -63,39 +63,21 @@
                 left join client as c on sao.client_id = c.id
             )
             left join user_${storeId} as u on sao.user_id = u.id
-        where
-            1 = 1
+        where sao.type = #{type}
         <if test="id != null">
-        and
-            sao.id = #{id}
-        </if>
-        <if test="type != null">
-        and
-            sao.type = #{type}
-        </if>
-        <if test="orderStatus != null">
-        and
-            sao.orderStatus = #{orderStatus}
-        </if>
-        <if test="clearStatus != null">
-        and
-            sao.clearStatus = #{clearStatus}
+        and sao.id = #{id}
         </if>
         <if test="client.name != null">
-        and
-            c.name like concat('%', #{client.name}, '%')
+        and c.name like concat('%', #{client.name}, '%')
         </if>
         <if test="client.phone != null">
-        and
-            c.phone like concat('%', #{client.phone}, '%')
+        and c.phone like concat('%', #{client.phone}, '%')
         </if>
         <if test="client.membershipNumber != null">
-        and
-            c.membershipNumber like concat('%', #{client.membershipNumber}, '%')
+        and c.membership_number like concat('%', #{client.membershipNumber}, '%')
         </if>
         <if test="startTime != null and endTime != null">
-        and
-            date(sao.create_time) between #{startTime} and #{endTime}
+        and date(sao.create_time) between #{startTime} and #{endTime}
         </if>
     </select>
 
@@ -154,7 +136,6 @@
             sao.total_money,
             sao.discount_money,
             sao.discount_coupon_id,
-            /*查出优惠券金额*/
             sao.total_discount_money,
             sao.order_money,
             sao.cleared_money,
@@ -167,44 +148,24 @@
                 left join client as c on sao.client_id = c.id
             )
         left join user_${sellApplyOrderVo.storeId} as u on sao.user_id = u.id
-        where
-            1 = 1
+        where sao.type = #{sellApplyOrderVo.type}
         <if test="sellApplyOrderVo.id != null">
-        and
-            sao.id = #{sellApplyOrderVo.id}
-        </if>
-        <if test="sellApplyOrderVo.type != null">
-        and
-            sao.type = #{sellApplyOrderVo.type}
-        </if>
-        <if test="sellApplyOrderVo.orderStatus != null">
-        and
-            sao.orderStatus = #{sellApplyOrderVo.orderStatus}
-        </if>
-        <if test="sellApplyOrderVo.clearStatus != null">
-        and
-            sao.clearStatus = #{sellApplyOrderVo.clearStatus}
+        and sao.id = #{sellApplyOrderVo.id}
         </if>
         <if test="sellApplyOrderVo.client.name != null">
-        and
-            c.name like concat('%', #{sellApplyOrderVo.client.name}, '%')
+        and c.name like concat('%', #{sellApplyOrderVo.client.name}, '%')
         </if>
         <if test="sellApplyOrderVo.client.phone != null">
-        and
-            c.phone like concat('%', #{sellApplyOrderVo.client.phone}, '%')
+        and c.phone like concat('%', #{sellApplyOrderVo.client.phone}, '%')
         </if>
         <if test="sellApplyOrderVo.client.membershipNumber != null">
-        and
-            c.membershipNumber like concat('%', #{sellApplyOrderVo.client.membershipNumber}, '%')
+        and c.membership_number like concat('%', #{sellApplyOrderVo.client.membershipNumber}, '%')
         </if>
         <if test="sellApplyOrderVo.startTime != null and sellApplyOrderVo.endTime != null">
-        and
-            date(sao.create_time) between #{sellApplyOrderVo.startTime} and #{sellApplyOrderVo.endTime}
+        and date(sao.create_time) between #{sellApplyOrderVo.startTime} and #{sellApplyOrderVo.endTime}
         </if>
-        order by
-            sao.create_time desc
-        limit
-            #{pageVo.start}, #{pageVo.pageSize};
+        order by sao.create_time desc
+        limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findApplyOrderById" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultType="com.yeta.pps.vo.SellApplyOrderVo">

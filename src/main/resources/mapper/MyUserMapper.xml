@@ -3,7 +3,7 @@
 <mapper namespace="com.yeta.pps.mapper.MyUserMapper">
 
     <insert id="add" parameterType="com.yeta.pps.vo.UserVo">
-        insert into user_${storeId} (id, name, username, password, phone, warehouse_id, disabled, remark) values (#{id}, #{name}, #{username}, #{password}, #{phone}, #{warehouseId}, #{disabled}, #{remark});
+        insert into user_${storeId} (id, name, username, password, phone, disabled, remark) values (#{id}, #{name}, #{username}, #{password}, #{phone}, #{disabled}, #{remark});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.UserVo">
@@ -11,7 +11,7 @@
     </delete>
 
     <update id="update" parameterType="com.yeta.pps.vo.UserVo">
-        update user_${storeId} set name = #{name}, password = #{password}, phone = #{phone}, warehouse_id = #{warehouseId}, disabled = #{disabled}, remark = #{remark} where id = #{id};
+        update user_${storeId} set name = #{name}, password = #{password}, phone = #{phone}, disabled = #{disabled}, remark = #{remark} where id = #{id};
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.UserVo" resultType="java.lang.Integer">
@@ -20,14 +20,11 @@
         from
             user_${storeId} as u,
             role_${storeId} as r,
-            user_role_${storeId} as ur,
-            warehouse_${storeId} as w
+            user_role_${storeId} as ur
         where
             u.id = ur.user_id
         and
             r.id = ur.role_id
-        and
-            u.warehouse_id = w.id
         <if test="roleId!=null">
         and
             r.id = #{roleId}
@@ -44,10 +41,8 @@
         <result property="username" column="username" />
         <result property="password" column="password" />
         <result property="phone" column="phone" />
-        <result property="warehouseId" column="warehouse_id" />
         <result property="disabled" column="disabled" />
         <result property="remark" column="remark" />
-        <result property="warehouseName" column="warehouse_name" />
         <collection property="roles" ofType="com.yeta.pps.po.Role">
             <id property="id" column="role_id" />
             <result property="name" column="role_name" />
@@ -61,23 +56,18 @@
             u.username,
             u.password,
             u.phone,
-            u.warehouse_id,
             u.disabled,
             u.remark,
             r.id as role_id,
-            r.name as role_name,
-            w.name as warehouse_name
+            r.name as role_name
         from 
             user_${userVo.storeId} as u,
             role_${userVo.storeId} as r,
-            user_role_${userVo.storeId} as ur,
-            warehouse_${userVo.storeId} as w
+            user_role_${userVo.storeId} as ur
         where 
             u.id = ur.user_id
         and
             r.id = ur.role_id
-        and
-            u.warehouse_id = w.id
         <if test="userVo.roleId!=null">
         and
             r.id = #{userVo.roleId}
@@ -97,23 +87,18 @@
             u.username,
             u.password,
             u.phone,
-            u.warehouse_id,
             u.disabled,
             u.remark,
             r.id as role_id,
-            r.name as role_name,
-            w.name as warehouse_name
+            r.name as role_name
         from
             user_${storeId} as u,
             role_${storeId} as r,
-            user_role_${storeId} as ur,
-            warehouse_${storeId} as w
+            user_role_${storeId} as ur
         where
             u.id = ur.user_id
         and
             r.id = ur.role_id
-        and
-            u.warehouse_id = w.id
         <if test="roleId != null">
         and
             r.id = #{roleId}
@@ -121,10 +106,6 @@
         <if test="name != null">
         and
             u.name = #{name}
-        </if>
-        <if test="warehouseId != null">
-            and
-            u.warehouse_id = #{warehouseId}
         </if>
     </select>
 
@@ -135,32 +116,25 @@
             u.username,
             u.password,
             u.phone,
-            u.warehouse_id,
             u.disabled,
             u.remark,
             r.id as role_id,
-            r.name as role_name,
-            w.name as warehouse_name
+            r.name as role_name
         from
             user_${storeId} as u,
             role_${storeId} as r,
-            user_role_${storeId} as ur,
-            warehouse_${storeId} as w
+            user_role_${storeId} as ur
         where
             u.id = ur.user_id
         and
             r.id = ur.role_id
         and
-            u.warehouse_id = w.id
-        and
             u.id = #{id};
     </select>
 
     <select id="findByUsernameAndPassword" parameterType="com.yeta.pps.vo.UserVo" resultType="com.yeta.pps.po.User">
-        select id, name, username, password, phone, warehouse_id, disabled, remark from user_${storeId} where username = #{username} and password = #{password};
+        select id, name, username, password, phone, disabled, remark from user_${storeId} where username = #{username} and password = #{password};
     </select>
-
-
 
     <!---->
 

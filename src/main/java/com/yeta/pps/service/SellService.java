@@ -104,7 +104,7 @@ public class SellService {
             storageCheckOrderVo.setCreateTime(new Date());
             storageCheckOrderVo.setOrderStatus((byte) 1);
             storageCheckOrderVo.setGoodsSkuId(orderGoodsSkuVo.getGoodsSkuId());
-            storageCheckOrderVo.setOutWarehouseId(sellApplyOrderVo.getOutWarehouseId());
+            storageCheckOrderVo.setWarehouseId(sellApplyOrderVo.getOutWarehouseId());
             storageCheckOrderVo.setOutQuantity(orderGoodsSkuVo.getQuantity());
             storageCheckOrderVo.setUserId(sellApplyOrderVo.getUserId());
             double costMoney = inventoryUtil.addStorageCheckOrderMethod(0, storageCheckOrderVo, null);
@@ -575,35 +575,26 @@ public class SellService {
         titles.add(new Title("单据日期", "createTime"));
         titles.add(new Title("产生方式", "prodcingWay"));
         titles.add(new Title("单据状态", "orderStatus"));
+        titles.add(new Title("来源订单", "resultOrderId"));
         titles.add(new Title("客户", "client.name"));
         titles.add(new Title("电话", "client.phone"));
         titles.add(new Title("会员卡号", "client.membershipNumber"));
-        byte type = sellApplyOrderVo.getType();
-        if (type == 3 || type == 4) {
-            titles.add(new Title("入库仓库", "inWarehouseName"));
-            titles.add(new Title("总收货数量", "inTotalQuantity"));
-            titles.add(new Title("已收货数量", "inReceivedQuantity"));
-            titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
-        } else if (type == 1 || type == 2 || type == 4) {
-            if (type != 1) {
-                titles.add(new Title("来源订单", "resultOrderId"));
-            }
-            titles.add(new Title("出库仓库", "outWarehouseName"));
-            titles.add(new Title("总发货数量", "outTotalQuantity"));
-            titles.add(new Title("已发货数量", "outSentQuantity"));
-            titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
-        }
-        //仓库收发货不关心金额
-        if (sellApplyOrderVo.getOrderStatus() == null && sellApplyOrderVo.getClearStatus() != null) {
-            titles.add(new Title("总商品金额", "totalMoney"));
-            titles.add(new Title("直接优惠金额", "discountMoney"));
-            titles.add(new Title("优惠券编号", "discountCouponId"));
-            titles.add(new Title("总优惠金额", "totalDiscountMoney"));
-            titles.add(new Title("本单金额", "orderMoney"));
-            titles.add(new Title("结算状态", "clearStatus"));
-            titles.add(new Title("已结金额", "clearedMoney"));
-            titles.add(new Title("未结金额", "notClearedMoney"));
-        }
+        titles.add(new Title("入库仓库", "inWarehouseName"));
+        titles.add(new Title("总收货数量", "inTotalQuantity"));
+        titles.add(new Title("已收货数量", "inReceivedQuantity"));
+        titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
+        titles.add(new Title("出库仓库", "outWarehouseName"));
+        titles.add(new Title("总发货数量", "outTotalQuantity"));
+        titles.add(new Title("已发货数量", "outSentQuantity"));
+        titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
+        titles.add(new Title("总商品金额", "totalMoney"));
+        titles.add(new Title("直接优惠金额", "discountMoney"));
+        titles.add(new Title("优惠券编号", "discountCouponId"));
+        titles.add(new Title("总优惠金额", "totalDiscountMoney"));
+        titles.add(new Title("本单金额", "orderMoney"));
+        titles.add(new Title("结算状态", "clearStatus"));
+        titles.add(new Title("已结金额", "clearedMoney"));
+        titles.add(new Title("未结金额", "notClearedMoney"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, sellApplyOrderVos, pageVo);
@@ -720,7 +711,7 @@ public class SellService {
                 }
 
                 //红冲库存记账记录
-                inventoryUtil.redDashedStorageCheckOrderMethod(0, new StorageCheckOrderVo(storeId, oldResultOrderId, goodsSkuId, userId));
+                inventoryUtil.redDashedStorageCheckOrderMethod(0, new StorageCheckOrderVo(storeId, oldResultOrderId, goodsSkuId, outWarehouseId, userId));
 
                 if (applyOrderVo.getType() != 1) {
                     //减少完成数量
@@ -756,7 +747,7 @@ public class SellService {
                 }
 
                 //红冲库存记账记录
-                inventoryUtil.redDashedStorageCheckOrderMethod(1, new StorageCheckOrderVo(storeId, oldResultOrderId, goodsSkuId, userId));
+                inventoryUtil.redDashedStorageCheckOrderMethod(1, new StorageCheckOrderVo(storeId, oldResultOrderId, goodsSkuId, inWarehouseId, userId));
 
                 if (applyOrderVo.getType() != 1) {
                     //减少完成数量

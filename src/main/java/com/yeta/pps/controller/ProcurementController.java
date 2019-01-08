@@ -132,8 +132,6 @@ public class ProcurementController {
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "id", value = "采购申请订单编号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "type", value = "采购申请订单类型(1：采购订单，2：采购退货申请，3,：采购换货申请)", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "orderStatus", value = "单据状态(1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发)", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "clearStatus", value = "结算状态(0：未完成，1：已完成)", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
@@ -144,11 +142,9 @@ public class ProcurementController {
                                                                                          @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
                                                                                          @RequestParam(value = "id", required = false) String id,
                                                                                          @RequestParam(value = "type") Byte type,
-                                                                                         @RequestParam(value = "orderStatus", required = false) Byte orderStatus,
-                                                                                         @RequestParam(value = "clearStatus", required = false) Byte clearStatus,
                                                                                          @RequestParam(value = "page") Integer page,
                                                                                          @RequestParam(value = "pageSize") Integer pageSize) {
-        return procurementService.findAllApplyOrder(new ProcurementApplyOrderVo(storeId, supplierName, startTime, endTime, id, type, orderStatus, clearStatus), new PageVo(page, pageSize));
+        return procurementService.findAllApplyOrder(new ProcurementApplyOrderVo(storeId, supplierName, startTime, endTime, id, type), new PageVo(page, pageSize));
     }
 
     /**

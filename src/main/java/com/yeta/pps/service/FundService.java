@@ -3,7 +3,10 @@ package com.yeta.pps.service;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.ProcurementApplyOrder;
-import com.yeta.pps.util.*;
+import com.yeta.pps.util.CommonResponse;
+import com.yeta.pps.util.CommonResult;
+import com.yeta.pps.util.FundUtil;
+import com.yeta.pps.util.Title;
 import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +45,75 @@ public class FundService {
 
     @Autowired
     private FundUtil fundUtil;
+
+    /**
+     * 按单收款
+     * @param sellApplyOrderVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findNotClearedSellApplyOrder(SellApplyOrderVo sellApplyOrderVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myFundMapper.findCountNotClearedSellApplyOrder(sellApplyOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<SellApplyOrderVo> sellApplyOrderVos = myFundMapper.findPagedNotClearedSellApplyOrder(sellApplyOrderVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "id"));
+        titles.add(new Title("单据日期", "createTime"));
+        titles.add(new Title("产生方式", "prodcingWay"));
+        titles.add(new Title("单据状态", "orderStatus"));
+        titles.add(new Title("客户编号", "client.id"));
+        titles.add(new Title("客户", "client.name"));
+        titles.add(new Title("电话", "client.phone"));
+        titles.add(new Title("会员卡号", "client.membershipNumber"));
+        titles.add(new Title("总商品金额", "totalMoney"));
+        titles.add(new Title("直接优惠金额", "discountMoney"));
+        titles.add(new Title("优惠券编号", "discountCouponId"));
+        titles.add(new Title("总优惠金额", "totalDiscountMoney"));
+        titles.add(new Title("本单金额", "orderMoney"));
+        titles.add(new Title("结算状态", "clearStatus"));
+        titles.add(new Title("已结金额", "clearedMoney"));
+        titles.add(new Title("未结金额", "notClearedMoney"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("单据备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, sellApplyOrderVos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 按单付款
+     * @param procurementApplyOrderVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findNotClearedProcurementApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myFundMapper.findCountNotClearedProcurementApplyOrder(procurementApplyOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ProcurementApplyOrderVo> procurementApplyOrderVos = myFundMapper.findPagedNotClearedProcurementApplyOrder(procurementApplyOrderVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "id"));
+        titles.add(new Title("单据类型", "type"));
+        titles.add(new Title("单据日期", "createTime"));
+        titles.add(new Title("单据状态", "orderStatus"));
+        titles.add(new Title("供应商", "supplierName"));
+        titles.add(new Title("总商品金额", "totalMoney"));
+        titles.add(new Title("总优惠金额", "totalDiscountMoney"));
+        titles.add(new Title("本单金额", "orderMoney"));
+        titles.add(new Title("结算状态", "clearStatus"));
+        titles.add(new Title("已结金额", "clearedMoney"));
+        titles.add(new Title("未结金额", "notClearedMoney"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("单据备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, procurementApplyOrderVos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
 
     /**
      * 查询预收/付款余额

@@ -47,6 +47,8 @@ public class ProcurementApplyOrderVo {
     @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Byte type;
 
+    private String typeName;
+
     /**
      * 单据日期
      */
@@ -182,15 +184,21 @@ public class ProcurementApplyOrderVo {
         this.remark = remark;
     }
 
-    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String supplierName, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type, Byte orderStatus, Byte clearStatus) {
+    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String supplierName, Date startTime, Date endTime, String id) {
+        this.storeId = storeId;
+        this.supplierName = supplierName;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.id = id;
+    }
+
+    public ProcurementApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String supplierName, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type) {
         this.storeId = storeId;
         this.supplierName = supplierName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.id = id;
         this.type = type;
-        this.orderStatus = orderStatus;
-        this.clearStatus = clearStatus;
     }
 
     public Integer getStoreId() {
@@ -271,6 +279,14 @@ public class ProcurementApplyOrderVo {
 
     public void setType(Byte type) {
         this.type = type;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
     public Date getCreateTime() {

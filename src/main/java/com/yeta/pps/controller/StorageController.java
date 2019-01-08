@@ -30,6 +30,40 @@ public class StorageController {
     private StorageService storageService;
 
     /**
+     * 待收/发货接口
+     * @param storeId
+     * @param targetName
+     * @param startTime
+     * @param endTime
+     * @param id
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "待收/发货", notes = "分页、筛选查询，其中targetName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "targetName", value = "往来单位", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "flag", value = "1：采购订单待收货，2：退换货申请待收货，3：销售订单待发货，4：退换货申请待发货", required = true, paramType = "path", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/storage/notFinished/{flag}")
+    public CommonResponse<CommonResult<List<SellApplyOrderVo>>> findNotFinishedApplyOrder(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                          @RequestParam(value = "targetName", required = false) String targetName,
+                                                                                          @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                          @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                          @RequestParam(value = "id", required = false) String id,
+                                                                                          @PathVariable(value = "flag", required = true) Integer flag,
+                                                                                          @RequestParam(value = "page", required = true) Integer page,
+                                                                                          @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return storageService.findNotFinishedApplyOrder(new ProcurementApplyOrderVo(storeId, targetName, startTime, endTime, id), new PageVo(page, pageSize), flag);
+    }
+
+    /**
      * 新增收/发货单接口
      * @param storageOrderVo
      * @return
@@ -217,7 +251,7 @@ public class StorageController {
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
     })
-    @GetMapping(value = "/storage/inventory")
+    @GetMapping(value = "/storage/inventory/current")
     public CommonResponse<CommonResult<List<GoodsWarehouseSkuVo>>> findCurrentInventory(@RequestParam(value = "storeId") Integer storeId,
                                                                                         @RequestParam(value = "id", required = false) String id,
                                                                                         @RequestParam(value = "name", required = false) String name,
@@ -229,7 +263,7 @@ public class StorageController {
 
     /**
      * 根据商品货号查分布接口
-     * @param id
+     * @param goodsId
      * @param page
      * @param pageSize
      * @return
@@ -237,16 +271,118 @@ public class StorageController {
     @ApiOperation(value = "根据商品货号查分布")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "id", value = "商品货号", required = true, paramType = "path", dataType = "String"),
+            @ApiImplicitParam(name = "goodsId", value = "商品货号", required = true, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
     })
-    @GetMapping(value = "/storage/inventory/distribution/{id}")
+    @GetMapping(value = "/storage/inventory/current/distribution")
     public CommonResponse<CommonResult<List<GoodsWarehouseSkuVo>>> findDistributionByGoodsId(@RequestParam(value = "storeId") Integer storeId,
-                                                                                             @PathVariable(value = "id") String id,
+                                                                                             @RequestParam(value = "goodsId") String goodsId,
                                                                                              @RequestParam(value = "page") Integer page,
                                                                                              @RequestParam(value = "pageSize") Integer pageSize) {
-        return storageService.findDistributionByGoodsId(new GoodsWarehouseSkuVo(storeId, id), new PageVo(page, pageSize));
+        return storageService.findDistributionByGoodsId(new GoodsWarehouseSkuVo(storeId, goodsId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据商品货号查对账接口
+     * @param storeId
+     * @param goodsId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "根据商品货号查对账")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "goodsId", value = "商品货号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
+    })
+    @GetMapping(value = "/storage/inventory/current/check")
+    public CommonResponse<CommonResult<List<StorageCheckOrderVo>>> findStorageCheckOrderByGoodsId(@RequestParam(value = "storeId") Integer storeId,
+                                                                                                  @RequestParam(value = "goodsId") String goodsId,
+                                                                                                  @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                  @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                  @RequestParam(value = "page") Integer page,
+                                                                                                  @RequestParam(value = "pageSize") Integer pageSize) {
+        return storageService.findStorageCheckOrderByGoodsId(new StorageCheckOrderVo(storeId, startTime, endTime, goodsId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据商品货号查属性接口
+     * @param storeId
+     * @param goodsId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "根据商品货号查属性")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "goodsId", value = "商品货号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
+    })
+    @GetMapping(value = "/storage/inventory/current/sku")
+    public CommonResponse<CommonResult<List<GoodsWarehouseSkuVo>>> findSkuByGoodsId(@RequestParam(value = "storeId") Integer storeId,
+                                                                                    @RequestParam(value = "goodsId") String goodsId,
+                                                                                    @RequestParam(value = "page") Integer page,
+                                                                                    @RequestParam(value = "pageSize") Integer pageSize) {
+        return storageService.findSkuByGoodsId(new GoodsWarehouseSkuVo(storeId, goodsId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 按属性查库存接口
+     * @param goodsId
+     * @param name
+     * @param typeId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "按属性查库存")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "goodsId", value = "商品货号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "name", value = "商品名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "typeId", value = "分类编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
+    })
+    @GetMapping(value = "/storage/inventory/sku")
+    public CommonResponse<CommonResult<List<GoodsWarehouseSkuVo>>> findBySku(@RequestParam(value = "storeId") Integer storeId,
+                                                                             @RequestParam(value = "goodsId", required = false) String goodsId,
+                                                                             @RequestParam(value = "name", required = false) String name,
+                                                                             @RequestParam(value = "typeId", required = false) Integer typeId,
+                                                                             @RequestParam(value = "page") Integer page,
+                                                                             @RequestParam(value = "pageSize") Integer pageSize) {
+        return storageService.findBySku(new GoodsWarehouseSkuVo(storeId, goodsId, name, typeId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据商品规格编号查分布接口
+     * @param goodsSkuId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "根据商品规格编号查分布")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "goodsSkuId", value = "商品规格编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
+    })
+    @GetMapping(value = "/storage/inventory/sku/distribution")
+    public CommonResponse<CommonResult<List<GoodsWarehouseSkuVo>>> findDistributionByGoodsSkuId(@RequestParam(value = "storeId") Integer storeId,
+                                                                                                @RequestParam(value = "goodsSkuId") Integer goodsSkuId,
+                                                                                                @RequestParam(value = "page") Integer page,
+                                                                                                @RequestParam(value = "pageSize") Integer pageSize) {
+        return storageService.findDistributionByGoodsSkuId(new GoodsWarehouseSkuVo(storeId, goodsSkuId), new PageVo(page, pageSize));
     }
 
     /**
@@ -259,7 +395,7 @@ public class StorageController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "根据商品规格编号查对账", notes = "只做了商品规格的查账，商品的查账不做")
+    @ApiOperation(value = "根据商品规格编号查对账")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "goodsSkuId", value = "商品规格编号", required = true, paramType = "query", dataType = "int"),
@@ -268,64 +404,14 @@ public class StorageController {
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
     })
-    @GetMapping(value = "/storage/inventory/check")
-    public CommonResponse<CommonResult<List<StorageCheckOrderVo>>> findStorageCheckOrder(@RequestParam(value = "storeId") Integer storeId,
-                                                                                         @RequestParam(value = "goodsSkuId") Integer goodsSkuId,
-                                                                                         @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
-                                                                                         @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
-                                                                                         @RequestParam(value = "page") Integer page,
-                                                                                         @RequestParam(value = "pageSize") Integer pageSize) {
-        return storageService.findStorageCheckOrder(new StorageCheckOrderVo(storeId, startTime, endTime, goodsSkuId), new PageVo(page, pageSize));
-    }
-
-    /**
-     * 根据商品货号查属性接口
-     * @param id
-     * @param page
-     * @param pageSize
-     * @return
-     */
-    @ApiOperation(value = "根据商品货号查属性")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "id", value = "商品货号", required = true, paramType = "path", dataType = "String"),
-            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
-    })
-    @GetMapping(value = "/storage/inventory/sku/{id}")
-    public CommonResponse<CommonResult<List<GoodsWarehouseSkuVo>>> findSkuByGoodsId(@RequestParam(value = "storeId") Integer storeId,
-                                                                                    @PathVariable(value = "id") String id,
-                                                                                    @RequestParam(value = "page") Integer page,
-                                                                                    @RequestParam(value = "pageSize") Integer pageSize) {
-        return storageService.findSkuByGoodsId(new GoodsWarehouseSkuVo(storeId, id), new PageVo(page, pageSize));
-    }
-
-    /**
-     * 按属性查库存接口
-     * @param id
-     * @param name
-     * @param typeId
-     * @param page
-     * @param pageSize
-     * @return
-     */
-    @ApiOperation(value = "按属性查库存")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "id", value = "商品货号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "name", value = "商品名", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "typeId", value = "分类编号", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int"),
-    })
-    @GetMapping(value = "/storage/inventory/sku")
-    public CommonResponse<CommonResult<List<GoodsWarehouseSkuVo>>> findBySku(@RequestParam(value = "storeId") Integer storeId,
-                                                                             @RequestParam(value = "id", required = false) String id,
-                                                                             @RequestParam(value = "name", required = false) String name,
-                                                                             @RequestParam(value = "typeId", required = false) Integer typeId,
-                                                                             @RequestParam(value = "page") Integer page,
-                                                                             @RequestParam(value = "pageSize") Integer pageSize) {
-        return storageService.findBySku(new GoodsWarehouseSkuVo(storeId, id, name, typeId), new PageVo(page, pageSize));
+    @GetMapping(value = "/storage/inventory/sku/check")
+    public CommonResponse<CommonResult<List<StorageCheckOrderVo>>> findStorageCheckOrderByGoodsSkuId(@RequestParam(value = "storeId") Integer storeId,
+                                                                                                     @RequestParam(value = "goodsSkuId") Integer goodsSkuId,
+                                                                                                     @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                     @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                     @RequestParam(value = "page") Integer page,
+                                                                                                     @RequestParam(value = "pageSize") Integer pageSize) {
+        return storageService.findStorageCheckOrderByGoodsSkuId(new StorageCheckOrderVo(storeId, startTime, endTime, goodsSkuId), new PageVo(page, pageSize));
     }
 
     /**

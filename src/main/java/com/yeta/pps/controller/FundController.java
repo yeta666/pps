@@ -1,5 +1,6 @@
 package com.yeta.pps.controller;
 
+import com.yeta.pps.po.Client;
 import com.yeta.pps.service.FundService;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
@@ -27,6 +28,82 @@ public class FundController {
 
     @Autowired
     private FundService fundService;
+
+    /**
+     * 按单收款接口
+     * @param storeId
+     * @param clientName
+     * @param phone
+     * @param membershipNumber
+     * @param startTime
+     * @param endTime
+     * @param id
+     * @param type
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "按单收款", notes = "分页、筛选查询，其中clientName, phone, membershipNumber为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "clientName", value = "客户名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "phone", value = "电话", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "membershipNumber", value = "会员卡号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "id", value = "销售申请订单编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "销售申请订单类型(2：销售订单，3：销售退货申请单)", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/in")
+    public CommonResponse<CommonResult<List<SellApplyOrderVo>>> findNotClearedSellApplyOrder(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                             @RequestParam(value = "clientName", required = false) String clientName,
+                                                                                             @RequestParam(value = "phone", required = false) String phone,
+                                                                                             @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
+                                                                                             @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                             @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                             @RequestParam(value = "id", required = false) String id,
+                                                                                             @RequestParam(value = "type", required = false) Byte type,
+                                                                                             @RequestParam(value = "page", required = true) Integer page,
+                                                                                             @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        Client client = new Client(clientName, phone, membershipNumber);
+        return fundService.findNotClearedSellApplyOrder(new SellApplyOrderVo(storeId, startTime, endTime, id, type, client), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 按单付款接口
+     * @param storeId
+     * @param supplierName
+     * @param startTime
+     * @param endTime
+     * @param id
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "按单付款", notes = "分页、筛选查询，其中supplierName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "supplierName", value = "供应商名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "id", value = "采购申请订单编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "采购申请订单类型(1：采购订单，2：采购退货申请)", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/out")
+    public CommonResponse<CommonResult<List<ProcurementApplyOrderVo>>> findNotClearedProcurementApplyOrder(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                                           @RequestParam(value = "supplierName", required = false) String supplierName,
+                                                                                                           @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                           @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                           @RequestParam(value = "id", required = false) String id,
+                                                                                                           @RequestParam(value = "type", required = false) Byte type,
+                                                                                                           @RequestParam(value = "page", required = true) Integer page,
+                                                                                                           @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return fundService.findNotClearedProcurementApplyOrder(new ProcurementApplyOrderVo(storeId, supplierName, startTime, endTime, id, type), new PageVo(page, pageSize));
+    }
 
     /**
      * 查询预收/付款余额接口

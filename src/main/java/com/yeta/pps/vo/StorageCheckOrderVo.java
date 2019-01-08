@@ -50,6 +50,9 @@ public class StorageCheckOrderVo {
 
     private String targetName;
 
+    @JsonIgnore
+    private String goodsId;
+
     /**
      * 商品规格编号
      */
@@ -59,48 +62,41 @@ public class StorageCheckOrderVo {
     private String sku;
 
     /**
-     * 入库仓库编号
+     * 仓库编号
      */
-    private Integer inWarehouseId;
+    private Integer warehouseId;
 
-    private String inWarehouseName;
+    private String warehouseName;
 
     /**
      * 入库数量
      */
-    private Integer inQuantity;
+    private Integer inQuantity = 0;
 
     /**
      * 入库成本单价
      */
-    private Double inMoney;
+    private Double inMoney = 0.0;
 
     /**
      * 入库成本金额
      */
-    private Double inTotalMoney;
-
-    /**
-     * 出库仓库编号
-     */
-    private Integer outWarehouseId;
-
-    private String outWarehouseName;
+    private Double inTotalMoney = 0.0;
 
     /**
      * 出库数量
      */
-    private Integer outQuantity;
+    private Integer outQuantity = 0;
 
     /**
      * 出库成本单价
      */
-    private Double outMoney;
+    private Double outMoney = 0.0;
 
     /**
      * 出库成本金额
      */
-    private Double outTotalMoney;
+    private Double outTotalMoney = 0.0;
 
     /**
      * 结存数量
@@ -116,6 +112,21 @@ public class StorageCheckOrderVo {
      * 结存成本金额
      */
     private Double checkTotalMoney;
+
+    /**
+     * 结存数量
+     */
+    private Integer checkQuantity1;
+
+    /**
+     * 结存成本单价
+     */
+    private Double checkMoney1;
+
+    /**
+     * 结存成本金额
+     */
+    private Double checkTotalMoney1;
 
     /**
      * 经手人编号
@@ -137,11 +148,25 @@ public class StorageCheckOrderVo {
         this.goodsSkuId = goodsSkuId;
     }
 
-    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String orderId, Integer goodsSkuId, String userId) {
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer goodsSkuId, Integer warehouseId) {
+        this.storeId = storeId;
+        this.goodsSkuId = goodsSkuId;
+        this.warehouseId = warehouseId;
+    }
+
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String orderId, Integer goodsSkuId, Integer warehouseId, String userId) {
         this.storeId = storeId;
         this.orderId = orderId;
         this.goodsSkuId = goodsSkuId;
+        this.warehouseId = warehouseId;
         this.userId = userId;
+    }
+
+    public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, String goodsId) {
+        this.storeId = storeId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.goodsId = goodsId;
     }
 
     public StorageCheckOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, Integer goodsSkuId) {
@@ -247,6 +272,14 @@ public class StorageCheckOrderVo {
         this.targetName = targetName;
     }
 
+    public String getGoodsId() {
+        return goodsId;
+    }
+
+    public void setGoodsId(String goodsId) {
+        this.goodsId = goodsId;
+    }
+
     public Integer getGoodsSkuId() {
         return goodsSkuId;
     }
@@ -263,20 +296,20 @@ public class StorageCheckOrderVo {
         this.sku = sku;
     }
 
-    public Integer getInWarehouseId() {
-        return inWarehouseId;
+    public Integer getWarehouseId() {
+        return warehouseId;
     }
 
-    public void setInWarehouseId(Integer inWarehouseId) {
-        this.inWarehouseId = inWarehouseId;
+    public void setWarehouseId(Integer warehouseId) {
+        this.warehouseId = warehouseId;
     }
 
-    public String getInWarehouseName() {
-        return inWarehouseName;
+    public String getWarehouseName() {
+        return warehouseName;
     }
 
-    public void setInWarehouseName(String inWarehouseName) {
-        this.inWarehouseName = inWarehouseName;
+    public void setWarehouseName(String warehouseName) {
+        this.warehouseName = warehouseName;
     }
 
     public Integer getInQuantity() {
@@ -301,22 +334,6 @@ public class StorageCheckOrderVo {
 
     public void setInTotalMoney(Double inTotalMoney) {
         this.inTotalMoney = inTotalMoney;
-    }
-
-    public Integer getOutWarehouseId() {
-        return outWarehouseId;
-    }
-
-    public void setOutWarehouseId(Integer outWarehouseId) {
-        this.outWarehouseId = outWarehouseId;
-    }
-
-    public String getOutWarehouseName() {
-        return outWarehouseName;
-    }
-
-    public void setOutWarehouseName(String outWarehouseName) {
-        this.outWarehouseName = outWarehouseName;
     }
 
     public Integer getOutQuantity() {
@@ -367,6 +384,30 @@ public class StorageCheckOrderVo {
         this.checkTotalMoney = checkTotalMoney;
     }
 
+    public Integer getCheckQuantity1() {
+        return checkQuantity1;
+    }
+
+    public void setCheckQuantity1(Integer checkQuantity1) {
+        this.checkQuantity1 = checkQuantity1;
+    }
+
+    public Double getCheckMoney1() {
+        return checkMoney1;
+    }
+
+    public void setCheckMoney1(Double checkMoney1) {
+        this.checkMoney1 = checkMoney1;
+    }
+
+    public Double getCheckTotalMoney1() {
+        return checkTotalMoney1;
+    }
+
+    public void setCheckTotalMoney1(Double checkTotalMoney1) {
+        this.checkTotalMoney1 = checkTotalMoney1;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -415,22 +456,24 @@ public class StorageCheckOrderVo {
                 ", targetName='" + targetName + '\'' +
                 ", goodsSkuId=" + goodsSkuId +
                 ", sku='" + sku + '\'' +
-                ", inWarehouseId=" + inWarehouseId +
-                ", inWarehouseName='" + inWarehouseName + '\'' +
+                ", warehouseId=" + warehouseId +
+                ", warehouseName='" + warehouseName + '\'' +
                 ", inQuantity=" + inQuantity +
                 ", inMoney=" + inMoney +
                 ", inTotalMoney=" + inTotalMoney +
-                ", outWarehouseId=" + outWarehouseId +
-                ", outWarehouseName='" + outWarehouseName + '\'' +
                 ", outQuantity=" + outQuantity +
                 ", outMoney=" + outMoney +
                 ", outTotalMoney=" + outTotalMoney +
                 ", checkQuantity=" + checkQuantity +
                 ", checkMoney=" + checkMoney +
                 ", checkTotalMoney=" + checkTotalMoney +
+                ", checkQuantity1=" + checkQuantity1 +
+                ", checkMoney1=" + checkMoney1 +
+                ", checkTotalMoney1=" + checkTotalMoney1 +
                 ", userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +
                 ", remark='" + remark + '\'' +
+                ", flag=" + flag +
                 '}';
     }
 }

@@ -34,12 +34,6 @@ public class UserVo {
     private String token;
 
     /**
-     * 仓库名
-     * 用于返回数据
-     */
-    private String warehouseName;
-
-    /**
      * 角色
      * 用于返回数据和接收参数
      */
@@ -73,11 +67,6 @@ public class UserVo {
     private String phone;
 
     /**
-     * 仓库id
-     */
-    private Integer warehouseId;
-
-    /**
      * 是否禁用，0：不禁用，1：禁用
      */
     private Integer disabled;
@@ -107,11 +96,6 @@ public class UserVo {
         this.storeId = storeId;
         this.roleId = roleId;
         this.name = name;
-    }
-
-    public UserVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer warehouseId) {
-        this.storeId = storeId;
-        this.warehouseId = warehouseId;
     }
 
     public Integer getStoreId() {
@@ -144,14 +128,6 @@ public class UserVo {
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public String getWarehouseName() {
-        return warehouseName;
-    }
-
-    public void setWarehouseName(String warehouseName) {
-        this.warehouseName = warehouseName;
     }
 
     public List<Role> getRoles() {
@@ -202,14 +178,6 @@ public class UserVo {
         this.phone = phone;
     }
 
-    public Integer getWarehouseId() {
-        return warehouseId;
-    }
-
-    public void setWarehouseId(Integer warehouseId) {
-        this.warehouseId = warehouseId;
-    }
-
     public Integer getDisabled() {
         return disabled;
     }
@@ -233,14 +201,12 @@ public class UserVo {
                 ", identifyingCode='" + identifyingCode + '\'' +
                 ", roleId=" + roleId +
                 ", token='" + token + '\'' +
-                ", warehouseName='" + warehouseName + '\'' +
                 ", roles=" + roles +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
-                ", warehouseId=" + warehouseId +
                 ", disabled=" + disabled +
                 ", remark='" + remark + '\'' +
                 '}';

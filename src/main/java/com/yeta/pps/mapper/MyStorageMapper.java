@@ -11,6 +11,30 @@ import java.util.List;
  */
 public interface MyStorageMapper {
 
+    //待收货
+
+    int findCountInCGApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
+
+    List<ProcurementApplyOrderVo> findPagedInCGApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
+                                                          @Param(value = "pageVo")PageVo pageVo);
+
+    int findCountInTHHApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
+
+    List<ProcurementApplyOrderVo> findPagedInTHHApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
+                                                           @Param(value = "pageVo")PageVo pageVo);
+
+    //待发货
+
+    int findCountOutCGApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
+
+    List<ProcurementApplyOrderVo> findPagedOutCGApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
+                                                           @Param(value = "pageVo")PageVo pageVo);
+
+    int findCountOutTHHApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
+
+    List<ProcurementApplyOrderVo> findPagedOutTHHApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
+                                                            @Param(value = "pageVo")PageVo pageVo);
+
     //收/发货单
 
     int addStorageOrder(StorageOrderVo storageOrderVo);
@@ -64,6 +88,16 @@ public interface MyStorageMapper {
     List<GoodsWarehouseSkuVo> findPagedBySku(@Param(value = "vo") GoodsWarehouseSkuVo goodsWarehouseSkuVo,
                                              @Param(value = "pageVo") PageVo pageVo);
 
+    int findCountDistributionByGoodsSkuId(GoodsWarehouseSkuVo goodsWarehouseSkuVo);
+
+    List<GoodsWarehouseSkuVo> findPagedDistributionByGoodsSkuId(@Param(value = "vo") GoodsWarehouseSkuVo goodsWarehouseSkuVo,
+                                                                @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountOrderByGoodsSkuId(StorageCheckOrderVo storageCheckOrderVo);
+
+    List<StorageCheckOrderVo> findPagedOrderByGoodsSkuId(@Param(value = "vo") StorageCheckOrderVo storageCheckOrderVo,
+                                                         @Param(value = "pageVo") PageVo pageVo);
+
     int findCountByWarehouse(GoodsWarehouseSkuVo goodsWarehouseSkuVo);
 
     List<GoodsWarehouseSkuVo> findPagedByWarehouse(@Param(value = "vo") GoodsWarehouseSkuVo goodsWarehouseSkuVo,
@@ -81,5 +115,7 @@ public interface MyStorageMapper {
 
     StorageCheckOrderVo findOutStorageCheckOrder(StorageCheckOrderVo storageCheckOrderVo);
 
-    StorageCheckOrderVo findLastCheckMoney(StorageCheckOrderVo storageCheckOrderVo);
+    StorageCheckOrderVo findLastCheckMoneyByGoodsSkuIdAndWarehouseId(StorageCheckOrderVo storageCheckOrderVo);
+
+    StorageCheckOrderVo findLastCheckMoneyByGoodsSkuId(StorageCheckOrderVo storageCheckOrderVo);
 }

@@ -1,9 +1,6 @@
 package com.yeta.pps.mapper;
 
-import com.yeta.pps.vo.FundCheckOrderVo;
-import com.yeta.pps.vo.FundResultOrderVo;
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.FundOrderVo;
+import com.yeta.pps.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -13,6 +10,20 @@ import java.util.List;
  * @date 2018/12/11/15:59
  */
 public interface MyFundMapper {
+
+    //按单收款
+
+    int findCountNotClearedSellApplyOrder(SellApplyOrderVo sellApplyOrderVo);
+
+    List<SellApplyOrderVo> findPagedNotClearedSellApplyOrder(@Param(value = "vo") SellApplyOrderVo sellApplyOrderVo,
+                                                             @Param(value = "pageVo") PageVo pageVo);
+
+    //按单付款
+
+    int findCountNotClearedProcurementApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
+
+    List<ProcurementApplyOrderVo> findPagedNotClearedProcurementApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
+                                                                           @Param(value = "pageVo") PageVo pageVo);
 
     //收/付款单、预收/付款单
 

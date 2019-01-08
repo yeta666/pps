@@ -145,14 +145,8 @@ public class UserService {
     public CommonResponse add(UserVo userVo) {
         //判断参数
         if (userVo.getName() == null || userVo.getUsername() == null || userVo.getPassword() == null || userVo.getPhone() == null ||
-                userVo.getWarehouseId() == null || userVo.getRoles() == null || userVo.getRoles().size() == 0) {
+                userVo.getRoles() == null || userVo.getRoles().size() == 0) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
-        }
-
-        //判断仓库id是否存在
-        WarehouseVo warehouseVo = new WarehouseVo(userVo.getStoreId(), userVo.getWarehouseId());
-        if (myWarehouseMapper.findById(warehouseVo) == null) {
-            return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
 
         //新增用户
@@ -207,13 +201,7 @@ public class UserService {
     public CommonResponse update(UserVo userVo) {
         //判断参数
         if (userVo.getId() == null || userVo.getName() == null || userVo.getPassword() == null || userVo.getPhone() == null || userVo.getDisabled() == null ||
-                userVo.getWarehouseId() == null || userVo.getRoles() == null || userVo.getRoles().size() == 0) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
-        }
-
-        //判断仓库id是否存在
-        WarehouseVo warehouseVo = new WarehouseVo(userVo.getStoreId(), userVo.getWarehouseId());
-        if (myWarehouseMapper.findById(warehouseVo) == null) {
+                userVo.getRoles() == null || userVo.getRoles().size() == 0) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
@@ -264,7 +252,6 @@ public class UserService {
         titles.add(new Title("用户名", "username"));
         titles.add(new Title("密码", "password"));
         titles.add(new Title("电话", "phone"));
-        titles.add(new Title("仓库", "warehouseName"));
         titles.add(new Title("是否禁用", "disabled"));
         titles.add(new Title("岗位", "roles"));
         titles.add(new Title("备注", "remark"));

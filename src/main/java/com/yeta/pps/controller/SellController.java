@@ -125,13 +125,11 @@ public class SellController {
      * @param endTime
      * @param id
      * @param type
-     * @param orderStatus
-     * @param clearStatus
      * @param page
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查询所有销售申请订单", notes = "分页、筛选查询，其中clientName, phone, membershipNumber为模糊查询，startTime和endTime要么都传，要么都不传，仓库查未收/发货传type和ordersStatus，资金查未收/付款传type和clearStatus")
+    @ApiOperation(value = "查询所有销售申请订单", notes = "分页、筛选查询，其中clientName, phone, membershipNumber为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "clientName", value = "客户名", required = false, paramType = "query", dataType = "String"),
@@ -139,10 +137,8 @@ public class SellController {
             @ApiImplicitParam(name = "membershipNumber", value = "会员卡号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
-            @ApiImplicitParam(name = "id", value = "销售申请订单编号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "销售申请订单类型(1：零售单，2：销售订单，3：销售退货申请单，4：销售换货申请单)", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "orderStatus", value = "单据状态(1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发)", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "clearStatus", value = "结算状态(0：未完成，1：已完成)", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "单据类型(1：零售单，2：销售订单，3：销售退货申请单，4：销售换货申请单)", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
@@ -155,12 +151,10 @@ public class SellController {
                                                                                   @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
                                                                                   @RequestParam(value = "id", required = false) String id,
                                                                                   @RequestParam(value = "type") Byte type,
-                                                                                  @RequestParam(value = "orderStatus", required = false) Byte orderStatus,
-                                                                                  @RequestParam(value = "clearStatus", required = false) Byte clearStatus,
                                                                                   @RequestParam(value = "page") Integer page,
                                                                                   @RequestParam(value = "pageSize") Integer pageSize) {
         Client client = new Client(clientName, phone, membershipNumber);
-        return sellService.findAllApplyOrder(new SellApplyOrderVo(storeId, startTime, endTime, id, type, orderStatus, clearStatus, client), new PageVo(page, pageSize));
+        return sellService.findAllApplyOrder(new SellApplyOrderVo(storeId, startTime, endTime, id, type, client), new PageVo(page, pageSize));
     }
 
     /**

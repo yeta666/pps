@@ -63,31 +63,15 @@
                 left join supplier_${storeId} as s on pao.supplier_id = s.id
             )
             left join user_${storeId} as u on pao.user_id = u.id
-        where
-            1 = 1
+        where pao.type = #{type}
         <if test="id != null">
-        and
-            pao.id = #{id}
-        </if>
-        <if test="type != null">
-        and
-            pao.type = #{type}
-        </if>
-        <if test="orderStatus != null">
-        and
-            pao.orderStatus = #{orderStatus}
-        </if>
-        <if test="clearStatus != null">
-        and
-            pao.clearStatus = #{clearStatus}
+            and pao.id = #{id}
         </if>
         <if test="supplierName != null">
-        and
-            s.name like concat('%', #{supplierName}, '%')
+            and s.name like concat('%', #{supplierName}, '%')
         </if>
         <if test="startTime != null and endTime != null">
-        and
-            date(pao.create_time) between #{startTime} and #{endTime}
+            and date(pao.create_time) between #{startTime} and #{endTime}
         </if>
     </select>
 
@@ -122,36 +106,18 @@
                 left join supplier_${procurementApplyOrderVo.storeId} as s on pao.supplier_id = s.id
             )
         left join user_${procurementApplyOrderVo.storeId} as u on pao.user_id = u.id
-        where
-            1 = 1
+        where pao.type = #{procurementApplyOrderVo.type}
         <if test="procurementApplyOrderVo.id != null">
-        and
-            pao.id = #{procurementApplyOrderVo.id}
-        </if>
-        <if test="procurementApplyOrderVo.type != null">
-        and
-            pao.type = #{procurementApplyOrderVo.type}
-        </if>
-        <if test="procurementApplyOrderVo.orderStatus != null">
-        and
-            pao.orderStatus = #{procurementApplyOrderVo.orderStatus}
-        </if>
-        <if test="procurementApplyOrderVo.clearStatus != null">
-        and
-            pao.clearStatus = #{procurementApplyOrderVo.clearStatus}
+            and pao.id = #{procurementApplyOrderVo.id}
         </if>
         <if test="procurementApplyOrderVo.supplierName != null">
-        and
-            s.name like concat('%', #{procurementApplyOrderVo.supplierName}, '%')
+            and s.name like concat('%', #{procurementApplyOrderVo.supplierName}, '%')
         </if>
         <if test="procurementApplyOrderVo.startTime != null and procurementApplyOrderVo.endTime != null">
-        and
-            date(pao.create_time) between #{procurementApplyOrderVo.startTime} and #{procurementApplyOrderVo.endTime}
+            and date(pao.create_time) between #{procurementApplyOrderVo.startTime} and #{procurementApplyOrderVo.endTime}
         </if>
-        order by
-            pao.create_time desc
-        limit
-            #{pageVo.start}, #{pageVo.pageSize};
+        order by pao.create_time desc
+        limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findApplyOrderById" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultType="com.yeta.pps.po.ProcurementApplyOrder">

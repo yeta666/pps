@@ -1,6 +1,5 @@
 package com.yeta.pps.mapper;
 
-import com.yeta.pps.po.SellApplyOrder;
 import com.yeta.pps.vo.*;
 import org.apache.ibatis.annotations.Param;
 

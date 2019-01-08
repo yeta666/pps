@@ -79,7 +79,7 @@ public class UserController {
      * @return
      */
     @ApiOperation(value = "新增用户")
-    @ApiImplicitParam(name = "userVo", value = "storeId, name, username, password, phone, warehouseId, roles必填", required = true, paramType = "body", dataType = "UserVo")
+    @ApiImplicitParam(name = "userVo", value = "storeId, name, username, password, phone, roles必填", required = true, paramType = "body", dataType = "UserVo")
     @PostMapping(value = "/users")
     public CommonResponse add(@RequestBody @Valid UserVo userVo) {
         return userService.add(userVo);
@@ -112,7 +112,7 @@ public class UserController {
      * @return
      */
     @ApiOperation(value = "修改用户")
-    @ApiImplicitParam(name = "userVo", value = "storeId, id, name, password, phone, disabled, warehouseId, roles必填", required = true, paramType = "body", dataType = "UserVo")
+    @ApiImplicitParam(name = "userVo", value = "storeId, id, name, password, phone, disabled, roles必填", required = true, paramType = "body", dataType = "UserVo")
     @PutMapping(value = "/users")
     public CommonResponse update(@RequestBody @Valid UserVo userVo) {
         return userService.update(userVo);

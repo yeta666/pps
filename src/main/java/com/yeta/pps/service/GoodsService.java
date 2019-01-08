@@ -905,7 +905,7 @@ public class GoodsService {
         canUseGoods.stream().forEach(goodsTypeVo -> {
             goodsTypeVo.getGoodsVos().stream().forEach(goodsVo -> {
                 goodsVo.getGoodsSkuVos().stream().forEach(goodsSkuVo -> {
-                    StorageCheckOrderVo storageCheckOrderVo = myStorageMapper.findLastCheckMoney(new StorageCheckOrderVo(warehouseGoodsSkuVo.getStoreId(), goodsSkuVo.getId()));
+                    StorageCheckOrderVo storageCheckOrderVo = myStorageMapper.findLastCheckMoneyByGoodsSkuIdAndWarehouseId(new StorageCheckOrderVo(warehouseGoodsSkuVo.getStoreId(), goodsSkuVo.getId(), warehouseGoodsSkuVo.getWarehouseId()));
                     goodsSkuVo.setCheckQuantity(storageCheckOrderVo.getCheckQuantity());
                     goodsSkuVo.setCheckMoney(storageCheckOrderVo.getCheckMoney());
                     goodsSkuVo.setCheckTotalMoney(storageCheckOrderVo.getCheckTotalMoney());

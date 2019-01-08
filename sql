@@ -75,16 +75,10 @@ create table user_1(
   username varchar(50) not null unique comment '用户名',
   password varchar(50) not null comment '密码',
   phone varchar(20) not null unique comment '电话',
-  warehouse_id int not null comment '仓库id',
   disabled tinyint not null comment '是否禁用，0：不禁用，1：禁用',
   remark varchar(200) comment '备注'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcb71baa-f384-11e8-b25b-54ee75c0f47a', '老板', 'lb', 'lb', '17760041487', 1, 0);
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcb9fa13-f384-11e8-b25b-54ee75c0f47a', '销售经理', 'xsjl', 'xsjl', '17760041488', 1, 0);
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcbd0207-f384-11e8-b25b-54ee75c0f47a', '销售', 'xs', 'xs', '17760041489', 1, 0);
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc00d94-f384-11e8-b25b-54ee75c0f47a', '采购', 'cg', 'cg', '17760041490', 1, 0);
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc30169-f384-11e8-b25b-54ee75c0f47a', '库管', 'kg', 'kg', '17760041491', 1, 0);
-insert into user_1(id, name, username, password, phone, warehouse_id, disabled) values ('dcc55a1b-f384-11e8-b25b-54ee75c0f47a', '财务', 'cw', 'cw', '17760041492', 1, 0);
+
 
 drop table if exists role_1;
 create table role_1(
@@ -854,17 +848,19 @@ create table storage_check_order_1(
   order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
   target_id varchar(50) comment '往来单位编号',
   goods_sku_id int not null comment '商品规格编号',
-  in_warehouse_id int comment '入库仓库',
-  in_quantity int comment '入库数量',
-  in_money double(10, 2) comment '入库成本单价',
-  in_total_money double(10, 2) comment '入库成本金额',
-  out_warehouse_id int comment '出库仓库',
-  out_quantity int comment '出库数量',
-  out_money double(10, 2) comment '出库成本单价',
-  out_total_money double(10, 2) comment '出库成本金额',
+  warehouse_id int not null comment '仓库编号',
+  in_quantity int not null comment '入库数量',
+  in_money double(10, 2) not null comment '入库成本单价',
+  in_total_money double(10, 2) not null comment '入库成本金额',
+  out_quantity int not null comment '出库数量',
+  out_money double(10, 2) not null comment '出库成本单价',
+  out_total_money double(10, 2) not null comment '出库成本金额',
   check_quantity int not null comment '结存数量',
   check_money double(10, 2) not null comment '结存成本单价',
   check_total_money double(10, 2) not null comment '结存成本金额',
+  check_quantity1 int not null comment '结存数量1',
+  check_money1 double(10, 2) not null comment '结存成本单价1',
+  check_total_money1 double(10, 2) not null comment '结存成本金额1',
   user_id varchar(50) not null comment '经手人'
 ) engine InnoDB default charset=utf8;
 
