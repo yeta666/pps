@@ -207,7 +207,7 @@ public class FundController {
      * @return
      */
     @ApiOperation(value = "现金银行期初设置")
-    @ApiImplicitParam(name = "bankAccountVo", value = "storeId, id, openingMoney必填", required = true, paramType = "body", dataType = "BankAccountVo")
+    @ApiImplicitParam(name = "bankAccountVo", value = "storeId, id, openingMoney, userId必填", required = true, paramType = "body", dataType = "BankAccountVo")
     @PutMapping(value = "/fund/opening")
     public CommonResponse updateOpening(@RequestBody @Valid BankAccountVo bankAccountVo) {
         return fundService.updateOpening(bankAccountVo);

@@ -59,6 +59,16 @@ public class FundCheckOrderVo {
     private String bankAccount;
 
     /**
+     * 费用编号
+     */
+    private String expensesId;
+
+    /**
+     * 费用名称
+     */
+    private String expensesName;
+
+    /**
      * 收入金额
      */
     private Double inMoney;
@@ -211,6 +221,22 @@ public class FundCheckOrderVo {
 
     public void setBankAccount(String bankAccount) {
         this.bankAccount = bankAccount;
+    }
+
+    public String getExpensesId() {
+        return expensesId;
+    }
+
+    public void setExpensesId(String expensesId) {
+        this.expensesId = expensesId;
+    }
+
+    public String getExpensesName() {
+        return expensesName;
+    }
+
+    public void setExpensesName(String expensesName) {
+        this.expensesName = expensesName;
     }
 
     public Double getInMoney() {

@@ -4,6 +4,7 @@ import com.yeta.pps.service.ReportService;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.vo.PageVo;
+import com.yeta.pps.vo.ReportFundVo;
 import com.yeta.pps.vo.ReportInventoryVo;
 import com.yeta.pps.vo.StorageCheckOrderVo;
 import io.swagger.annotations.Api;
@@ -28,6 +29,8 @@ public class ReportController {
 
     @Autowired
     private ReportService reportService;
+
+    //库存报表
 
     /**
      * 库存报表-进销存分析-按商品接口
@@ -186,6 +189,164 @@ public class ReportController {
                                                                                         @RequestParam(value = "page", required = true) Integer page,
                                                                                         @RequestParam(value = "pageSize", required = true) Integer pageSize) {
         return reportService.findReportInventoryDetails(new ReportInventoryVo(storeId, startTime, endTime, id, name, barCode, typeId), new PageVo(page, pageSize));
+    }
+
+    //资金报表
+
+    /**
+     * 资金报表-查回款-按账户接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "资金报表-查回款-按账户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/in/byBankAccount")
+    public CommonResponse<CommonResult<ReportFundVo>> findReportFundInByBankAccount(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                    @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                    @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                    @RequestParam(value = "page", required = true) Integer page,
+                                                                                    @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportFundInByBankAccount(new ReportFundVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 资金报表-查回款-按职员接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "资金报表-查回款-职员")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/in/byUser")
+    public CommonResponse<CommonResult<ReportFundVo>> findReportFundInByUser(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                             @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                             @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                             @RequestParam(value = "page", required = true) Integer page,
+                                                                             @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportFundInByUser(new ReportFundVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 资金报表-查费用-按分类接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "资金报表-查费用-按分类")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/out/byType")
+    public CommonResponse<CommonResult<ReportFundVo>> findReportFundOutByType(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                              @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                              @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                              @RequestParam(value = "page", required = true) Integer page,
+                                                                              @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportFundOutByType(new ReportFundVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 资金报表-查费用-按往来单位接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "资金报表-查费用-按往来单位")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/out/byTarget")
+    public CommonResponse<CommonResult<ReportFundVo>> findReportFundOutByTarget(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                @RequestParam(value = "page", required = true) Integer page,
+                                                                                @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportFundOutByTarget(new ReportFundVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 资金报表-查费用-按职员接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "资金报表-查费用-按职员")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/out/byUser")
+    public CommonResponse<CommonResult<ReportFundVo>> findReportFundOutByUser(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                              @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                              @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                              @RequestParam(value = "page", required = true) Integer page,
+                                                                              @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportFundOutByUser(new ReportFundVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 资金报表-查费用-按明细接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "资金报表-查费用-按明细")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/out/byDetails")
+    public CommonResponse<CommonResult<ReportFundVo>> findReportFundOutByDetails(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                 @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                 @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                 @RequestParam(value = "page", required = true) Integer page,
+                                                                                 @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportFundOutByDetails(new ReportFundVo(storeId, startTime, endTime), new PageVo(page, pageSize));
     }
 
 }

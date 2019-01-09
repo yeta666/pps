@@ -53,7 +53,6 @@ public class ProcurementApplyOrderVo {
      * 单据日期
      */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
 
     /**

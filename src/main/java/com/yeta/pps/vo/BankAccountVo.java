@@ -74,6 +74,11 @@ public class BankAccountVo {
      */
     private Double balanceMoney;
 
+    /**
+     * 经手人
+     */
+    private String userId;
+
     public BankAccountVo() {
     }
 
@@ -190,6 +195,14 @@ public class BankAccountVo {
         this.balanceMoney = balanceMoney;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     @Override
     public String toString() {
         return "BankAccountVo{" +
@@ -206,6 +219,7 @@ public class BankAccountVo {
                 ", inMoney=" + inMoney +
                 ", outMoney=" + outMoney +
                 ", balanceMoney=" + balanceMoney +
+                ", userId='" + userId + '\'' +
                 '}';
     }
 }

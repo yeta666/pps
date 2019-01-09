@@ -290,6 +290,7 @@
         <result column="remark" property="remark" />
         <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
             <result column="pao_clear_status" property="clearStatus" />
+            <result column="supplier_id" property="supplierId" />
             <result column="supplier_name" property="supplierName" />
             <result column="in_warehouse_id" property="inWarehouseId" />
             <result column="out_warehouse_id" property="outWarehouseId" />
@@ -310,6 +311,7 @@
             u.name as user_name,
             pro.remark,
             pao.clear_status as pao_clear_status,
+            s.id as supplier_id,
             s.name as supplier_name,
             pao.in_warehouse_id,
             pao.out_warehouse_id
@@ -361,6 +363,7 @@
         <result column="remark" property="remark" />
         <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
             <result column="clear_status" property="clearStatus" />
+            <result column="supplier_id" property="supplierId" />
             <result column="supplier_name" property="supplierName" />
             <result column="in_warehouse_id" property="inWarehouseId" />
             <result column="out_warehouse_id" property="outWarehouseId" />
@@ -398,6 +401,7 @@
             pro.user_id,
             u.name as user_name,
             pro.remark,
+            s.id as supplier_id,
             s.name as supplier_name,
             pao.clear_status,
             pao.in_warehouse_id,

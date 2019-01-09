@@ -2,9 +2,7 @@ package com.yeta.pps.service;
 
 import com.yeta.pps.mapper.MyGoodsMapper;
 import com.yeta.pps.mapper.MyReportMapper;
-import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.GoodsSku;
-import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
@@ -12,7 +10,9 @@ import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -328,6 +328,8 @@ public class ReportService {
         return CommonResponse.success(commonResult);
     }
 
+    //库存报表-出入库明细
+
     /**
      * 库存报表-出入库明细
      * @param reportInventoryVo
@@ -362,9 +364,244 @@ public class ReportService {
         return CommonResponse.success(commonResult);
     }
 
-    //库存报表-出入库明细
-
     //资金报表
+
+    //资金报表-查回款
+
+    /**
+     * 资金报表-查回款-按账户
+     * @param reportFundVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportFundInByBankAccount(ReportFundVo reportFundVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountFundInByBankAccount(reportFundVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportFundVo> vos = myReportMapper.findPagedFundInByBankAccount(reportFundVo, pageVo);
+
+        //统计数据
+        reportFundVo.setFlag(1);
+        findOrderQuantityAndFindInMehtod(vos, reportFundVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("日期", "createTime"));
+        titles.add(new Title("单量", "orderQuantity"));
+        titles.add(new Title("回款总额", "totalInMoney"));
+        titles.add(new Title("现金回款", "bankCardInMoney"));
+        titles.add(new Title("支付宝回款", "alipayInMoney"));
+        titles.add(new Title("微信回款", "wechatInMoney"));
+        titles.add(new Title("银行卡回款", "bankCardInMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 统计单量、详细回款的方法
+     * @param vos
+     * @param reportFundVo
+     */
+    public void findOrderQuantityAndFindInMehtod(List<ReportFundVo> vos, ReportFundVo reportFundVo) {
+        //单量
+        List<Integer> orderQuantityVos = myReportMapper.findOrderQuantity(reportFundVo);
+        if (orderQuantityVos.size() != vos.size()) {
+
+        }
+        for (int i = 0; i < vos.size(); i++) {
+            vos.get(i).setOrderQuantity(orderQuantityVos.get(i));
+        }
+
+        //查询时间段内所有记录
+        List<FundCheckOrderVo> allVos = myReportMapper.findAllFundIn(reportFundVo);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        vos.stream().forEach(vo -> {
+            List<FundCheckOrderVo> filterVos;
+            if (reportFundVo.getFlag() == 1) {
+                //同一个日期的记录
+                filterVos = allVos.stream().filter(filterVo -> sdf.format(filterVo.getCreateTime()).equals(sdf.format(vo.getCreateTime()))).collect(Collectors.toList());
+            } else {
+                //同一个职员的记录
+                filterVos = allVos.stream().filter(filterVo -> filterVo.getUserId().equals(vo.getUserId())).collect(Collectors.toList());
+            }
+
+            //现金回款
+            List<FundCheckOrderVo> cashInMoneyVos = filterVos.stream().filter(cashInMoneyVo -> cashInMoneyVo.getBankAccountId().equals("1001")).collect(Collectors.toList());
+            cashInMoneyVos.stream().forEach(cashInMoneyVo -> vo.setCashInMoney(vo.getCashInMoney() + cashInMoneyVo.getInMoney()));
+
+            //支付宝回款
+            List<FundCheckOrderVo> alipayInMoneyVos = filterVos.stream().filter(cashInMoneyVo -> cashInMoneyVo.getBankAccountId().equals("1002")).collect(Collectors.toList());
+            alipayInMoneyVos.stream().forEach(alipayInMoneyVo -> vo.setAlipayInMoney(vo.getAlipayInMoney() + alipayInMoneyVo.getInMoney()));
+
+            //微信回款
+            List<FundCheckOrderVo> wechatInMoneyVos = filterVos.stream().filter(cashInMoneyVo -> cashInMoneyVo.getBankAccountId().equals("1003")).collect(Collectors.toList());
+            wechatInMoneyVos.stream().forEach(wechatInMoneyVo -> vo.setWechatInMoney(vo.getWechatInMoney() + wechatInMoneyVo.getInMoney()));
+
+            //银行卡回款
+            List<FundCheckOrderVo> bankCardInMoneyVos = filterVos.stream().filter(cashInMoneyVo -> cashInMoneyVo.getBankAccountId().substring(0, 4).equals("1004")).collect(Collectors.toList());
+            bankCardInMoneyVos.stream().forEach(bankCardInMoneyVo -> vo.setBankCardInMoney(vo.getBankCardInMoney() + bankCardInMoneyVo.getInMoney()));
+        });
+    }
+
+    /**
+     * 资金报表-查回款-按职员
+     * @param reportFundVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportFundInByUser(ReportFundVo reportFundVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountFundInByUser(reportFundVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportFundVo> vos = myReportMapper.findPagedFundInByUser(reportFundVo, pageVo);
+
+        //统计数据
+        reportFundVo.setFlag(2);
+        findOrderQuantityAndFindInMehtod(vos, reportFundVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("职员编号", "userId"));
+        titles.add(new Title("职员名称", "userName"));
+        titles.add(new Title("单量", "orderQuantity"));
+        titles.add(new Title("回款总额", "totalInMoney"));
+        titles.add(new Title("现金回款", "bankCardInMoney"));
+        titles.add(new Title("支付宝回款", "alipayInMoney"));
+        titles.add(new Title("微信回款", "wechatInMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    //资金报表-查费用
+
+    /**
+     * 资金报表-查费用-按分类
+     * @param reportFundVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportFundOutByType(ReportFundVo reportFundVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountFundOutByType(reportFundVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportFundVo> vos = myReportMapper.findPagedFundOutByType(reportFundVo, pageVo);
+
+        //统计费用占比
+        double totalOutMoney = vos.stream().mapToDouble(ReportFundVo::getTotalOutMoney).sum();
+        vos.stream().forEach(vo -> vo.setProportion(totalOutMoney == 0 ? 0 : vo.getTotalOutMoney() * 100 / totalOutMoney));
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("费用编号", "userId"));
+        titles.add(new Title("费用名称", "userName"));
+        titles.add(new Title("费用金额", "totalOutMoney"));
+        titles.add(new Title("占比(%)", "proportion"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 资金报表-查费用-按往来单位
+     * @param reportFundVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportFundOutByTarget(ReportFundVo reportFundVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountFundOutByTarget(reportFundVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportFundVo> vos = myReportMapper.findPagedFundOutByTarget(reportFundVo, pageVo);
+
+        if (vos.size() > 0) {
+            //统计优惠金额
+            vos.stream().forEach(vo -> {
+                reportFundVo.setFlag(1);
+                reportFundVo.setTargetId(vo.getTargetId());
+                vo.setTotalOutMoney(vo.getTotalOutMoney() + myReportMapper.findDiscountMoney(reportFundVo));
+            });
+
+            //统计费用占比
+            double totalOutMoney = vos.stream().mapToDouble(ReportFundVo::getTotalOutMoney).sum();
+            vos.stream().forEach(vo -> vo.setProportion(totalOutMoney == 0 ? 0 : vo.getTotalOutMoney() * 100 / totalOutMoney));
+        }
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单位编号", "targetId"));
+        titles.add(new Title("单位名称", "targetName"));
+        titles.add(new Title("费用金额", "totalOutMoney"));
+        titles.add(new Title("占比(%)", "proportion"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 资金报表-查费用-按职员
+     * @param reportFundVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportFundOutByUser(ReportFundVo reportFundVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountFundOutByUser(reportFundVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportFundVo> vos = myReportMapper.findPagedFundOutByUser(reportFundVo, pageVo);
+
+        if (vos.size() > 0) {
+            //统计优惠金额
+            vos.stream().forEach(vo -> {
+                reportFundVo.setFlag(2);
+                reportFundVo.setUserId(vo.getUserId());
+                vo.setTotalOutMoney(vo.getTotalOutMoney() + myReportMapper.findDiscountMoney(reportFundVo));
+            });
+
+            //统计费用占比
+            double totalOutMoney = vos.stream().mapToDouble(ReportFundVo::getTotalOutMoney).sum();
+            vos.stream().forEach(vo -> vo.setProportion(totalOutMoney == 0 ? 0 : vo.getTotalOutMoney() * 100 / totalOutMoney));
+        }
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("职员编号", "userId"));
+        titles.add(new Title("职员名称", "userName"));
+        titles.add(new Title("费用金额", "totalOutMoney"));
+        titles.add(new Title("占比(%)", "proportion"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 资金报表-查费用-按明细
+     * @param reportFundVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportFundOutByDetails(ReportFundVo reportFundVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountFundOutByDetails(reportFundVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<FundCheckOrderVo> vos = myReportMapper.findPagedFundOutByDetails(reportFundVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "orderId"));
+        titles.add(new Title("单据日期", "createTime"));
+        titles.add(new Title("单据类型", "typeName"));
+        titles.add(new Title("往来单位", "targetName"));
+        titles.add(new Title("科目", "expensesName"));
+        titles.add(new Title("金额", "outMoney"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
 
     //订单统计
 

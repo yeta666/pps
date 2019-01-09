@@ -504,6 +504,11 @@ public class FundService {
      */
     @Transactional
     public CommonResponse updateOpening(BankAccountVo bankAccountVo) {
+        //判断参数
+        if (bankAccountVo.getOpeningMoney() == null || bankAccountVo.getUserId() == null) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
         //设置期初
         if (myBankAccountMapper.updateOpening(bankAccountVo) != 1) {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);
@@ -519,6 +524,7 @@ public class FundService {
         fundCheckOrderVo.setInMoney(0.0);
         fundCheckOrderVo.setOutMoney(0.0);
         fundCheckOrderVo.setBalanceMoney(bankAccountVo.getOpeningMoney());
+        fundCheckOrderVo.setUserId(bankAccountVo.getUserId());
         if (myFundMapper.addFundCheckOrder(fundCheckOrderVo) != 1) {
             throw new CommonException(CommonResponse.UPDATE_ERROR);
         }

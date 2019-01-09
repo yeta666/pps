@@ -64,6 +64,10 @@ public class BankAccountService {
      * @return
      */
     public CommonResponse update(BankAccountVo bankAccountVo) {
+        //判断参数
+        if (bankAccountVo.getName() == null || bankAccountVo.getType() == null) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
         //修改
         if (myBankAccountMapper.update(bankAccountVo) != 1) {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);

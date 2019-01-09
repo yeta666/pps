@@ -1,8 +1,6 @@
 package com.yeta.pps.mapper;
 
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.ReportInventoryVo;
-import com.yeta.pps.vo.StorageCheckOrderVo;
+import com.yeta.pps.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -12,6 +10,8 @@ import java.util.List;
  * @date 2019/01/07/14:38
  */
 public interface MyReportMapper {
+
+    //库存报表
 
     int findCountGoods(ReportInventoryVo reportInventoryVo);
 
@@ -39,4 +39,42 @@ public interface MyReportMapper {
 
     List<StorageCheckOrderVo> findPagedDetails(@Param(value = "vo") ReportInventoryVo reportInventoryVo,
                                                @Param(value = "pageVo") PageVo pageVo);
+
+    //资金报表
+
+    int findCountFundInByBankAccount(ReportFundVo reportFundVo);
+
+    List<ReportFundVo> findPagedFundInByBankAccount(@Param(value = "vo") ReportFundVo reportFundVo,
+                                                    @Param(value = "pageVo")PageVo pageVo);
+
+    List<Integer> findOrderQuantity(ReportFundVo reportFundVo);
+
+    List<FundCheckOrderVo> findAllFundIn(ReportFundVo reportFundVo);
+
+    int findCountFundInByUser(ReportFundVo reportFundVo);
+
+    List<ReportFundVo> findPagedFundInByUser(@Param(value = "vo") ReportFundVo reportFundVo,
+                                             @Param(value = "pageVo")PageVo pageVo);
+
+    int findCountFundOutByType(ReportFundVo reportFundVo);
+
+    List<ReportFundVo> findPagedFundOutByType(@Param(value = "vo") ReportFundVo reportFundVo,
+                                              @Param(value = "pageVo")PageVo pageVo);
+
+    int findCountFundOutByTarget(ReportFundVo reportFundVo);
+
+    List<ReportFundVo> findPagedFundOutByTarget(@Param(value = "vo") ReportFundVo reportFundVo,
+                                                @Param(value = "pageVo")PageVo pageVo);
+
+    Double findDiscountMoney(ReportFundVo reportFundVo);
+
+    int findCountFundOutByUser(ReportFundVo reportFundVo);
+
+    List<ReportFundVo> findPagedFundOutByUser(@Param(value = "vo") ReportFundVo reportFundVo,
+                                              @Param(value = "pageVo")PageVo pageVo);
+
+    int findCountFundOutByDetails(ReportFundVo reportFundVo);
+
+    List<FundCheckOrderVo> findPagedFundOutByDetails(@Param(value = "vo") ReportFundVo reportFundVo,
+                                                     @Param(value = "pageVo")PageVo pageVo);
 }

@@ -728,10 +728,7 @@
                         inner join warehouse_${storeId} as w on w.id = wgs.warehouse_id
                     )
                 inner join goods_type_${storeId} as gt on g.type_id = gt.id
-                where
-                    wgs.opening_quantity &gt; 0
-                and wgs.opening_money &gt; 0
-                and wgs.opening_total_money &gt; 0
+                where wgs.opening_money &gt; 0
                 <if test="id != null">
                     and g.id like concat('%', #{id}, '%')
                 </if>
@@ -769,10 +766,7 @@
                 inner join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
             )
         inner join goods_type_${vo.storeId} as gt on g.type_id = gt.id
-        where
-            wgs.opening_quantity &gt; 0
-        and wgs.opening_money &gt; 0
-        and wgs.opening_total_money &gt; 0
+        where wgs.opening_money &gt; 0
         <if test="vo.id != null">
             and g.id like concat('%', #{vo.id}, '%')
         </if>
@@ -806,9 +800,7 @@
                 )
             inner join goods_type_${storeId} as gt on g.type_id = gt.id
             where g.id = #{id}
-            and wgs.opening_quantity &gt; 0
             and wgs.opening_money &gt; 0
-            and wgs.opening_total_money &gt; 0
             group by w.id
         ) as temp;
     </select>
@@ -838,9 +830,7 @@
             )
         inner join goods_type_${vo.storeId} as gt on g.type_id = gt.id
         where g.id = #{vo.id}
-        and wgs.opening_quantity &gt; 0
         and wgs.opening_money &gt; 0
-        and wgs.opening_total_money &gt; 0
         group by w.id
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
@@ -1009,11 +999,8 @@
                         inner join warehouse_${storeId} as w on w.id = wgs.warehouse_id
                     )
                 inner join goods_type_${storeId} as gt on g.type_id = gt.id
-                where
-                    g.id = #{id}
-                and wgs.opening_quantity &gt; 0
+                where g.id = #{id}
                 and wgs.opening_money &gt; 0
-                and wgs.opening_total_money &gt; 0
                 group by gs.id
             ) as temp;
     </select>
@@ -1041,11 +1028,8 @@
                 inner join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
             )
         inner join goods_type_${vo.storeId} as gt on g.type_id = gt.id
-        where
-            g.id = #{vo.id}
-        and wgs.opening_quantity &gt; 0
+        where g.id = #{vo.id}
         and wgs.opening_money &gt; 0
-        and wgs.opening_total_money &gt; 0
         group by gs.id
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
@@ -1069,10 +1053,7 @@
                         inner join warehouse_${storeId} as w on w.id = wgs.warehouse_id
                     )
                 inner join goods_type_${storeId} as gt on g.type_id = gt.id
-                where
-                    wgs.opening_quantity &gt; 0
-                and wgs.opening_money &gt; 0
-                and wgs.opening_total_money &gt; 0
+                where wgs.opening_money &gt; 0
                 <if test="id != null">
                     and g.id like concat('%', #{id}, '%')
                 </if>
@@ -1114,10 +1095,7 @@
                 inner join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
             )
         inner join goods_type_${vo.storeId} as gt on g.type_id = gt.id
-        where
-            wgs.opening_quantity &gt; 0
-        and wgs.opening_money &gt; 0
-        and wgs.opening_total_money &gt; 0
+        where wgs.opening_money &gt; 0
         <if test="vo.id != null">
             and g.id like concat('%', #{vo.id}, '%')
         </if>
@@ -1147,9 +1125,7 @@
                 )
             inner join goods_type_${storeId} as gt on g.type_id = gt.id
             where gs.id = #{goodsSkuId}
-            and wgs.opening_quantity &gt; 0
-            and wgs.opening_money &gt; 0
-            and wgs.opening_total_money &gt; 0;
+            and wgs.opening_money &gt; 0;
     </select>
 
     <select id="findPagedDistributionByGoodsSkuId" resultType="com.yeta.pps.vo.GoodsWarehouseSkuVo">
@@ -1181,9 +1157,7 @@
             )
         inner join goods_type_${vo.storeId} as gt on g.type_id = gt.id
         where gs.id = #{vo.goodsSkuId}
-        and wgs.opening_quantity &gt; 0
         and wgs.opening_money &gt; 0
-        and wgs.opening_total_money &gt; 0
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -1373,7 +1347,7 @@
             and wgs.inventory_low_limit + wgs.not_sent_quantity - wgs.real_inventory - wgs.not_received_quantity &gt; 0
         </if>
         <if test="flag != 4">
-            and wgs.opening_quantity &gt; 0 and wgs.opening_money &gt; 0 and wgs.opening_total_money &gt; 0
+            and wgs.opening_money &gt; 0
         </if>
     </select>
 
@@ -1434,7 +1408,7 @@
             and wgs.inventory_low_limit + wgs.not_sent_quantity - wgs.real_inventory - wgs.not_received_quantity &gt; 0
         </if>
         <if test="vo.flag != 4">
-            and wgs.opening_quantity &gt; 0 and wgs.opening_money &gt; 0 and wgs.opening_total_money &gt; 0
+            and wgs.opening_money &gt; 0
         </if>
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>

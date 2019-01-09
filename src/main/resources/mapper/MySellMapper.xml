@@ -251,7 +251,6 @@
             sao.total_money,
             sao.discount_money,
             sao.discount_coupon_id,
-            /*查出优惠券金额*/
             sao.total_discount_money,
             sao.order_money,
             sao.cleared_money,
@@ -366,6 +365,7 @@
             <result column="in_warehouse_id" property="inWarehouseId" />
             <result column="out_warehouse_id" property="outWarehouseId" />
             <collection property="client" ofType="com.yeta.pps.po.Client">
+                <result column="client_id" property="id" />
                 <result column="client_name" property="name" />
                 <result column="client_phone" property="phone" />
                 <result column="client_membership_number" property="membershipNumber" />
@@ -391,6 +391,7 @@
             sao.clear_status as sao_clear_status,
             sao.in_warehouse_id,
             sao.out_warehouse_id,
+            c.id as client_id,
             c.name as client_name,
             c.phone as client_phone,
             c.membership_number as client_membership_number
@@ -455,6 +456,7 @@
             <result column="in_warehouse_id" property="inWarehouseId" />
             <result column="out_warehouse_id" property="outWarehouseId" />
             <collection property="client" ofType="com.yeta.pps.po.Client">
+                <result column="client_id" property="id" />
                 <result column="client_name" property="name" />
                 <result column="client_phone" property="phone" />
                 <result column="client_membership_number" property="membershipNumber" />
@@ -499,6 +501,7 @@
             sao.clear_status as sao_clear_status,
             sao.in_warehouse_id,
             sao.out_warehouse_id,
+            c.id as client_id,
             c.name as client_name,
             c.phone as client_phone,
             c.membership_number as client_membership_number,

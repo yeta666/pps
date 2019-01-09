@@ -897,8 +897,7 @@ create table fund_check_order_1(
   in_money double(10, 2) not null comment '收入金额',
   out_money double(10, 2) not null comment '支出金额',
   balance_money double(10, 2) not null comment '当前余额',
-  user_id varchar(50) comment '经手人',
-  remark varchar(200) comment '备注'
+  user_id varchar(50) not null comment '经手人',
 ) engine InnoDB default charset=utf8;
 
 
