@@ -94,4 +94,26 @@ public interface MyReportMapper {
 
     List<FundCheckOrderVo> findPagedOrderByClient(@Param(value = "vo") ReportOrderVo reportOrderVo,
                                                   @Param(value = "pageVo") PageVo pageVo);
+
+    //销售报表
+
+    int findCountSellByDay(ReportSellVo reportSellVo);
+
+    List<ReportSellVo> findPagedSellByDay(@Param(value = "vo") ReportSellVo reportSellVo,
+                                          @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountSellByMonth(ReportSellVo reportSellVo);
+
+    List<ReportSellVo> findPagedSellByMonth(@Param(value = "vo") ReportSellVo reportSellVo,
+                                            @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountSellByYear(ReportSellVo reportSellVo);
+
+    List<ReportSellVo> findPagedSellByYear(@Param(value = "vo") ReportSellVo reportSellVo,
+                                            @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountSellByGoods(ReportSellVo reportSellVo);
+
+    List<ReportSellVo> findPagedSellByGoods(@Param(value = "vo") ReportSellVo reportSellVo,
+                                            @Param(value = "pageVo") PageVo pageVo);
 }

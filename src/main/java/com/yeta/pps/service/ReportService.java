@@ -688,6 +688,133 @@ public class ReportService {
 
     //销售报表
 
+    //销售报表-销售日月年报
+
+    /**
+     * 销售报表-销售日月年报-销售日报
+     * @param reportSellVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportSellByDay(ReportSellVo reportSellVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountSellByDay(reportSellVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportSellVo> vos = myReportMapper.findPagedSellByDay(reportSellVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "orderId"));
+        titles.add(new Title("单据类型", "orderTypeName"));
+        titles.add(new Title("客户", "clientName"));
+        titles.add(new Title("销售回款", "sellInMoney"));
+        titles.add(new Title("使用预收款", "advanceInMoney"));
+        titles.add(new Title("新增应收款", "addNeedInMoney"));
+        titles.add(new Title("销售收入", "sellProceedsMoney"));
+        titles.add(new Title("销售成本", "sellCostMoney"));
+        titles.add(new Title("毛利", "grossMarginMoney"));
+        titles.add(new Title("毛利率", "grossMarginRate"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 销售报表-销售日月年报-销售月报
+     * @param reportSellVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportSellByMonth(ReportSellVo reportSellVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountSellByMonth(reportSellVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportSellVo> vos = myReportMapper.findPagedSellByMonth(reportSellVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("日期", "createTime"));
+        titles.add(new Title("销售单数量", "sellOrderQuantity"));
+        titles.add(new Title("退货单数量", "returnOrderQuantity"));
+        titles.add(new Title("换货单数量", "exchangeOrderQuantity"));
+        titles.add(new Title("销售回款", "sellInMoney"));
+        titles.add(new Title("使用预收款", "advanceInMoney"));
+        titles.add(new Title("新增应收款", "addNeedInMoney"));
+        titles.add(new Title("销售收入", "sellProceedsMoney"));
+        titles.add(new Title("销售成本", "sellCostMoney"));
+        titles.add(new Title("毛利", "grossMarginMoney"));
+        titles.add(new Title("毛利率", "grossMarginRate"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 销售报表-销售日月年报-销售年报
+     * @param reportSellVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportSellByYear(ReportSellVo reportSellVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountSellByYear(reportSellVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportSellVo> vos = myReportMapper.findPagedSellByYear(reportSellVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("月份", "createMonth"));
+        titles.add(new Title("销售单数量", "sellOrderQuantity"));
+        titles.add(new Title("退货单数量", "returnOrderQuantity"));
+        titles.add(new Title("换货单数量", "exchangeOrderQuantity"));
+        titles.add(new Title("销售回款", "sellInMoney"));
+        titles.add(new Title("使用预收款", "advanceInMoney"));
+        titles.add(new Title("新增应收款", "addNeedInMoney"));
+        titles.add(new Title("销售收入", "sellProceedsMoney"));
+        titles.add(new Title("销售成本", "sellCostMoney"));
+        titles.add(new Title("毛利", "grossMarginMoney"));
+        titles.add(new Title("毛利率", "grossMarginRate"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 销售报表-商品销售分析-按商品
+     * @param reportSellVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportSellByGoods(ReportSellVo reportSellVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountSellByGoods(reportSellVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportSellVo> vos = myReportMapper.findPagedSellByGoods(reportSellVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("商品货号", "goodsId"));
+        titles.add(new Title("商品名", "goodsName"));
+        titles.add(new Title("商品条码", "goodsBarCode"));
+        titles.add(new Title("商品分类", "goodsTypeName"));
+        titles.add(new Title("商品图片", "goodsImage"));
+
+        titles.add(new Title("销售数量", "sellQuantity"));
+        titles.add(new Title("销售收入", "sellProceedsMoney"));
+        titles.add(new Title("销售成本", "sellCostMoney"));
+        titles.add(new Title("毛利", "grossMarginMoney"));
+        titles.add(new Title("毛利率(%)", "grossMarginRate"));
+        titles.add(new Title("销售出库数量", "sellOutQuantity"));
+        titles.add(new Title("退货数量", "returnQuantity"));
+        titles.add(new Title("退货金额", "returnMoney"));
+        titles.add(new Title("退货率(%)", "returnRate"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
     //采购报表
 
     //经营中心

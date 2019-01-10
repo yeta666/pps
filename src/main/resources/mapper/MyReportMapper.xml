@@ -932,4 +932,440 @@
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
+    <!--销售报表-->
+
+    <select id="findCountSellByDay" parameterType="com.yeta.pps.vo.ReportSellVo" resultType="java.lang.Integer">
+        select
+            sum(a.b)
+        from
+            (
+                (
+                    select
+                          count(0) as b
+                    from
+                         sell_result_order_${storeId} as sro
+                    left join sell_apply_order_${storeId} as sao on sao.id = sro.apply_order_id
+                    left join client as c on c.id = sao.client_id
+                    left join user_${storeId} as u on u.id = sro.user_id
+                    where
+                        date(sro.create_time) = #{createTime}
+                )
+                union all
+                (
+                    select
+                           count(0) as b
+                    from
+                         fund_order_${storeId} as fo
+                    left join client as c on c.id = fo.target_id
+                    left join user_${storeId} as u on u.id = fo.user_id
+                    where
+                        date(fo.create_time) = #{createTime}
+                    and fo.type = 1
+                )
+            ) as a;
+    </select>
+
+    <select id="findPagedSellByDay" resultType="com.yeta.pps.vo.ReportSellVo">
+        (
+            select
+                   sro.id as orderId,
+                   sro.type as orderType,
+                   if (sro.type = 1, '零售单', if (sro.type = 2, '销售出库单', if (sro.type = 3, '销售退货单', if (sro.type = 4, '销售换货单', null)))) as orderTypeName,
+                   sao.client_id as clientId,
+                   c.name as clientName,
+                   if (sro.type = 1, sro.order_money, 0) as sellInMoney,
+                   0 as advanceInMoney,
+                   if (sro.type = 1, 0, sro.order_money) as addNeedInMoney,
+                   sro.order_money as sellProceedsMoney,
+                   sro.cost_money as sellCostMoney,
+                   sro.gross_margin_money as grossMarginMoney,
+                   if (sro.order_money = 0, 0, sro.gross_margin_money * 100 / sro.order_money) as grossMarginRate,
+                   sro.user_id as userId,
+                   u.name as userName,
+                   sro.remark
+            from
+                 sell_result_order_${vo.storeId} as sro
+            left join sell_apply_order_${vo.storeId} as sao on sao.id = sro.apply_order_id
+            left join client as c on c.id = sao.client_id
+            left join user_${vo.storeId} as u on u.id = sro.user_id
+            where
+                date(sro.create_time) = #{vo.createTime}
+            order by
+                sro.create_time desc
+        )
+        union all
+        (
+            select
+                   fo.id as orderId,
+                   fo.type as orderType,
+                   '收款单' as orderTypeName,
+                   fo.target_id as clientId,
+                   c.name as clientName,
+                   fo.money as sellInMoney,
+                   fo.advance_money as advanceInMoney,
+                   -(fo.money + fo.discount_money + fo.advance_money) as addNeedInMoney,
+                   0 as sellProceedsMoney,
+                   0 as sellCostMoney,
+                   0 as grossMarginMoney,
+                   0 as grossMarginRate,
+                   fo.user_id as userId,
+                   u.name as userName,
+                   fo.remark
+            from
+                 fund_order_${vo.storeId} as fo
+            left join client as c on c.id = fo.target_id
+            left join user_${vo.storeId} as u on u.id = fo.user_id
+            where
+                date(fo.create_time) = #{vo.createTime}
+            and fo.type = 1
+            order by
+                fo.create_time desc
+        )
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountSellByMonth" parameterType="com.yeta.pps.vo.ReportSellVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                select
+                       temp.createTime as createTime,
+                       sum(temp.sellOrderQuantity) as sellOrderQuantity,
+                       sum(temp.returnOrderQuantity) as returnOrderQuantity,
+                       sum(temp.exchangeOrderQuantity) as exchangeOrderQuantity,
+                       sum(temp.sellInMoney) as sellInMoney,
+                       sum(temp.advanceInMoney) as advanceInMoney,
+                       sum(temp.addNeedInMoney) as addNeedInMoney,
+                       sum(temp.sellProceedsMoney) as sellProceedsMoney,
+                       sum(temp.sellCostMoney) as sellCostMoney,
+                       sum(temp.grossMarginMoney) as grossMarginMoney,
+                       sum(temp.grossMarginRate) as grossMarginRate
+                from
+                    (
+                        (
+                            select
+                                   date(sro.create_time) as createTime,
+                                   count(sro.type = 1 or null) + count(sro.type = 2 or null) as sellOrderQuantity,
+                                   count(sro.type = 2 or null) as returnOrderQuantity,
+                                   count(sro.type = 3 or null) as exchangeOrderQuantity,
+                                   sum(if (sro.type = 1, sro.order_money, 0)) as sellInMoney,
+                                   0 as advanceInMoney,
+                                   sum(if (sro.type = 1, 0, sro.order_money)) as addNeedInMoney,
+                                   sum(sro.order_money) as sellProceedsMoney,
+                                   sum(sro.cost_money) as sellCostMoney,
+                                   sum(sro.gross_margin_money) as grossMarginMoney,
+                                   if (sum(sro.order_money) = 0, 0, sum(sro.gross_margin_money) * 100 / sum(sro.order_money)) as grossMarginRate
+                            from
+                                 sell_result_order_${storeId} as sro
+                            where date(sro.create_time) between #{startTime} and #{endTime}
+                            group by
+                                     date(sro.create_time)
+                        )
+                        union all
+                        (
+                        select
+                               date(fo.create_time) as createTime,
+                               0 as sellOrderQuantity,
+                               0 as returnOrderQuantity,
+                               0 as exchangeOrderQuantity,
+                               sum(fo.money) as sellInMoney,
+                               sum(fo.advance_money) as advanceInMoney,
+                               sum(-(fo.money + fo.discount_money + fo.advance_money)) as addNeedInMoney,
+                               0 as sellProceedsMoney,
+                               0 as sellCostMoney,
+                               0 as grossMarginMoney,
+                               0 as grossMarginRate
+                        from
+                             fund_order_${storeId} as fo
+                        where date(fo.create_time) between #{startTime} and #{endTime}
+                        and fo.type = 1
+                        group by
+                                 date(fo.create_time)
+                        )
+                    ) as temp
+                group by
+                    temp.createTime
+            ) as temp1;
+    </select>
+
+    <select id="findPagedSellByMonth" resultType="com.yeta.pps.vo.ReportSellVo">
+        select
+               temp.createTime as createTime,
+               sum(temp.sellOrderQuantity) as sellOrderQuantity,
+               sum(temp.returnOrderQuantity) as returnOrderQuantity,
+               sum(temp.exchangeOrderQuantity) as exchangeOrderQuantity,
+               sum(temp.sellInMoney) as sellInMoney,
+               sum(temp.advanceInMoney) as advanceInMoney,
+               sum(temp.addNeedInMoney) as addNeedInMoney,
+               sum(temp.sellProceedsMoney) as sellProceedsMoney,
+               sum(temp.sellCostMoney) as sellCostMoney,
+               sum(temp.grossMarginMoney) as grossMarginMoney,
+               sum(temp.grossMarginRate) as grossMarginRate
+        from
+            (
+                (
+                    select
+                           date(sro.create_time) as createTime,
+                           count(sro.type = 1 or null) + count(sro.type = 2 or null) as sellOrderQuantity,
+                           count(sro.type = 2 or null) as returnOrderQuantity,
+                           count(sro.type = 3 or null) as exchangeOrderQuantity,
+                           sum(if (sro.type = 1, sro.order_money, 0)) as sellInMoney,
+                           0 as advanceInMoney,
+                           sum(if (sro.type = 1, 0, sro.order_money)) as addNeedInMoney,
+                           sum(sro.order_money) as sellProceedsMoney,
+                           sum(sro.cost_money) as sellCostMoney,
+                           sum(sro.gross_margin_money) as grossMarginMoney,
+                           if (sum(sro.order_money) = 0, 0, sum(sro.gross_margin_money) * 100 / sum(sro.order_money)) as grossMarginRate
+                    from
+                         sell_result_order_${vo.storeId} as sro
+                    where date(sro.create_time) between #{vo.startTime} and #{vo.endTime}
+                    group by
+                             date(sro.create_time)
+                )
+                union all
+                (
+                    select
+                           date(fo.create_time) as createTime,
+                           0 as sellOrderQuantity,
+                           0 as returnOrderQuantity,
+                           0 as exchangeOrderQuantity,
+                           sum(fo.money) as sellInMoney,
+                           sum(fo.advance_money) as advanceInMoney,
+                           sum(-(fo.money + fo.discount_money + fo.advance_money)) as addNeedInMoney,
+                           0 as sellProceedsMoney,
+                           0 as sellCostMoney,
+                           0 as grossMarginMoney,
+                           0 as grossMarginRate
+                    from
+                         fund_order_${vo.storeId} as fo
+                    where date(fo.create_time) between #{vo.startTime} and #{vo.endTime}
+                    and fo.type = 1
+                    group by
+                             date(fo.create_time)
+                )
+            ) as temp
+        group by
+            temp.createTime
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountSellByYear" parameterType="com.yeta.pps.vo.ReportSellVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                select
+                       temp.createTime as createMonth,
+                       sum(temp.sellOrderQuantity) as sellOrderQuantity,
+                       sum(temp.returnOrderQuantity) as returnOrderQuantity,
+                       sum(temp.exchangeOrderQuantity) as exchangeOrderQuantity,
+                       sum(temp.sellInMoney) as sellInMoney,
+                       sum(temp.advanceInMoney) as advanceInMoney,
+                       sum(temp.addNeedInMoney) as addNeedInMoney,
+                       sum(temp.sellProceedsMoney) as sellProceedsMoney,
+                       sum(temp.sellCostMoney) as sellCostMoney,
+                       sum(temp.grossMarginMoney) as grossMarginMoney,
+                       sum(temp.grossMarginRate) as grossMarginRate
+                from
+                    (
+                        (
+                            select
+                                   date_format(sro.create_time, '%Y-%m') as createTime,
+                                   count(sro.type = 1 or null) + count(sro.type = 2 or null) as sellOrderQuantity,
+                                   count(sro.type = 2 or null) as returnOrderQuantity,
+                                   count(sro.type = 3 or null) as exchangeOrderQuantity,
+                                   sum(if (sro.type = 1, sro.order_money, 0)) as sellInMoney,
+                                   0 as advanceInMoney,
+                                   sum(if (sro.type = 1, 0, sro.order_money)) as addNeedInMoney,
+                                   sum(sro.order_money) as sellProceedsMoney,
+                                   sum(sro.cost_money) as sellCostMoney,
+                                   sum(sro.gross_margin_money) as grossMarginMoney,
+                                   if (sum(sro.order_money) = 0, 0, sum(sro.gross_margin_money) * 100 / sum(sro.order_money)) as grossMarginRate
+                            from
+                                 sell_result_order_${storeId} as sro
+                            where date_format(sro.create_time, '%Y-%m') between #{startTime} and #{endTime}
+                            group by
+                                     date_format(sro.create_time, '%Y-%m')
+                        )
+                        union all
+                        (
+                            select
+                                   date_format(fo.create_time, '%Y-%m') as createTime,
+                                   0 as sellOrderQuantity,
+                                   0 as returnOrderQuantity,
+                                   0 as exchangeOrderQuantity,
+                                   sum(fo.money) as sellInMoney,
+                                   sum(fo.advance_money) as advanceInMoney,
+                                   sum(-(fo.money + fo.discount_money + fo.advance_money)) as addNeedInMoney,
+                                   0 as sellProceedsMoney,
+                                   0 as sellCostMoney,
+                                   0 as grossMarginMoney,
+                                   0 as grossMarginRate
+                            from
+                                 fund_order_${storeId} as fo
+                            where date_format(fo.create_time, '%Y-%m') between #{startTime} and #{endTime}
+                            and fo.type = 1
+                            group by
+                                     date_format(fo.create_time, '%Y-%m')
+                        )
+                    ) as temp
+                group by
+                    temp.createTime
+            ) as temp1;
+    </select>
+
+    <select id="findPagedSellByYear" resultType="com.yeta.pps.vo.ReportSellVo">
+        select
+               temp.createTime as createMonth,
+               sum(temp.sellOrderQuantity) as sellOrderQuantity,
+               sum(temp.returnOrderQuantity) as returnOrderQuantity,
+               sum(temp.exchangeOrderQuantity) as exchangeOrderQuantity,
+               sum(temp.sellInMoney) as sellInMoney,
+               sum(temp.advanceInMoney) as advanceInMoney,
+               sum(temp.addNeedInMoney) as addNeedInMoney,
+               sum(temp.sellProceedsMoney) as sellProceedsMoney,
+               sum(temp.sellCostMoney) as sellCostMoney,
+               sum(temp.grossMarginMoney) as grossMarginMoney,
+               sum(temp.grossMarginRate) as grossMarginRate
+        from
+            (
+                (
+                    select
+                           date_format(sro.create_time, '%Y-%m') as createTime,
+                           count(sro.type = 1 or null) + count(sro.type = 2 or null) as sellOrderQuantity,
+                           count(sro.type = 2 or null) as returnOrderQuantity,
+                           count(sro.type = 3 or null) as exchangeOrderQuantity,
+                           sum(if (sro.type = 1, sro.order_money, 0)) as sellInMoney,
+                           0 as advanceInMoney,
+                           sum(if (sro.type = 1, 0, sro.order_money)) as addNeedInMoney,
+                           sum(sro.order_money) as sellProceedsMoney,
+                           sum(sro.cost_money) as sellCostMoney,
+                           sum(sro.gross_margin_money) as grossMarginMoney,
+                           if (sum(sro.order_money) = 0, 0, sum(sro.gross_margin_money) * 100 / sum(sro.order_money)) as grossMarginRate
+                    from
+                         sell_result_order_${vo.storeId} as sro
+                    where date_format(sro.create_time, '%Y-%m') between #{vo.startTime} and #{vo.endTime}
+                    group by
+                             date_format(sro.create_time, '%Y-%m')
+                )
+                union all
+                (
+                    select
+                           date_format(fo.create_time, '%Y-%m') as createTime,
+                           0 as sellOrderQuantity,
+                           0 as returnOrderQuantity,
+                           0 as exchangeOrderQuantity,
+                           sum(fo.money) as sellInMoney,
+                           sum(fo.advance_money) as advanceInMoney,
+                           sum(-(fo.money + fo.discount_money + fo.advance_money)) as addNeedInMoney,
+                           0 as sellProceedsMoney,
+                           0 as sellCostMoney,
+                           0 as grossMarginMoney,
+                           0 as grossMarginRate
+                    from
+                         fund_order_${vo.storeId} as fo
+                    where date_format(fo.create_time, '%Y-%m') between #{vo.startTime} and #{vo.endTime}
+                    and fo.type = 1
+                    group by
+                             date_format(fo.create_time, '%Y-%m')
+                )
+            ) as temp
+        group by
+            temp.createTime
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountSellByGoods" parameterType="com.yeta.pps.vo.ReportSellVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                select
+                    g.id as goodsId,
+                    g.name as goodsName,
+                    g.bar_code as goodsBarCode,
+                    g.type_id as goodsTypeId,
+                    gt.name as goodsTypeName,
+                    g.image as goodsImage,
+                    count(ogs.type = 0 or null) - count(ogs.type = 1 or null) as sellQuantity,
+                    sum(if (ogs.type = 0, ogs.money - ogs.discount_money, 0)) - sum(if (ogs.type = 1, ogs.money - ogs.discount_money, 0)) as sellProceedsMoney,
+                    sum(if(ogs.type = 0, sco.out_money, 0)) - sum(if(ogs.type = 1, sco.in_money, 0)) as sellCostMoney,
+                    sum(if (ogs.type = 0, ogs.money - ogs.discount_money, 0)) - sum(if (ogs.type = 1, ogs.money - ogs.discount_money, 0)) - (sum(if(ogs.type = 0, sco.out_money, 0)) - sum(if(ogs.type = 1, sco.in_money, 0))) as grossMarginMoney,
+                    (sum(if (ogs.type = 0, ogs.money - ogs.discount_money, 0)) - sum(if (ogs.type = 1, ogs.money - ogs.discount_money, 0)) - (sum(if(ogs.type = 0, sco.out_money, 0)) - sum(if(ogs.type = 1, sco.in_money, 0)))) * 100 / (sum(if (ogs.type = 0, ogs.money - ogs.discount_money, 0)) - sum(if (ogs.type = 1, ogs.money - ogs.discount_money, 0))) as grossMarginRate,
+                    count(ogs.type = 0 or null) as sellOutQuantity,
+                    count(ogs.type = 1 or null) as returnQuantity,
+                    sum(if (ogs.type = 1, ogs.money - ogs.discount_money, 0)) as returnMoney,
+                    count(ogs.type = 1 or null) * 100 / count(ogs.type = 0 or null) as returnRate
+                from sell_result_order_${storeId} as sro
+                left join order_goods_sku_${storeId} as ogs on ogs.order_id = sro.id
+                left join goods_sku_${storeId} as gs on gs.id = ogs.goods_sku_id
+                left join goods_${storeId} as g on g.id = gs.goods_id
+                left join goods_type_${storeId} as gt on gt.id = g.type_id
+                left join storage_check_order_${storeId} as sco on sco.order_id = sro.id
+                where date(sro.create_time) between #{startTime} and #{endTime}
+                and sco.goods_sku_id = ogs.goods_sku_id
+                <if test="goodsId != null">
+                    and g.id = #{goodsId}
+                </if>
+                <if test="goodsName != null">
+                    and g.name like concat('%', #{goodsName}, '%')
+                </if>
+                <if test="goodsBarCode != null">
+                    and g.bar_code = #{goodsBarCode}
+                </if>
+                <if test="goodsTypeId != null">
+                    and g.type_id = #{goodsTypeId}
+                </if>
+                group by
+                    g.id
+            ) as temp;
+    </select>
+
+    <select id="findPagedSellByGoods" resultType="com.yeta.pps.vo.ReportSellVo">
+        select
+               g.id as goodsId,
+               g.name as goodsName,
+               g.bar_code as goodsBarCode,
+               g.type_id as goodsTypeId,
+               gt.name as goodsTypeName,
+               g.image as goodsImage,
+               count(ogs.type = 0 or null) - count(ogs.type = 1 or null) as sellQuantity,
+               sum(if (ogs.type = 0, ogs.money - ogs.discount_money, 0)) - sum(if (ogs.type = 1, ogs.money - ogs.discount_money, 0)) as sellProceedsMoney,
+               sum(if(ogs.type = 0, sco.out_money, 0)) - sum(if(ogs.type = 1, sco.in_money, 0)) as sellCostMoney,
+               sum(if (ogs.type = 0, ogs.money - ogs.discount_money, 0)) - sum(if (ogs.type = 1, ogs.money - ogs.discount_money, 0)) - (sum(if(ogs.type = 0, sco.out_money, 0)) - sum(if(ogs.type = 1, sco.in_money, 0))) as grossMarginMoney,
+               (sum(if (ogs.type = 0, ogs.money - ogs.discount_money, 0)) - sum(if (ogs.type = 1, ogs.money - ogs.discount_money, 0)) - (sum(if(ogs.type = 0, sco.out_money, 0)) - sum(if(ogs.type = 1, sco.in_money, 0)))) * 100 / (sum(if (ogs.type = 0, ogs.money - ogs.discount_money, 0)) - sum(if (ogs.type = 1, ogs.money - ogs.discount_money, 0))) as grossMarginRate,
+               count(ogs.type = 0 or null) as sellOutQuantity,
+               count(ogs.type = 1 or null) as returnQuantity,
+               sum(if (ogs.type = 1, ogs.money - ogs.discount_money, 0)) as returnMoney,
+               count(ogs.type = 1 or null) * 100 / count(ogs.type = 0 or null) as returnRate
+        from sell_result_order_${vo.storeId} as sro
+        left join order_goods_sku_${vo.storeId} as ogs on ogs.order_id = sro.id
+        left join goods_sku_${vo.storeId} as gs on gs.id = ogs.goods_sku_id
+        left join goods_${vo.storeId} as g on g.id = gs.goods_id
+        left join goods_type_${vo.storeId} as gt on gt.id = g.type_id
+        left join storage_check_order_${vo.storeId} as sco on sco.order_id = sro.id
+        where date(sro.create_time) between #{vo.startTime} and #{vo.endTime}
+        and sco.goods_sku_id = ogs.goods_sku_id
+        <if test="vo.goodsId != null">
+            and g.id = #{vo.goodsId}
+        </if>
+        <if test="vo.goodsName != null">
+            and g.name like concat('%', #{vo.goodsName}, '%')
+        </if>
+        <if test="vo.goodsBarCode != null">
+            and g.bar_code = #{vo.goodsBarCode}
+        </if>
+        <if test="vo.goodsTypeId != null">
+            and g.type_id = #{vo.goodsTypeId}
+        </if>
+        group by
+                 g.id
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
 </mapper>
