@@ -605,6 +605,87 @@ public class ReportService {
 
     //订单统计
 
+    /**
+     * 订单统计-订单分析
+     * @param reportOrderVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportOrderByOrder(ReportOrderVo reportOrderVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountOrderByOrder(reportOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<FundCheckOrderVo> vos = myReportMapper.findPagedOrderByOrder(reportOrderVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("日期", "createTime"));
+        titles.add(new Title("订单数", "orderQuantity"));
+        titles.add(new Title("退货单数", "returnQuantity"));
+        titles.add(new Title("换货单数", "exchangeQuantity"));
+        titles.add(new Title("订单金额", "orderMoney"));
+        titles.add(new Title("退货金额", "returnMoney"));
+        titles.add(new Title("平均订单金额", "averageOrderMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 订单统计-商品订货分析
+     * @param reportOrderVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportOrderByGoods(ReportOrderVo reportOrderVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountOrderByGoods(reportOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<FundCheckOrderVo> vos = myReportMapper.findPagedOrderByGoods(reportOrderVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("商品货号", "goodsId"));
+        titles.add(new Title("商品名", "goodsName"));
+        titles.add(new Title("商品条码", "goodsBarCode"));
+        titles.add(new Title("商品分类", "goodsTypeName"));
+        titles.add(new Title("商品图片", "goodsImage"));
+        titles.add(new Title("销售数量", "orderQuantity"));
+        titles.add(new Title("金额", "orderMoney"));
+        titles.add(new Title("退货数量", "returnQuantity"));
+        titles.add(new Title("退货金额", "returnMoney"));
+        titles.add(new Title("退货率(%)", "averageOrderMoney"));
+        titles.add(new Title("金额合计", "netMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 订单统计-客户订货分析
+     * @param reportOrderVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportOrderByClient(ReportOrderVo reportOrderVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountOrderByClient(reportOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<FundCheckOrderVo> vos = myReportMapper.findPagedOrderByClient(reportOrderVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("日期", "createTime"));
+        titles.add(new Title("消费客户数", "clientQuantity"));
+        titles.add(new Title("订单数", "orderQuantity"));
+        titles.add(new Title("订单金额", "orderMoney"));
+        titles.add(new Title("平均客单量", "averageClientOrderQuantity"));
+        titles.add(new Title("平均客单价", "averageClientOrderMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
     //销售报表
 
     //采购报表

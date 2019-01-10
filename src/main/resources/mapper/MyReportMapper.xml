@@ -23,7 +23,8 @@
                         inner join warehouse_goods_sku_${storeId} as wgs on wgs.goods_sku_id = gs.id
                     )
                 inner join warehouse_${storeId} as w on w.id = wgs.warehouse_id
-                where wgs.opening_money > 0
+                where
+                    wgs.opening_money > 0
                 <if test="id != null">
                     and g.id = #{id}
                 </if>
@@ -60,7 +61,8 @@
                 inner join warehouse_goods_sku_${vo.storeId} as wgs on wgs.goods_sku_id = gs.id
             )
         inner join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
-        where wgs.opening_money > 0
+        where
+            wgs.opening_money > 0
         <if test="vo.id != null">
             and g.id = #{vo.id}
         </if>
@@ -73,8 +75,10 @@
         <if test="vo.typeId != null">
             and g.type_id = #{vo.typeId}
         </if>
-        group by g.id
-        limit #{pageVo.start}, #{pageVo.pageSize};
+        group by
+            g.id
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findCountGoodsWarehouse" parameterType="com.yeta.pps.vo.ReportInventoryVo" resultType="java.lang.Integer">
@@ -101,7 +105,8 @@
                 inner join warehouse_goods_sku_${storeId} as wgs on wgs.goods_sku_id = gs.id
             )
         inner join warehouse_${storeId} as w on w.id = wgs.warehouse_id
-        where wgs.opening_money > 0
+        where
+            wgs.opening_money > 0
         <if test="id != null">
             and g.id = #{id}
         </if>
@@ -138,7 +143,8 @@
                 inner join warehouse_goods_sku_${vo.storeId} as wgs on wgs.goods_sku_id = gs.id
             )
         inner join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
-        where wgs.opening_money > 0
+        where
+            wgs.opening_money > 0
         <if test="vo.id != null">
             and g.id = #{vo.id}
         </if>
@@ -151,7 +157,8 @@
         <if test="vo.typeId != null">
             and g.type_id = #{vo.typeId}
         </if>
-        limit #{pageVo.start}, #{pageVo.pageSize};
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findProcurementIn" parameterType="com.yeta.pps.vo.ReportInventoryVo" resultType="com.yeta.pps.vo.ReportInventoryVo">
@@ -161,7 +168,8 @@
         from 
             storage_check_order_${storeId} as sco
         inner join procurement_result_order_${storeId} as pro on pro.id = sco.order_id
-        where date(sco.create_time) between #{startTime} and #{endTime}
+        where
+            date(sco.create_time) between #{startTime} and #{endTime}
         and sco.goods_id = #{id}
         <if test="warehouseId != null">
             and sco.warehouse_id = #{warehouseId}
@@ -175,7 +183,8 @@
         from
             storage_check_order_${storeId} as sco
         left join storage_result_order_${storeId} as sro on sro.id = sco.order_id
-        where date(sco.create_time) between #{startTime} and #{endTime}
+        where
+            date(sco.create_time) between #{startTime} and #{endTime}
         and sco.goods_id = #{id}
         and
         (
@@ -195,7 +204,8 @@
         from
             storage_check_order_${storeId} as sco
         inner join sell_result_order_${storeId} as sro on sro.id = sco.order_id
-        where date(sco.create_time) between #{startTime} and #{endTime}
+        where
+            date(sco.create_time) between #{startTime} and #{endTime}
         and sco.goods_id = #{id}
         <if test="warehouseId != null">
             and sco.warehouse_id = #{warehouseId}
@@ -209,7 +219,8 @@
         from
             storage_check_order_${storeId} as sco
         left join storage_result_order_${storeId} as sro on sro.id = sco.order_id
-        where date(sco.create_time) between #{startTime} and #{endTime}
+        where
+            date(sco.create_time) between #{startTime} and #{endTime}
         and sco.goods_id = #{id}
         and sro.type in (2, 4, 5)
         and sco.out_total_money != 0
@@ -223,7 +234,8 @@
             id, order_id, create_time, order_status, target_id, goods_id, goods_sku_id, warehouse_id, in_quantity, in_money, in_total_money, out_quantity, out_money, out_total_money, check_quantity, check_money, check_total_money, check_quantity1, check_money1, check_total_money1, check_quantity2, check_money2, check_total_money2, user_id
         from
             storage_check_order_${storeId} as sco
-        where 1 = 1
+        where
+            1 = 1
         <if test="goodsId != null">
             and sco.goods_id = #{goodsId}
         </if>
@@ -253,7 +265,8 @@
         from
             storage_check_order_${storeId} as sco
         inner join storage_result_order_${storeId} as sro on sro.id = sco.order_id
-        where date(sco.create_time) between #{startTime} and #{endTime}
+        where
+            date(sco.create_time) between #{startTime} and #{endTime}
         and sco.goods_id = #{id}
         <if test="flag == 1">
             and sro.type in (1, 2);
@@ -293,7 +306,8 @@
                 left join user_${storeId} as u on u.id = sco.user_id
             )
         left join warehouse_${storeId} as w on w.id = sco.warehouse_id
-        where date(sco.create_time) between #{startTime} and #{endTime}
+        where
+            date(sco.create_time) between #{startTime} and #{endTime}
         <if test="id != null">
             and g.id = #{id}
         </if>
@@ -306,7 +320,8 @@
         <if test="typeId != null">
             and g.type_id = #{typeId}
         </if>
-        order by sco.create_time asc;
+        order by
+            sco.create_time asc;
     </select>
 
     <select id="findPagedDetails" resultType="com.yeta.pps.vo.StorageCheckOrderVo">
@@ -412,7 +427,8 @@
                 left join user_${vo.storeId} as u on u.id = sco.user_id
             )
         left join warehouse_${vo.storeId} as w on w.id = sco.warehouse_id
-        where date(sco.create_time) between #{vo.startTime} and #{vo.endTime}
+        where
+            date(sco.create_time) between #{vo.startTime} and #{vo.endTime}
         <if test="vo.id != null">
             and g.id = #{vo.id}
         </if>
@@ -425,8 +441,10 @@
         <if test="vo.typeId != null">
             and g.type_id = #{vo.typeId}
         </if>
-        order by sco.create_time asc
-        limit #{pageVo.start}, #{pageVo.pageSize};
+        order by
+            sco.create_time asc
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <!--资金报表-->
@@ -468,7 +486,8 @@
             date(fco.create_time)
         order by
             fco.create_time desc
-        limit #{pageVo.start}, #{pageVo.pageSize};
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findOrderQuantity" parameterType="com.yeta.pps.vo.ReportFundVo" resultType="java.lang.Integer">
@@ -489,7 +508,7 @@
 
     <select id="findAllFundIn" parameterType="com.yeta.pps.vo.ReportFundVo" resultType="com.yeta.pps.vo.FundCheckOrderVo">
         select
-            order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id, remark
+            order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id
         from
             fund_check_order_${storeId} as fco
         where
@@ -530,7 +549,8 @@
             date(fco.create_time) between #{vo.startTime} and #{vo.endTime}
         group by
             fco.user_id
-        limit #{pageVo.start}, #{pageVo.pageSize};
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findCountFundOutByType" parameterType="com.yeta.pps.vo.ReportFundVo" resultType="java.lang.Integer">
@@ -580,6 +600,8 @@
                 type = 1
             and date(create_time) between #{vo.startTime} and #{vo.endTime}
         )
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findCountFundOutByTarget" parameterType="com.yeta.pps.vo.ReportFundVo" resultType="java.lang.Integer">
@@ -622,7 +644,9 @@
         and date(fro.create_time) between #{vo.startTime} and #{vo.endTime}
         and fro.target_id is not null
         group by
-            fro.target_id;
+            fro.target_id
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findDiscountMoney" parameterType="com.yeta.pps.vo.ReportFundVo" resultType="java.lang.Double">
@@ -673,7 +697,9 @@
             fro.type = 2
         and date(fro.create_time) between #{vo.startTime} and #{vo.endTime}
         group by
-            fro.user_id;
+            fro.user_id
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findCountFundOutByDetails" parameterType="com.yeta.pps.vo.ReportFundVo" resultType="java.lang.Integer">
@@ -729,6 +755,181 @@
         where
             date(fco.create_time) between #{vo.startTime} and #{vo.endTime}
         and (fro.type = 2 or fo.type = 1)
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <!--订单统计-->
+
+    <select id="findCountOrderByOrder" parameterType="com.yeta.pps.vo.ReportOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                select
+                    date(sao.create_time) as create_time,
+                    count(sao.type = 2 or null) as order_quantity,
+                    count(sao.type = 3 or null) as return_quantity,
+                    count(sao.type = 4 or null) as exchange_quantity,
+                    sum(if (sao.type = 2, sao.order_money, 0)) as order_money,
+                    sum(if (sao.type = 3, - sao.order_money, 0)) as return_money,
+                    if (count(sao.type = 2 or null) = 0, 0, (if (sao.type = 2, sao.order_money, 0 ) / count(sao.type = 2 or null))) as average_order_money
+                from
+                    sell_apply_order_${storeId} as sao
+                where
+                    sao.type in (2, 3, 4)
+                and date(sao.create_time) between #{startTime} and #{endTime}
+                group by
+                    date(sao.create_time)
+            ) as temp;
+    </select>
+
+    <select id="findPagedOrderByOrder" resultType="com.yeta.pps.vo.ReportOrderVo">
+        select 
+            date(sao.create_time) as create_time,
+            count(sao.type = 2 or null) as order_quantity,
+            count(sao.type = 3 or null) as return_quantity,
+            count(sao.type = 4 or null) as exchange_quantity,
+            sum(if (sao.type = 2, sao.order_money, 0)) as order_money,
+            sum(if (sao.type = 3, - sao.order_money, 0)) as return_money,
+            if (count(sao.type = 2 or null) = 0, 0, (if (sao.type = 2, sao.order_money, 0 ) / count(sao.type = 2 or null))) as average_order_money
+        from
+            sell_apply_order_${vo.storeId} as sao
+        where
+            sao.type in (2, 3, 4)
+        and date(sao.create_time) between #{vo.startTime} and #{vo.endTime}
+        group by
+            date(sao.create_time)
+        order by
+            date(sao.create_time)
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountOrderByGoods" parameterType="com.yeta.pps.vo.ReportOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                select
+                    g.id as goods_id,
+                    g.name as goods_name,
+                    g.bar_code as goods_bar_code,
+                    g.type_id as goods_type_id,
+                    gt. NAME as goods_type_name,
+                    g.image as goods_image,
+                    count(sao.type = 2 or null) as order_quantity,
+                    sum(if (sao.type = 2, ogs.money - ogs.discount_money, 0)) as order_money,
+                    count(sao.type = 3 or null) as return_quantity,
+                    sum(if (sao.type = 3, ogs.money - ogs.discount_money, 0)) as return_money,
+                    if (count(sao.type = 3 or null) = 0, 0, if (count(sao.type = 2 or null) = 0, 1, count(sao.type = 3 or null) / count(sao.type = 2 or null))) as average_order_money,
+                    (sum(if (sao.type = 2, ogs.money - ogs.discount_money, 0)) - sum(if (sao.type = 3, ogs.money - ogs.discount_money, 0))) as net_money
+                from
+                    sell_apply_order_${storeId} as sao
+                left join order_goods_sku_${storeId} as ogs on ogs.order_id = sao.id
+                left join goods_sku_${storeId} as gs on gs.id = ogs.goods_sku_id
+                left join goods_${storeId} as g on g.id = gs.goods_id
+                left join goods_type_${storeId} as gt on gt.id = g.type_id
+                where
+                    date(sao.create_time) between #{startTime} and #{endTime}
+                and sao.type in (2, 3)
+                <if test="goodsId != null">
+                    and g.id = #{goodsId}
+                </if>
+                <if test="goodsName != null">
+                    and g.name like concat('%', #{goodsName}, '%')
+                </if>
+                <if test="goodsBarCode != null">
+                    and g.bar_code = #{goodsBarCode}
+                </if>
+                <if test="goodsTypeId != null">
+                    and g.type_id = #{goodsTypeId}
+                </if>
+                group by
+                    g.id
+            ) as temp;
+    </select>
+
+    <select id="findPagedOrderByGoods" resultType="com.yeta.pps.vo.ReportOrderVo">
+        select 
+            g.id as goods_id,
+            g.name as goods_name,
+            g.bar_code as goods_bar_code,
+            g.type_id as goods_type_id,
+            gt.name as goods_type_name,
+            g.image as goods_image,
+            count(sao.type = 2 or null) as order_quantity,
+            sum(if (sao.type = 2, ogs.money - ogs.discount_money, 0)) as order_money,
+            count(sao.type = 3 or null) as return_quantity,
+            sum(if (sao.type = 3, ogs.money - ogs.discount_money, 0)) as return_money,
+            if (count(sao.type = 3 or null) = 0, 0, if (count(sao.type = 2 or null) = 0, 1, count(sao.type = 3 or null) / count(sao.type = 2 or null))) as average_order_money,
+            (sum(if (sao.type = 2, ogs.money - ogs.discount_money, 0)) - sum(if (sao.type = 3, ogs.money - ogs.discount_money, 0))) as net_money
+        from
+            sell_apply_order_${vo.storeId} as sao
+        left join order_goods_sku_${vo.storeId} as ogs on ogs.order_id = sao.id
+        left join goods_sku_${vo.storeId} as gs on gs.id = ogs.goods_sku_id
+        left join goods_${vo.storeId} as g on g.id = gs.goods_id
+        left join goods_type_${vo.storeId} as gt on gt.id = g.type_id
+        where
+            date(sao.create_time) between #{vo.startTime} and #{vo.endTime}
+        and sao.type in (2, 3)
+        <if test="vo.goodsId != null">
+            and g.id = #{vo.goodsId}
+        </if>
+        <if test="vo.goodsName != null">
+            and g.name like concat('%', #{vo.goodsName}, '%')
+        </if>
+        <if test="vo.goodsBarCode != null">
+            and g.bar_code = #{vo.goodsBarCode}
+        </if>
+        <if test="vo.goodsTypeId != null">
+            and g.type_id = #{vo.goodsTypeId}
+        </if>
+        group by
+            g.id
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountOrderByClient" parameterType="com.yeta.pps.vo.ReportOrderVo" resultType="java.lang.Integer">
+        select
+            count(0)
+        from
+            (
+                select
+                    date(sao.create_time) as create_time,
+                    count(distinct sao.client_id) as client_quantity,
+                    count(0) as order_quantity,
+                    sum(sao.order_money) as order_money,
+                    count(0) / count(distinct sao.client_id) as average_client_order_quantity,
+                    sum(sao.order_money) / count(distinct sao.client_id) as average_client_order_money
+                from
+                    sell_apply_order_${storeId} as sao
+                where
+                    date(sao.create_time) between #{startTime} and #{endTime}
+                and sao.type = 2
+                group by
+                    date(sao.create_time)
+            ) as temp;
+    </select>
+
+    <select id="findPagedOrderByClient" resultType="com.yeta.pps.vo.ReportOrderVo">
+        select
+            date(sao.create_time) as create_time,
+            count(distinct sao.client_id) as client_quantity,
+            count(0) as order_quantity,
+            sum(sao.order_money) as order_money,
+            count(0) / count(distinct sao.client_id) as average_client_order_quantity,
+            sum(sao.order_money) / count(distinct sao.client_id) as average_client_order_money
+        from
+            sell_apply_order_${vo.storeId} as sao
+        where
+            date(sao.create_time) between #{vo.startTime} and #{vo.endTime}
+        and sao.type = 2
+        group by
+            date(sao.create_time)
+        limit
+            #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
 </mapper>

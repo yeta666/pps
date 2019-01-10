@@ -45,7 +45,7 @@ public interface MyReportMapper {
     int findCountFundInByBankAccount(ReportFundVo reportFundVo);
 
     List<ReportFundVo> findPagedFundInByBankAccount(@Param(value = "vo") ReportFundVo reportFundVo,
-                                                    @Param(value = "pageVo")PageVo pageVo);
+                                                    @Param(value = "pageVo") PageVo pageVo);
 
     List<Integer> findOrderQuantity(ReportFundVo reportFundVo);
 
@@ -54,27 +54,44 @@ public interface MyReportMapper {
     int findCountFundInByUser(ReportFundVo reportFundVo);
 
     List<ReportFundVo> findPagedFundInByUser(@Param(value = "vo") ReportFundVo reportFundVo,
-                                             @Param(value = "pageVo")PageVo pageVo);
+                                             @Param(value = "pageVo") PageVo pageVo);
 
     int findCountFundOutByType(ReportFundVo reportFundVo);
 
     List<ReportFundVo> findPagedFundOutByType(@Param(value = "vo") ReportFundVo reportFundVo,
-                                              @Param(value = "pageVo")PageVo pageVo);
+                                              @Param(value = "pageVo") PageVo pageVo);
 
     int findCountFundOutByTarget(ReportFundVo reportFundVo);
 
     List<ReportFundVo> findPagedFundOutByTarget(@Param(value = "vo") ReportFundVo reportFundVo,
-                                                @Param(value = "pageVo")PageVo pageVo);
+                                                @Param(value = "pageVo") PageVo pageVo);
 
     Double findDiscountMoney(ReportFundVo reportFundVo);
 
     int findCountFundOutByUser(ReportFundVo reportFundVo);
 
     List<ReportFundVo> findPagedFundOutByUser(@Param(value = "vo") ReportFundVo reportFundVo,
-                                              @Param(value = "pageVo")PageVo pageVo);
+                                              @Param(value = "pageVo") PageVo pageVo);
 
     int findCountFundOutByDetails(ReportFundVo reportFundVo);
 
     List<FundCheckOrderVo> findPagedFundOutByDetails(@Param(value = "vo") ReportFundVo reportFundVo,
-                                                     @Param(value = "pageVo")PageVo pageVo);
+                                                     @Param(value = "pageVo") PageVo pageVo);
+
+    //订单统计
+
+    int findCountOrderByOrder(ReportOrderVo reportOrderVo);
+
+    List<FundCheckOrderVo> findPagedOrderByOrder(@Param(value = "vo") ReportOrderVo reportOrderVo,
+                                                 @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountOrderByGoods(ReportOrderVo reportOrderVo);
+
+    List<FundCheckOrderVo> findPagedOrderByGoods(@Param(value = "vo") ReportOrderVo reportOrderVo,
+                                                 @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountOrderByClient(ReportOrderVo reportOrderVo);
+
+    List<FundCheckOrderVo> findPagedOrderByClient(@Param(value = "vo") ReportOrderVo reportOrderVo,
+                                                  @Param(value = "pageVo") PageVo pageVo);
 }
