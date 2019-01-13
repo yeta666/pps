@@ -617,6 +617,7 @@ public class FundService {
         fundCheckOrderVo.setOrderStatus((byte) 1);
         fundCheckOrderVo.setTargetId(fundResultOrderVo.getTargetId());
         fundCheckOrderVo.setBankAccountId(fundResultOrderVo.getBankAccountId());
+        fundCheckOrderVo.setUserId(fundResultOrderVo.getUserId());
 
         //查询最新的资金对账记录
         FundCheckOrderVo lastVo = myFundMapper.findLastBalanceMoney(new FundCheckOrderVo(fundResultOrderVo.getStoreId(), null, null, fundResultOrderVo.getBankAccountId()));

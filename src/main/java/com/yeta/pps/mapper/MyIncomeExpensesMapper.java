@@ -15,11 +15,12 @@ public interface MyIncomeExpensesMapper {
 
     int update(IncomeExpensesVo incomeExpensesVo);
 
-    int findCount(IncomeExpensesVo incomeExpensesVo);
-
     List<IncomeExpenses> findAll(IncomeExpensesVo incomeExpensesVo);
 
-    List<IncomeExpenses> findAllPaged(@Param(value = "incomeExpensesVo") IncomeExpensesVo incomeExpensesVo, @Param(value = "pageVo") PageVo pageVo);
+    int findCount(IncomeExpensesVo incomeExpensesVo);
+
+    List<IncomeExpenses> findAllPaged(@Param(value = "vo") IncomeExpensesVo incomeExpensesVo,
+                                      @Param(value = "pageVo") PageVo pageVo);
 
     IncomeExpenses findById(IncomeExpensesVo incomeExpensesVo);
 }

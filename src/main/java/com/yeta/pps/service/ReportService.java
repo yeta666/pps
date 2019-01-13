@@ -12,13 +12,13 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * 报表相关逻辑处理
+ *
  * @author YETA
  * @date 2019/01/07/13:29
  */
@@ -33,11 +33,28 @@ public class ReportService {
 
     /**
      * 返回四舍五入2位小数的方法
+     *
      * @param number
      * @return
      */
     public double getNumberMethod(double number) {
         return (double) Math.round(number * 100) / 100;
+    }
+
+    /**
+     * 获取率的方法
+     * @param a
+     * @param b
+     * @return
+     */
+    public double getRateMethod(double a, double b) {
+        if (b == 0 && a == 0) {
+            return 0.00;
+        } else if (b == 0 && a != 0) {
+            return 100.00;
+        } else {
+            return a * 100 / b;
+        }
     }
 
     //库存报表
@@ -46,6 +63,7 @@ public class ReportService {
 
     /**
      * 库存报表-进销存分析-按商品
+     *
      * @param reportInventoryVo
      * @param pageVo
      * @return
@@ -157,6 +175,7 @@ public class ReportService {
 
     /**
      * 库存报表-进销存分析-按商品-仓库
+     *
      * @param reportInventoryVo
      * @param pageVo
      * @return
@@ -277,6 +296,7 @@ public class ReportService {
 
     /**
      * 库存报表-进销存分析-其他出入库分析/报损报溢分析
+     *
      * @param reportInventoryVo
      * @param pageVo
      * @return
@@ -332,6 +352,7 @@ public class ReportService {
 
     /**
      * 库存报表-出入库明细
+     *
      * @param reportInventoryVo
      * @param pageVo
      * @return
@@ -370,6 +391,7 @@ public class ReportService {
 
     /**
      * 资金报表-查回款-按账户
+     *
      * @param reportFundVo
      * @param pageVo
      * @return
@@ -400,6 +422,7 @@ public class ReportService {
 
     /**
      * 统计单量、详细回款的方法
+     *
      * @param vos
      * @param reportFundVo
      */
@@ -447,6 +470,7 @@ public class ReportService {
 
     /**
      * 资金报表-查回款-按职员
+     *
      * @param reportFundVo
      * @param pageVo
      * @return
@@ -479,6 +503,7 @@ public class ReportService {
 
     /**
      * 资金报表-查费用-按分类
+     *
      * @param reportFundVo
      * @param pageVo
      * @return
@@ -506,6 +531,7 @@ public class ReportService {
 
     /**
      * 资金报表-查费用-按往来单位
+     *
      * @param reportFundVo
      * @param pageVo
      * @return
@@ -542,6 +568,7 @@ public class ReportService {
 
     /**
      * 资金报表-查费用-按职员
+     *
      * @param reportFundVo
      * @param pageVo
      * @return
@@ -578,6 +605,7 @@ public class ReportService {
 
     /**
      * 资金报表-查费用-按明细
+     *
      * @param reportFundVo
      * @param pageVo
      * @return
@@ -607,6 +635,7 @@ public class ReportService {
 
     /**
      * 订单统计-订单分析
+     *
      * @param reportOrderVo
      * @param pageVo
      * @return
@@ -615,7 +644,7 @@ public class ReportService {
         //查询所有页数
         pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountOrderByOrder(reportOrderVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        List<FundCheckOrderVo> vos = myReportMapper.findPagedOrderByOrder(reportOrderVo, pageVo);
+        List<ReportOrderVo> vos = myReportMapper.findPagedOrderByOrder(reportOrderVo, pageVo);
 
         //封装返回结果
         List<Title> titles = new ArrayList<>();
@@ -641,7 +670,15 @@ public class ReportService {
         //查询所有页数
         pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountOrderByGoods(reportOrderVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        List<FundCheckOrderVo> vos = myReportMapper.findPagedOrderByGoods(reportOrderVo, pageVo);
+        List<ReportOrderVo> vos = myReportMapper.findPagedOrderByGoods(reportOrderVo, pageVo);
+
+        vos.stream().forEach(vo -> {
+            //退货率
+            vo.setAverageOrderMoney(getRateMethod(vo.getReturnQuantity(), vo.getOrderQuantity()));
+
+            //金额合计
+            vo.setNetMoney(vo.getOrderMoney() - vo.getReturnMoney());
+        });
 
         //封装返回结果
         List<Title> titles = new ArrayList<>();
@@ -650,6 +687,7 @@ public class ReportService {
         titles.add(new Title("商品条码", "goodsBarCode"));
         titles.add(new Title("商品分类", "goodsTypeName"));
         titles.add(new Title("商品图片", "goodsImage"));
+
         titles.add(new Title("销售数量", "orderQuantity"));
         titles.add(new Title("金额", "orderMoney"));
         titles.add(new Title("退货数量", "returnQuantity"));
@@ -663,6 +701,7 @@ public class ReportService {
 
     /**
      * 订单统计-客户订货分析
+     *
      * @param reportOrderVo
      * @param pageVo
      * @return
@@ -671,7 +710,7 @@ public class ReportService {
         //查询所有页数
         pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountOrderByClient(reportOrderVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        List<FundCheckOrderVo> vos = myReportMapper.findPagedOrderByClient(reportOrderVo, pageVo);
+        List<ReportOrderVo> vos = myReportMapper.findPagedOrderByClient(reportOrderVo, pageVo);
 
         //封装返回结果
         List<Title> titles = new ArrayList<>();
@@ -692,6 +731,7 @@ public class ReportService {
 
     /**
      * 销售报表-销售日月年报-销售日报
+     *
      * @param reportSellVo
      * @param pageVo
      * @return
@@ -702,20 +742,31 @@ public class ReportService {
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<ReportSellVo> vos = myReportMapper.findPagedSellByDay(reportSellVo, pageVo);
 
+        vos.stream().forEach(vo -> {
+            //毛利
+            vo.setGrossMarginMoney(vo.getSellProceedsMoney() - vo.getSellCostMoney());
+
+            //毛利率
+            vo.setGrossMarginRate(getRateMethod(vo.getGrossMarginMoney(), vo.getSellProceedsMoney()));
+        });
+
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("单据编号", "orderId"));
         titles.add(new Title("单据类型", "orderTypeName"));
         titles.add(new Title("客户", "clientName"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("备注", "remark"));
+
         titles.add(new Title("销售回款", "sellInMoney"));
         titles.add(new Title("使用预收款", "advanceInMoney"));
         titles.add(new Title("新增应收款", "addNeedInMoney"));
+
         titles.add(new Title("销售收入", "sellProceedsMoney"));
         titles.add(new Title("销售成本", "sellCostMoney"));
         titles.add(new Title("毛利", "grossMarginMoney"));
-        titles.add(new Title("毛利率", "grossMarginRate"));
-        titles.add(new Title("经手人", "userName"));
-        titles.add(new Title("备注", "remark"));
+        titles.add(new Title("毛利率(%)", "grossMarginRate"));
+
         CommonResult commonResult = new CommonResult(titles, vos, pageVo);
 
         return CommonResponse.success(commonResult);
@@ -723,6 +774,7 @@ public class ReportService {
 
     /**
      * 销售报表-销售日月年报-销售月报
+     *
      * @param reportSellVo
      * @param pageVo
      * @return
@@ -733,19 +785,30 @@ public class ReportService {
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<ReportSellVo> vos = myReportMapper.findPagedSellByMonth(reportSellVo, pageVo);
 
+        vos.stream().forEach(vo -> {
+            //毛利
+            vo.setGrossMarginMoney(vo.getSellProceedsMoney() - vo.getSellCostMoney());
+
+            //毛利率
+            vo.setGrossMarginRate(getRateMethod(vo.getGrossMarginMoney(), vo.getSellProceedsMoney()));
+        });
+
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("日期", "createTime"));
+
         titles.add(new Title("销售单数量", "sellOrderQuantity"));
         titles.add(new Title("退货单数量", "returnOrderQuantity"));
         titles.add(new Title("换货单数量", "exchangeOrderQuantity"));
+
         titles.add(new Title("销售回款", "sellInMoney"));
         titles.add(new Title("使用预收款", "advanceInMoney"));
         titles.add(new Title("新增应收款", "addNeedInMoney"));
+
         titles.add(new Title("销售收入", "sellProceedsMoney"));
         titles.add(new Title("销售成本", "sellCostMoney"));
         titles.add(new Title("毛利", "grossMarginMoney"));
-        titles.add(new Title("毛利率", "grossMarginRate"));
+        titles.add(new Title("毛利率(%)", "grossMarginRate"));
         CommonResult commonResult = new CommonResult(titles, vos, pageVo);
 
         return CommonResponse.success(commonResult);
@@ -753,6 +816,7 @@ public class ReportService {
 
     /**
      * 销售报表-销售日月年报-销售年报
+     *
      * @param reportSellVo
      * @param pageVo
      * @return
@@ -763,26 +827,40 @@ public class ReportService {
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<ReportSellVo> vos = myReportMapper.findPagedSellByYear(reportSellVo, pageVo);
 
+        vos.stream().forEach(vo -> {
+            //毛利
+            vo.setGrossMarginMoney(vo.getSellProceedsMoney() - vo.getSellCostMoney());
+
+            //毛利率
+            vo.setGrossMarginRate(getRateMethod(vo.getGrossMarginMoney(), vo.getSellProceedsMoney()));
+        });
+
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("月份", "createMonth"));
+
         titles.add(new Title("销售单数量", "sellOrderQuantity"));
         titles.add(new Title("退货单数量", "returnOrderQuantity"));
         titles.add(new Title("换货单数量", "exchangeOrderQuantity"));
+
         titles.add(new Title("销售回款", "sellInMoney"));
         titles.add(new Title("使用预收款", "advanceInMoney"));
         titles.add(new Title("新增应收款", "addNeedInMoney"));
+
         titles.add(new Title("销售收入", "sellProceedsMoney"));
         titles.add(new Title("销售成本", "sellCostMoney"));
         titles.add(new Title("毛利", "grossMarginMoney"));
-        titles.add(new Title("毛利率", "grossMarginRate"));
+        titles.add(new Title("毛利率(%)", "grossMarginRate"));
         CommonResult commonResult = new CommonResult(titles, vos, pageVo);
 
         return CommonResponse.success(commonResult);
     }
 
+    //销售报表-商品销售分析
+
     /**
      * 销售报表-商品销售分析-按商品
+     *
      * @param reportSellVo
      * @param pageVo
      * @return
@@ -793,6 +871,20 @@ public class ReportService {
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<ReportSellVo> vos = myReportMapper.findPagedSellByGoods(reportSellVo, pageVo);
 
+        vos.stream().forEach(vo -> {
+            //毛利
+            vo.setGrossMarginMoney(vo.getSellProceedsMoney() - vo.getSellCostMoney());
+
+            //毛利率
+            vo.setGrossMarginRate(getRateMethod(vo.getGrossMarginMoney(), vo.getSellProceedsMoney()));
+
+            //销售数量
+            vo.setSellQuantity(vo.getSellOutQuantity() - vo.getReturnQuantity());
+
+            //退货率
+            vo.setReturnRate(getRateMethod(vo.getReturnQuantity(), vo.getSellOutQuantity()));
+        });
+
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("商品货号", "goodsId"));
@@ -801,11 +893,12 @@ public class ReportService {
         titles.add(new Title("商品分类", "goodsTypeName"));
         titles.add(new Title("商品图片", "goodsImage"));
 
-        titles.add(new Title("销售数量", "sellQuantity"));
         titles.add(new Title("销售收入", "sellProceedsMoney"));
         titles.add(new Title("销售成本", "sellCostMoney"));
         titles.add(new Title("毛利", "grossMarginMoney"));
         titles.add(new Title("毛利率(%)", "grossMarginRate"));
+
+        titles.add(new Title("销售数量", "sellQuantity"));
         titles.add(new Title("销售出库数量", "sellOutQuantity"));
         titles.add(new Title("退货数量", "returnQuantity"));
         titles.add(new Title("退货金额", "returnMoney"));
@@ -815,7 +908,562 @@ public class ReportService {
         return CommonResponse.success(commonResult);
     }
 
+    //销售报表-客户销售分析
+
+    /**
+     * 销售报表-客户销售分析-按客户
+     * @param reportSellVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportSellByClient(ReportSellVo reportSellVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountSellByClient(reportSellVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportSellVo> vos = myReportMapper.findPagedSellByClient(reportSellVo, pageVo);
+
+        vos.stream().forEach(vo -> {
+            //毛利
+            vo.setGrossMarginMoney(vo.getSellProceedsMoney() - vo.getSellCostMoney());
+
+            //毛利率
+            vo.setGrossMarginRate(getRateMethod(vo.getGrossMarginMoney(), vo.getSellProceedsMoney()));
+
+            //销售数量
+            vo.setSellQuantity(vo.getSellOutQuantity() - vo.getReturnQuantity());
+
+            //退货率
+            vo.setReturnRate(getRateMethod(vo.getReturnQuantity(), vo.getSellOutQuantity()));
+
+            //营业业绩
+            vo.setSellPerformance(vo.getSellProceedsMoney() + vo.getOtherInMoney() - vo.getDiscountMoney());
+
+            //营业利润
+            vo.setSellProfit(vo.getSellPerformance() - vo.getSellCostMoney());
+        });
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("客户编号", "clientId"));
+        titles.add(new Title("客户名称", "clientName"));
+
+        titles.add(new Title("业务回款", "sellInMoney"));
+        titles.add(new Title("新增应收款", "addNeedInMoney"));
+        titles.add(new Title("预收收款", "advanceMoney"));
+        titles.add(new Title("使用预收款", "advanceInMoney"));
+
+        titles.add(new Title("销售收入", "sellProceedsMoney"));
+        titles.add(new Title("销售成本", "sellCostMoney"));
+        titles.add(new Title("毛利", "grossMarginMoney"));
+        titles.add(new Title("毛利率(%)", "grossMarginRate"));
+
+        titles.add(new Title("其他收入", "otherInMoney"));
+        titles.add(new Title("优惠", "discountMoney"));
+        titles.add(new Title("营业业绩", "sellPerformance"));
+        titles.add(new Title("营业利润", "sellProfit"));
+
+        titles.add(new Title("销售数量", "sellQuantity"));
+        titles.add(new Title("销售出库数量", "sellOutQuantity"));
+        titles.add(new Title("退货数量", "returnQuantity"));
+        titles.add(new Title("退货金额", "returnMoney"));
+        titles.add(new Title("退货率(%)", "returnRate"));
+
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    //销售报表-业绩统计
+
+    /**
+     * 销售报表-业绩统计-按职员
+     * @param reportSellVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportSellByUser(ReportSellVo reportSellVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountSellByUser(reportSellVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportSellVo> vos = myReportMapper.findPagedSellByUser(reportSellVo, pageVo);
+
+        vos.stream().forEach(vo -> {
+            //毛利
+            vo.setGrossMarginMoney(vo.getSellProceedsMoney() - vo.getSellCostMoney());
+
+            //毛利率
+            vo.setGrossMarginRate(getRateMethod(vo.getGrossMarginMoney(), vo.getSellProceedsMoney()));
+
+            //营业业绩
+            vo.setSellPerformance(vo.getSellProceedsMoney() + vo.getOtherInMoney() - vo.getDiscountMoney());
+
+            //营业利润
+            vo.setSellProfit(vo.getSellPerformance() - vo.getSellCostMoney());
+        });
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("职员编号", "userId"));
+        titles.add(new Title("职员名称", "userName"));
+
+        titles.add(new Title("销售单数量", "sellOrderQuantity"));
+        titles.add(new Title("销售数量", "sellQuantity"));
+
+        titles.add(new Title("业务回款", "sellInMoney"));
+        titles.add(new Title("新增应收款", "addNeedInMoney"));
+        titles.add(new Title("预收收款", "advanceMoney"));
+        titles.add(new Title("使用预收款", "advanceInMoney"));
+
+        titles.add(new Title("销售收入", "sellProceedsMoney"));
+        titles.add(new Title("销售成本", "sellCostMoney"));
+        titles.add(new Title("毛利", "grossMarginMoney"));
+        titles.add(new Title("毛利率(%)", "grossMarginRate"));
+
+        titles.add(new Title("其他收入", "otherInMoney"));
+        titles.add(new Title("优惠", "discountMoney"));
+        titles.add(new Title("营业业绩", "sellPerformance"));
+        titles.add(new Title("营业利润", "sellProfit"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 销售报表-业绩统计-按仓库
+     * @param reportSellVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportSellByWarehouse(ReportSellVo reportSellVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountSellByWarehouse(reportSellVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportSellVo> vos = myReportMapper.findPagedSellByWarehouse(reportSellVo, pageVo);
+
+        vos.stream().forEach(vo -> {
+            //毛利
+            vo.setGrossMarginMoney(vo.getSellProceedsMoney() - vo.getSellCostMoney());
+
+            //毛利率
+            vo.setGrossMarginRate(getRateMethod(vo.getGrossMarginMoney(), vo.getSellProceedsMoney()));
+        });
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("仓库编号", "warehouseId"));
+        titles.add(new Title("仓库名称", "warehouseName"));
+
+        titles.add(new Title("销售单数量", "sellOrderQuantity"));
+        titles.add(new Title("销售数量", "sellQuantity"));
+
+        titles.add(new Title("销售收入", "sellProceedsMoney"));
+        titles.add(new Title("销售成本", "sellCostMoney"));
+        titles.add(new Title("毛利", "grossMarginMoney"));
+        titles.add(new Title("毛利率(%)", "grossMarginRate"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 销售报表-回款统计-按职员
+     * @param reportSellVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportSellInByUser(ReportSellVo reportSellVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountSellInByUser(reportSellVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportSellVo> vos = myReportMapper.findPagedSellInByUser(reportSellVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("职员编号", "userId"));
+        titles.add(new Title("职员名称", "userName"));
+
+        titles.add(new Title("单量", "orderQuantity"));
+        titles.add(new Title("回款总额", "totalInMoney"));
+        titles.add(new Title("现金回款", "bankCardInMoney"));
+        titles.add(new Title("支付宝回款", "alipayInMoney"));
+        titles.add(new Title("微信回款", "wechatInMoney"));
+        titles.add(new Title("银行卡回款", "bankCardInMoney"));
+        titles.add(new Title("使用预收款", "advanceInMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
     //采购报表
 
+    //采购报表-商品采购分析
+
+    /**
+     * 采购报表-商品采购分析-按商品
+     * @param procurementVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportProcurementByGoods(ReportProcurementVo procurementVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountProcurementByGoods(procurementVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportProcurementVo> vos = myReportMapper.findPagedProcurementByGoods(procurementVo, pageVo);
+
+        vos.stream().forEach(vo -> {
+            //采购数量
+            vo.setProcurementQuantity(vo.getProcurementInQuantity() - vo.getReturnQuantity());
+
+            //退货率
+            vo.setReturnRate(getRateMethod(vo.getReturnQuantity(), vo.getProcurementInQuantity()));
+        });
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("商品货号", "goodsId"));
+        titles.add(new Title("商品名", "goodsName"));
+        titles.add(new Title("商品条码", "goodsBarCode"));
+        titles.add(new Title("商品分类", "goodsTypeName"));
+        titles.add(new Title("商品图片", "goodsImage"));
+
+        titles.add(new Title("采购数量", "procurementQuantity"));
+        titles.add(new Title("采购金额", "procurementMoney"));
+        titles.add(new Title("采购入库数量", "procurementInQuantity"));
+        titles.add(new Title("退货数量", "returnQuantity"));
+        titles.add(new Title("退货金额", "returnMoney"));
+        titles.add(new Title("退货率(%)", "returnRate"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    //采购报表-供应商采购分析
+
+    /**
+     * 采购报表-供应商采购分析
+     * @param procurementVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportProcurementBySupplier(ReportProcurementVo procurementVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountProcurementBySupplier(procurementVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportProcurementVo> vos = myReportMapper.findPagedProcurementBySupplier(procurementVo, pageVo);
+
+        vos.stream().forEach(vo -> {
+            //采购数量
+            vo.setProcurementQuantity(vo.getProcurementInQuantity() - vo.getReturnQuantity());
+
+            //退货率
+            vo.setReturnRate(getRateMethod(vo.getReturnQuantity(), vo.getProcurementInQuantity()));
+        });
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("供应商编号", "supplierId"));
+        titles.add(new Title("供应商名称", "supplierName"));
+
+        titles.add(new Title("采购数量", "procurementQuantity"));
+        titles.add(new Title("采购金额", "procurementMoney"));
+        titles.add(new Title("采购入库数量", "procurementInQuantity"));
+        titles.add(new Title("退货数量", "returnQuantity"));
+        titles.add(new Title("退货金额", "returnMoney"));
+        titles.add(new Title("退货率(%)", "returnRate"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    //采购报表-采购订单分析
+
+    /**
+     * 采购报表-采购订单分析-按商品
+     * @param procurementVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportProcurementOrderByGoods(ReportProcurementVo procurementVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountProcurementOrderByGoods(procurementVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportProcurementVo> vos = myReportMapper.findPagedProcurementOrderByGoods(procurementVo, pageVo);
+
+        vos.stream().forEach(vo -> {
+            //采购数量
+            vo.setProcurementQuantity(vo.getProcurementInQuantity() - vo.getReturnQuantity());
+
+            //退货率
+            vo.setReturnRate(getRateMethod(vo.getReturnQuantity(), vo.getProcurementInQuantity()));
+        });
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("商品货号", "goodsId"));
+        titles.add(new Title("商品名", "goodsName"));
+        titles.add(new Title("商品条码", "goodsBarCode"));
+        titles.add(new Title("商品分类", "goodsTypeName"));
+        titles.add(new Title("商品图片", "goodsImage"));
+
+        titles.add(new Title("采购数量", "procurementQuantity"));
+        titles.add(new Title("采购金额", "procurementMoney"));
+
+        titles.add(new Title("已发货数量", "outFinishQuantity"));
+        titles.add(new Title("待发货数量", "outNotFinishQuantity"));
+
+        titles.add(new Title("已收货数量", "inFinishQuantity"));
+        titles.add(new Title("待收货数量", "inNotFinishQuantity"));
+
+        titles.add(new Title("订单采购总量", "procurementInQuantity"));
+        titles.add(new Title("退货数量", "returnQuantity"));
+        titles.add(new Title("退货金额", "returnMoney"));
+        titles.add(new Title("退货率(%)", "returnRate"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 采购报表-采购订单分析-按明细
+     * @param procurementVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportProcurementOrderByDetail(ReportProcurementVo procurementVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountProcurementOrderByDetail(procurementVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportProcurementVo> vos = myReportMapper.findPagedProcurementOrderByDetail(procurementVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据日期", "createTime"));
+        titles.add(new Title("单据编号", "orderId"));
+        titles.add(new Title("单据类型", "typeName"));
+        titles.add(new Title("结算状态", "clearStatusName"));
+        titles.add(new Title("仓库", "warehouseName"));
+        titles.add(new Title("供应商", "supplierName"));
+
+        titles.add(new Title("商品货号", "goodsId"));
+        titles.add(new Title("商品名", "goodsName"));
+        titles.add(new Title("商品条码", "goodsBarCode"));
+        titles.add(new Title("商品分类", "goodsTypeName"));
+        titles.add(new Title("商品规格", "goodsSku"));
+
+        titles.add(new Title("采购数量", "procurementQuantity"));
+        titles.add(new Title("采购金额", "procurementMoney"));
+
+        titles.add(new Title("已发货数量", "outFinishQuantity"));
+        titles.add(new Title("待发货数量", "outNotFinishQuantity"));
+
+        titles.add(new Title("已收货数量", "inFinishQuantity"));
+        titles.add(new Title("待收货数量", "inNotFinishQuantity"));
+
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
     //经营中心
+
+    //经营中心-销售经营分析
+
+    /**
+     * 经营中心-销售经营分析
+     * @param reportManageVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportManageBySell(ReportManageVo reportManageVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountManageBySell(reportManageVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportManageVo> vos = myReportMapper.findPagedManageBySell(reportManageVo, pageVo);
+
+        vos.stream().forEach(vo -> {
+            //毛利
+            vo.setGrossMarginMoney(vo.getSellProceedsMoney() - vo.getSellCostMoney());
+
+            //毛利率
+            vo.setGrossMarginRate(getRateMethod(vo.getGrossMarginMoney(), vo.getSellProceedsMoney()));
+        });
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("日期", "createTime"));
+
+        titles.add(new Title("销售数量", "sellQuantity"));
+        titles.add(new Title("销售收入", "sellProceedsMoney"));
+        titles.add(new Title("销售成本", "sellCostMoney"));
+        titles.add(new Title("毛利", "grossMarginMoney"));
+        titles.add(new Title("毛利率(%)", "grossMarginRate"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    //经营中心-资金经营分析
+
+    /**
+     * 经营中心-资金经营分析
+     * @param reportManageVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportManageByFund(ReportManageVo reportManageVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountManageByFund(reportManageVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportManageVo> vos = myReportMapper.findPagedManageByFund(reportManageVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("日期", "createTime"));
+
+        titles.add(new Title("现金回款", "cashInMoney"));
+        titles.add(new Title("支付宝回款", "alipayInMoney"));
+        titles.add(new Title("微信回款", "wechatInMoney"));
+        titles.add(new Title("银行卡回款", "bankCardInMoney"));
+        titles.add(new Title("回款总额", "totalInMoney"));
+        titles.add(new Title("付款总额", "totalOutMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    //经营中心-库存经营分析
+
+    /**
+     * 经营中心-库存经营分析
+     * @param reportManageVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportManageByInventory(ReportManageVo reportManageVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountManageByInventory(reportManageVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportManageVo> vos = myReportMapper.findPagedManageByInventory(reportManageVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("日期", "createTime"));
+
+        titles.add(new Title("入库数量", "totalInQuantity"));
+        titles.add(new Title("入库金额", "totalInMoney"));
+        titles.add(new Title("出库数量", "totalOutQuantity"));
+        titles.add(new Title("出库金额", "totalOutMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    //经营中心-利润经营分析
+
+    /**
+     * 经营中心-利润经营分析
+     * @param reportManageVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportManageByProfit(ReportManageVo reportManageVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountManageByProfit(reportManageVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportManageVo> vos = myReportMapper.findPagedManageByProfit(reportManageVo, pageVo);
+
+        vos.stream().forEach(vo -> {
+            //毛利
+            vo.setGrossMarginMoney(vo.getSellProceedsMoney() - vo.getSellCostMoney());
+
+            //净利润
+            vo.setNetMoney(vo.getGrossMarginMoney() + vo.getOtherInMoney() - vo.getOtherOutMoney());
+        });
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("日期", "createTime"));
+
+        titles.add(new Title("销售收入", "sellProceedsMoney"));
+        titles.add(new Title("销售成本", "sellCostMoney"));
+        titles.add(new Title("毛利", "grossMarginMoney"));
+        titles.add(new Title("其他收入", "otherInMoney"));
+        titles.add(new Title("其他费用", "otherOutMoney"));
+        titles.add(new Title("净利润", "netMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    //经营中心-往来经营分析
+
+    /**
+     * 经营中心-往来经营分析
+     * @param reportManageVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findReportManageByTarget(ReportManageVo reportManageVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myReportMapper.findCountManageByTarget(reportManageVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<ReportManageVo> vos = myReportMapper.findPagedManageByTarget(reportManageVo, pageVo);
+
+        //TODO
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("日期", "createTime"));
+
+        titles.add(new Title("应收增加", "needInMoneyIncrease"));
+        titles.add(new Title("应收减少", "needInMoneyDecrease"));
+        titles.add(new Title("期末应收", "needInMoney"));
+        titles.add(new Title("应付增加", "needOutMoneyIncrease"));
+        titles.add(new Title("应付减少", "needOutMoneyDecrease"));
+        titles.add(new Title("期末应付", "needOutMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    //经营中心-老板中心
+
+    /**
+     * 经营中心-老板中心
+     * @param reportManageVo
+     * @return
+     */
+    public CommonResponse findReportManageByBoss(ReportManageVo reportManageVo) {
+        ReportManageVo vo = myReportMapper.findManageByBoss(reportManageVo);
+        if (vo == null) {
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
+        }
+
+        //TODO
+
+        //资金余额
+        vo.setBalanceMoney(0.00);
+
+        //应收余额
+        vo.setNeedInMoney(0.00);
+
+        //应付余额
+        vo.setNeedOutMoney(0.00);
+
+        return CommonResponse.success(vo);
+
+        /*titles.add(new Title("销售收入", "sellProceedsMoney"));
+        titles.add(new Title("销售成本", "sellCostMoney"));
+        titles.add(new Title("毛利", "grossMarginMoney"));
+        titles.add(new Title("其他收入", "otherInMoney"));
+        titles.add(new Title("其他费用", "otherOutMoney"));
+        titles.add(new Title("净利润", "netMoney"));
+        titles.add(new Title("回款总额", "totalInMoney"));
+        titles.add(new Title("付款总额", "totalOutMoney"));
+        titles.add(new Title("资金余额", "balanceMoney"));
+        titles.add(new Title("应收余额", "needInMoney"));
+        titles.add(new Title("应付余额", "needOutMoney"));*/
+    }
 }

@@ -16,7 +16,7 @@
 
     <select id="findCount" parameterType="com.yeta.pps.vo.UserVo" resultType="java.lang.Integer">
         select
-            count(0)
+            count(distinct u.id)
         from
             user_${storeId} as u,
             role_${storeId} as r,
@@ -26,12 +26,10 @@
         and
             r.id = ur.role_id
         <if test="roleId!=null">
-        and
-            r.id = #{roleId}
+            and r.id = #{roleId}
         </if>
         <if test="name!=null">
-        and
-            u.name like concat('%', #{name}, '%')
+            and u.name like concat('%', #{name}, '%')
         </if>
     </select>
 
@@ -69,12 +67,10 @@
         and
             r.id = ur.role_id
         <if test="userVo.roleId!=null">
-        and
-            r.id = #{userVo.roleId}
+            and r.id = #{userVo.roleId}
         </if>
         <if test="userVo.name!=null">
-        and
-            u.name like concat('%', #{userVo.name}, '%')
+            and u.name like concat('%', #{userVo.name}, '%')
         </if>
         limit
             #{pageVo.start}, #{pageVo.pageSize};

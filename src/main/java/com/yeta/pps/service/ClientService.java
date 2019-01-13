@@ -50,15 +50,8 @@ public class ClientService {
      */
     public CommonResponse login(ClientVo clientVo, HttpServletRequest request) {
         //判断参数
-        if (clientVo.getIdentifyingCode() == null || clientVo.getUsername() == null || clientVo.getPassword() == null) {
+        if (clientVo.getUsername() == null || clientVo.getPassword() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
-        }
-        //判断验证码
-        String iCode = clientVo.getIdentifyingCode().toUpperCase();
-        HttpSession session = request.getSession();
-        Object siCode = session.getAttribute("identifyingCode");
-        if (siCode == null || !siCode.equals(iCode)) {
-            return CommonResponse.error(CommonResponse.LOGIN_ERROR, "验证码错误");
         }
         //判断用户名、密码
         Client client = myClientMapper.findByUsernameAndPassword(clientVo);
@@ -70,20 +63,7 @@ public class ClientService {
             return CommonResponse.error(CommonResponse.LOGIN_ERROR, "该账号已禁用");
         }
         //判断客户是否已登陆
-        String clientId = client.getId();
-        ServletContext servletContext = session.getServletContext();
-        ConcurrentSkipListSet<String> onlineIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineClientIds");
-        for (String onlineId: onlineIds) {
-            if (onlineId.equals(clientId)) {
-                return CommonResponse.error(CommonResponse.LOGIN_ERROR, "重复登陆");
-            }
-        }
-        //设置已登陆
-        onlineIds.add(clientId);
-        session.setAttribute("clientId", clientId);
-        session.setMaxInactiveInterval(60 * 60);      //60分钟
-        clientVo.setId(clientId);
-        clientVo.setToken(CommonUtil.getMd5(clientId));        //token就是md5加密后的客户id
+        clientVo.setId(client.getId());
         return CommonResponse.success(clientVo);
     }
 

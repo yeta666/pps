@@ -549,4 +549,424 @@ public class ReportController {
         return reportService.findReportSellByGoods(new ReportSellVo(storeId, startTime, endTime, goodsId, goodsName, goodsBarCode, goodsTypeId), new PageVo(page, pageSize));
     }
 
+    //销售报表-客户销售分析
+
+    /**
+     * 销售报表-客户销售分析-按客户接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "销售报表-客户销售分析-按客户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/sell/byClient")
+    public CommonResponse<CommonResult<ReportSellVo>> findReportSellByClient(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                             @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                             @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                             @RequestParam(value = "page", required = true) Integer page,
+                                                                             @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportSellByClient(new ReportSellVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    //销售报表-业绩统计
+
+    /**
+     * 销售报表-业绩统计-按职员接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "销售报表-业绩统计-按职员")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/sell/byUser")
+    public CommonResponse<CommonResult<ReportSellVo>> findReportSellByUser(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                           @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                           @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                           @RequestParam(value = "page", required = true) Integer page,
+                                                                           @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportSellByUser(new ReportSellVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 销售报表-业绩统计-按仓库接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "销售报表-业绩统计-仓库")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/sell/byWarehouse")
+    public CommonResponse<CommonResult<ReportSellVo>> findReportSellByWarehouse(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                @RequestParam(value = "page", required = true) Integer page,
+                                                                                @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportSellByWarehouse(new ReportSellVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 销售报表-回款统计-按职员接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "销售报表-回款统计-按职员")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/sell/in/byUser")
+    public CommonResponse<CommonResult<ReportSellVo>> findReportSellInByUser(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                             @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                             @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                             @RequestParam(value = "page", required = true) Integer page,
+                                                                             @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportSellInByUser(new ReportSellVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    //采购报表
+
+    //采购报表-商品采购分析
+
+    /**
+     * 采购报表-商品采购分析-按商品接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param goodsId
+     * @param goodsName
+     * @param goodsBarCode
+     * @param goodsTypeId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "采购报表-商品采购分析-按商品")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "goodsId", value = "商品货号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "goodsName", value = "商品名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "goodsBarCode", value = "商品条码", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "goodsTypeId", value = "商品分类编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/procurement/byGoods")
+    public CommonResponse<CommonResult<ReportProcurementVo>> findReportProcurementByGoods(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                          @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                          @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                          @RequestParam(value = "goodsId", required = false) String goodsId,
+                                                                                          @RequestParam(value = "goodsName", required = false) String goodsName,
+                                                                                          @RequestParam(value = "goodsBarCode", required = false) String goodsBarCode,
+                                                                                          @RequestParam(value = "goodsTypeId", required = false) Integer goodsTypeId,
+                                                                                          @RequestParam(value = "page", required = true) Integer page,
+                                                                                          @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportProcurementByGoods(new ReportProcurementVo(storeId, startTime, endTime, goodsId, goodsName, goodsBarCode, goodsTypeId), new PageVo(page, pageSize));
+    }
+
+    //采购报表-供应商采购分析
+
+    /**
+     * 采购报表-供应商采购分析接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "采购报表-供应商采购分析")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/procurement/bySupplier")
+    public CommonResponse<CommonResult<ReportProcurementVo>> findReportProcurementBySupplier(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                             @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                             @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                             @RequestParam(value = "page", required = true) Integer page,
+                                                                                             @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportProcurementBySupplier(new ReportProcurementVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    //采购报表-采购订单分析
+
+    /**
+     * 采购报表-采购订单分析-按商品接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param goodsId
+     * @param goodsName
+     * @param goodsBarCode
+     * @param goodsTypeId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "采购报表-采购订单分析-按商品")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "goodsId", value = "商品货号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "goodsName", value = "商品名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "goodsBarCode", value = "商品条码", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "goodsTypeId", value = "商品分类编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/procurement/order/byGoods")
+    public CommonResponse<CommonResult<ReportProcurementVo>> findReportProcurementOrderByGoods(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                               @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                               @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                               @RequestParam(value = "goodsId", required = false) String goodsId,
+                                                                                               @RequestParam(value = "goodsName", required = false) String goodsName,
+                                                                                               @RequestParam(value = "goodsBarCode", required = false) String goodsBarCode,
+                                                                                               @RequestParam(value = "goodsTypeId", required = false) Integer goodsTypeId,
+                                                                                               @RequestParam(value = "page", required = true) Integer page,
+                                                                                               @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportProcurementOrderByGoods(new ReportProcurementVo(storeId, startTime, endTime, goodsId, goodsName, goodsBarCode, goodsTypeId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 采购报表-采购订单分析-按明细接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param goodsId
+     * @param goodsName
+     * @param goodsBarCode
+     * @param goodsTypeId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "采购报表-采购订单分析-按明细")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "goodsId", value = "商品货号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "goodsName", value = "商品名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "goodsBarCode", value = "商品条码", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "goodsTypeId", value = "商品分类编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/procurement/order/byDetail")
+    public CommonResponse<CommonResult<ReportProcurementVo>> findReportProcurementOrderByDetail(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                                @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                @RequestParam(value = "goodsId", required = false) String goodsId,
+                                                                                                @RequestParam(value = "goodsName", required = false) String goodsName,
+                                                                                                @RequestParam(value = "goodsBarCode", required = false) String goodsBarCode,
+                                                                                                @RequestParam(value = "goodsTypeId", required = false) Integer goodsTypeId,
+                                                                                                @RequestParam(value = "page", required = true) Integer page,
+                                                                                                @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportProcurementOrderByDetail(new ReportProcurementVo(storeId, startTime, endTime, goodsId, goodsName, goodsBarCode, goodsTypeId), new PageVo(page, pageSize));
+    }
+
+    //经营中心
+
+    //经营中心-销售经营分析
+
+    /**
+     * 经营中心-销售经营分析接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "经营中心-销售经营分析")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/manage/bySell")
+    public CommonResponse<CommonResult<ReportManageVo>> findReportManageBySell(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                               @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                               @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                               @RequestParam(value = "page", required = true) Integer page,
+                                                                               @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportManageBySell(new ReportManageVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    //经营中心-资金经营分析
+
+    /**
+     * 经营中心-资金经营分析接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "经营中心-资金经营分析")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/manage/byFund")
+    public CommonResponse<CommonResult<ReportManageVo>> findReportManageByFund(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                               @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                               @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                               @RequestParam(value = "page", required = true) Integer page,
+                                                                               @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportManageByFund(new ReportManageVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    //经营中心-库存经营分析
+
+    /**
+     * 经营中心-库存经营分析接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "经营中心-库存经营分析")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/manage/byInventory")
+    public CommonResponse<CommonResult<ReportManageVo>> findReportManageByInventory(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                    @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                    @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                    @RequestParam(value = "page", required = true) Integer page,
+                                                                                    @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportManageByInventory(new ReportManageVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    //经营中心-利润经营分析
+
+    /**
+     * 经营中心-利润经营分析接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "经营中心-利润经营分析")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/manage/byProfit")
+    public CommonResponse<CommonResult<ReportManageVo>> findReportManageByProfit(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                 @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                 @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                 @RequestParam(value = "page", required = true) Integer page,
+                                                                                 @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportManageByProfit(new ReportManageVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    //经营中心-往来经营分析
+
+    /**
+     * 经营中心-往来经营分析接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "经营中心-往来经营分析")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/manage/byTarget")
+    public CommonResponse<CommonResult<ReportManageVo>> findReportManageByTarget(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                                 @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                 @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                 @RequestParam(value = "page", required = true) Integer page,
+                                                                                 @RequestParam(value = "pageSize", required = true) Integer pageSize) {
+        return reportService.findReportManageByTarget(new ReportManageVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    //经营中心-老板中心
+
+    /**
+     * 经营中心-老板中心接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @ApiOperation(value = "经营中心-老板中心")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+    })
+    @GetMapping(value = "/manage/byBoss")
+    public CommonResponse<CommonResult<ReportManageVo>> findReportManageByBoss(@RequestParam(value = "storeId", required = true) Integer storeId,
+                                                                               @RequestParam(value = "startTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                               @RequestParam(value = "endTime", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime) {
+        return reportService.findReportManageByBoss(new ReportManageVo(storeId, startTime, endTime));
+    }
+
 }

@@ -63,41 +63,6 @@ public class ReportSellVo {
     private String clientName;
 
     /**
-     * 销售回款
-     */
-    private Double sellInMoney;
-
-    /**
-     * 使用预收款
-     */
-    private Double advanceInMoney;
-
-    /**
-     * 新增应收款
-     */
-    private Double addNeedInMoney;
-
-    /**
-     * 销售收入
-     */
-    private Double sellProceedsMoney;
-
-    /**
-     * 销售成本
-     */
-    private Double sellCostMoney;
-
-    /**
-     * 毛利
-     */
-    private Double grossMarginMoney;
-
-    /**
-     * 毛利率
-     */
-    private Double grossMarginRate;
-
-    /**
      * 经手人编号
      */
     private String userId;
@@ -111,21 +76,6 @@ public class ReportSellVo {
      * 备注
      */
     private String remark;
-
-    /**
-     * 销售单数量
-     */
-    private Integer sellOrderQuantity;
-
-    /**
-     * 退货单数量
-     */
-    private Integer returnOrderQuantity;
-
-    /**
-     * 换货单数量
-     */
-    private Integer exchangeOrderQuantity;
 
     /**
      * 商品货号
@@ -157,6 +107,52 @@ public class ReportSellVo {
      */
     private String goodsImage;
 
+    //款项
+
+    /**
+     * 销售回款
+     */
+    private Double sellInMoney;
+
+    /**
+     * 新增应收款
+     */
+    private Double addNeedInMoney;
+
+    /**
+     * 预收收款
+     */
+    private Double advanceMoney;
+
+    /**
+     * 使用预收款
+     */
+    private Double advanceInMoney;
+
+    //销售
+
+    /**
+     * 销售收入
+     */
+    private Double sellProceedsMoney;
+
+    /**
+     * 销售成本
+     */
+    private Double sellCostMoney;
+
+    /**
+     * 毛利
+     */
+    private Double grossMarginMoney;
+
+    /**
+     * 毛利率
+     */
+    private Double grossMarginRate;
+
+    //退货
+
     /**
      * 销售数量
      */
@@ -181,6 +177,77 @@ public class ReportSellVo {
      * 退货率
      */
     private Double returnRate;
+
+    //订单
+
+    /**
+     * 销售单数量
+     */
+    private Integer sellOrderQuantity;
+
+    /**
+     * 退货单数量
+     */
+    private Integer returnOrderQuantity;
+
+    /**
+     * 换货单数量
+     */
+    private Integer exchangeOrderQuantity;
+
+    //客户销售分析-按客户特有
+
+    /**
+     * 其他收入
+     */
+    private Double otherInMoney;
+
+    /**
+     * 优惠
+     */
+    private Double discountMoney;
+
+    /**
+     * 营业业绩
+     */
+    private Double sellPerformance;
+
+    /**
+     * 营业利润
+     */
+    private Double sellProfit;
+
+    //回款
+
+    /**
+     * 单量
+     */
+    private Integer orderQuantity;
+
+    /**
+     * 回款总额
+     */
+    private Double totalInMoney;
+
+    /**
+     * 现金回款
+     */
+    private Double cashInMoney;
+
+    /**
+     * 支付宝回款
+     */
+    private Double alipayInMoney;
+
+    /**
+     * 微信回款
+     */
+    private Double wechatInMoney;
+
+    /**
+     * 银行卡回款
+     */
+    private Double bankCardInMoney;
 
     public ReportSellVo() {
     }
@@ -478,6 +545,94 @@ public class ReportSellVo {
         this.returnRate = returnRate;
     }
 
+    public Double getAdvanceMoney() {
+        return advanceMoney;
+    }
+
+    public void setAdvanceMoney(Double advanceMoney) {
+        this.advanceMoney = advanceMoney;
+    }
+
+    public Double getOtherInMoney() {
+        return otherInMoney;
+    }
+
+    public void setOtherInMoney(Double otherInMoney) {
+        this.otherInMoney = otherInMoney;
+    }
+
+    public Double getDiscountMoney() {
+        return discountMoney;
+    }
+
+    public void setDiscountMoney(Double discountMoney) {
+        this.discountMoney = discountMoney;
+    }
+
+    public Double getSellPerformance() {
+        return sellPerformance;
+    }
+
+    public void setSellPerformance(Double sellPerformance) {
+        this.sellPerformance = sellPerformance;
+    }
+
+    public Double getSellProfit() {
+        return sellProfit;
+    }
+
+    public void setSellProfit(Double sellProfit) {
+        this.sellProfit = sellProfit;
+    }
+
+    public Integer getOrderQuantity() {
+        return orderQuantity;
+    }
+
+    public void setOrderQuantity(Integer orderQuantity) {
+        this.orderQuantity = orderQuantity;
+    }
+
+    public Double getTotalInMoney() {
+        return totalInMoney;
+    }
+
+    public void setTotalInMoney(Double totalInMoney) {
+        this.totalInMoney = totalInMoney;
+    }
+
+    public Double getCashInMoney() {
+        return cashInMoney;
+    }
+
+    public void setCashInMoney(Double cashInMoney) {
+        this.cashInMoney = cashInMoney;
+    }
+
+    public Double getAlipayInMoney() {
+        return alipayInMoney;
+    }
+
+    public void setAlipayInMoney(Double alipayInMoney) {
+        this.alipayInMoney = alipayInMoney;
+    }
+
+    public Double getWechatInMoney() {
+        return wechatInMoney;
+    }
+
+    public void setWechatInMoney(Double wechatInMoney) {
+        this.wechatInMoney = wechatInMoney;
+    }
+
+    public Double getBankCardInMoney() {
+        return bankCardInMoney;
+    }
+
+    public void setBankCardInMoney(Double bankCardInMoney) {
+        this.bankCardInMoney = bankCardInMoney;
+    }
+
     @Override
     public String toString() {
         return "ReportSellVo{" +
@@ -491,30 +646,41 @@ public class ReportSellVo {
                 ", orderTypeName='" + orderTypeName + '\'' +
                 ", clientId='" + clientId + '\'' +
                 ", clientName='" + clientName + '\'' +
-                ", sellInMoney=" + sellInMoney +
-                ", advanceInMoney=" + advanceInMoney +
-                ", addNeedInMoney=" + addNeedInMoney +
-                ", sellProceedsMoney=" + sellProceedsMoney +
-                ", sellCostMoney=" + sellCostMoney +
-                ", grossMarginMoney=" + grossMarginMoney +
-                ", grossMarginRate=" + grossMarginRate +
                 ", userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +
                 ", remark='" + remark + '\'' +
-                ", sellOrderQuantity=" + sellOrderQuantity +
-                ", returnOrderQuantity=" + returnOrderQuantity +
-                ", exchangeOrderQuantity=" + exchangeOrderQuantity +
                 ", goodsId='" + goodsId + '\'' +
                 ", goodsName='" + goodsName + '\'' +
                 ", goodsBarCode='" + goodsBarCode + '\'' +
                 ", goodsTypeId=" + goodsTypeId +
                 ", goodsTypeName='" + goodsTypeName + '\'' +
                 ", goodsImage='" + goodsImage + '\'' +
+                ", sellInMoney=" + sellInMoney +
+                ", addNeedInMoney=" + addNeedInMoney +
+                ", advanceMoney=" + advanceMoney +
+                ", advanceInMoney=" + advanceInMoney +
+                ", sellProceedsMoney=" + sellProceedsMoney +
+                ", sellCostMoney=" + sellCostMoney +
+                ", grossMarginMoney=" + grossMarginMoney +
+                ", grossMarginRate=" + grossMarginRate +
                 ", sellQuantity=" + sellQuantity +
                 ", sellOutQuantity=" + sellOutQuantity +
                 ", returnQuantity=" + returnQuantity +
                 ", returnMoney=" + returnMoney +
                 ", returnRate=" + returnRate +
+                ", sellOrderQuantity=" + sellOrderQuantity +
+                ", returnOrderQuantity=" + returnOrderQuantity +
+                ", exchangeOrderQuantity=" + exchangeOrderQuantity +
+                ", otherInMoney=" + otherInMoney +
+                ", discountMoney=" + discountMoney +
+                ", sellPerformance=" + sellPerformance +
+                ", sellProfit=" + sellProfit +
+                ", orderQuantity=" + orderQuantity +
+                ", totalInMoney=" + totalInMoney +
+                ", cashInMoney=" + cashInMoney +
+                ", alipayInMoney=" + alipayInMoney +
+                ", wechatInMoney=" + wechatInMoney +
+                ", bankCardInMoney=" + bankCardInMoney +
                 '}';
     }
 }

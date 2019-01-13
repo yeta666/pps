@@ -31,7 +31,7 @@ public class CommonInterceptor implements HandlerInterceptor {
      * @return
      */
     public boolean isPremited(String uri) {
-        String[] permitUris = {"/login", "/upload", "/download", "/identifyingCode", "/error"};        //注册、登陆、注销、上传、获取图片、下载、获取验证码
+        String[] permitUris = {"/login", "/download", "/identifyingCode", "/error"};        //注册、登陆、注销、上传、获取图片、下载、获取验证码
         for (String permit : permitUris) {
             if (uri.indexOf(permit) != -1) {
                 return true;
@@ -53,11 +53,17 @@ public class CommonInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //LOG.info("拦截器preHandle()...");
 
+        //忽略OPTIONS请求
+        if (request.getMethod().equals("OPTIONS")) {
+            return true;
+        }
+
         //获取在线用户id
         HttpSession httpSession = request.getSession();
         ServletContext servletContext = httpSession.getServletContext();
         ConcurrentSkipListSet<String> onlineIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineIds");
-        ConcurrentSkipListSet<String> onlineClientIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineClientIds");
+
+        LOG.info("当前在线：{}", onlineIds);
 
         //获取请求uri
         String uri = request.getServletPath();
@@ -84,16 +90,6 @@ public class CommonInterceptor implements HandlerInterceptor {
         //判断该用户id是否已经存在于在线用户列表
         for (String onlineId: onlineIds) {
             if (CommonUtil.getMd5(onlineId).equals(requestToken)) {
-                LOG.info("请求访问【{}】，验证token通过，放行", uri);
-                return true;
-            }
-        }
-
-        for (String onlineId: onlineClientIds) {
-            if (CommonUtil.getMd5(onlineId).equals(requestToken)) {
-                if (uri.indexOf("/clients") == -1) {
-                    return false;
-                }
                 LOG.info("请求访问【{}】，验证token通过，放行", uri);
                 return true;
             }

@@ -82,18 +82,18 @@ public interface MyReportMapper {
 
     int findCountOrderByOrder(ReportOrderVo reportOrderVo);
 
-    List<FundCheckOrderVo> findPagedOrderByOrder(@Param(value = "vo") ReportOrderVo reportOrderVo,
-                                                 @Param(value = "pageVo") PageVo pageVo);
+    List<ReportOrderVo> findPagedOrderByOrder(@Param(value = "vo") ReportOrderVo reportOrderVo,
+                                              @Param(value = "pageVo") PageVo pageVo);
 
     int findCountOrderByGoods(ReportOrderVo reportOrderVo);
 
-    List<FundCheckOrderVo> findPagedOrderByGoods(@Param(value = "vo") ReportOrderVo reportOrderVo,
-                                                 @Param(value = "pageVo") PageVo pageVo);
+    List<ReportOrderVo> findPagedOrderByGoods(@Param(value = "vo") ReportOrderVo reportOrderVo,
+                                              @Param(value = "pageVo") PageVo pageVo);
 
     int findCountOrderByClient(ReportOrderVo reportOrderVo);
 
-    List<FundCheckOrderVo> findPagedOrderByClient(@Param(value = "vo") ReportOrderVo reportOrderVo,
-                                                  @Param(value = "pageVo") PageVo pageVo);
+    List<ReportOrderVo> findPagedOrderByClient(@Param(value = "vo") ReportOrderVo reportOrderVo,
+                                               @Param(value = "pageVo") PageVo pageVo);
 
     //销售报表
 
@@ -116,4 +116,75 @@ public interface MyReportMapper {
 
     List<ReportSellVo> findPagedSellByGoods(@Param(value = "vo") ReportSellVo reportSellVo,
                                             @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountSellByClient(ReportSellVo reportSellVo);
+
+    List<ReportSellVo> findPagedSellByClient(@Param(value = "vo") ReportSellVo reportSellVo,
+                                             @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountSellByUser(ReportSellVo reportSellVo);
+
+    List<ReportSellVo> findPagedSellByUser(@Param(value = "vo") ReportSellVo reportSellVo,
+                                           @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountSellByWarehouse(ReportSellVo reportSellVo);
+
+    List<ReportSellVo> findPagedSellByWarehouse(@Param(value = "vo") ReportSellVo reportSellVo,
+                                                @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountSellInByUser(ReportSellVo reportSellVo);
+
+    List<ReportSellVo> findPagedSellInByUser(@Param(value = "vo") ReportSellVo reportSellVo,
+                                             @Param(value = "pageVo") PageVo pageVo);
+
+    //采购报表
+
+    int findCountProcurementByGoods(ReportProcurementVo reportProcurementVo);
+
+    List<ReportProcurementVo> findPagedProcurementByGoods(@Param(value = "vo") ReportProcurementVo reportProcurementVo,
+                                                          @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountProcurementBySupplier(ReportProcurementVo reportProcurementVo);
+
+    List<ReportProcurementVo> findPagedProcurementBySupplier(@Param(value = "vo") ReportProcurementVo reportProcurementVo,
+                                                             @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountProcurementOrderByGoods(ReportProcurementVo reportProcurementVo);
+
+    List<ReportProcurementVo> findPagedProcurementOrderByGoods(@Param(value = "vo") ReportProcurementVo reportProcurementVo,
+                                                               @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountProcurementOrderByDetail(ReportProcurementVo reportProcurementVo);
+
+    List<ReportProcurementVo> findPagedProcurementOrderByDetail(@Param(value = "vo") ReportProcurementVo reportProcurementVo,
+                                                                @Param(value = "pageVo") PageVo pageVo);
+
+    //经营中心
+
+    int findCountManageBySell(ReportManageVo reportManageVo);
+
+    List<ReportManageVo> findPagedManageBySell(@Param(value = "vo") ReportManageVo reportManageVo,
+                                               @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountManageByFund(ReportManageVo reportManageVo);
+
+    List<ReportManageVo> findPagedManageByFund(@Param(value = "vo") ReportManageVo reportManageVo,
+                                               @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountManageByInventory(ReportManageVo reportManageVo);
+
+    List<ReportManageVo> findPagedManageByInventory(@Param(value = "vo") ReportManageVo reportManageVo,
+                                                    @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountManageByProfit(ReportManageVo reportManageVo);
+
+    List<ReportManageVo> findPagedManageByProfit(@Param(value = "vo") ReportManageVo reportManageVo,
+                                                 @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountManageByTarget(ReportManageVo reportManageVo);
+
+    List<ReportManageVo> findPagedManageByTarget(@Param(value = "vo") ReportManageVo reportManageVo,
+                                                 @Param(value = "pageVo") PageVo pageVo);
+
+    ReportManageVo findManageByBoss(ReportManageVo reportManageVo);
 }

@@ -71,10 +71,10 @@
             discount_coupon_${storeId}
         where 1 = 1
         <if test="name != null">
-            name like concat('%', #{name}, '%')
+            and name like concat('%', #{name}, '%')
         </if>
         <if test="type != null">
-            type = #{type}
+            and type = #{type}
         </if>
     </select>
 
@@ -103,10 +103,10 @@
             discount_coupon_${vo.storeId}
         where 1 = 1
         <if test="vo.name != null">
-            name like concat('%', #{vo.name}, '%')
+            and name like concat('%', #{vo.name}, '%')
         </if>
         <if test="vo.type != null">
-            type = #{vo.type}
+            and type = #{vo.type}
         </if>
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
