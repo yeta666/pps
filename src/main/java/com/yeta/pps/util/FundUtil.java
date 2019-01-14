@@ -7,6 +7,7 @@ import com.yeta.pps.po.ClientDiscountCoupon;
 import com.yeta.pps.po.DiscountCoupon;
 import com.yeta.pps.vo.FundCheckOrderVo;
 import com.yeta.pps.vo.FundOrderVo;
+import com.yeta.pps.vo.FundResultOrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author YETA
@@ -142,6 +144,7 @@ public class FundUtil {
      * @param discountCouponId
      * @param clientId
      */
+    @Transactional
     public void backDiscountCouponMethod(Integer storeId, Integer discountCouponId, String clientId) {
         //增加客户优惠券数量
         if (myMarketingMapper.increaseClientDiscountCouponQuantity(new ClientDiscountCoupon(storeId, clientId, discountCouponId)) != 1) {
@@ -151,6 +154,72 @@ public class FundUtil {
         //减少优惠券已使用数量
         if (myMarketingMapper.decreaseUsedQuantity(new DiscountCoupon(storeId, discountCouponId)) != 1) {
             throw new CommonException(CommonResponse.UPDATE_ERROR, "优惠券相关操作错误");
+        }
+    }
+
+    /**
+     * 新增其他收入单/费用单的方法
+     * @param fundResultOrderVo
+     */
+    @Transactional
+    public void addFundResultOrderMethod(FundResultOrderVo fundResultOrderVo) {
+        //设置库存对账记录
+        FundCheckOrderVo fundCheckOrderVo = new FundCheckOrderVo();
+        fundCheckOrderVo.setStoreId(fundResultOrderVo.getStoreId());
+        fundCheckOrderVo.setCreateTime(new Date());
+        fundCheckOrderVo.setOrderStatus((byte) 1);
+        fundCheckOrderVo.setTargetId(fundResultOrderVo.getTargetId());
+        fundCheckOrderVo.setBankAccountId(fundResultOrderVo.getBankAccountId());
+        fundCheckOrderVo.setUserId(fundResultOrderVo.getUserId());
+
+        //查询最新的资金对账记录
+        FundCheckOrderVo lastVo = myFundMapper.findLastBalanceMoney(new FundCheckOrderVo(fundResultOrderVo.getStoreId(), null, null, fundResultOrderVo.getBankAccountId()));
+        if (lastVo == null) {
+            throw new CommonException(CommonResponse.PARAMETER_ERROR);
+        }
+
+        //判断新增类型
+        byte type = fundResultOrderVo.getType();
+        switch (type) {
+            case 1:     //其他收入单:
+                //判断参数
+                if (fundResultOrderVo.getTargetId() == null) {
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
+                }
+
+                fundResultOrderVo.setId("QTSRD_" + UUID.randomUUID().toString().replace("-", ""));
+
+                fundCheckOrderVo.setOrderId(fundResultOrderVo.getId());
+                fundCheckOrderVo.setInMoney(fundResultOrderVo.getMoney());
+                fundCheckOrderVo.setOutMoney(0.0);
+                fundCheckOrderVo.setBalanceMoney(lastVo.getBalanceMoney() + fundResultOrderVo.getMoney());
+                break;
+
+            case 2:     //费用单:
+                fundResultOrderVo.setId("YBFYD_" + UUID.randomUUID().toString().replace("-", ""));
+
+                fundCheckOrderVo.setOrderId(fundResultOrderVo.getId());
+                fundCheckOrderVo.setInMoney(0.0);
+                fundCheckOrderVo.setOutMoney(fundResultOrderVo.getMoney());
+                fundCheckOrderVo.setBalanceMoney(lastVo.getBalanceMoney() - fundResultOrderVo.getMoney());
+                break;
+
+            default:
+                throw new CommonException(CommonResponse.PARAMETER_ERROR);
+        }
+
+        //设置初始属性
+        fundResultOrderVo.setCreateTime(new Date());
+        fundResultOrderVo.setOrderStatus((byte) 1);
+
+        //新增
+        if (myFundMapper.addFundResultOrder(fundResultOrderVo) != 1) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+
+        //记录资金对账记录
+        if (myFundMapper.addFundCheckOrder(fundCheckOrderVo) != 1) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
     }
 }

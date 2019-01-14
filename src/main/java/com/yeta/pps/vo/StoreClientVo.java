@@ -1,19 +1,13 @@
 package com.yeta.pps.vo;
 
-import com.yeta.pps.po.Store;
-
 /**
  * @author YETA
  * @date 2018/12/18/21:35
  */
-public class StoreIntegralVo {
-
-    private Store store;
-
-    private ClientVo clientVo;
+public class StoreClientVo {
 
     /**
-     * 店铺/积分、预收款关系编号
+     * 店铺/客户关系编号
      */
     private String id;
 
@@ -22,10 +16,14 @@ public class StoreIntegralVo {
      */
     private Integer storeId;
 
+    private String storeName;
+
     /**
      * 客户编号
      */
     private String clientId;
+
+    private String clientName;
 
     /**
      * 积分
@@ -37,41 +35,17 @@ public class StoreIntegralVo {
      */
     private Double advanceMoney;
 
-    public StoreIntegralVo() {
+    /**
+     * 提成
+     */
+    private Double pushMoney;
+
+    public StoreClientVo() {
     }
 
-    public StoreIntegralVo(Integer storeId, String clientId) {
+    public StoreClientVo(Integer storeId, String clientId) {
         this.storeId = storeId;
         this.clientId = clientId;
-    }
-
-    public StoreIntegralVo(Integer storeId, String clientId, Double advanceMoney) {
-        this.storeId = storeId;
-        this.clientId = clientId;
-        this.advanceMoney = advanceMoney;
-    }
-
-    public StoreIntegralVo(Integer storeId, String clientId, Integer integral, Double advanceMoney) {
-        this.storeId = storeId;
-        this.clientId = clientId;
-        this.integral = integral;
-        this.advanceMoney = advanceMoney;
-    }
-
-    public Store getStore() {
-        return store;
-    }
-
-    public void setStore(Store store) {
-        this.store = store;
-    }
-
-    public ClientVo getClientVo() {
-        return clientVo;
-    }
-
-    public void setClientVo(ClientVo clientVo) {
-        this.clientVo = clientVo;
     }
 
     public String getId() {
@@ -90,12 +64,28 @@ public class StoreIntegralVo {
         this.storeId = storeId;
     }
 
+    public String getStoreName() {
+        return storeName;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+
     public String getClientId() {
         return clientId;
     }
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
     }
 
     public Integer getIntegral() {
@@ -114,16 +104,25 @@ public class StoreIntegralVo {
         this.advanceMoney = advanceMoney;
     }
 
+    public Double getPushMoney() {
+        return pushMoney;
+    }
+
+    public void setPushMoney(Double pushMoney) {
+        this.pushMoney = pushMoney;
+    }
+
     @Override
     public String toString() {
-        return "StoreIntegralVo{" +
-                "store=" + store +
-                ", clientVo=" + clientVo +
-                ", id='" + id + '\'' +
+        return "StoreClientVo{" +
+                "id='" + id + '\'' +
                 ", storeId=" + storeId +
+                ", storeName='" + storeName + '\'' +
                 ", clientId='" + clientId + '\'' +
+                ", clientName='" + clientName + '\'' +
                 ", integral=" + integral +
                 ", advanceMoney=" + advanceMoney +
+                ", pushMoney=" + pushMoney +
                 '}';
     }
 }

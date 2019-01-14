@@ -2,17 +2,10 @@ package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyClientMapper;
-import com.yeta.pps.po.Client;
-import com.yeta.pps.po.ClientLevel;
-import com.yeta.pps.po.MembershipNumber;
-import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.util.CommonResult;
-import com.yeta.pps.util.CommonUtil;
-import com.yeta.pps.util.Title;
-import com.yeta.pps.vo.ClientIntegralDetailVo;
-import com.yeta.pps.vo.ClientVo;
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.StoreIntegralVo;
+import com.yeta.pps.mapper.StoreMapper;
+import com.yeta.pps.po.*;
+import com.yeta.pps.util.*;
+import com.yeta.pps.vo.*;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -26,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.lang.System;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -42,53 +36,32 @@ public class ClientService {
     @Autowired
     private MyClientMapper myClientMapper;
 
+    @Autowired
+    private FundUtil fundUtil;
+
+    @Autowired
+    private StoreMapper storeMapper;
+
     /**
      * 客户登陆
      * @param clientVo
-     * @param request
      * @return
      */
-    public CommonResponse login(ClientVo clientVo, HttpServletRequest request) {
-        //判断参数
-        if (clientVo.getUsername() == null || clientVo.getPassword() == null) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
-        }
+    public CommonResponse login(ClientVo clientVo) {
         //判断用户名、密码
         Client client = myClientMapper.findByUsernameAndPassword(clientVo);
         if (client == null) {
             return CommonResponse.error(CommonResponse.LOGIN_ERROR, "用户名或密码错误");
         }
+
         //判断客户是否已禁用
         if (client.getDisabled() == 1) {
-            return CommonResponse.error(CommonResponse.LOGIN_ERROR, "该账号已禁用");
+            return CommonResponse.error(CommonResponse.LOGIN_ERROR, "该用户已禁用");
         }
-        //判断客户是否已登陆
+
         clientVo.setId(client.getId());
         return CommonResponse.success(clientVo);
     }
-
-    /**
-     * 注销
-     * @param clientVo
-     * @param request
-     * @return
-     */
-    public CommonResponse logout(ClientVo clientVo, HttpServletRequest request) {
-        //获取在线客户id
-        HttpSession session = request.getSession();
-        ServletContext servletContext = session.getServletContext();
-        ConcurrentSkipListSet<String> onlineIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineClientIds");
-        //注销
-        for (String onlineId : onlineIds) {
-            if (onlineId.equals(clientVo.getId())) {
-                onlineIds.remove(onlineId);
-                break;
-            }
-        }
-        session.invalidate();
-        return CommonResponse.success();
-    }
-
 
     /**
      * 判断会员卡号是否使用的方法
@@ -318,10 +291,12 @@ public class ClientService {
             if (myClientMapper.delete(clientVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
             }
-            //删除客户/积分明细关系
-            myClientMapper.deleteIntegralDetailByClientId(new ClientIntegralDetailVo(null, clientVo.getId()));
-            //删除店铺/积分关系
-            myClientMapper.deleteStoreIntegralByClientId(new StoreIntegralVo(null, clientVo.getId()));
+
+            //删除店铺/客户关系
+            myClientMapper.deleteStoreClientByClientId(new StoreClient(clientVo.getId()));
+
+            //删除店铺/客户明细关系
+            myClientMapper.deleteStoreClientDetailByClientId(new StoreClientDetail(clientVo.getId()));
         });
         return CommonResponse.success();
     }
@@ -400,6 +375,20 @@ public class ClientService {
             List<ClientVo> clientVos = myClientMapper.findAll(clientVo);
             return CommonResponse.success(clientVos);
         }
+    }
+
+    /**
+     * 客户查询自己的信息
+     * @param clientVo
+     * @return
+     */
+    public CommonResponse findById(ClientVo clientVo) {
+        clientVo = myClientMapper.findById(clientVo);
+        if (clientVo == null) {
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
+        }
+        
+        return CommonResponse.success(clientVo);
     }
 
     /**
@@ -587,103 +576,214 @@ public class ClientService {
         return CommonResponse.success();
     }
 
-    //店铺/积分关系
+    //店铺/客户关系
 
     /**
-     * 根据条件查询店铺积分关系
-     * @param storeIntegralVo
+     * 根据条件查询店铺/客户关系
+     * @param storeClientVo
      * @param pageVo
      * @return
      */
-    public CommonResponse findAllStoreIntegral(StoreIntegralVo storeIntegralVo, PageVo pageVo) {
+    public CommonResponse findAllStoreClient(StoreClientVo storeClientVo, PageVo pageVo) {
         //查询所有页数
-        pageVo.setTotalPage((int) Math.ceil(myClientMapper.findCountStoreIntegral(storeIntegralVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setTotalPage((int) Math.ceil(myClientMapper.findCountStoreClient(storeClientVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        //根据条件查询店铺积分关系
-        List<StoreIntegralVo> storeIntegralVos = myClientMapper.findAllPagedStoreIntegral(storeIntegralVo, pageVo);
-        //补上邀请人姓名
-        List<ClientVo> vos = myClientMapper.findAll(new ClientVo());
-        storeIntegralVos.stream().forEach(vo -> {
-            Optional<ClientVo> optional = vos.stream().filter(vo2 -> vo2.getId().equals(vo.getClientVo().getInviterId())).findFirst();
-            if (optional.isPresent()) {
-                vo.getClientVo().setInviterName(optional.get().getName());
-            }
-        });
+        List<StoreClientVo> vos = myClientMapper.findPagedStoreClient(storeClientVo, pageVo);
+
         //封装返回结果
         List<Title> titles = new ArrayList<>();
+        titles.add(new Title("店铺编号", "storeId"));
+        titles.add(new Title("店铺名称", "storeName"));
+        titles.add(new Title("客户编号", "clientId"));
+        titles.add(new Title("客户名称", "clientName"));
         titles.add(new Title("积分", "integral"));
         titles.add(new Title("预收款余额", "advanceMoney"));
-        if (storeIntegralVo.getClientId() != null && storeIntegralVo.getStoreId() == null) {        //客户自己查询在每个店铺的积分
-            addTitlesMethod(1, titles);
-        } else if (storeIntegralVo.getClientId() == null && storeIntegralVo.getStoreId() != null) {     //店铺查询在本店有积分的客户
-            addTitlesMethod(2, titles);
-        }
-        CommonResult commonResult = new CommonResult(titles, storeIntegralVos, pageVo);
+        titles.add(new Title("提成", "pushMoney"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
         return CommonResponse.success(commonResult);
     }
 
     /**
-     * 加载表格标题的方法
-     * @param flag
-     * @param titles
+     * 积分或提成提现
+     * @param storeClientDetail
+     * @return
      */
-    public void addTitlesMethod(int flag, List<Title> titles) {
-        if (flag == 1) {
-            titles.add(new Title("店铺编号", "store.id"));
-            titles.add(new Title("店铺名", "store.name"));
-            titles.add(new Title("店铺地址", "store.address"));
-        } else if (flag == 2) {
-            titles.add(new Title("客户编号", "clientVo.id"));
-            titles.add(new Title("客户姓名", "clientVo.name"));
-            titles.add(new Title("电话", "clientVo.phone"));
-            titles.add(new Title("客户级别", "clientVo.clientLevel.name"));
-            titles.add(new Title("邀请人", "clientVo.inviterName"));
-            titles.add(new Title("会员卡号", "clientVo.membershipNumber"));
-            titles.add(new Title("生日", "clientVo.birthday"));
-            titles.add(new Title("地址", "clientVo.address"));
-            titles.add(new Title("邮编", "clientVo.postcode"));
-            titles.add(new Title("最近交易时间", "clientVo.lastDealTime"));
-            titles.add(new Title("创建时间", "clientVo.createTime"));
-            titles.add(new Title("是否停用", "clientVo.disabled"));
-            titles.add(new Title("备注", "clientVo.remark"));
+    public CommonResponse clientWithdraw(StoreClientDetail storeClientDetail) {
+        //判断参数
+        switch (storeClientDetail.getType()) {
+            case 2:     //积分减少
+                if (storeClientDetail.getChangeIntegral() == null) {
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+                }
+                break;
+            case 4:     //提成减少
+                if (storeClientDetail.getChangePushMoney() == null) {
+                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+                }
+                break;
+            default:
+                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+        if (storeClientDetail.getWithdrawalWay() == 2 && (storeClientDetail.getRemark() == null || storeClientDetail.getRemark().equals(""))) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
+        //新增店铺/客户明细关系
+        storeClientDetail.setCreateTime(new Date());
+        storeClientDetail.setUpdateTime(new Date());
+        storeClientDetail.setStatus((byte) 0);
+        if (myClientMapper.addStoreClientDetail(storeClientDetail) != 1) {
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
+        }
+
+        return CommonResponse.success();
     }
 
-    //客户/积分明细
+    //店铺/客户明细关系
 
     /**
      * 根据条件查询客户/积分明细
-     * @param clientIntegralDetailVo
+     * @param storeClientDetailVo
      * @param pageVo
      * @return
      */
-    public CommonResponse findAllIntegralDetail(ClientIntegralDetailVo clientIntegralDetailVo, PageVo pageVo) {
+    public CommonResponse findAllStoreClientDetail(StoreClientDetailVo storeClientDetailVo, PageVo pageVo) {
         //查询所有页数
-        pageVo.setTotalPage((int) Math.ceil(myClientMapper.findCountIntegralDetail(clientIntegralDetailVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setTotalPage((int) Math.ceil(myClientMapper.findCountStoreClientDetail(storeClientDetailVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        //根据条件查询客户/积分明细
-        List<ClientIntegralDetailVo> clientIntegralDetailVos = myClientMapper.findAllPagedIntegralDetail(clientIntegralDetailVo, pageVo);
-        //补上邀请人姓名
-        List<ClientVo> vos = myClientMapper.findAll(new ClientVo());
-        clientIntegralDetailVos.stream().forEach(vo -> {
-            Optional<ClientVo> optional = vos.stream().filter(vo2 -> vo2.getId().equals(vo.getClientVo().getInviterId())).findFirst();
-            if (optional.isPresent()) {
-                vo.getClientVo().setInviterName(optional.get().getName());
-            }
-        });
+        List<StoreClientDetailVo> vos = myClientMapper.findPagedStoreClientDetail(storeClientDetailVo, pageVo);
+
         //封装返回结果
         List<Title> titles = new ArrayList<>();
+        titles.add(new Title("店铺编号", "storeId"));
+        titles.add(new Title("店铺名称", "storeName"));
+        titles.add(new Title("客户编号", "clientId"));
+        titles.add(new Title("客户名称", "clientName"));
         titles.add(new Title("创建时间", "createTime"));
-        titles.add(new Title("操作类型", "type"));
+        titles.add(new Title("修改时间", "updateTime"));
+        titles.add(new Title("类型", "typeName"));
         titles.add(new Title("改变积分", "changeIntegral"));
-        titles.add(new Title("改变后的积分", "afterChangeIntegral"));
+        titles.add(new Title("改变提成", "changePushMoney"));
         titles.add(new Title("单据编号", "orderId"));
-        if (clientIntegralDetailVo.getClientId() != null && clientIntegralDetailVo.getStoreId() == null) {        //客户自己查询在每个店铺的积分明细
-            addTitlesMethod(1, titles);
-        } else if (clientIntegralDetailVo.getClientId() == null && clientIntegralDetailVo.getStoreId() != null) {     //店铺查询在本店有积分明细的客户
-            addTitlesMethod(2, titles);
-        }
-        CommonResult commonResult = new CommonResult(titles, clientIntegralDetailVos, pageVo);
+        titles.add(new Title("状态", "statusName"));
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("提现方式", "withdrawalWayName"));
+        titles.add(new Title("备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+
         return CommonResponse.success(commonResult);
     }
+
+    /**
+     * 积分或提成提现审核
+     * @param storeClientDetail
+     * @return
+     */
+    @Transactional
+    public CommonResponse clientWithdrawAudit(StoreClientDetail storeClientDetail) {
+        //判断参数
+        if (storeClientDetail.getId() == null ||
+                storeClientDetail.getStatus() == null ||
+                (storeClientDetail.getStatus() == 2 && (storeClientDetail.getRemark() == null || storeClientDetail.getRemark().equals(""))) ||
+                (storeClientDetail.getStatus() == 1 && storeClientDetail.getBankAccountId() == null) ||
+                storeClientDetail.getUserId() == null) {
+            throw new CommonException(CommonResponse.PARAMETER_ERROR);
+        }
+
+        String bankAccountId = storeClientDetail.getBankAccountId();
+
+        //修改状态
+        if (myClientMapper.updateStoreClientDetailStatusAndRemark(storeClientDetail) != 1) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+
+        //审核通过
+        if (storeClientDetail.getStatus() == 1) {
+            //查询该记录
+            storeClientDetail = myClientMapper.findStoreClientDetailById(storeClientDetail);
+            if (storeClientDetail == null) {
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
+            }
+            Integer storeId = storeClientDetail.getStoreId();
+            String clientId = storeClientDetail.getClientId();
+
+            //减少积分或提成
+            StoreClient storeClient = new StoreClient(storeId, clientId);
+            String expensesId;
+            Double money;
+            if (storeClientDetail.getType() == 2 && storeClientDetail.getChangeIntegral() != null) {        //减少积分
+                storeClient.setIntegral(-storeClientDetail.getChangeIntegral());
+                if (myClientMapper.updateStoreClientIntegral(storeClient) != 1) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                expensesId = "660118";
+                money = (double) storeClientDetail.getChangeIntegral();
+            } else if (storeClientDetail.getType() == 4 && storeClientDetail.getChangePushMoney() != null) {        //减少提成
+                storeClient.setPushMoney(-storeClientDetail.getChangePushMoney());
+                if (myClientMapper.updateStoreClientPushMoney(storeClient) != 1) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                expensesId = "660119";
+                money = storeClientDetail.getChangePushMoney();
+            } else {
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
+            }
+
+            //记录一笔费用
+            FundResultOrderVo fundResultOrderVo = new FundResultOrderVo();
+            fundResultOrderVo.setBankAccountId(bankAccountId);
+            fundResultOrderVo.setIncomeExpensesId(expensesId);
+            fundResultOrderVo.setMoney(money);
+            fundResultOrderVo.setStoreId(storeId);
+            fundResultOrderVo.setTargetId(clientId);
+            fundResultOrderVo.setType((byte) 2);
+            fundResultOrderVo.setUserId(storeClientDetail.getUserId());
+            fundUtil.addFundResultOrderMethod(fundResultOrderVo);
+        }
+
+        return CommonResponse.success();
+    }
+
+    //下级
+
+    /**
+     * 查询该客户的下级在各个店铺的消费情况和该客户的提成情况
+     * @param subordinateVo
+     * @return
+     */
+    public CommonResponse findSubordinateByInviterId(SubordinateVo subordinateVo) {
+        //查询所有店铺
+        List<Store> stores = storeMapper.findAll();
+
+        //查询该客户每个下级在每个店铺的消费和提成
+        List<SubordinateVo> vos = new ArrayList<>();
+        stores.stream().forEach(store -> {
+            subordinateVo.setStoreId(store.getId());
+            vos.addAll(myClientMapper.findSubordinateByInviterId(subordinateVo));
+        });
+
+        return CommonResponse.success(vos);
+    }
+
+    /**
+     * 查询该客户的某个下级在各个店铺的消费情况和该客户的提成情况
+     * @param subordinateVo
+     * @return
+     */
+    public CommonResponse findSubordinateByClientId(SubordinateVo subordinateVo) {
+        //查询所有店铺
+        List<Store> stores = storeMapper.findAll();
+
+        //查询该客户的某个下级在每个店铺的消费和提成
+        List<SubordinateVo> vos = new ArrayList<>();
+        stores.stream().forEach(store -> {
+            subordinateVo.setStoreId(store.getId());
+            vos.addAll(myClientMapper.findSubordinateByClientId(subordinateVo));
+        });
+
+        return CommonResponse.success(vos);
+    }
+
+
 }

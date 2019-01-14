@@ -122,9 +122,9 @@
 
     <insert id="add" parameterType="com.yeta.pps.vo.ClientVo">
         insert into
-          client (id, name, username, password, phone, level_id, birthday, inviter_id, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
+            client (id, name, username, password, phone, level_id, birthday, inviter_id, address, postcode, membership_number, last_deal_time, create_time, disabled, remark)
         values
-          (#{id}, #{name}, #{username}, #{password}, #{phone}, #{levelId}, #{birthday}, #{inviterId}, #{address}, #{postcode}, #{membershipNumber}, #{lastDealTime}, #{createTime}, #{disabled}, #{remark});
+            (#{id}, #{name}, #{username}, #{password}, #{phone}, #{levelId}, #{birthday}, #{inviterId}, #{address}, #{postcode}, #{membershipNumber}, #{lastDealTime}, #{createTime}, #{disabled}, #{remark});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.ClientVo">
@@ -282,33 +282,36 @@
         where
             c.level_id > 0
         <if test="id != null">
-        and
-            c.id = #{id}
+            and c.id = #{id}
         </if>
         <if test="name != null">
-        and
-            c.name like concat('%', #{name}, '%')
+            and c.name like concat('%', #{name}, '%')
         </if>
         <if test="phone != null">
-        and
-            c.phone like concat('%', #{phone}, '%')
+            and c.phone like concat('%', #{phone}, '%')
         </if>
         <if test="membershipNumber != null">
-        and
-            c.membership_number like concat('%', #{membershipNumber}, '%')
+            and c.membership_number like concat('%', #{membershipNumber}, '%')
         </if>
         <if test="levelId != null">
-        and
-            c.level_id = #{levelId}
+            and c.level_id = #{levelId}
         </if>
         <if test="disabled != null">
-            and
-            c.disabled = #{disabled}
+            and c.disabled = #{disabled}
+        </if>
+        <if test="inviterId != null">
+            and c.inviter_id = #{inviterId}
         </if>
     </select>
 
     <select id="findByIdOrPhone" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.po.Client">
-        select id, name, username, password, phone, level_id, birthday, inviter_id, address, postcode, membership_number, last_deal_time, create_time, disabled, remark from client where 1 = 1
+        select
+            id, name, username, password, phone, level_id, birthday, inviter_id, address, postcode, membership_number, last_deal_time, create_time, disabled, remark
+        from
+            client
+        where
+            level_id > 0
+        and disabled = 0
         <if test="id != null">
             and id = #{id}
         </if>
@@ -317,275 +320,276 @@
         </if>
     </select>
 
-    <!--店铺/积分、预收款关系-->
+    <select id="findById" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.vo.ClientVo">
+        SELECT
+            c.id,
+            c.name,
+            c.username,
+            c.password,
+            c.phone,
+            c.level_id,
+            c.birthday,
+            c.inviter_id,
+            inviter.name AS inviterName,
+            inviter.phone AS inviterPhone,
+            c.address,
+            c.postcode,
+            c.membership_number,
+            c.last_deal_time,
+            c.create_time,
+            c.disabled,
+            c.remark
+        FROM
+            client AS c
+        LEFT JOIN client AS inviter ON inviter.id = c.inviter_id
+        WHERE
+            c.level_id > 0
+        and c.disabled = 0
+        AND c.id = #{id};
+    </select>
 
-    <insert id="addStoreIntegral" parameterType="com.yeta.pps.vo.StoreIntegralVo">
-        insert into store_integral (store_id, client_id, integral, advance_money) values (#{storeId}, #{clientId}, #{integral}, #{advanceMoney});
+    <select id="findSubordinateByInviterId" parameterType="com.yeta.pps.vo.SubordinateVo" resultType="com.yeta.pps.vo.SubordinateVo">
+        SELECT
+            c.id AS clientId,
+            c.name AS clientName,
+            s.id AS storeId,
+            s.name AS storeName,
+            IF (sum(sro.order_money) IS NULL, 0, sum(sro.order_money)) AS totalMoney,
+            IF (sum(scd.change_push_money) IS NULL, 0, sum(scd.change_push_money)) AS totalPushMoney
+        FROM
+            client AS c
+        LEFT JOIN sell_apply_order_${storeId} AS sao ON sao.client_id = c.id
+        LEFT JOIN sell_result_order_${storeId} AS sro ON sro.apply_order_id = sao.id
+        LEFT JOIN store_client_detail AS scd ON (
+            scd.order_id = sro.id
+            AND scd.type IN (3, 4)
+        )
+        LEFT JOIN store AS s ON s.id = #{storeId}
+        WHERE
+            c.level_id > 0
+        AND c.disabled = 0
+        AND c.inviter_id = #{clientId}
+        GROUP BY
+            c.id;
+    </select>
+
+    <select id="findSubordinateByClientId" parameterType="com.yeta.pps.vo.SubordinateVo" resultType="com.yeta.pps.vo.SubordinateVo">
+        SELECT
+            c.id AS clientId,
+            c.name AS clientName,
+            s.id AS storeId,
+            s.name AS storeName,
+            sro.create_time,
+            sro.order_money AS totalMoney,
+            scd.change_push_money AS totalPushMoney
+        FROM
+            client AS c
+            INNER JOIN sell_apply_order_${storeId} AS sao ON sao.client_id = c.id
+            INNER JOIN sell_result_order_${storeId} AS sro ON sro.apply_order_id = sao.id
+            INNER JOIN store_client_detail AS scd ON (
+                scd.order_id = sro.id
+                AND scd.type IN (3, 4)
+            )
+            INNER JOIN store AS s ON s.id = #{storeId}
+        WHERE
+            c.level_id > 0
+        AND c.disabled = 0
+        AND c.id = #{clientId};
+    </select>
+
+    <!--店铺/客户关系-->
+
+    <insert id="addStoreClient" parameterType="com.yeta.pps.po.StoreClient">
+        insert into store_client (store_id, client_id, integral, advance_money, push_money) values (#{storeId}, #{clientId}, #{integral}, #{advanceMoney}, #{pushMoney});
     </insert>
         
-    <delete id="deleteStoreIntegralByClientId" parameterType="com.yeta.pps.vo.StoreIntegralVo">
-        delete from store_integral where client_id = #{clientId};
+    <delete id="deleteStoreClientByClientId" parameterType="com.yeta.pps.po.StoreClient">
+        delete from store_client where client_id = #{clientId};
     </delete>
 
-    <update id="increaseIntegral" parameterType="com.yeta.pps.vo.StoreIntegralVo">
-        update store_integral set integral = integral + #{integral} where store_id = #{storeId} and client_id = #{clientId};
+    <update id="updateStoreClientIntegral" parameterType="com.yeta.pps.po.StoreClient">
+        update store_client set integral = integral + #{integral} where store_id = #{storeId} and client_id = #{clientId} and integral + #{integral} &gt;= 0;
+    </update>
+    
+    <update id="updateStoreClientAdvanceMoney" parameterType="com.yeta.pps.po.StoreClient">
+        update store_client set advance_money = advance_money + #{advanceMoney} where store_id = #{storeId} and client_id = #{clientId} and advance_money + #{advanceMoney} &gt;= 0;
     </update>
 
-    <update id="decreaseIntegral" parameterType="com.yeta.pps.vo.StoreIntegralVo">
-        update store_integral set integral = integral - #{integral} where store_id = #{storeId} and client_id = #{clientId} and integral - #{integral} &gt;= 0;
+    <update id="updateStoreClientPushMoney" parameterType="com.yeta.pps.po.StoreClient">
+        update store_client set push_money = push_money + #{pushMoney} where store_id = #{storeId} and client_id = #{clientId} and push_money + #{pushMoney} &gt;= 0;
     </update>
-    
-    <update id="updateAdvanceMoney" parameterType="com.yeta.pps.vo.StoreIntegralVo">
-        update store_integral set advance_money = advance_money + #{advanceMoney} where store_id = #{storeId} and client_id = #{clientId} and advance_money + #{advanceMoney} &gt;= 0;
-    </update>
-    
-    <select id="findCountStoreIntegral" parameterType="com.yeta.pps.vo.StoreIntegralVo" resultType="java.lang.Integer">
+
+    <select id="findCountStoreClient" parameterType="com.yeta.pps.vo.StoreClientVo" resultType="java.lang.Integer">
         select
             count(0)
         from
-            (
-                (
-                    store_integral as si
-                    left join store as s on si.store_id = s.id
-                )
-                left join client as c on si.client_id = c.id
-            )
-        left join client_level as cl on c.level_id = cl.id
+            store_client as sc
+        inner join store as s on s.id = sc.store_id
+        inner join client as c on c.id = sc.client_id
         where
-            1 = 1
+            c.level_id > 0
+        and c.disabled = 0
         <if test="storeId != null">
-            and si.store_id = #{storeId}
+            and sc.store_id = #{storeId}
         </if>
         <if test="clientId != null">
-            and si.client_id = #{clientId}
+            and sc.client_id = #{clientId}
+        </if>
+        <if test="clientName != null">
+            and c.name like ('%', #{clientName}, '%')
         </if>
     </select>
 
-    <resultMap id="storeIntegralMap" type="com.yeta.pps.vo.StoreIntegralVo">
-        <id column="id" property="id" />
-        <result column="store_id" property="storeId" />
-        <result column="client_id" property="clientId" />
-        <result column="integral" property="integral" />
-        <result column="advance_money" property="advanceMoney" />
-        <collection property="store" ofType="com.yeta.pps.po.Store">
-            <id column="s_id" property="id" />
-            <result column="s_name" property="name" />
-            <result column="s_address" property="address" />
-        </collection>
-        <collection property="clientVo" ofType="com.yeta.pps.vo.ClientVo">
-            <id column="c_id" property="id" />
-            <result column="c_name" property="name" />
-            <result column="c_username" property="username" />
-            <result column="c_password" property="password" />
-            <result column="c_phone" property="phone" />
-            <result column="c_level_id" property="levelId" />
-            <result column="c_birthday" property="birthday" />
-            <result column="c_inviter_id" property="inviterId" />
-            <result column="c_address" property="address" />
-            <result column="c_postcode" property="postcode" />
-            <result column="c_membership_number" property="membershipNumber" />
-            <result column="c_last_deal_time" property="lastDealTime" />
-            <result column="c_create_time" property="createTime" />
-            <result column="c_disabled" property="disabled" />
-            <result column="c_remark" property="remark" />
-            <collection property="clientLevel" ofType="com.yeta.pps.po.ClientLevel">
-                <id column="cl_id" property="id" />
-                <result column="cl_name" property="name" />
-                <result column="cl_price_type" property="priceType" />
-                <result column="cl_price" property="price" />
-            </collection>
-        </collection>
-    </resultMap>
-
-    <select id="findAllPagedStoreIntegral" resultMap="storeIntegralMap">
-        select 
-            si.id,
-            si.store_id,
-            si.client_id,
-            si.integral,
-            si.advance_money,
-            s.id as s_id,
-            s.name as s_name,
-            s.address as s_address,
-            c.id as c_id,
-            c.name as c_name,
-            c.username as c_username,
-            c.password as c_password,
-            c.phone as c_phone,
-            c.level_id as c_level_id,
-            c.birthday as c_birthday,
-            c.inviter_id as c_inviter_id,
-            c.address as c_address,
-            c.postcode as c_postcode,
-            c.membership_number as c_membership_number,
-            c.last_deal_time as c_last_deal_time,
-            c.create_time as c_create_time,
-            c.disabled as c_disabled,
-            c.remark as c_remark,
-            cl.id as cl_id,
-            cl.name as cl_name,
-            cl.price_type as cl_price_type,
-            cl.price as cl_price
-        from 
-            (
-                (
-                    store_integral as si
-                    left join store as s on si.store_id = s.id
-                )
-                left join client as c on si.client_id = c.id
-            )
-        left join client_level as cl on c.level_id = cl.id
+    <select id="findPagedStoreClient" resultType="com.yeta.pps.vo.StoreClientVo">
+        select
+            sc.id,
+            sc.store_id,
+            s.name as store_name,
+            sc.client_id,
+            c.name as client_name,
+            sc.integral,
+            sc.advance_money,
+            sc.push_money
+        from
+            store_client as sc
+        inner join store as s on s.id = sc.store_id
+        inner join client as c on c.id = sc.client_id
         where
-            1 = 1
-        <if test="storeIntegralVo.storeId != null">
-            and si.store_id = #{storeIntegralVo.storeId}
+            c.level_id > 0
+        and c.disabled = 0
+        <if test="vo.storeId != null">
+            and sc.store_id = #{vo.storeId}
         </if>
-        <if test="storeIntegralVo.clientId != null">
-            and si.client_id = #{storeIntegralVo.clientId}
+        <if test="vo.clientId != null">
+            and sc.client_id = #{vo.clientId}
+        </if>
+        <if test="vo.clientName != null">
+            and c.name like ('%', #{vo.clientName}, '%')
         </if>
         limit
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findStoreIntegralByStoreIdAndClientId" parameterType="com.yeta.pps.vo.StoreIntegralVo" resultType="com.yeta.pps.vo.StoreIntegralVo">
-        select id, store_id, client_id, integral, advance_money from store_integral where store_id = #{storeId} and client_id = #{clientId};
+    <select id="findStoreClientByStoreIdAndClientId" parameterType="com.yeta.pps.po.StoreClient" resultType="com.yeta.pps.po.StoreClient">
+        select id, store_id, client_id, integral, advance_money, push_money from store_client where store_id = #{storeId} and client_id = #{clientId};
     </select>
 
-    <!--客户/积分明细关系-->
+    <!--店铺/客户明细关系-->
 
-    <insert id="addIntegralDetail" parameterType="com.yeta.pps.vo.ClientIntegralDetailVo">
-        insert into client_integral_detail
-            (store_id, client_id, create_time, type, change_integral, after_change_integral, order_id)
+    <insert id="addStoreClientDetail" parameterType="com.yeta.pps.po.StoreClientDetail">
+        insert into
+            store_client_detail (store_id, client_id, create_time, update_time, type, change_integral, change_push_money, order_id, status, user_id, withdrawal_way, remark)
         values
-            (#{storeId}, #{clientId}, #{createTime}, #{type}, #{changeIntegral}, #{afterChangeIntegral}, #{orderId});
+            (#{storeId}, #{clientId}, #{createTime}, #{updateTime}, #{type}, #{changeIntegral}, #{changePushMoney}, #{orderId}, #{status}, #{userId}, #{withdrawalWay}, #{remark});
     </insert>
 
-    <delete id="deleteIntegralDetailByClientId" parameterType="com.yeta.pps.vo.ClientIntegralDetailVo">
-        delete from client_integral_detail where client_id = #{clientId};
+    <delete id="deleteStoreClientDetailByClientId" parameterType="com.yeta.pps.po.StoreClientDetail">
+        delete from store_client_detail where client_id = #{clientId};
     </delete>
 
-    <select id="findCountIntegralDetail" parameterType="com.yeta.pps.vo.ClientIntegralDetailVo" resultType="java.lang.Integer">
+    <update id="updateStoreClientDetailStatusAndRemark" parameterType="com.yeta.pps.po.StoreClientDetail">
+        update
+            store_client_detail
+        set
+            update_time = now(), status = #{status}, user_id = #{userId}, remark = #{remark}
+        where
+            id = #{id}
+        and status = 0;
+    </update>
+
+    <select id="findCountStoreClientDetail" parameterType="com.yeta.pps.vo.StoreClientDetailVo" resultType="java.lang.Integer">
         select
             count(0)
         from
-            (
-                (
-                    client_integral_detail as cid
-                    left join store as s on cid.store_id = s.id
-                )
-            left join client as c on cid.client_id = c.id
-            )
-        left join client_level as cl on c.level_id = cl.id
-        where
-            1 = 1
+            store_client_detail as scd
+        inner join store as s on s.id = scd.store_id
+        inner join client as c on c.id = scd.client_id
         <if test="storeId != null">
-            and store_id = #{storeId}
+            left join user_${storeId} as u on u.id = scd.user_id
+        </if>
+        where
+            c.level_id > 0
+        and c.disabled = 0
+        <if test="storeId != null">
+            and scd.store_id = #{storeId}
         </if>
         <if test="clientId != null">
-            and client_id = #{clientId}
+            and scd.client_id = #{clientId}
         </if>
         <if test="type != null">
-            and type = #{type}
+            and scd.type = #{type}
+        </if>
+        <if test="status != null">
+            and scd.status = #{status}
+        </if>
+        <if test="clientName != null">
+            and c.name like concat('%', #{clientName}, '%')
         </if>
         order by
-            cid.create_time desc;
+            scd.create_time desc;
     </select>
 
-    <resultMap id="clientIntegralDetailVoMap" type="com.yeta.pps.vo.ClientIntegralDetailVo">
-        <id column="id" property="id" />
-        <result column="store_id" property="storeId" />
-        <result column="client_id" property="clientId" />
-        <result column="create_time" property="createTime" />
-        <result column="type" property="type" />
-        <result column="change_integral" property="changeIntegral" />
-        <result column="after_change_integral" property="afterChangeIntegral" />
-        <result column="order_id" property="orderId" />
-        <collection property="store" ofType="com.yeta.pps.po.Store">
-            <id column="s_id" property="id" />
-            <result column="s_name" property="name" />
-            <result column="s_address" property="address" />
-        </collection>
-        <collection property="clientVo" ofType="com.yeta.pps.vo.ClientVo">
-            <id column="c_id" property="id" />
-            <result column="c_name" property="name" />
-            <result column="c_username" property="username" />
-            <result column="c_password" property="password" />
-            <result column="c_phone" property="phone" />
-            <result column="c_level_id" property="levelId" />
-            <result column="c_birthday" property="birthday" />
-            <result column="c_inviter_id" property="inviterId" />
-            <result column="c_address" property="address" />
-            <result column="c_postcode" property="postcode" />
-            <result column="c_membership_number" property="membershipNumber" />
-            <result column="c_last_deal_time" property="lastDealTime" />
-            <result column="c_create_time" property="createTime" />
-            <result column="c_disabled" property="disabled" />
-            <result column="c_remark" property="remark" />
-            <collection property="clientLevel" ofType="com.yeta.pps.po.ClientLevel">
-                <id column="cl_id" property="id" />
-                <result column="cl_name" property="name" />
-                <result column="cl_price_type" property="priceType" />
-                <result column="cl_price" property="price" />
-            </collection>
-        </collection>
-    </resultMap>
-
-    <select id="findAllPagedIntegralDetail" resultMap="clientIntegralDetailVoMap">
+    <select id="findPagedStoreClientDetail" resultType="com.yeta.pps.vo.StoreClientDetailVo">
         select
-            cid.id,
-            cid.store_id,
-            cid.client_id,
-            cid.create_time,
-            cid.type,
-            cid.change_integral,
-            cid.after_change_integral,
-            cid.order_id,
-            s.id as s_id,
-            s.name as s_name,
-            s.address as s_address,
-            c.id as c_id,
-            c.name as c_name,
-            c.username as c_username,
-            c.password as c_password,
-            c.phone as c_phone,
-            c.level_id as c_level_id,
-            c.birthday as c_birthday,
-            c.inviter_id as c_inviter_id,
-            c.address as c_address,
-            c.postcode as c_postcode,
-            c.membership_number as c_membership_number,
-            c.last_deal_time as c_last_deal_time,
-            c.create_time as c_create_time,
-            c.disabled as c_disabled,
-            c.remark as c_remark,
-            cl.id as cl_id,
-            cl.name as cl_name,
-            cl.price_type as cl_price_type,
-            cl.price as cl_price
+            scd.id,
+            scd.store_id,
+            s.name as store_name,
+            scd.client_id,
+            c.name as client_name,
+            scd.create_time,
+            scd.update_time,
+            scd.type,
+            if (scd.type = 1, '积分增加', if (scd.type = 2, '积分减少', if (scd.type = 3, '提成增加', '提成减少'))) as type_name,
+            scd.change_integral,
+            scd.change_push_money,
+            scd.order_id,
+            scd.status,
+            if (scd.status = 0, '待审核', if (scd.status = 1, '审核通过', '审核未通过')) as status_name,
+            scd.user_id,
+            <if test="vo.storeId != null">
+                u.name as user_name,
+            </if>
+            scd.withdrawal_way,
+            if (scd.withdrawal_way = 1, '提现到客户手机号码对应的支付宝账户', '其他方式') as withdrawal_way_name,
+            scd.remark
         from
-            (
-                (
-                    client_integral_detail as cid
-                    left join store as s on cid.store_id = s.id
-                )
-                left join client as c on cid.client_id = c.id
-            )
-        left join client_level as cl on c.level_id = cl.id
+            store_client_detail as scd
+        inner join store as s on s.id = scd.store_id
+        inner join client as c on c.id = scd.client_id
+        <if test="vo.storeId != null">
+            left join user_${vo.storeId} as u on u.id = scd.user_id
+        </if>
         where
-            1 = 1
-        <if test="clientIntegralDetailVo.storeId != null">
-            and store_id = #{clientIntegralDetailVo.storeId}
+            c.level_id > 0
+        and c.disabled = 0
+        <if test="vo.storeId != null">
+            and scd.store_id = #{vo.storeId}
         </if>
-        <if test="clientIntegralDetailVo.clientId != null">
-            and client_id = #{clientIntegralDetailVo.clientId}
+        <if test="vo.clientId != null">
+            and scd.client_id = #{vo.clientId}
         </if>
-        <if test="clientIntegralDetailVo.type != null">
-            and type = #{clientIntegralDetailVo.type}
+        <if test="vo.type != null">
+            and scd.type = #{vo.type}
+        </if>
+        <if test="vo.status != null">
+            and scd.status = #{vo.status}
+        </if>
+        <if test="vo.clientName != null">
+            and c.name like concat('%', #{vo.clientName}, '%')
         </if>
         order by
-            cid.create_time desc
+            scd.create_time desc
         limit
             #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+    
+    <select id="findStoreClientDetailById" parameterType="com.yeta.pps.po.StoreClientDetail" resultType="com.yeta.pps.po.StoreClientDetail">
+        select
+            id, store_id, client_id, create_time, update_time, type, change_integral, change_push_money, order_id, status, user_id, withdrawal_way, remark
+        from
+            store_client_detail
+        where
+            id = #{id};
     </select>
 
 </mapper>

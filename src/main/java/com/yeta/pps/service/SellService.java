@@ -3,6 +3,7 @@ package com.yeta.pps.service;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.GoodsSku;
+import com.yeta.pps.po.StoreClient;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
@@ -43,7 +44,7 @@ public class SellService {
     private InventoryUtil inventoryUtil;
 
     @Autowired
-    private IntegralUtil integralUtil;
+    private StoreClientUtil storeClientUtil;
 
     @Autowired
     private FundUtil fundUtil;
@@ -134,10 +135,14 @@ public class SellService {
             throw new CommonException(CommonResponse.ADD_ERROR);
         }
 
-        //修改客户积分相关信息
+
         if (sellApplyOrderVo.getClientId() != null) {
+            //增加客户积分
             List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId));
-            integralUtil.updateIntegralMethod(1, storeId, sellApplyOrderVo.getClientId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
+            storeClientUtil.updateIntegralMethod(1, storeId, sellApplyOrderVo.getClientId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos, sellApplyOrderVo.getUserId());
+
+            //增加该客户邀请人提成
+            storeClientUtil.updatePushMoneyMethod(1, storeId, sellApplyOrderVo.getClientId(), sellResultOrderVo.getId(), sellApplyOrderVo.getUserId(), sellResultOrderVo.getOrderMoney());
         }
 
         //记录资金对账记录
@@ -778,12 +783,18 @@ public class SellService {
                 fundUtil.redDashedFundCheckOrderMethod(new FundCheckOrderVo(storeId, sellResultOrderVo.getApplyOrderId(), userId));
 
                 //减少客户积分
-                integralUtil.updateIntegralMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
+                storeClientUtil.updateIntegralMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos, userId);
+
+                //减少该客户邀请人提成
+                storeClientUtil.updatePushMoneyMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), userId, sellResultOrderVo.getOrderMoney());
                 break;
 
             case 2:     //销售订单
                 //减少客户积分
-                integralUtil.updateIntegralMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
+                storeClientUtil.updateIntegralMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos, userId);
+
+                //减少该客户邀请人提成
+                storeClientUtil.updatePushMoneyMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), userId, sellResultOrderVo.getOrderMoney());
 
                 //修改申请订单的单据状态和完成数量
                 if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //未发
@@ -800,7 +811,10 @@ public class SellService {
 
             case 3:     //销售退货申请单
                 //增加客户积分
-                integralUtil.updateIntegralMethod(1, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos);
+                storeClientUtil.updateIntegralMethod(1, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos, userId);
+
+                //增加该客户邀请人提成
+                storeClientUtil.updatePushMoneyMethod(1, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), userId, sellResultOrderVo.getOrderMoney());
 
                 //修改申请订单的单据状态和完成数量
                 if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity() == applyOrderVo.getInTotalQuantity()) {        //未收

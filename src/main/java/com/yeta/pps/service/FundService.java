@@ -3,6 +3,7 @@ package com.yeta.pps.service;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.ProcurementApplyOrder;
+import com.yeta.pps.po.StoreClient;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.FundUtil;
@@ -132,9 +133,9 @@ public class FundService {
         //判断查询类型
         switch (type) {
             case 1:     //收款单
-                StoreIntegralVo storeIntegralVo = myClientMapper.findStoreIntegralByStoreIdAndClientId(new StoreIntegralVo(storeId, targetId));
-                if (storeIntegralVo != null) {
-                    advanceMoney = storeIntegralVo.getAdvanceMoney();
+                StoreClient storeClient = myClientMapper.findStoreClientByStoreIdAndClientId(new StoreClient(storeId, targetId));
+                if (storeClient != null) {
+                    advanceMoney = storeClient.getAdvanceMoney();
                 }
                 break;
 
@@ -246,7 +247,9 @@ public class FundService {
                 //修改该客户在该店铺的预收款余额
                 advanceMoney = fundOrderVo.getAdvanceMoney();
                 if (advanceMoney != 0) {
-                    if (myClientMapper.updateAdvanceMoney(new StoreIntegralVo(storeId, targetId, -advanceMoney)) != 1) {
+                    StoreClient storeClient = new StoreClient(storeId, targetId);
+                    storeClient.setAdvanceMoney(-advanceMoney);
+                    if (myClientMapper.updateStoreClientAdvanceMoney(storeClient) != 1) {
                         throw new CommonException(CommonResponse.ADD_ERROR);
                     }
                 }
@@ -296,12 +299,16 @@ public class FundService {
                 fundOrderVo.setAdvanceMoney(0.0);
 
                 //增加该客户在该店铺的预收款余额
-                if (myClientMapper.findStoreIntegralByStoreIdAndClientId(new StoreIntegralVo(storeId, targetId)) != null) {
-                    if (myClientMapper.updateAdvanceMoney(new StoreIntegralVo(storeId, targetId, money)) != 1) {
+                StoreClient storeClient = new StoreClient(storeId, targetId);
+                storeClient.setAdvanceMoney(money);
+                if (myClientMapper.findStoreClientByStoreIdAndClientId(storeClient) != null) {
+                    if (myClientMapper.updateStoreClientAdvanceMoney(storeClient) != 1) {
                         throw new CommonException(CommonResponse.ADD_ERROR);
                     }
                 } else {
-                    if (myClientMapper.addStoreIntegral(new StoreIntegralVo(storeId, targetId, 0, money)) != 1) {
+                    storeClient.setIntegral(0);
+                    storeClient.setPushMoney(0.0);
+                    if (myClientMapper.addStoreClient(storeClient) != 1) {
                         throw new CommonException(CommonResponse.ADD_ERROR);
                     }
                 }
@@ -409,7 +416,9 @@ public class FundService {
                     }
 
                     //修改该客户在该店铺的预收款余额
-                    if (myClientMapper.updateAdvanceMoney(new StoreIntegralVo(storeId, fundOrderVo.getTargetId(), -fundOrderVo.getAdvanceMoney())) != 1) {
+                    StoreClient storeClient = new StoreClient(storeId, fundOrderVo.getTargetId());
+                    storeClient.setAdvanceMoney(-fundOrderVo.getAdvanceMoney());
+                    if (myClientMapper.updateStoreClientAdvanceMoney(storeClient) != 1) {
                         throw new CommonException(CommonResponse.UPDATE_ERROR);
                     }
                     break;
@@ -428,7 +437,9 @@ public class FundService {
 
                 case 3:     //预收款单
                     //减少该客户在该店铺的预收款余额
-                    if (myClientMapper.updateAdvanceMoney(new StoreIntegralVo(storeId, fundOrderVo.getTargetId(), fundOrderVo.getMoney())) != 1) {
+                    storeClient = new StoreClient(storeId, fundOrderVo.getTargetId());
+                    storeClient.setAdvanceMoney(fundOrderVo.getMoney());
+                    if (myClientMapper.updateStoreClientAdvanceMoney(storeClient) != 1) {
                         throw new CommonException(CommonResponse.UPDATE_ERROR);
                     }
                     break;
@@ -609,66 +620,7 @@ public class FundService {
      */
     @Transactional
     public CommonResponse addFundResultOrder(FundResultOrderVo fundResultOrderVo) {
-
-        //设置库存对账记录
-        FundCheckOrderVo fundCheckOrderVo = new FundCheckOrderVo();
-        fundCheckOrderVo.setStoreId(fundResultOrderVo.getStoreId());
-        fundCheckOrderVo.setCreateTime(new Date());
-        fundCheckOrderVo.setOrderStatus((byte) 1);
-        fundCheckOrderVo.setTargetId(fundResultOrderVo.getTargetId());
-        fundCheckOrderVo.setBankAccountId(fundResultOrderVo.getBankAccountId());
-        fundCheckOrderVo.setUserId(fundResultOrderVo.getUserId());
-
-        //查询最新的资金对账记录
-        FundCheckOrderVo lastVo = myFundMapper.findLastBalanceMoney(new FundCheckOrderVo(fundResultOrderVo.getStoreId(), null, null, fundResultOrderVo.getBankAccountId()));
-        if (lastVo == null) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
-        }
-
-        //判断新增类型
-        byte type = fundResultOrderVo.getType();
-        switch (type) {
-            case 1:     //其他收入单:
-                //判断参数
-                if (fundResultOrderVo.getTargetId() == null) {
-                    return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
-                }
-
-                fundResultOrderVo.setId("QTSRD_" + UUID.randomUUID().toString().replace("-", ""));
-
-                fundCheckOrderVo.setOrderId(fundResultOrderVo.getId());
-                fundCheckOrderVo.setInMoney(fundResultOrderVo.getMoney());
-                fundCheckOrderVo.setOutMoney(0.0);
-                fundCheckOrderVo.setBalanceMoney(lastVo.getBalanceMoney() + fundResultOrderVo.getMoney());
-                break;
-
-            case 2:     //费用单:
-                fundResultOrderVo.setId("YBFYD_" + UUID.randomUUID().toString().replace("-", ""));
-
-                fundCheckOrderVo.setOrderId(fundResultOrderVo.getId());
-                fundCheckOrderVo.setInMoney(0.0);
-                fundCheckOrderVo.setOutMoney(fundResultOrderVo.getMoney());
-                fundCheckOrderVo.setBalanceMoney(lastVo.getBalanceMoney() - fundResultOrderVo.getMoney());
-                break;
-
-            default:
-                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
-        }
-
-        //设置初始属性
-        fundResultOrderVo.setCreateTime(new Date());
-        fundResultOrderVo.setOrderStatus((byte) 1);
-
-        //新增
-        if (myFundMapper.addFundResultOrder(fundResultOrderVo) != 1) {
-            return CommonResponse.error(CommonResponse.ADD_ERROR);
-        }
-
-        //记录资金对账记录
-        if (myFundMapper.addFundCheckOrder(fundCheckOrderVo) != 1) {
-            throw new CommonException(CommonResponse.UPDATE_ERROR);
-        }
-        
+        fundUtil.addFundResultOrderMethod(fundResultOrderVo);
         return CommonResponse.success();
     }
 

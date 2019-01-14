@@ -44,7 +44,7 @@ public class StorageService {
     private InventoryUtil inventoryUtil;
 
     @Autowired
-    private IntegralUtil integralUtil;
+    private StoreClientUtil storeClientUtil;
 
     /**
      * 待收/发货
@@ -429,7 +429,7 @@ public class StorageService {
      * @return
      */
     @Transactional
-    public String addResultOrderMethod(StorageOrderVo storageOrderVo, ProcurementApplyOrderVo pVo, SellApplyOrderVo sVo, String resultOrderId, double costMoney) {
+    public Map<String, Object> addResultOrderMethod(StorageOrderVo storageOrderVo, ProcurementApplyOrderVo pVo, SellApplyOrderVo sVo, String resultOrderId, double costMoney) {
         List<OrderGoodsSkuVo> orderGoodsSkuVos;
         SellResultOrder money;
         Integer quantity = null;
@@ -495,8 +495,14 @@ public class StorageService {
                     )) != 1) {
                 throw new CommonException(CommonResponse.ADD_ERROR);
             }
+        } else {
+            throw new CommonException(CommonResponse.ADD_ERROR);
         }
-        return resultOrderId;
+
+        HashMap<String, Object> result = new HashMap();
+        result.put("resultOrderId", resultOrderId);
+        result.put("orderMoney", money.getTotalMoney());
+        return result;
     }
 
     /**
@@ -542,7 +548,7 @@ public class StorageService {
         updateOrderGoodsSkuMethod(storeId, quantity, orderGoodsSkuVos);
 
         //新增结果订单
-        String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
+        String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0).get("resultOrderId").toString();
 
         //新增结果订单/商品规格关系
         addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
@@ -577,7 +583,7 @@ public class StorageService {
     }
 
     /**
-     * 新增退货或申请收货单
+     * 新增退换货申请收货单
      * @param storageOrderVo
      * @param pVo
      * @param sVo
@@ -620,7 +626,7 @@ public class StorageService {
             //如果换货完成
             if (applyOrderStatus == 15) {
                 //新增结果订单
-                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
+                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0).get("resultOrderId").toString();
 
                 //新增结果订单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, pVo.getDetails());
@@ -673,14 +679,17 @@ public class StorageService {
                 }
 
                 //新增结果订单
-                addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, -costMoney);
+                double orderMoney = (double) addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, -costMoney).get("orderMoney");
 
                 //新增结果订单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
 
-                //修改客户积分信息
                 if (applyOrderStatus == 3) {        //收货完成
-                    integralUtil.updateIntegralMethod(0, storeId, sVo.getClient().getId(), resultOrderId, myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId)), orderGoodsSkuVos);
+                    //减少客户积分
+                    storeClientUtil.updateIntegralMethod(0, storeId, sVo.getClient().getId(), resultOrderId, myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId)), orderGoodsSkuVos, storageOrderVo.getUserId());
+
+                    //减少该客户邀请人提成
+                    storeClientUtil.updatePushMoneyMethod(0, storeId, sVo.getClient().getId(), resultOrderId, storageOrderVo.getUserId(), orderMoney);
                 }
 
             } else if (sVo.getType() == 4) {        //销售换货收货
@@ -759,14 +768,17 @@ public class StorageService {
         }
 
         //新增结果订单
-        addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, costMoney);
+        double orderMoney = (double) addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, costMoney).get("orderMoney");
 
         //新增结果订单/商品规格关系
         addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
 
-        //修改客户积分信息
         if (applyOrderStatus == 6) {        //发货完成
-            integralUtil.updateIntegralMethod(1, storeId, sVo.getClient().getId(), resultOrderId, myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId)), orderGoodsSkuVos);
+            //增加客户积分
+            storeClientUtil.updateIntegralMethod(1, storeId, sVo.getClient().getId(), resultOrderId, myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId)), orderGoodsSkuVos, storageOrderVo.getUserId());
+
+            //增加该客户邀请人提成
+            storeClientUtil.updatePushMoneyMethod(1, storeId, sVo.getClient().getId(), resultOrderId, storageOrderVo.getUserId(), orderMoney);
         }
     }
 
@@ -800,7 +812,7 @@ public class StorageService {
             //判断采购类型
             if (pVo.getType() == 2) {       //采购退货发货
                 //新增结果订单
-                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
+                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0).get("resultOrderId").toString();
 
                 //新增结果订单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);

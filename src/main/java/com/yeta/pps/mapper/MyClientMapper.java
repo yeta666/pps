@@ -1,13 +1,7 @@
 package com.yeta.pps.mapper;
 
-import com.yeta.pps.po.Client;
-import com.yeta.pps.po.ClientIntegralDetail;
-import com.yeta.pps.po.ClientLevel;
-import com.yeta.pps.po.MembershipNumber;
-import com.yeta.pps.vo.ClientIntegralDetailVo;
-import com.yeta.pps.vo.ClientVo;
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.StoreIntegralVo;
+import com.yeta.pps.po.*;
+import com.yeta.pps.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -73,33 +67,45 @@ public interface MyClientMapper {
 
     Client findByIdOrPhone(ClientVo clientVo);
 
-    //店铺/积分关系
+    ClientVo findById(ClientVo clientVo);
 
-    int addStoreIntegral(StoreIntegralVo storeIntegralVo);
+    //店铺/客户关系
 
-    int deleteStoreIntegralByClientId(StoreIntegralVo storeIntegralVo);
+    int addStoreClient(StoreClient storeClient);
 
-    int increaseIntegral(StoreIntegralVo storeIntegralVo);
+    int deleteStoreClientByClientId(StoreClient storeClient);
 
-    int decreaseIntegral(StoreIntegralVo storeIntegralVo);
+    int updateStoreClientIntegral(StoreClient storeClient);
 
-    int updateAdvanceMoney(StoreIntegralVo storeIntegralVo);
+    int updateStoreClientAdvanceMoney(StoreClient storeClient);
 
-    int findCountStoreIntegral(StoreIntegralVo storeIntegralVo);
+    int updateStoreClientPushMoney(StoreClient storeClient);
 
-    List<StoreIntegralVo> findAllPagedStoreIntegral(@Param(value = "storeIntegralVo") StoreIntegralVo storeIntegralVo,
-                                                    @Param(value = "pageVo") PageVo pageVo);
+    int findCountStoreClient(StoreClientVo storeClientVo);
 
-    StoreIntegralVo findStoreIntegralByStoreIdAndClientId(StoreIntegralVo storeIntegralVo);
+    List<StoreClientVo> findPagedStoreClient(@Param(value = "vo") StoreClientVo storeClientVo,
+                                             @Param(value = "pageVo") PageVo pageVo);
 
-    //客户/积分明细关系
+    StoreClient findStoreClientByStoreIdAndClientId(StoreClient storeClient);
 
-    int addIntegralDetail(ClientIntegralDetailVo clientIntegralDetailVo);
+    //店铺/客户明细关系
 
-    int deleteIntegralDetailByClientId(ClientIntegralDetailVo clientIntegralDetailVo);
+    int addStoreClientDetail(StoreClientDetail storeClientDetail);
 
-    int findCountIntegralDetail(ClientIntegralDetailVo clientIntegralDetailVo);
+    int deleteStoreClientDetailByClientId(StoreClientDetail storeClientDetail);
 
-    List<ClientIntegralDetailVo> findAllPagedIntegralDetail(@Param(value = "clientIntegralDetailVo") ClientIntegralDetailVo clientIntegralDetailVo,
-                                                            @Param(value = "pageVo") PageVo pageVo);
+    int updateStoreClientDetailStatusAndRemark(StoreClientDetail storeClientDetail);
+
+    int findCountStoreClientDetail(StoreClientDetailVo storeClientDetailVo);
+
+    List<StoreClientDetailVo> findPagedStoreClientDetail(@Param(value = "vo") StoreClientDetailVo storeClientDetailVo,
+                                                         @Param(value = "pageVo") PageVo pageVo);
+
+    StoreClientDetail findStoreClientDetailById(StoreClientDetail storeClientDetail);
+
+    //下级
+
+    List<SubordinateVo> findSubordinateByInviterId(SubordinateVo subordinateVo);
+
+    List<SubordinateVo> findSubordinateByClientId(SubordinateVo subordinateVo);
 }

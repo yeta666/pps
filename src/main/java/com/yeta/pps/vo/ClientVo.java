@@ -117,7 +117,7 @@ public class ClientVo {
         this.id = id;
     }
 
-    public ClientVo(String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String phone) {
+    public ClientVo(String id, String phone) {
         this.id = id;
         this.phone = phone;
     }
@@ -128,13 +128,7 @@ public class ClientVo {
         this.remark = remark;
     }
 
-    public ClientVo(String username, String password, String identifyingCode) {
-        this.username = username;
-        this.password = password;
-        this.identifyingCode = identifyingCode;
-    }
-
-    public ClientVo(String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String name, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String phone, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer levelId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String membershipNumber, Byte disabled) {
+    public ClientVo(String id, String name, String phone, Integer levelId, String membershipNumber, Byte disabled) {
         this.id = id;
         this.name = name;
         this.phone = phone;

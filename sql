@@ -34,18 +34,7 @@ create table client(
 
 
 
-/*客户/积分明细关系*/
-drop table if exists client_integral_detail;
-create table client_integral_detail(
-  id int primary key auto_increment comment '客户/积分明细关系编号',
-  store_id int not null comment '店铺编号',
-  client_id varchar(50) not null comment '客户编号',
-  create_time datetime not null comment '创建时间',
-  type tinyint not null comment '操作类型，0：减少，1：增加',
-  change_integral int not null comment '改变积分',
-  after_change_integral int not null comment '改变后的积分',
-  order_id varchar(50) comment '单据编号'
-) engine InnoDB default charset=utf8;
+
 
 
 /*客户级别*/
@@ -641,14 +630,34 @@ create table fund_order_1(
 ) engine InnoDB default charset=utf8;
 
 
-/*店铺/积分、预收款关系*/
-drop table if exists store_integral;
-create table store_integral(
-  id int primary key auto_increment comment '店铺/客户积分关系编号',
+/*店铺/客户明细关系*/
+drop table if exists store_client_detail;
+create table store_client_detail(
+  id int primary key auto_increment comment '店铺/客户明细关系编号',
+  store_id int not null comment '店铺编号',
+  client_id varchar(50) not null comment '客户编号',
+  create_time datetime not null comment '创建时间',
+  update_time datetime not null comment '修改时间',
+  type tinyint not null comment '类型，1：积分增加，2：积分减少，3：提成增加，4：提成减少',
+  change_integral int comment '改变积分',
+  change_push_money double(10, 2) comment '改变提成',
+  order_id varchar(50) comment '单据编号',
+  status tinyint not null comment '状态，0：待审核，1：审核通过，2：审核未通过',
+  user_id varchar(50) comment '经手人',
+  withdrawal_way tinyint comment '提现方式，1：提现到客户手机号码对应的支付宝账户，2：其他方式需填写备注',
+  remark varchar(200) comment '备注'
+) engine InnoDB default charset=utf8;
+
+
+/*店铺/客户关系*/
+drop table if exists store_client;
+create table store_client(
+  id int primary key auto_increment comment '店铺/客户关系编号',
   store_id int not null comment '店铺编号',
   client_id varchar(50) not null comment '客户编号',
   integral int not null comment '积分',
-  advance_money double(10, 2) not null comment '预收款余额'
+  advance_money double(10, 2) not null comment '预收款余额',
+  push_money double(10, 2) not null comment '提成'
 ) engine InnoDB default charset=utf8;
 
 
@@ -666,9 +675,6 @@ create table supplier_1 (
 ) engine InnoDB default charset=utf8;
 
 insert into supplier_1 (id, name, advance_money, contacts, contact_number, contact_address, fax, remark) VALUES ('gys001', '美特斯邦威', 0, '小明', '17760041487', '', '', '');
-
-
-
 
 
 /*采购申请单*/
@@ -961,6 +967,15 @@ create table client_discount_coupon(
   discount_coupon_id int not null comment '优惠券编号',
   quantity int not null comment '数量',
 ) engine InnoDB default charset=utf8;
+
+
+/*系统设置*/
+drop table if exists system;
+create table system(
+  id int primary key comment '系统设置编号',
+  push_money_rate double(10, 2) not null comment '提成比例'
+) engine InnoDB default charset=utf8;
+
 
 
 
