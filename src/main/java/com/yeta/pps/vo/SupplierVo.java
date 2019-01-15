@@ -26,7 +26,7 @@ public class SupplierVo {
     private String name;
 
     /**
-     * 预付款余额
+     * 预付款期初
      */
     private Double advanceMoney;
 
@@ -56,6 +56,11 @@ public class SupplierVo {
      * 备注
      */
     private String remark;
+
+    /**
+     * 经手人
+     */
+    private String userId;
 
     public SupplierVo() {
     }
@@ -147,6 +152,14 @@ public class SupplierVo {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     @Override

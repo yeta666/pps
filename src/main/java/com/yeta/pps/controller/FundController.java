@@ -1,6 +1,7 @@
 package com.yeta.pps.controller;
 
 import com.yeta.pps.po.Client;
+import com.yeta.pps.po.StoreClient;
 import com.yeta.pps.service.FundService;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
@@ -108,21 +109,21 @@ public class FundController {
     /**
      * 查询预收/付款余额接口
      * @param storeId
-     * @param type
      * @param targetId
+     * @param type
      * @return
      */
     @ApiOperation(value = "查询预收/付款余额", notes = "在点击收/付款之后，做的第一件事")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "type", value = "单据类型(1：收款单，2：付款单)", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "targetId", value = "往来单位编号", required = true, paramType = "query", dataType = "String")
+            @ApiImplicitParam(name = "targetId", value = "往来单位编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "单据类型(1：查预收款余额，2：查预付款余额)", required = true, paramType = "query", dataType = "int")
     })
     @GetMapping(value = "/fund/advance")
-    public CommonResponse findAdvanceMoney(@RequestParam(value = "storeId") Integer storeId,
-                                           @RequestParam(value = "type") Byte type,
-                                           @RequestParam(value = "targetId") String targetId) {
-        return fundService.findAdvanceMoney(new FundOrderVo(storeId, type, targetId));
+    public CommonResponse findLastFundTargetCheckOrder(@RequestParam(value = "storeId") Integer storeId,
+                                                       @RequestParam(value = "targetId") String targetId,
+                                                       @RequestParam(value = "type") Byte type) {
+        return fundService.findLastFundTargetCheckOrder(new FundTargetCheckOrderVo(storeId, targetId), type);
     }
 
     /**
@@ -208,9 +209,33 @@ public class FundController {
      */
     @ApiOperation(value = "现金银行期初设置")
     @ApiImplicitParam(name = "bankAccountVo", value = "storeId, id, openingMoney, userId必填", required = true, paramType = "body", dataType = "BankAccountVo")
-    @PutMapping(value = "/fund/opening")
-    public CommonResponse updateOpening(@RequestBody @Valid BankAccountVo bankAccountVo) {
-        return fundService.updateOpening(bankAccountVo);
+    @PutMapping(value = "/fund/bankAccount/opening")
+    public CommonResponse updateBankAccountOpening(@RequestBody @Valid BankAccountVo bankAccountVo) {
+        return fundService.updateBankAccountOpening(bankAccountVo);
+    }
+
+    /**
+     * 应收期初设置接口
+     * @param storeClient
+     * @return
+     */
+    @ApiOperation(value = "应收期初设置")
+    @ApiImplicitParam(name = "storeClient", value = "storeId, clientId, advanceMoney, userId必填", required = true, paramType = "body", dataType = "StoreClient")
+    @PutMapping(value = "/fund/needIn/opening")
+    public CommonResponse updateNeedInOpening(@RequestBody StoreClient storeClient) {
+        return fundService.updateNeedInOpening(storeClient);
+    }
+
+    /**
+     * 应付期初设置接口
+     * @param supplierVo
+     * @return
+     */
+    @ApiOperation(value = "应付期初设置")
+    @ApiImplicitParam(name = "supplierVo", value = "storeId, id, advanceMoney, userId必填", required = true, paramType = "body", dataType = "SupplierVo")
+    @PutMapping(value = "/fund/needOut/opening")
+    public CommonResponse updateNeedOutOpening(@RequestBody SupplierVo supplierVo) {
+        return fundService.updateNeedOutOpening(supplierVo);
     }
 
     //资金对账
@@ -234,8 +259,8 @@ public class FundController {
     })
     @GetMapping(value = "/fund/balance")
     public CommonResponse<CommonResult<List<BankAccountVo>>> findSumFundCheckOrder(@RequestParam(value = "storeId") Integer storeId,
-                                                                                   @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
-                                                                                   @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                   @RequestParam(value = "startTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                   @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
                                                                                    @RequestParam(value = "page") Integer page,
                                                                                    @RequestParam(value = "pageSize") Integer pageSize) {
         return fundService.findSumFundCheckOrder(new FundCheckOrderVo(storeId, startTime, endTime), new PageVo(page, pageSize));
@@ -262,12 +287,176 @@ public class FundController {
     })
     @GetMapping(value = "/fund/check")
     public CommonResponse<CommonResult<List<FundCheckOrderVo>>> findFundCheckOrder(@RequestParam(value = "storeId") Integer storeId,
-                                                                                   @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
-                                                                                   @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                   @RequestParam(value = "startTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                   @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
                                                                                    @RequestParam(value = "bankAccountId", required = false) String bankAccountId,
                                                                                    @RequestParam(value = "page") Integer page,
                                                                                    @RequestParam(value = "pageSize") Integer pageSize) {
         return fundService.findFundCheckOrder(new FundCheckOrderVo(storeId, startTime, endTime, bankAccountId), new PageVo(page, pageSize));
+    }
+
+    //往来对账
+
+    /**
+     * 往来对账-查应收-按往来单位接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "往来对账-查应收-按往来单位")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/needIn/byTarget")
+    public CommonResponse<CommonResult<List<FundTargetCheckOrderVo>>> findFundTargetCheckOrderNeedInByClient(@RequestParam(value = "storeId") Integer storeId,
+                                                                                                             @RequestParam(value = "startTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                             @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                             @RequestParam(value = "page") Integer page,
+                                                                                                             @RequestParam(value = "pageSize") Integer pageSize) {
+        return fundService.findFundTargetCheckOrderNeedInByClient(new FundTargetCheckOrderVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 往来对账-查应收-按往来单位-对账到单据接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param targetId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "往来对账-查应收-按往来单位-对账到单据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "targetId", value = "往来单位编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/needIn/byTargetOrder")
+    public CommonResponse<CommonResult<List<FundTargetCheckOrderVo>>> findFundTargetCheckOrderNeedInByClientOrder(@RequestParam(value = "storeId") Integer storeId,
+                                                                                                                  @RequestParam(value = "startTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                                  @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                                  @RequestParam(value = "targetId") String targetId,
+                                                                                                                  @RequestParam(value = "page") Integer page,
+                                                                                                                  @RequestParam(value = "pageSize") Integer pageSize) {
+        return fundService.findFundTargetCheckOrderNeedInByClientOrder(new FundTargetCheckOrderVo(storeId, startTime, endTime, targetId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 往来对账-查应付-按往来单位接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "往来对账-查应付-按往来单位")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/needOut/byTarget")
+    public CommonResponse<CommonResult<List<FundTargetCheckOrderVo>>> findFundTargetCheckOrderNeedOutByClient(@RequestParam(value = "storeId") Integer storeId,
+                                                                                                              @RequestParam(value = "startTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                              @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                              @RequestParam(value = "page") Integer page,
+                                                                                                              @RequestParam(value = "pageSize") Integer pageSize) {
+        return fundService.findFundTargetCheckOrderNeedOutByClient(new FundTargetCheckOrderVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 往来对账-查应付-按往来单位-对账到单据接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param targetId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "往来对账-查应付-按往来单位-对账到单据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "targetId", value = "往来单位编号", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/needOut/byTargetOrder")
+    public CommonResponse<CommonResult<List<FundTargetCheckOrderVo>>> findFundTargetCheckOrderNeedOutByClientOrder(@RequestParam(value = "storeId") Integer storeId,
+                                                                                                                   @RequestParam(value = "startTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                                   @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                                   @RequestParam(value = "targetId") String targetId,
+                                                                                                                   @RequestParam(value = "page") Integer page,
+                                                                                                                   @RequestParam(value = "pageSize") Integer pageSize) {
+        return fundService.findFundTargetCheckOrderNeedOutByClientOrder(new FundTargetCheckOrderVo(storeId, startTime, endTime, targetId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 往来对账-职员部门应收款接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "往来对账-职员部门应收款")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/needIn/byUser")
+    public CommonResponse<CommonResult<List<FundTargetCheckOrderVo>>> findFundTargetCheckOrderNeedInByUser(@RequestParam(value = "storeId") Integer storeId,
+                                                                                                           @RequestParam(value = "startTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                           @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                           @RequestParam(value = "page") Integer page,
+                                                                                                             @RequestParam(value = "pageSize") Integer pageSize) {
+        return fundService.findFundTargetCheckOrderNeedInByUser(new FundTargetCheckOrderVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 往来对账-职员部门应付款接口
+     * @param storeId
+     * @param startTime
+     * @param endTime
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "往来对账-职员部门应付款")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/needOut/byUser")
+    public CommonResponse<CommonResult<List<FundTargetCheckOrderVo>>> findFundTargetCheckOrderNeedOutByUser(@RequestParam(value = "storeId") Integer storeId,
+                                                                                                            @RequestParam(value = "startTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                                            @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                            @RequestParam(value = "page") Integer page,
+                                                                                                            @RequestParam(value = "pageSize") Integer pageSize) {
+        return fundService.findFundTargetCheckOrderNeedOutByUser(new FundTargetCheckOrderVo(storeId, startTime, endTime), new PageVo(page, pageSize));
     }
 
     //其他收入单/费用单

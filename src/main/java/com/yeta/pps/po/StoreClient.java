@@ -27,7 +27,7 @@ public class StoreClient {
     private Integer integral;
 
     /**
-     * 预收款余额
+     * 预收款期初
      */
     private Double advanceMoney;
 
@@ -35,6 +35,11 @@ public class StoreClient {
      * 提成
      */
     private Double pushMoney;
+
+    /**
+     * 经手人
+     */
+    private String userId;
 
     public StoreClient() {
     }
@@ -94,6 +99,14 @@ public class StoreClient {
 
     public void setPushMoney(Double pushMoney) {
         this.pushMoney = pushMoney;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     @Override

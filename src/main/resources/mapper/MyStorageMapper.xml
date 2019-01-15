@@ -1613,7 +1613,6 @@
             order_id = #{orderId}
         and goods_sku_id = #{goodsSkuId}
         and warehouse_id = #{warehouseId}
-        and order_status &gt; 0
         and in_quantity != 0
         and in_money != 0
         and in_total_money != 0;
@@ -1628,7 +1627,6 @@
             order_id = #{orderId}
         and goods_sku_id = #{goodsSkuId}
         and warehouse_id = #{warehouseId}
-        and order_status &gt; 0
         and out_quantity != 0
         and out_money != 0
         and out_total_money != 0;

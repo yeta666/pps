@@ -8,6 +8,7 @@ import com.yeta.pps.po.DiscountCoupon;
 import com.yeta.pps.vo.FundCheckOrderVo;
 import com.yeta.pps.vo.FundOrderVo;
 import com.yeta.pps.vo.FundResultOrderVo;
+import com.yeta.pps.vo.FundTargetCheckOrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +66,9 @@ public class FundUtil {
 
         //查询最新余额
         FundCheckOrderVo lastVo = myFundMapper.findLastBalanceMoney(vo);
+        if (lastVo == null) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
 
         //设置红冲红单
         vo.setCreateTime(new Date());
@@ -80,6 +84,83 @@ public class FundUtil {
 
         //新增红冲红单
         if (myFundMapper.addFundCheckOrder(vo) != 1) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+    }
+
+    /**
+     * 红冲往来对账记录的方法
+     * @param vo
+     */
+    @Transactional
+    public void redDashedFundTargetCheckOrderMethod(FundTargetCheckOrderVo vo) {
+        //判断参数
+        if (vo.getStoreId() == null || vo.getOrderId() == null) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+
+        //获取参数
+        Integer storeId = vo.getStoreId();
+        String userId = vo.getUserId();
+
+        //红冲
+        if (myFundMapper.redDashedFundTargetCheckOrder(vo) != 1) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+
+        //获取红冲蓝单
+        vo = myFundMapper.findFundTargetCheckOrderByOrderId(vo);
+        vo.setStoreId(storeId);
+
+        //查询最新往来对账记录
+        FundTargetCheckOrderVo lastVo = myFundMapper.findLastFundTargetCheckOrder(vo);
+        if (lastVo == null) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+
+        //设置红冲红单
+        vo.setCreateTime(new Date());
+        vo.setOrderStatus((byte) -2);
+        if (vo.getNeedInMoneyIncrease() != 0 && vo.getNeedInMoneyDecrease() == 0) {     //原来是增加
+            vo.setNeedInMoney(lastVo.getNeedInMoney() - vo.getNeedInMoneyIncrease());
+        } else if (vo.getNeedInMoneyIncrease() == 0 && vo.getNeedInMoneyDecrease() != 0) {      //原来是减少
+            vo.setNeedInMoney(lastVo.getNeedInMoney() + vo.getNeedInMoneyDecrease());
+        } else if (vo.getNeedInMoneyIncrease() == 0 && vo.getNeedInMoneyDecrease() == 0) {      //不变
+            vo.setNeedInMoney(lastVo.getNeedInMoney());
+        }
+        vo.setNeedInMoneyIncrease(-vo.getNeedInMoneyIncrease());
+        vo.setNeedInMoneyDecrease(-vo.getNeedInMoneyDecrease());
+        if (vo.getAdvanceInMoneyIncrease() != 0 && vo.getAdvanceInMoneyDecrease() == 0) {     //原来是增加
+            vo.setAdvanceInMoney(lastVo.getAdvanceInMoney() - vo.getAdvanceInMoneyIncrease());
+        } else if (vo.getAdvanceInMoneyIncrease() == 0 && vo.getAdvanceInMoneyDecrease() != 0) {      //原来是减少
+            vo.setAdvanceInMoney(lastVo.getAdvanceInMoney() + vo.getAdvanceInMoneyDecrease());
+        } else if (vo.getAdvanceInMoneyIncrease() == 0 && vo.getAdvanceInMoneyDecrease() == 0) {      //不变
+            vo.setAdvanceInMoney(lastVo.getAdvanceInMoney());
+        }
+        vo.setAdvanceInMoneyIncrease(-vo.getAdvanceInMoneyIncrease());
+        vo.setAdvanceInMoneyDecrease(-vo.getAdvanceInMoneyDecrease());
+        if (vo.getNeedOutMoneyIncrease() != 0 && vo.getNeedOutMoneyDecrease() == 0) {     //原来是增加
+            vo.setNeedOutMoney(lastVo.getNeedOutMoney() - vo.getNeedOutMoneyIncrease());
+        } else if (vo.getNeedOutMoneyIncrease() == 0 && vo.getNeedOutMoneyDecrease() != 0) {      //原来是减少
+            vo.setNeedOutMoney(lastVo.getNeedOutMoney() + vo.getNeedOutMoneyDecrease());
+        } else if (vo.getNeedOutMoneyIncrease() == 0 && vo.getNeedOutMoneyDecrease() == 0) {      //不变
+            vo.setNeedOutMoney(lastVo.getNeedOutMoney());
+        }
+        vo.setNeedOutMoneyIncrease(-vo.getNeedOutMoneyIncrease());
+        vo.setNeedOutMoneyDecrease(-vo.getNeedOutMoneyDecrease());
+        if (vo.getAdvanceOutMoneyIncrease() != 0 && vo.getAdvanceOutMoneyDecrease() == 0) {     //原来是增加
+            vo.setAdvanceOutMoney(lastVo.getAdvanceOutMoney() - vo.getAdvanceOutMoneyIncrease());
+        } else if (vo.getAdvanceOutMoneyIncrease() == 0 && vo.getAdvanceOutMoneyDecrease() != 0) {      //原来是减少
+            vo.setAdvanceOutMoney(lastVo.getAdvanceOutMoney() + vo.getAdvanceOutMoneyDecrease());
+        } else if (vo.getAdvanceOutMoneyIncrease() == 0 && vo.getAdvanceOutMoneyDecrease() == 0) {      //不变
+            vo.setAdvanceOutMoney(lastVo.getAdvanceOutMoney());
+        }
+        vo.setAdvanceOutMoneyIncrease(-vo.getAdvanceOutMoneyIncrease());
+        vo.setAdvanceOutMoneyDecrease(-vo.getAdvanceOutMoneyDecrease());
+        vo.setUserId(userId);
+
+        //新增红冲红单
+        if (myFundMapper.addFundTargetCheckOrder(vo) != 1) {
             throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
     }

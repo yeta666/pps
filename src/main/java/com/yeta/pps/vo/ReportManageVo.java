@@ -126,6 +126,11 @@ public class ReportManageVo {
     //往来经营分析
 
     /**
+     * 期初应收
+     */
+    private Double needInMoneyOpening = 0.0;
+
+    /**
      * 应收增加
      */
     private Double needInMoneyIncrease;
@@ -141,6 +146,11 @@ public class ReportManageVo {
     private Double needInMoney;
 
     /**
+     * 期初应付
+     */
+    private Double needOutMoneyOpening = 0.0;
+
+    /**
      * 应付增加
      */
     private Double needOutMoneyIncrease;
@@ -151,7 +161,7 @@ public class ReportManageVo {
     private Double needOutMoneyDecrease;
 
     /**
-     * 期付应付
+     * 期末应付
      */
     private Double needOutMoney;
 
@@ -160,7 +170,7 @@ public class ReportManageVo {
     /**
      * 资金余额
      */
-    private Double balanceMoney;
+    private Double balanceMoney = 0.0;
 
     public ReportManageVo() {
     }
@@ -331,6 +341,14 @@ public class ReportManageVo {
         this.netMoney = netMoney;
     }
 
+    public Double getNeedInMoneyOpening() {
+        return needInMoneyOpening;
+    }
+
+    public void setNeedInMoneyOpening(Double needInMoneyOpening) {
+        this.needInMoneyOpening = needInMoneyOpening;
+    }
+
     public Double getNeedInMoneyIncrease() {
         return needInMoneyIncrease;
     }
@@ -353,6 +371,14 @@ public class ReportManageVo {
 
     public void setNeedInMoney(Double needInMoney) {
         this.needInMoney = needInMoney;
+    }
+
+    public Double getNeedOutMoneyOpening() {
+        return needOutMoneyOpening;
+    }
+
+    public void setNeedOutMoneyOpening(Double needOutMoneyOpening) {
+        this.needOutMoneyOpening = needOutMoneyOpening;
     }
 
     public Double getNeedOutMoneyIncrease() {
@@ -410,9 +436,11 @@ public class ReportManageVo {
                 ", otherInMoney=" + otherInMoney +
                 ", otherOutMoney=" + otherOutMoney +
                 ", netMoney=" + netMoney +
+                ", needInMoneyOpening=" + needInMoneyOpening +
                 ", needInMoneyIncrease=" + needInMoneyIncrease +
                 ", needInMoneyDecrease=" + needInMoneyDecrease +
                 ", needInMoney=" + needInMoney +
+                ", needOutMoneyOpening=" + needOutMoneyOpening +
                 ", needOutMoneyIncrease=" + needOutMoneyIncrease +
                 ", needOutMoneyDecrease=" + needOutMoneyDecrease +
                 ", needOutMoney=" + needOutMoney +

@@ -597,7 +597,6 @@ public class ClientService {
         titles.add(new Title("客户编号", "clientId"));
         titles.add(new Title("客户名称", "clientName"));
         titles.add(new Title("积分", "integral"));
-        titles.add(new Title("预收款余额", "advanceMoney"));
         titles.add(new Title("提成", "pushMoney"));
         CommonResult commonResult = new CommonResult(titles, vos, pageVo);
 

@@ -102,30 +102,29 @@ public class StoreClientUtil {
         }
 
         String inviterId = clientVo.getInviterId();
-
         StoreClient storeClient = new StoreClient(storeId, inviterId);
+
+        //查询提成比例
+        System system = systemMapper.findSystem();
+        if (system == null || system.getPushMoneyRate() == null || system.getPushMoneyRate() < 0) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
         switch (flag) {
             case 0:
                 //减少
-                storeClient.setPushMoney(-orderMoney);
-                if (myClientMapper.updateStoreClientIntegral(storeClient) != 1) {
+                storeClient.setPushMoney(orderMoney * system.getPushMoneyRate());
+                if (myClientMapper.updateStoreClientPushMoney(storeClient) != 1) {
                     throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
                 break;
 
             case 1:
-                //查询提成比例
-                System system = systemMapper.findSystem();
-                if (system == null || system.getPushMoneyRate() == null || system.getPushMoneyRate() < 0) {
-                    throw new CommonException(CommonResponse.UPDATE_ERROR);
-                }
-
                 //设置提成
                 storeClient.setPushMoney(orderMoney * system.getPushMoneyRate());
 
                 //增加或新增
                 if (myClientMapper.findStoreClientByStoreIdAndClientId(storeClient) != null) {
-                    if (myClientMapper.updateStoreClientIntegral(storeClient) != 1) {
+                    if (myClientMapper.updateStoreClientPushMoney(storeClient) != 1) {
                         throw new CommonException(CommonResponse.UPDATE_ERROR);
                     }
                 } else {

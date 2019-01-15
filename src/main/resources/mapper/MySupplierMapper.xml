@@ -22,14 +22,14 @@
             id = #{id};
     </update>
     
-    <update id="updateAdvanceMoney" parameterType="com.yeta.pps.vo.SupplierVo">
+    <update id="updateAdvanceMoneyOpening" parameterType="com.yeta.pps.vo.SupplierVo">
         update
             supplier_${storeId}
         set
-            advance_money = advance_money + #{advanceMoney}
+            advance_money = #{advanceMoney}
         where
             id = #{id}
-        and advance_money + #{advanceMoney} &gt;= 0;
+        and advance_money = 0;
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.SupplierVo" resultType="java.lang.Integer">

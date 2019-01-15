@@ -41,6 +41,9 @@ public class StorageService {
     private MyGoodsMapper myGoodsMapper;
 
     @Autowired
+    private MyFundMapper myFundMapper;
+
+    @Autowired
     private InventoryUtil inventoryUtil;
 
     @Autowired
@@ -501,7 +504,7 @@ public class StorageService {
 
         HashMap<String, Object> result = new HashMap();
         result.put("resultOrderId", resultOrderId);
-        result.put("orderMoney", money.getTotalMoney());
+        result.put("orderMoney", money.getOrderMoney());
         return result;
     }
 
@@ -548,7 +551,9 @@ public class StorageService {
         updateOrderGoodsSkuMethod(storeId, quantity, orderGoodsSkuVos);
 
         //新增结果订单
-        String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0).get("resultOrderId").toString();
+        Map<String, Object> map = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
+        String resultOrderId = map.get("resultOrderId").toString();
+        double orderMoney = (double) map.get("orderMoney");
 
         //新增结果订单/商品规格关系
         addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
@@ -579,6 +584,25 @@ public class StorageService {
             storageCheckOrderVo.setInTotalMoney(inventoryUtil.getNumberMethod(storageCheckOrderVo.getInQuantity() * storageCheckOrderVo.getInMoney()));
             storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
             inventoryUtil.addStorageCheckOrderMethod(1, storageCheckOrderVo, null);
+        }
+
+        //往来记账
+        FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
+        ftcoVo.setStoreId(storeId);
+        ftcoVo.setOrderId(resultOrderId);
+        ftcoVo.setCreateTime(new Date());
+        ftcoVo.setOrderStatus((byte) 1);
+        ftcoVo.setTargetId(pVo.getSupplierId());
+        ftcoVo.setNeedOutMoneyIncrease(orderMoney);
+        FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
+        if (lastFTCOVo == null) {
+            throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+        }
+        ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
+        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
+        ftcoVo.setUserId(storageOrderVo.getUserId());
+        if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
+            throw new CommonException(CommonResponse.ADD_ERROR);
         }
     }
 
@@ -626,13 +650,34 @@ public class StorageService {
             //如果换货完成
             if (applyOrderStatus == 15) {
                 //新增结果订单
-                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0).get("resultOrderId").toString();
+                Map<String, Object> map = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
+                String resultOrderId = map.get("resultOrderId").toString();
+                double orderMoney = (double) map.get("orderMoney");
 
                 //新增结果订单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, pVo.getDetails());
 
                 //修改商品规格账面库存
                 updateBookInventoryMethod(storageOrderVo, pVo, sVo, resultOrderId);
+
+                //往来记账
+                FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
+                ftcoVo.setStoreId(storeId);
+                ftcoVo.setOrderId(resultOrderId);
+                ftcoVo.setCreateTime(new Date());
+                ftcoVo.setOrderStatus((byte) 1);
+                ftcoVo.setTargetId(pVo.getSupplierId());
+                ftcoVo.setNeedOutMoneyIncrease(orderMoney);
+                FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
+                if (lastFTCOVo == null) {
+                    throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+                }
+                ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
+                ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
+                ftcoVo.setUserId(storageOrderVo.getUserId());
+                if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
+                    throw new CommonException(CommonResponse.ADD_ERROR);
+                }
             }
 
         } else if (pVo == null && sVo != null) {        //销售相关
@@ -692,6 +737,25 @@ public class StorageService {
                     storeClientUtil.updatePushMoneyMethod(0, storeId, sVo.getClient().getId(), resultOrderId, storageOrderVo.getUserId(), orderMoney);
                 }
 
+                //往来记账
+                FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
+                ftcoVo.setStoreId(storeId);
+                ftcoVo.setOrderId(resultOrderId);
+                ftcoVo.setCreateTime(new Date());
+                ftcoVo.setOrderStatus((byte) 1);
+                ftcoVo.setTargetId(sVo.getClient().getId());
+                ftcoVo.setNeedInMoneyIncrease(orderMoney);
+                FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
+                if (lastFTCOVo == null) {
+                    throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+                }
+                ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
+                ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
+                ftcoVo.setUserId(storageOrderVo.getUserId());
+                if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
+                    throw new CommonException(CommonResponse.ADD_ERROR);
+                }
+
             } else if (sVo.getType() == 4) {        //销售换货收货
                 //修改库存相关
                 for (OrderGoodsSkuVo vo : orderGoodsSkuVos) {
@@ -716,11 +780,6 @@ public class StorageService {
      */
     @Transactional
     public void xsfhd(StorageOrderVo storageOrderVo, ProcurementApplyOrderVo pVo, SellApplyOrderVo sVo) {
-        //销售订单发货前必须完成结算
-        if (sVo.getClearStatus() != 1) {
-            throw new CommonException("销售订单发货前必须完成结算");
-        }
-
         //获取参数
         int storeId = storageOrderVo.getStoreId();
         List<OrderGoodsSkuVo> orderGoodsSkuVos = storageOrderVo.getSellApplyOrderVo().getDetails();
@@ -780,6 +839,25 @@ public class StorageService {
             //增加该客户邀请人提成
             storeClientUtil.updatePushMoneyMethod(1, storeId, sVo.getClient().getId(), resultOrderId, storageOrderVo.getUserId(), orderMoney);
         }
+
+        //往来记账
+        FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
+        ftcoVo.setStoreId(storeId);
+        ftcoVo.setOrderId(resultOrderId);
+        ftcoVo.setCreateTime(new Date());
+        ftcoVo.setOrderStatus((byte) 1);
+        ftcoVo.setTargetId(sVo.getClient().getId());
+        ftcoVo.setNeedInMoneyIncrease(orderMoney);
+        FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
+        if (lastFTCOVo == null) {
+            throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+        }
+        ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
+        ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
+        ftcoVo.setUserId(storageOrderVo.getUserId());
+        if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
+            throw new CommonException(CommonResponse.ADD_ERROR);
+        }
     }
 
     /**
@@ -812,7 +890,9 @@ public class StorageService {
             //判断采购类型
             if (pVo.getType() == 2) {       //采购退货发货
                 //新增结果订单
-                String resultOrderId = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0).get("resultOrderId").toString();
+                Map<String, Object> map = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
+                String resultOrderId = map.get("resultOrderId").toString();
+                double orderMoney = (double) map.get("orderMoney");
 
                 //新增结果订单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
@@ -837,6 +917,25 @@ public class StorageService {
                     storageCheckOrderVo.setOutQuantity(vo.getChangeQuantity());
                     storageCheckOrderVo.setUserId(storageOrderVo.getUserId());
                     inventoryUtil.addStorageCheckOrderMethod(0, storageCheckOrderVo, null);
+                }
+
+                //往来记账
+                FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
+                ftcoVo.setStoreId(storeId);
+                ftcoVo.setOrderId(resultOrderId);
+                ftcoVo.setCreateTime(new Date());
+                ftcoVo.setOrderStatus((byte) 1);
+                ftcoVo.setTargetId(pVo.getSupplierId());
+                ftcoVo.setNeedOutMoneyIncrease(orderMoney);
+                FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
+                if (lastFTCOVo == null) {
+                    throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+                }
+                ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
+                ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
+                ftcoVo.setUserId(storageOrderVo.getUserId());
+                if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
+                    throw new CommonException(CommonResponse.ADD_ERROR);
                 }
             } else if (pVo.getType() == 3) {        //采购换货发货
                 //修改库存相关
@@ -881,10 +980,29 @@ public class StorageService {
                 double costMoney = updateBookInventoryMethod(storageOrderVo, pVo, sVo, resultOrderId);
 
                 //新增结果订单
-                addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, costMoney);
+                double orderMoney = (double) addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, costMoney).get("orderMoney");
 
                 //新增结果订单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, sVo.getDetails());
+
+                //往来记账
+                FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
+                ftcoVo.setStoreId(storeId);
+                ftcoVo.setOrderId(resultOrderId);
+                ftcoVo.setCreateTime(new Date());
+                ftcoVo.setOrderStatus((byte) 1);
+                ftcoVo.setTargetId(sVo.getClient().getId());
+                ftcoVo.setNeedInMoneyIncrease(orderMoney);
+                FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
+                if (lastFTCOVo == null) {
+                    throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+                }
+                ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
+                ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
+                ftcoVo.setUserId(storageOrderVo.getUserId());
+                if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
+                    throw new CommonException(CommonResponse.ADD_ERROR);
+                }
             }
         }
         //设置单据编号

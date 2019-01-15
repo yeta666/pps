@@ -651,9 +651,7 @@
         where
             wgs.warehouse_id = #{warehouseId}
         and g.putaway = 1
-        and wgs.opening_quantity &gt;= 0
-        and wgs.opening_money &gt; 0
-        and wgs.opening_total_money &gt;= 0;
+        and wgs.opening_money &gt; 0;
     </select>
 
 </mapper>

@@ -77,7 +77,7 @@ public interface MyClientMapper {
 
     int updateStoreClientIntegral(StoreClient storeClient);
 
-    int updateStoreClientAdvanceMoney(StoreClient storeClient);
+    int updateStoreClientAdvanceMoneyOpening(StoreClient storeClient);
 
     int updateStoreClientPushMoney(StoreClient storeClient);
 

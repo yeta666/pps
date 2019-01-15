@@ -656,7 +656,7 @@ create table store_client(
   store_id int not null comment '店铺编号',
   client_id varchar(50) not null comment '客户编号',
   integral int not null comment '积分',
-  advance_money double(10, 2) not null comment '预收款余额',
+  advance_money double(10, 2) not null comment '预收款期初',
   push_money double(10, 2) not null comment '提成'
 ) engine InnoDB default charset=utf8;
 
@@ -666,7 +666,7 @@ drop table supplier_1;
 create table supplier_1 (
   id varchar(20) not null primary key comment '供应商编号',
   name varchar(50) not null comment '供应商名称',
-  advance_money double(10, 2) comment '预付款余额',
+  advance_money double(10, 2) comment '预付款期初',
   contacts varchar(20) not null comment '联系人',
   contact_number varchar(20) not null comment '联系电话',
   contact_address varchar(100) comment '联系地址',
@@ -903,7 +903,31 @@ create table fund_check_order_1(
   in_money double(10, 2) not null comment '收入金额',
   out_money double(10, 2) not null comment '支出金额',
   balance_money double(10, 2) not null comment '当前余额',
-  user_id varchar(50) not null comment '经手人',
+  user_id varchar(50) not null comment '经手人'
+) engine InnoDB default charset=utf8;
+
+
+/*往来对账*/
+drop table if exists fund_target_check_order_1;
+create table fund_target_check_order_1(
+  id int primary key auto_increment comment '往来对账记录编号',
+  order_id varchar(50) not null comment '单据编号',
+  create_time datetime not null comment '创建时间',
+  order_status tinyint not null comment '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  target_id varchar(50) comment '往来单位编号',
+  need_in_money_increase double(10, 2) not null comment '应收增加',
+  need_in_money_decrease double(10, 2) not null comment '应收减少',
+  need_in_money double(10, 2) not null comment '期末应收',
+  advance_in_money_increase double(10, 2) not null comment '预收增加',
+  advance_in_money_decrease double(10, 2) not null comment '预收增加',
+  advance_in_money double(10, 2) not null comment '期末预收',
+  need_out_money_increase double(10, 2) not null comment '应付增加',
+  need_out_money_decrease double(10, 2) not null comment '应付减少',
+  need_out_money double(10, 2) not null comment '期末应付',
+  advance_out_money_increase double(10, 2) not null comment '预付增加',
+  advance_out_money_decrease double(10, 2) not null comment '预付减少',
+  advance_out_money double(10, 2) not null comment '期末预付',
+  user_id varchar(50) not null comment '经手人'
 ) engine InnoDB default charset=utf8;
 
 

@@ -411,8 +411,8 @@
         update store_client set integral = integral + #{integral} where store_id = #{storeId} and client_id = #{clientId} and integral + #{integral} &gt;= 0;
     </update>
     
-    <update id="updateStoreClientAdvanceMoney" parameterType="com.yeta.pps.po.StoreClient">
-        update store_client set advance_money = advance_money + #{advanceMoney} where store_id = #{storeId} and client_id = #{clientId} and advance_money + #{advanceMoney} &gt;= 0;
+    <update id="updateStoreClientAdvanceMoneyOpening" parameterType="com.yeta.pps.po.StoreClient">
+        update store_client set advance_money = #{advanceMoney} where store_id = #{storeId} and client_id = #{clientId} and advance_money = 0;
     </update>
 
     <update id="updateStoreClientPushMoney" parameterType="com.yeta.pps.po.StoreClient">

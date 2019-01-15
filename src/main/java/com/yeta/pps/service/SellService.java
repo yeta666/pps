@@ -868,6 +868,11 @@ public class SellService {
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
 
+        //红冲往来对账记录
+        if (applyOrderVo.getType() != 1) {
+            fundUtil.redDashedFundTargetCheckOrderMethod(new FundTargetCheckOrderVo(storeId, oldResultOrderId, userId));
+        }
+
         return CommonResponse.success();
     }
 

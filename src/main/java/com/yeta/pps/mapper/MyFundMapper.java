@@ -55,6 +55,46 @@ public interface MyFundMapper {
 
     FundCheckOrderVo findLastBalanceMoney(FundCheckOrderVo fundCheckOrderVo);
 
+    //往来对账
+
+    int addFundTargetCheckOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    int redDashedFundTargetCheckOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    FundTargetCheckOrderVo findFundTargetCheckOrderByOrderId(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    FundTargetCheckOrderVo findLastFundTargetCheckOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    int findCountFundTargetCheckOrderNeedInByClient(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    List<FundTargetCheckOrderVo> findPagedFundTargetCheckOrderNeedInByClient(@Param(value = "vo") FundTargetCheckOrderVo fundTargetCheckOrderVo,
+                                                                             @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountFundTargetCheckOrderNeedInByClientOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    List<FundTargetCheckOrderVo> findPagedFundTargetCheckOrderNeedInByClientOrder(@Param(value = "vo") FundTargetCheckOrderVo fundTargetCheckOrderVo,
+                                                                                  @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountFundTargetCheckOrderNeedOutByClient(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    List<FundTargetCheckOrderVo> findPagedFundTargetCheckOrderNeedOutByClient(@Param(value = "vo") FundTargetCheckOrderVo fundTargetCheckOrderVo,
+                                                                              @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountFundTargetCheckOrderNeedOutByClientOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    List<FundTargetCheckOrderVo> findPagedFundTargetCheckOrderNeedOutByClientOrder(@Param(value = "vo") FundTargetCheckOrderVo fundTargetCheckOrderVo,
+                                                                                   @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountFundTargetCheckOrderNeedInByUser(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    List<FundTargetCheckOrderVo> findPagedFundTargetCheckOrderNeedInByUser(@Param(value = "vo") FundTargetCheckOrderVo fundTargetCheckOrderVo,
+                                                                           @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountFundTargetCheckOrderNeedOutByUser(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    List<FundTargetCheckOrderVo> findPagedFundTargetCheckOrderNeedOutByUser(@Param(value = "vo") FundTargetCheckOrderVo fundTargetCheckOrderVo,
+                                                                            @Param(value = "pageVo") PageVo pageVo);
+
     //其他收入单/费用单
 
     int addFundResultOrder(FundResultOrderVo fundResultOrderVo);

@@ -14,7 +14,7 @@ public interface MySupplierMapper {
 
     int update(SupplierVo supplierVo);
 
-    int updateAdvanceMoney(SupplierVo supplierVo);
+    int updateAdvanceMoneyOpening(SupplierVo supplierVo);
 
     int findCount(SupplierVo supplierVo);
 

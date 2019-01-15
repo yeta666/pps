@@ -35,6 +35,9 @@ public class ProcurementService {
     @Autowired
     private InventoryUtil inventoryUtil;
 
+    @Autowired
+    private FundUtil fundUtil;
+
     //采购申请订单
 
     @Transactional
@@ -660,6 +663,9 @@ public class ProcurementService {
             default:
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
+
+        //红冲往来对账记录
+        fundUtil.redDashedFundTargetCheckOrderMethod(new FundTargetCheckOrderVo(storeId, oldResultOrderId, userId));
 
         return CommonResponse.success();
     }

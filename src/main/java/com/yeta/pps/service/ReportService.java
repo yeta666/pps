@@ -1,5 +1,7 @@
 package com.yeta.pps.service;
 
+import com.yeta.pps.mapper.MyBankAccountMapper;
+import com.yeta.pps.mapper.MyFundMapper;
 import com.yeta.pps.mapper.MyGoodsMapper;
 import com.yeta.pps.mapper.MyReportMapper;
 import com.yeta.pps.po.GoodsSku;
@@ -30,6 +32,12 @@ public class ReportService {
 
     @Autowired
     private MyGoodsMapper myGoodsMapper;
+
+    @Autowired
+    private MyFundMapper myFundMapper;
+
+    @Autowired
+    private MyBankAccountMapper myBankAccountMapper;
 
     /**
      * 返回四舍五入2位小数的方法
@@ -1411,7 +1419,22 @@ public class ReportService {
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<ReportManageVo> vos = myReportMapper.findPagedManageByTarget(reportManageVo, pageVo);
 
-        //TODO
+        vos.stream().forEach(vo -> {
+            //期初应收、期初应付
+            FundTargetCheckOrderVo fundTargetCheckOrderVo = new FundTargetCheckOrderVo(reportManageVo.getStoreId(), reportManageVo.getStartTime(), reportManageVo.getEndTime());
+            fundTargetCheckOrderVo.setFlag(1);
+            FundTargetCheckOrderVo last = myFundMapper.findLastFundTargetCheckOrder(fundTargetCheckOrderVo);
+            if (last != null) {
+                vo.setNeedInMoneyOpening(last.getNeedInMoneyOpening());
+                vo.setNeedOutMoneyOpening(last.getNeedOutMoneyOpening());
+            }
+
+            //期末应收、期末应付
+            fundTargetCheckOrderVo.setFlag(2);
+            last = myFundMapper.findLastFundTargetCheckOrder(fundTargetCheckOrderVo);
+            vo.setNeedInMoney(last.getNeedInMoney());
+            vo.setNeedOutMoney(last.getNeedOutMoney());
+        });
 
         //封装返回结果
         List<Title> titles = new ArrayList<>();
@@ -1441,16 +1464,25 @@ public class ReportService {
             return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
 
-        //TODO
+        //获取参数
+        Integer storeId = reportManageVo.getStoreId();
+        Date startTime = reportManageVo.getStartTime();
+        Date endTime = reportManageVo.getEndTime();
 
         //资金余额
-        vo.setBalanceMoney(0.00);
+        myBankAccountMapper.findAll(new BankAccountVo(storeId)).stream().forEach(bankAccountVo -> {
+            FundCheckOrderVo fundCheckOrderVo = myFundMapper.findLastBalanceMoney(new FundCheckOrderVo(storeId, startTime, endTime, bankAccountVo.getId()));
+            if (fundCheckOrderVo != null) {
+                vo.setBalanceMoney(vo.getBalanceMoney() + fundCheckOrderVo.getBalanceMoney());
+            }
+        });
 
-        //应收余额
-        vo.setNeedInMoney(0.00);
-
-        //应付余额
-        vo.setNeedOutMoney(0.00);
+        //应收余额、应付余额
+        FundTargetCheckOrderVo fundTargetCheckOrderVo = new FundTargetCheckOrderVo(storeId, startTime, endTime);
+        fundTargetCheckOrderVo.setFlag(2);
+        fundTargetCheckOrderVo = myFundMapper.findLastFundTargetCheckOrder(fundTargetCheckOrderVo);
+        vo.setNeedInMoney(fundTargetCheckOrderVo.getNeedInMoney());
+        vo.setNeedOutMoney(fundTargetCheckOrderVo.getNeedOutMoney());
 
         return CommonResponse.success(vo);
 
