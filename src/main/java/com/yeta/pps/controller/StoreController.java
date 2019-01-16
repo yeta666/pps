@@ -3,7 +3,9 @@ package com.yeta.pps.controller;
 import com.yeta.pps.po.Store;
 import com.yeta.pps.service.StoreService;
 import com.yeta.pps.util.CommonResponse;
+import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.vo.PageVo;
+import com.yeta.pps.vo.StoreVo;
 import com.yeta.pps.vo.UserVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -28,26 +30,14 @@ public class StoreController {
 
     /**
      * 新增店铺接口
-     * @param store
+     * @param storeVo
      * @return
      */
-    @ApiOperation(value = "新增店铺", notes = "插入一条店铺数据到店铺表，并且创建一套分店用表")
-    @ApiImplicitParam(name = "store", value = "name, address, address, boss, phone必填", required = true, paramType = "body", dataType = "Store")
+    @ApiOperation(value = "新增店铺")
+    @ApiImplicitParam(name = "storeVo", value = "name, address, clientName, clientPhone, clientMembershipNumber必填", required = true, paramType = "body", dataType = "StoreVo")
     @PostMapping(value = "/stores")
-    public CommonResponse add(@RequestBody @Valid Store store) {
-        return storeService.add(store);
-    }
-
-    /**
-     * 初始化接口
-     * @param storeId
-     * @return
-     */
-    @ApiOperation(value = "初始化店铺数据", notes = "在分店对应的表中插入一些固定数据")
-    @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int")
-    @GetMapping(value = "/stores/initialization/{storeId}")
-    public CommonResponse initialize(@PathVariable(value = "storeId") Integer storeId) {
-        return storeService.initialize(storeId);
+    public CommonResponse add(@RequestBody @Valid StoreVo storeVo) {
+        return storeService.add(storeVo);
     }
 
     /**
@@ -56,7 +46,7 @@ public class StoreController {
      * @return
      */
     @ApiOperation(value = "修改店铺")
-    @ApiImplicitParam(name = "store", value = "id, name, address, address, boss, phone必填", required = true, paramType = "body", dataType = "Store")
+    @ApiImplicitParam(name = "store", value = "id, name, address必填", required = true, paramType = "body", dataType = "Store")
     @PutMapping(value = "/stores")
     public CommonResponse update(@RequestBody @Valid Store store) {
         return storeService.update(store);
@@ -74,8 +64,20 @@ public class StoreController {
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = false, paramType = "query", dataType = "int")
     })
     @GetMapping(value = "/stores")
-    public CommonResponse findAll(@RequestParam(value = "page", required = false) Integer page,
-                                  @RequestParam(value = "pageSize", required = false) Integer pageSize) {
+    public CommonResponse<CommonResult<StoreVo>> findAll(@RequestParam(value = "page", required = false) Integer page,
+                                                         @RequestParam(value = "pageSize", required = false) Integer pageSize) {
         return storeService.findAll(new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据编号查询店铺接口
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "根据编号查询店铺")
+    @ApiImplicitParam(name = "id", value = "店铺编号", required = true, paramType = "path", dataType = "int")
+    @GetMapping(value = "/stores/{id}")
+    public CommonResponse<CommonResult<StoreVo>> findAll(@PathVariable(value = "id") Integer id) {
+        return storeService.findById(new Store(id));
     }
 }

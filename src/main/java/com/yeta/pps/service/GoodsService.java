@@ -633,60 +633,64 @@ public class GoodsService {
      * @param response
      * @throws IOException
      */
-    public void exportGoods(GoodsVo goodsVo, HttpServletResponse response) throws IOException {
+    public void exportGoods(GoodsVo goodsVo, HttpServletResponse response) {
         try {
             //根据筛选条件查找商品
             List<GoodsVo> goodsVos = myGoodsMapper.findAll(goodsVo);
-            GoodsVo vo = goodsVos.get(0);
+
             //备注
+            GoodsVo vo = goodsVos.get(0);
             String remark = "【筛选条件】" +
-                    "，货号：" + (goodsVo.getId() == null ? "无" : vo.getId()) +
-                    "，条码：" + (goodsVo.getBarCode() == null ? "无" : vo.getBarCode()) +
-                    "，类型：" + (goodsVo.getTypeId() == null ? "无" : vo.getTypeName()) +
-                    "，上架状态：" + (goodsVo.getPutaway() == null ? "无" : vo.getPutaway().toString());
-            //标题行内容
+                    "\n货号：" + (goodsVo.getId() == null ? "无" : vo.getId()) +
+                    "条码：" + (goodsVo.getBarCode() == null ? "无" : vo.getBarCode()) +
+                    "类型：" + (goodsVo.getTypeId() == null ? "无" : vo.getTypeName()) +
+                    "上架状态：" + (goodsVo.getPutaway() == null ? "无" : vo.getPutaway().toString()) +
+                    "\n【导出备注】" +
+                    "\n上架状态 ==> 0：不上架, 1：上架";
+
+            //标题行
             List<String> titleRowCell = Arrays.asList(new String[]{
-                    "商品货号", "商品名", "条码", "分类", "上架状态（0：不上架，1：上架）", "产地", "图片", "备注", "创建时间", "标签（多个用英文逗号隔开）"
+                    "商品货号", "商品名", "条码", "分类", "上架状态", "产地", "图片", "备注", "创建时间", "标签"
             });
+
             //最后一个必填列列数
             int lastRequiredCol = -1;
+
             //数据行
             List<List<String>> dataRowCells = new ArrayList<>();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            goodsVos.stream().forEach(gVo -> {
-                List<String> dataRowCell = new ArrayList<>();
-                dataRowCell.add(gVo.getId());
-                dataRowCell.add(gVo.getName());
-                dataRowCell.add(gVo.getBarCode());
-                dataRowCell.add(gVo.getTypeName());
-                dataRowCell.add(gVo.getPutaway().toString());
-                dataRowCell.add(gVo.getOrigin());
-                dataRowCell.add(gVo.getImage());
-                dataRowCell.add(gVo.getRemark());
-                dataRowCell.add(sdf.format(gVo.getCreateTime()));
-                String label = "";
-                List<GoodsLabel> goodsLabels = gVo.getGoodsLabels();
-                for (int i = 0; i < goodsLabels.size(); i++) {
-                    if (i != goodsLabels.size() - 1) {
-                        label += goodsLabels.get(i).getName() + ",";
-                    } else {
-                        label += goodsLabels.get(i).getName();
-                    }
-                }
-                dataRowCell.add(label);
-                dataRowCells.add(dataRowCell);
-            });
-            //文件名
-            String fileName = "【商品导出】_" + System.currentTimeMillis() + ".xls";
+            goodsVos.stream().forEach(gVo -> dataRowCells.add(commonMethod(gVo)));
+
             //输出excel
-            List<List<String>> titleRowCells = new ArrayList<>();
-            titleRowCells.add(titleRowCell);
-            List<List<List<String>>> dataRowCellss = new ArrayList<>();
-            dataRowCellss.add(dataRowCells);
-            CommonUtil.outputExcel(remark, titleRowCells, lastRequiredCol, dataRowCellss, fileName, response);
+            String fileName = "【商品导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
         } catch (Exception e) {
-            throw new CommonException(CommonResponse.IMPORT_ERROR, e.getMessage());
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
         }
+    }
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    public List<String> commonMethod(GoodsVo goodsVo) {
+        List<String> dataRowCell = new ArrayList<>();
+        dataRowCell.add(goodsVo.getId());
+        dataRowCell.add(goodsVo.getName());
+        dataRowCell.add(goodsVo.getBarCode());
+        dataRowCell.add(goodsVo.getTypeName());
+        dataRowCell.add(goodsVo.getPutaway().toString());
+        dataRowCell.add(goodsVo.getOrigin());
+        dataRowCell.add(goodsVo.getImage());
+        dataRowCell.add(goodsVo.getRemark());
+        dataRowCell.add(sdf.format(goodsVo.getCreateTime()));
+        String label = "";
+        for (int i = 0; i < goodsVo.getGoodsLabels().size(); i++) {
+            if (i != 0) {
+                label = label + "," + goodsVo.getGoodsLabels().get(i).getName();
+            } else {
+                label = goodsVo.getGoodsLabels().get(i).getName();
+            }
+        }
+        dataRowCell.add(label);
+        return dataRowCell;
     }
 
     /**
@@ -695,140 +699,113 @@ public class GoodsService {
      * @param response
      * @throws IOException
      */
-    public void exportGoodsSku(GoodsVo goodsVo, HttpServletResponse response) throws IOException {
+    public void exportGoodsSku(GoodsVo goodsVo, HttpServletResponse response) {
         try {
             //根据筛选条件查找商品
             List<GoodsVo> goodsVos = myGoodsMapper.findAll(goodsVo);
-            GoodsVo vo = goodsVos.get(0);
-            //备注
-            String remark = "【筛选条件】" +
-                    "，货号：" + (goodsVo.getId() == null ? "无" : vo.getId()) +
-                    "，条码：" + (goodsVo.getBarCode() == null ? "无" : vo.getBarCode()) +
-                    "，类型：" + (goodsVo.getTypeId() == null ? "无" : vo.getTypeName()) +
-                    "，上架状态：" + (goodsVo.getPutaway() == null ? "无" : vo.getPutaway().toString());
 
-            List<List<String>> titleRowCells = new ArrayList<>();
-            List<List<List<String>>> dataRowCellss = new ArrayList<>();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            goodsVos.stream().forEach(goodsVo1 -> {
-                //标题行内容
-                List<String> titleRowCell;
-                if (goodsVo1.getSkus() != null && !goodsVo1.getSkus().equals("")) {
-                    titleRowCell = new ArrayList<>(Arrays.asList(new String[]{
-                            "商品货号", "商品名", "条码", "分类", "上架状态（0：不上架，1：上架）", "产地", "图片", "备注", "创建时间", "标签（多个用英文逗号隔开）", "进价", "零售价", "vip售价", "积分"
-                    }));
-                    System.out.println(goodsVo1.getSkus());
-                    List<Skus> skuses = JSON.parseArray(goodsVo1.getSkus(), Skus.class);
-                    skuses.stream().forEach(skus -> {
-                        titleRowCell.add(skus.getKey());
-                    });
-                } else {
-                    titleRowCell = new ArrayList<>(Arrays.asList(new String[]{
-                            "商品货号", "商品名", "条码", "分类", "上架状态（0：不上架，1：上架）", "产地", "图片", "备注", "创建时间", "标签（多个用英文逗号隔开）"
-                    }));
-                }
-                titleRowCells.add(titleRowCell);
-                //数据行内容
-                List<List<String>> dataRowCells = new ArrayList<>();
-                List<GoodsSkuVo> goodsSkuVos = goodsVo1.getGoodsSkuVos();
+            //备注
+            GoodsVo vo = goodsVos.get(0);
+            String remark = "【筛选条件】" +
+                    "\n货号：" + (goodsVo.getId() == null ? "无" : vo.getId()) +
+                    "条码：" + (goodsVo.getBarCode() == null ? "无" : vo.getBarCode()) +
+                    "类型：" + (goodsVo.getTypeId() == null ? "无" : vo.getTypeName()) +
+                    "上架状态：" + (goodsVo.getPutaway() == null ? "无" : vo.getPutaway().toString()) +
+                    "\n【导出备注】" +
+                    "\n上架状态 ==> 0：不上架, 1：上架";
+
+            //标题行
+            List<String> titleRowCell = new ArrayList<>(Arrays.asList(new String[]{
+                    "商品货号", "商品名", "条码", "分类", "上架状态", "产地", "图片", "备注", "创建时间", "标签", "规格", "进价", "零售价", "vip售价", "积分"
+            }));
+
+            //最后一个必填列列数
+            int lastRequiredCol = -1;
+
+            //数据行
+            List<List<String>> dataRowCells = new ArrayList<>();
+            goodsVos.stream().forEach(gVo -> {
+                List<GoodsSkuVo> goodsSkuVos = gVo.getGoodsSkuVos();
                 if (goodsSkuVos.size() == 0) {
-                    List<String> dataRowCell = new ArrayList<>();
-                    for (int i = 0; i < titleRowCell.size(); i++) {
-                        dataRowCell.add("");
-                    }
-                    dataRowCell.set(0, goodsVo1.getId());
-                    dataRowCell.set(1, goodsVo1.getName());
-                    dataRowCell.set(2, goodsVo1.getBarCode());
-                    dataRowCell.set(3, goodsVo1.getTypeName());
-                    dataRowCell.set(4, goodsVo1.getPutaway().toString());
-                    dataRowCell.set(5, goodsVo1.getOrigin());
-                    dataRowCell.set(6, goodsVo1.getImage());
-                    dataRowCell.set(7, goodsVo1.getRemark());
-                    dataRowCell.set(8, sdf.format(goodsVo1.getCreateTime()));
-                    String label = "";
-                    List<GoodsLabel> goodsLabels = goodsVo1.getGoodsLabels();
-                    for (int i = 0; i < goodsLabels.size(); i++) {
-                        if (i != goodsLabels.size() - 1) {
-                            label += goodsLabels.get(i).getName() + ",";
-                        } else {
-                            label += goodsLabels.get(i).getName();
-                        }
-                    }
-                    dataRowCell.set(9, label);
-                    dataRowCells.add(dataRowCell);
+                    dataRowCells.add(commonMethod(gVo));
                 } else {
                     goodsSkuVos.stream().forEach(goodsSkuVo -> {
-                        List<String> dataRowCell = new ArrayList<>();
-                        for (int i = 0; i < titleRowCell.size(); i++) {
-                            dataRowCell.add("");
-                        }
-                        dataRowCell.set(0, goodsVo1.getId());
-                        dataRowCell.set(1, goodsVo1.getName());
-                        dataRowCell.set(2, goodsVo1.getBarCode());
-                        dataRowCell.set(3, goodsVo1.getTypeName());
-                        dataRowCell.set(4, goodsVo1.getPutaway().toString());
-                        dataRowCell.set(5, goodsVo1.getOrigin());
-                        dataRowCell.set(6, goodsVo1.getImage());
-                        dataRowCell.set(7, goodsVo1.getRemark());
-                        dataRowCell.set(8, sdf.format(goodsVo1.getCreateTime()));
-                        String label = "";
-                        List<GoodsLabel> goodsLabels = goodsVo1.getGoodsLabels();
-                        for (int i = 0; i < goodsLabels.size(); i++) {
-                            if (i != goodsLabels.size() - 1) {
-                                label += goodsLabels.get(i).getName() + ",";
-                            } else {
-                                label += goodsLabels.get(i).getName();
-                            }
-                        }
-                        dataRowCell.set(9, label);
-                        dataRowCell.set(10, goodsSkuVo.getPurchasePrice().toString());
-                        dataRowCell.set(11, goodsSkuVo.getRetailPrice().toString());
-                        dataRowCell.set(12, goodsSkuVo.getVipPrice().toString());
-                        dataRowCell.set(13, goodsSkuVo.getIntegral().toString());
+                        List<String> dataRowCell = commonMethod(gVo);
                         List<Sku> skus = JSON.parseArray(goodsSkuVo.getSku(), Sku.class);
-                        skus.stream().forEach(sku -> {
-                            int pos = titleRowCell.indexOf(sku.getKey());
-                            if (pos != -1) {
-                                dataRowCell.set(pos, sku.getValue());
+
+                        String sku = "";
+                        for (int i = 0; i < skus.size(); i++) {
+                            if (i != 0) {
+                                sku = sku + "," + skus.get(i).getKey() + ":" + skus.get(i).getValue();
+                            } else {
+                                sku = skus.get(i).getKey() + ":" + skus.get(i).getValue();
                             }
-                        });
+                        }
+                        dataRowCell.add(sku);
+                        dataRowCell.add(goodsSkuVo.getPurchasePrice().toString());
+                        dataRowCell.add(goodsSkuVo.getRetailPrice().toString());
+                        dataRowCell.add(goodsSkuVo.getVipPrice().toString());
+                        dataRowCell.add(goodsSkuVo.getIntegral().toString());
                         dataRowCells.add(dataRowCell);
                     });
                 }
-                dataRowCellss.add(dataRowCells);
             });
-            //最后一个必填列列数
-            int lastRequiredCol = -1;
-            //文件名
-            String fileName = "【商品及sku导出】_" + System.currentTimeMillis() + ".xls";
+
             //输出excel
-            CommonUtil.outputExcel(remark, titleRowCells, lastRequiredCol, dataRowCellss, fileName, response);
+            String fileName = "【商品及sku导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
         } catch (Exception e) {
-            throw new CommonException(CommonResponse.IMPORT_ERROR, e.getMessage());
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
         }
     }
 
     /**
-     * 获取导入商品模版
+     * 获取商品导入商品模版
+     * @param storeId
      * @param response
      * @throws IOException
      */
-    public void getImportGoodsTemplate(HttpServletResponse response) throws IOException {
+    public void getImportGoodsTemplate(Integer storeId, HttpServletResponse response) throws IOException {
+        //获取所有商品分类
+        List<GoodsType> goodsTypes = myGoodsMapper.findAllType(new GoodsTypeVo(storeId));
+        String types = "";
+        for (int i = 0; i < goodsTypes.size(); i++) {
+            if (i != 0) {
+                types = types + ", " + goodsTypes.get(i).getId() + ":" + goodsTypes.get(i).getName();
+            } else {
+                types = goodsTypes.get(i).getId() + ":" + goodsTypes.get(i).getName();
+            }
+        }
+
+        //获取所有商品标签
+        List<GoodsLabel> goodsLabels = myGoodsMapper.findAllLabel(new GoodsLabelVo(storeId));
+        String labels = "";
+        for (int i = 0; i < goodsLabels.size(); i++) {
+            if (i != 0) {
+                labels = labels + ", " + goodsLabels.get(i).getId() + ":" + goodsLabels.get(i).getName();
+            } else {
+                labels = goodsLabels.get(i).getId() + ":" + goodsLabels.get(i).getName();
+            }
+        }
+
         //备注
-        String remark = "【导入备注】，只能增加行数，按照标题填写，不能增加其他列。" +
-                "必填列已标红，其中分类、标签需要填写系统中已经存在的，否则会导致导入失败。";
-        //标题行内容
+        String remark = "【导入备注】" +
+                "\n必填列已标红，其中“分类”、“标签”填写对应编号，分类只能填写一个，标签多个用英文逗号隔开" +
+                "\n分类 ==> " + types +
+                "\n标签 ==> " + labels +
+                "\n上架状态 ==> 0：不上架, 1：上架";
+
+        //标题行
         List<String> titleRowCell = Arrays.asList(new String[]{
-                "商品名", "条码", "分类", "上架状态（0：不上架，1：上架）", "产地", "图片", "备注", "标签（多个用英文逗号隔开）"
+                "商品名", "条码", "分类", "上架状态", "产地", "备注", "标签"
         });
+
         //最后一个必填列列数
         int lastRequiredCol = 3;
-        //文件名
-        String fileName = "【商品导入模版】_" + System.currentTimeMillis() + ".xls";
+
         //输出excel
-        List<List<String>> titleRowCells = new ArrayList<>();
-        titleRowCells.add(titleRowCell);
-        CommonUtil.outputExcel(remark, titleRowCells, lastRequiredCol, new ArrayList<>(), fileName, response);
+        String fileName = "【商品导入模版】_" + System.currentTimeMillis() + ".xls";
+        CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, new ArrayList<>(), fileName, response);
     }
 
     /**
@@ -840,51 +817,64 @@ public class GoodsService {
      */
     @Transactional
     public CommonResponse importGoods(MultipartFile multipartFile, Integer storeId) throws IOException {
-        //判断必填列
-        //创建Excel工作簿
         HSSFWorkbook workbook = new HSSFWorkbook(multipartFile.getInputStream());
-        //创建一个工作表sheet
         HSSFSheet sheet = workbook.getSheetAt(0);
+
+        //获取所有商品分类
+        List<GoodsType> goodsTypes = myGoodsMapper.findAllType(new GoodsTypeVo(storeId));
+
         //获取数据
         for (int j = 3; j <= sheet.getLastRowNum(); j++) {
-            HSSFRow row = sheet.getRow(sheet.getLastRowNum());
+            HSSFRow row = sheet.getRow(j);
             GoodsVo goodsVo = new GoodsVo();
             goodsVo.setStoreId(storeId);
             goodsVo.setId(UUID.randomUUID().toString().replace("-", ""));
             goodsVo.setCreateTime(new Date());
-            goodsVo.setName(CommonUtil.getCellValue(row.getCell(0)));
-            goodsVo.setBarCode(CommonUtil.getCellValue(row.getCell(1)));
-            //判断商品类型是否存在
-            GoodsTypeVo goodsTypeVo = new GoodsTypeVo(storeId, CommonUtil.getCellValue(row.getCell(2)));
-            GoodsType goodsType = myGoodsMapper.findType(goodsTypeVo);
-            if (goodsType == null) {
-                throw new CommonException(CommonResponse.IMPORT_ERROR, "商品类型错误");
+
+            String name = CommonUtil.getCellValue(row.getCell(0));
+            if ("".equals(name)) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "商品名错误");
             }
-            goodsVo.setTypeId(goodsType.getId());
+            goodsVo.setName(name);
+
+            String barCode = CommonUtil.getCellValue(row.getCell(1));
+            if ("".equals(barCode)) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "条码错误");
+            }
+            goodsVo.setBarCode(barCode);
+
+            String type = CommonUtil.getCellValue(row.getCell(2));
+            Optional<GoodsType> typeOptional = goodsTypes.stream().filter(goodsType -> goodsType.getId().toString().equals(type)).findFirst();
+            if (!typeOptional.isPresent()) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "分类错误");
+            }
+            goodsVo.setTypeId(Integer.valueOf(type));
+
             String putaway = CommonUtil.getCellValue(row.getCell(3));
-            if (!putaway.equals("")) {
-                goodsVo.setPutaway(Byte.valueOf(putaway));
+            if ("".equals(putaway) || (putaway.equals("0") && putaway.equals("1"))) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "上架状态错误");
             }
+            goodsVo.setPutaway(Byte.valueOf(putaway));
+
             goodsVo.setOrigin(CommonUtil.getCellValue(row.getCell(4)));
-            goodsVo.setImage(CommonUtil.getCellValue(row.getCell(5)));
-            goodsVo.setRemark(CommonUtil.getCellValue(row.getCell(6)));
+
+            goodsVo.setRemark(CommonUtil.getCellValue(row.getCell(5)));
+
             //判断商品标签是否存在
-            String label = CommonUtil.getCellValue(row.getCell(7));
+            String label = CommonUtil.getCellValue(row.getCell(6));
             if (!label.equals("")) {
                 String[] labels = label.split(",");
                 for (int i = 0; i < labels.length; i++) {
-                    GoodsLabelVo goodsLabelVo = new GoodsLabelVo(storeId, labels[i]);
-                    GoodsLabel goodsLabel = myGoodsMapper.findLabel(goodsLabelVo);
-                    if (goodsLabel == null) {
-                        throw new CommonException(CommonResponse.IMPORT_ERROR, "商品标签错误");
+                    if (myGoodsMapper.findLabel( new GoodsLabelVo(storeId, Integer.valueOf(labels[i]))) == null) {
+                        throw new CommonException(CommonResponse.IMPORT_ERROR, "标签错误");
                     }
-                    //新增商品/商品标签关系
-                    GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(storeId, goodsVo.getId(), goodsLabel.getId());
+                    GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(storeId, goodsVo.getId(), Integer.valueOf(labels[i]));
                     if (myGoodsMapper.addGoodsLabel(goodsGoodsLabelVo) != 1) {
                         throw new CommonException(CommonResponse.IMPORT_ERROR);
                     }
                 }
             }
+
             //保存商品
             if (myGoodsMapper.add(goodsVo) != 1) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR);

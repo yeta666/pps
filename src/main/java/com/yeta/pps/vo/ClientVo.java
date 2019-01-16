@@ -33,16 +33,6 @@ public class ClientVo {
     private String password;
 
     /**
-     * 验证码
-     */
-    private String identifyingCode;
-
-    /**
-     * 凭证
-     */
-    private String token;
-
-    /**
      * 电话
      */
     @NotBlank(message = CommonResponse.PARAMETER_ERROR)
@@ -169,22 +159,6 @@ public class ClientVo {
         this.password = password;
     }
 
-    public String getIdentifyingCode() {
-        return identifyingCode;
-    }
-
-    public void setIdentifyingCode(String identifyingCode) {
-        this.identifyingCode = identifyingCode;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public String getPhone() {
         return phone;
     }
@@ -304,8 +278,6 @@ public class ClientVo {
                 ", name='" + name + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", identifyingCode='" + identifyingCode + '\'' +
-                ", token='" + token + '\'' +
                 ", phone='" + phone + '\'' +
                 ", levelId=" + levelId +
                 ", clientLevel=" + clientLevel +

@@ -79,11 +79,19 @@
     </insert>
 
     <delete id="deleteClientLevel" parameterType="com.yeta.pps.po.ClientLevel">
-        delete from client_level where id = #{id};
+        delete from client_level where id = #{id} and id > 1;
     </delete>
 
     <update id="updateClientLevel" parameterType="com.yeta.pps.po.ClientLevel">
-        update client_level set name = #{name}, price_type = #{priceType}, price = #{price} where id = #{id};
+        update
+            client_level
+        set price_type = #{priceType},
+            price = #{price}
+        <if test="id > 1">
+            , name = #{name}
+        </if>
+        where
+            id = #{id};
     </update>
 
     <select id="findCountClientLevel" resultType="java.lang.Integer">
@@ -95,27 +103,11 @@
     </select>
 
     <select id="findAllClientLevel" resultType="com.yeta.pps.po.ClientLevel">
-        select id, name, price_type, price from client_level;
+        select id, name, price_type, price from client_level where id > 1;
     </select>
 
-    <select id="findUsedClientLevel" resultType="com.yeta.pps.po.ClientLevel">
-        select
-            cl.id, cl.name, cl.price_type, cl.price
-        from
-            client_level as cl,
-            client as c
-        where
-            cl.id = c.level_id;
-    </select>
-
-    <select id="findClientLevelByIdOrName" parameterType="com.yeta.pps.po.ClientLevel" resultType="com.yeta.pps.po.ClientLevel">
-         select id, name, price_type, price from client_level where 1 = 1
-         <if test="id != null">
-             and  id = #{id}
-         </if>
-        <if test="name != null">
-            and  name = #{name}
-        </if>
+    <select id="findClientLevelById" parameterType="com.yeta.pps.po.ClientLevel" resultType="com.yeta.pps.po.ClientLevel">
+         select id, name, price_type, price from client_level where id = #{id};
     </select>
 
     <!--客户-->
@@ -148,6 +140,7 @@
             count(0)
         from
             client as c
+        LEFT JOIN client AS inviter ON inviter.id = c.inviter_id
         left join client_level as cl on c.level_id = cl.id
         where
             c.level_id > 0
@@ -186,6 +179,8 @@
         <result column="level_id" property="levelId" />
         <result column="birthday" property="birthday" />
         <result column="inviter_id" property="inviterId" />
+        <result column="inviter_name" property="inviterName" />
+        <result column="inviter_phone" property="inviterPhone" />
         <result column="address" property="address" />
         <result column="postcode" property="postcode" />
         <result column="membership_number" property="membershipNumber" />
@@ -211,6 +206,8 @@
             c.level_id,
             c.birthday,
             c.inviter_id,
+            inviter.name AS inviter_name,
+            inviter.phone AS inviter_phone,
             c.address,
             c.postcode,
             c.membership_number,
@@ -224,6 +221,7 @@
             cl.price as cl_price
         from
             client as c
+        LEFT JOIN client AS inviter ON inviter.id = c.inviter_id
         left join client_level as cl on c.level_id = cl.id
         where
             c.level_id > 0
@@ -265,6 +263,8 @@
             c.level_id,
             c.birthday,
             c.inviter_id,
+            inviter.name AS inviter_name,
+            inviter.phone AS inviter_phone,
             c.address,
             c.postcode,
             c.membership_number,
@@ -278,6 +278,7 @@
             cl.price as cl_price
         from
             client as c
+        LEFT JOIN client AS inviter ON inviter.id = c.inviter_id
         left join client_level as cl on c.level_id = cl.id
         where
             c.level_id > 0
@@ -299,19 +300,21 @@
         <if test="disabled != null">
             and c.disabled = #{disabled}
         </if>
-        <if test="inviterId != null">
-            and c.inviter_id = #{inviterId}
-        </if>
     </select>
 
-    <select id="findByIdOrPhone" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.po.Client">
+    <select id="findClient" parameterType="com.yeta.pps.po.Client" resultType="com.yeta.pps.po.Client">
         select
             id, name, username, password, phone, level_id, birthday, inviter_id, address, postcode, membership_number, last_deal_time, create_time, disabled, remark
         from
             client
         where
             level_id > 0
-        and disabled = 0
+        <if test="membershipNumber != null">
+            and membership_number = #{membershipNumber}
+        </if>
+        <if test="levelId != null">
+            and level_id = #{levelId}
+        </if>
         <if test="id != null">
             and id = #{id}
         </if>
@@ -320,7 +323,7 @@
         </if>
     </select>
 
-    <select id="findById" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.vo.ClientVo">
+    <select id="findClientInviter" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.vo.ClientVo">
         SELECT
             c.id,
             c.name,
@@ -344,7 +347,6 @@
         LEFT JOIN client AS inviter ON inviter.id = c.inviter_id
         WHERE
             c.level_id > 0
-        and c.disabled = 0
         AND c.id = #{id};
     </select>
 
@@ -367,7 +369,6 @@
         LEFT JOIN store AS s ON s.id = #{storeId}
         WHERE
             c.level_id > 0
-        AND c.disabled = 0
         AND c.inviter_id = #{clientId}
         GROUP BY
             c.id;
@@ -393,7 +394,6 @@
             INNER JOIN store AS s ON s.id = #{storeId}
         WHERE
             c.level_id > 0
-        AND c.disabled = 0
         AND c.id = #{clientId};
     </select>
 
@@ -428,7 +428,6 @@
         inner join client as c on c.id = sc.client_id
         where
             c.level_id > 0
-        and c.disabled = 0
         <if test="storeId != null">
             and sc.store_id = #{storeId}
         </if>
@@ -456,7 +455,6 @@
         inner join client as c on c.id = sc.client_id
         where
             c.level_id > 0
-        and c.disabled = 0
         <if test="vo.storeId != null">
             and sc.store_id = #{vo.storeId}
         </if>
@@ -509,7 +507,6 @@
         </if>
         where
             c.level_id > 0
-        and c.disabled = 0
         <if test="storeId != null">
             and scd.store_id = #{storeId}
         </if>
@@ -561,7 +558,6 @@
         </if>
         where
             c.level_id > 0
-        and c.disabled = 0
         <if test="vo.storeId != null">
             and scd.store_id = #{vo.storeId}
         </if>

@@ -1,16 +1,14 @@
-package com.yeta.pps.po;
+package com.yeta.pps.vo;
 
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
-public class Store {
+public class StoreVo {
 
     /**
      * 店铺编号
      */
-    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Integer id;
 
     /**
@@ -30,11 +28,25 @@ public class Store {
      */
     private String clientId;
 
-    public Store() {
-    }
+    /**
+     * 店长姓名
+     */
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
+    private String clientName;
 
-    public Store(Integer id) {
-        this.id = id;
+    /**
+     * 店长电话
+     */
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
+    private String clientPhone;
+
+    /**
+     * 店长会员卡号
+     */
+    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
+    private String clientMembershipNumber;
+
+    public StoreVo() {
     }
 
     public Integer getId() {
@@ -69,13 +81,40 @@ public class Store {
         this.clientId = clientId;
     }
 
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public String getClientPhone() {
+        return clientPhone;
+    }
+
+    public void setClientPhone(String clientPhone) {
+        this.clientPhone = clientPhone;
+    }
+
+    public String getClientMembershipNumber() {
+        return clientMembershipNumber;
+    }
+
+    public void setClientMembershipNumber(String clientMembershipNumber) {
+        this.clientMembershipNumber = clientMembershipNumber;
+    }
+
     @Override
     public String toString() {
-        return "Store{" +
+        return "StoreVo{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 ", clientId='" + clientId + '\'' +
+                ", clientName='" + clientName + '\'' +
+                ", clientPhone='" + clientPhone + '\'' +
+                ", clientMembershipNumber='" + clientMembershipNumber + '\'' +
                 '}';
     }
 }

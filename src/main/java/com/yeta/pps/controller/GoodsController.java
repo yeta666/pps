@@ -485,7 +485,7 @@ public class GoodsController {
                             @RequestParam(value = "barCode", required = false) String barCode,
                             @RequestParam(value = "typeId", required = false) Integer typeId,
                             @RequestParam(value = "putaway", required = false) Byte putaway,
-                         HttpServletResponse response) throws IOException {
+                            HttpServletResponse response) {
         goodsService.exportGoods(new GoodsVo(storeId, id, barCode, typeId, putaway), response);
     }
 
@@ -499,7 +499,7 @@ public class GoodsController {
      * @param response
      * @throws IOException
      */
-    @ApiOperation(value = "导出商品", notes = "可筛选导出")
+    @ApiOperation(value = "导出商品及sku", notes = "可筛选导出")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "商品货号", required = false, paramType = "query", dataType = "String"),
@@ -513,19 +513,21 @@ public class GoodsController {
                                @RequestParam(value = "barCode", required = false) String barCode,
                                @RequestParam(value = "typeId", required = false) Integer typeId,
                                @RequestParam(value = "putaway", required = false) Byte putaway,
-                               HttpServletResponse response) throws IOException {
+                               HttpServletResponse response) {
         goodsService.exportGoodsSku(new GoodsVo(storeId, id, barCode, typeId, putaway), response);
     }
 
     /**
-     * 获取导入模版接口
+     * 获取商品导入模版接口
+     * @param storeId
      * @param response
      * @throws IOException
      */
-    @ApiOperation(value = "获取导入商品模版")
+    @ApiOperation(value = "获取商品导入模版")
     @GetMapping(value = "/goods/import/template")
-    public void getImportGoodsTemplate(HttpServletResponse response) throws IOException {
-        goodsService.getImportGoodsTemplate(response);
+    public void getImportGoodsTemplate(@RequestParam(value = "storeId") Integer storeId,
+                                       HttpServletResponse response) throws IOException {
+        goodsService.getImportGoodsTemplate(storeId, response);
     }
 
     /**

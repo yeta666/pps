@@ -24,8 +24,6 @@ public interface MyClientMapper {
     List<MembershipNumber> findAllPagedMembershipNumber(@Param(value = "membershipNumber") MembershipNumber membershipNumber,
                                                         @Param(value = "pageVo") PageVo pageVo);
 
-    List<MembershipNumber> findUsedMembershipNumber();
-
     MembershipNumber findMembershipNumberByNumber(MembershipNumber membershipNumber);
 
     //客户级别
@@ -42,9 +40,7 @@ public interface MyClientMapper {
 
     List<ClientLevel> findAllClientLevel();
 
-    List<ClientLevel> findUsedClientLevel();
-
-    ClientLevel findClientLevelByIdOrName(ClientLevel clientLevel);
+    ClientLevel findClientLevelById(ClientLevel clientLevel);
 
     //客户
 
@@ -65,9 +61,9 @@ public interface MyClientMapper {
 
     List<ClientVo> findAll(ClientVo clientVo);
 
-    Client findByIdOrPhone(ClientVo clientVo);
+    Client findClient(Client client);
 
-    ClientVo findById(ClientVo clientVo);
+    ClientVo findClientInviter(ClientVo clientVo);
 
     //店铺/客户关系
 

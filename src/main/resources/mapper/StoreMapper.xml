@@ -3,27 +3,55 @@
 <mapper namespace="com.yeta.pps.mapper.StoreMapper" >
 
     <insert id="add" parameterType="com.yeta.pps.po.Store" useGeneratedKeys="true" keyProperty="id">
-        insert into store (name, address, boss, phone) values (#{name}, #{address}, #{boss}, #{phone});
+        insert into store (name, address, client_id) values (#{name}, #{address}, #{clientId});
     </insert>
 
-    <delete id="delete" parameterType="com.yeta.pps.po.Store">
-        delete from store where id = #{id};
-    </delete>
-
     <update id="update" parameterType="com.yeta.pps.po.Store">
-        update store set name = #{name}, address = #{address}, boss = #{boss}, phone = #{phone} where id = #{id};
+        update store set name = #{name}, address = #{address} where id = #{id};
     </update>
 
     <select id="findCount" resultType="java.lang.Integer">
-        select count(0) from store;
+         select
+            count(0)
+        from
+            store as s
+        inner join client as c on c.id = s.client_id;
     </select>
 
-    <select id="findAllPaged" parameterType="com.yeta.pps.vo.PageVo" resultType="com.yeta.pps.po.Store">
-        select id, name, address, boss, phone from store limit #{start}, #{pageSize};
+    <select id="findPaged" parameterType="com.yeta.pps.vo.PageVo" resultType="com.yeta.pps.vo.StoreVo">
+        select
+            s.id,
+            s.name,
+            s.address,
+            s.client_id,
+            c.name as client_name,
+            c.phone as client_phone,
+            c.membership_number as client_membership_number
+        from
+            store as s
+        inner join client as c on c.id = s.client_id
+        limit
+            #{start}, #{pageSize};
     </select>
 
     <select id="findAll" resultType="com.yeta.pps.po.Store">
-        select id, name, address, boss, phone from store;
+        select id, name, address, client_id from store;
+    </select>
+
+    <select id="findById" parameterType="com.yeta.pps.po.Store" resultType="com.yeta.pps.vo.StoreVo">
+         select
+            s.id,
+            s.name,
+            s.address,
+            s.client_id,
+            c.name as client_name,
+            c.phone as client_phone,
+            c.membership_number as client_membership_number
+        from
+            store as s
+        inner join client as c on c.id = s.client_id
+        where
+            s.id = #{id};
     </select>
 
 </mapper>

@@ -2,6 +2,7 @@ package com.yeta.pps.util;
 
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.util.DigestUtils;
 
@@ -291,74 +292,75 @@ public class CommonUtil {
     /////////////////////////////////////////////////////////EXCEL相关
 
     /**
-     * 输出excel
+     * 输出excel的方法
      * @param remark
-     * @param titleRowCells
+     * @param titleRowCell
      * @param lastRequiredCol
-     * @param dataRowCellss
+     * @param dataRowCells
      * @param fileName
      * @param response
      * @throws IOException
      */
-    public static void outputExcel(String remark, List<List<String>> titleRowCells, int lastRequiredCol, List<List<List<String>>> dataRowCellss, String fileName, HttpServletResponse response) throws IOException {
-        //创建Excel工作簿
+    public static void outputExcelMethod(String remark, List<String> titleRowCell, int lastRequiredCol, List<List<String>> dataRowCells, String fileName, HttpServletResponse response) throws IOException {
         HSSFWorkbook workbook = new HSSFWorkbook();
-        for (int num = 0; num < titleRowCells.size(); num++) {
-            List<String> titleRowCell = titleRowCells.get(num);
-            //创建一个工作表sheet
-            HSSFSheet sheet;
-            if (titleRowCells.size() == 1) {
-                sheet = workbook.createSheet();
+        HSSFSheet sheet = workbook.createSheet();
+
+        //sheet.autoSizeColumn((short) 4);
+
+        CellStyle cs = workbook.createCellStyle();
+        cs.setWrapText(true);
+
+        //设置备注行
+        HSSFRow remarkRow = sheet.createRow(1);
+        HSSFCell remarkCell = remarkRow.createCell(0);
+        remarkCell.setCellValue(remark);
+        remarkCell.setCellStyle(cs);
+        CellRangeAddress region = new CellRangeAddress(1, 1, 0, titleRowCell.size() - 1);
+        sheet.addMergedRegion(region);
+        remarkRow.setHeightInPoints(100);
+
+        //创建标题行
+        HSSFRow titleRow = sheet.createRow(2);
+        for (int i = 0; i < titleRowCell.size(); i++) {
+            titleRow.createCell(i).setCellValue(titleRowCell.get(i));
+            sheet.setColumnWidth(i, (short) 4000);
+        }
+
+        //设置标题行单元格样式
+        HSSFCellStyle titleCellStyle1 = workbook.createCellStyle();
+        HSSFFont font1 = workbook.createFont();
+        font1.setBold(true);
+        titleCellStyle1.setFont(font1);
+        HSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
+        HSSFFont font2 = workbook.createFont();
+        font2.setBold(true);
+        font2.setColor(HSSFColor.RED.index);
+        titleCellStyle2.setFont(font2);
+        for (int i = 0; i < titleRowCell.size(); i++) {
+            if (i <= lastRequiredCol) {
+                titleRow.getCell(i).setCellStyle(titleCellStyle2);
             } else {
-                sheet = workbook.createSheet(dataRowCellss.get(num).get(0).get(1));
-            }
-            //设置备注行
-            HSSFRow remarkRow = sheet.createRow(1);
-            remarkRow.createCell(0).setCellValue(remark);
-            CellRangeAddress region = new CellRangeAddress(1, 1, 0, titleRowCell.size() - 1);
-            sheet.addMergedRegion(region);
-            remarkRow.setHeightInPoints(30);
-            //创建标题行
-            HSSFRow titleRow = sheet.createRow(2);
-            for (int i = 0; i < titleRowCell.size(); i++) {
-                titleRow.createCell(i).setCellValue(titleRowCell.get(i));
-            }
-            //设置标题行单元格样式
-            HSSFCellStyle titleCellStyle1 = workbook.createCellStyle();
-            HSSFFont font1 = workbook.createFont();
-            font1.setBold(true);
-            titleCellStyle1.setFont(font1);
-            HSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
-            HSSFFont font2 = workbook.createFont();
-            font2.setBold(true);
-            font2.setColor(HSSFColor.RED.index);
-            titleCellStyle2.setFont(font2);
-            for (int i = 0; i < titleRowCell.size(); i++) {
-                if (i <= lastRequiredCol) {
-                    titleRow.getCell(i).setCellStyle(titleCellStyle2);
-                } else {
-                    titleRow.getCell(i).setCellStyle(titleCellStyle1);
-                }
-            }
-            //创建数据行
-            if (dataRowCellss.size() > 0) {
-                List<List<String>> dataRowCells = dataRowCellss.get(num);
-                for (int i = 3; i < dataRowCells.size() + 3; i++) {
-                    List<String> dataRowCell = dataRowCells.get(i - 3);
-                    HSSFRow row = sheet.createRow(i);
-                    for (int j = 0; j < dataRowCell.size(); j++) {
-                        row.createCell(j).setCellValue(dataRowCell.get(j));
-                    }
-                }
+                titleRow.getCell(i).setCellStyle(titleCellStyle1);
             }
         }
-        //强制下载
+
+        //创建数据行
+        for (int i = 3; i < dataRowCells.size() + 3; i++) {
+            List<String> dataRowCell = dataRowCells.get(i - 3);
+            HSSFRow row = sheet.createRow(i);
+            row.setHeightInPoints((2 * sheet.getDefaultRowHeightInPoints()));
+            for (int j = 0; j < dataRowCell.size(); j++) {
+                HSSFCell cell = row.createCell(j);
+                cell.setCellValue(dataRowCell.get(j));
+            }
+        }
+
+        //输出
         response.setContentType("application/force-download");
-        //设置下载文件的文件名
         response.setHeader("Content-Disposition", "attachment;fileName=" + java.net.URLEncoder.encode(fileName, "UTF-8"));
-        //初始化响应输出流
         OutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);
+
         //清理
         outputStream.close();
         workbook.close();

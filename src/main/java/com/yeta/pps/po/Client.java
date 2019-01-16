@@ -95,7 +95,12 @@ public class Client {
     public Client() {
     }
 
-    public Client(@NotBlank(message = CommonResponse.PARAMETER_ERROR) String name, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String phone, String membershipNumber) {
+    public Client(String id, String phone) {
+        this.id = id;
+        this.phone = phone;
+    }
+
+    public Client(String name, String phone, String membershipNumber) {
         this.name = name;
         this.phone = phone;
         this.membershipNumber = membershipNumber;

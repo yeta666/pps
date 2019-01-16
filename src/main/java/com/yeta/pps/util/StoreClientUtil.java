@@ -96,62 +96,64 @@ public class StoreClientUtil {
     @Transactional
     public void updatePushMoneyMethod(int flag, Integer storeId, String clientId, String resultOrderId, String userId, double orderMoney) {
         //查询该客户的邀请人编号
-        ClientVo clientVo = myClientMapper.findById(new ClientVo(clientId));
-        if (clientVo == null || clientVo.getInviterId() == null) {
+        ClientVo clientVo = myClientMapper.findClientInviter(new ClientVo(clientId));
+        if (clientVo == null) {
             throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
 
-        String inviterId = clientVo.getInviterId();
-        StoreClient storeClient = new StoreClient(storeId, inviterId);
+        if (clientVo.getInviterId() != null) {      //店长级别客户没有邀请人
+            String inviterId = clientVo.getInviterId();
+            StoreClient storeClient = new StoreClient(storeId, inviterId);
 
-        //查询提成比例
-        System system = systemMapper.findSystem();
-        if (system == null || system.getPushMoneyRate() == null || system.getPushMoneyRate() < 0) {
-            throw new CommonException(CommonResponse.UPDATE_ERROR);
-        }
-        switch (flag) {
-            case 0:
-                //减少
-                storeClient.setPushMoney(orderMoney * system.getPushMoneyRate());
-                if (myClientMapper.updateStoreClientPushMoney(storeClient) != 1) {
-                    throw new CommonException(CommonResponse.UPDATE_ERROR);
-                }
-                break;
-
-            case 1:
-                //设置提成
-                storeClient.setPushMoney(orderMoney * system.getPushMoneyRate());
-
-                //增加或新增
-                if (myClientMapper.findStoreClientByStoreIdAndClientId(storeClient) != null) {
+            //查询提成比例
+            System system = systemMapper.findSystem();
+            if (system == null || system.getPushMoneyRate() == null || system.getPushMoneyRate() < 0) {
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
+            }
+            switch (flag) {
+                case 0:
+                    //减少
+                    storeClient.setPushMoney(orderMoney * system.getPushMoneyRate());
                     if (myClientMapper.updateStoreClientPushMoney(storeClient) != 1) {
                         throw new CommonException(CommonResponse.UPDATE_ERROR);
                     }
-                } else {
-                    storeClient.setIntegral(0);
-                    storeClient.setAdvanceMoney(0.0);
-                    if (myClientMapper.addStoreClient(storeClient) != 1) {
-                        throw new CommonException(CommonResponse.UPDATE_ERROR);
+                    break;
+
+                case 1:
+                    //设置提成
+                    storeClient.setPushMoney(orderMoney * system.getPushMoneyRate());
+
+                    //增加或新增
+                    if (myClientMapper.findStoreClientByStoreIdAndClientId(storeClient) != null) {
+                        if (myClientMapper.updateStoreClientPushMoney(storeClient) != 1) {
+                            throw new CommonException(CommonResponse.UPDATE_ERROR);
+                        }
+                    } else {
+                        storeClient.setIntegral(0);
+                        storeClient.setAdvanceMoney(0.0);
+                        if (myClientMapper.addStoreClient(storeClient) != 1) {
+                            throw new CommonException(CommonResponse.UPDATE_ERROR);
+                        }
                     }
-                }
 
-                break;
-            default:
+                    break;
+                default:
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+            }
+
+            //新增店铺/客户明细关系
+            if (myClientMapper.addStoreClientDetail(new StoreClientDetail(
+                    storeId,
+                    inviterId,
+                    new Date(),
+                    new Date(),
+                    flag == 1 ? (byte) 3 : (byte) 4,
+                    storeClient.getPushMoney(),
+                    resultOrderId,
+                    (byte) 1,
+                    userId)) != 1) {
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
-        }
-
-        //新增店铺/客户明细关系
-        if (myClientMapper.addStoreClientDetail(new StoreClientDetail(
-                storeId,
-                inviterId,
-                new Date(),
-                new Date(),
-                flag == 1 ? (byte) 3 : (byte) 4,
-                storeClient.getPushMoney(),
-                resultOrderId,
-                (byte) 1,
-                userId)) != 1) {
-            throw new CommonException(CommonResponse.UPDATE_ERROR);
+            }
         }
     }
 }

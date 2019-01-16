@@ -14,16 +14,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.lang.System;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * 客户相关逻辑处理
@@ -64,26 +60,18 @@ public class ClientService {
     }
 
     /**
-     * 判断会员卡号是否使用的方法
-     * @param membershipNumber
-     * @return false表示没有使用，true表示已经使用
+     * 判断权限的方法
+     * @param check
+     * @return
      */
-    public boolean judgeMembershipNumber(MembershipNumber membershipNumber) {
-        boolean result = false;
-        //查询所有已经使用的会员卡号
-        List<MembershipNumber> used = myClientMapper.findUsedMembershipNumber();
-        //判断会员卡号是否使用
-        if (membershipNumber.getId() != null) {
-            if (used.stream().filter(m -> m.getId().toString().equals(membershipNumber.getId().toString())).findFirst().isPresent()) {
-                result = true;
-            }
+    public boolean checkMethod(String check) {
+        Client checkClient = new Client();
+        checkClient.setId(check);
+        checkClient = myClientMapper.findClient(checkClient);
+        if (checkClient == null || checkClient.getLevelId() > 0) {
+            return false;
         }
-        if (membershipNumber.getNumber() != null) {
-            if (used.stream().filter(m -> m.getNumber().equals(membershipNumber.getNumber())).findFirst().isPresent()) {
-                result = true;
-            }
-        }
-        return result;
+        return true;
     }
 
     //会员卡号
@@ -93,7 +81,12 @@ public class ClientService {
      * @param membershipNumber
      * @return
      */
-    public CommonResponse addMembershipNumber(MembershipNumber membershipNumber) {
+    public CommonResponse addMembershipNumber(MembershipNumber membershipNumber, String check) {
+        //判断权限
+        if (!checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
         membershipNumber.setDisabled((byte) 0);
         if (myClientMapper.addMembershipNumber(membershipNumber) != 1) {
             return CommonResponse.error(CommonResponse.ADD_ERROR);
@@ -105,15 +98,24 @@ public class ClientService {
     /**
      * 删除会员卡号
      * @param membershipNumbers
+     * @param check
      * @return
      */
     @Transactional
-    public CommonResponse deleteMembershipNumber(List<MembershipNumber> membershipNumbers) {
+    public CommonResponse deleteMembershipNumber(List<MembershipNumber> membershipNumbers, String check) {
+        //判断权限
+        if (!checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
         membershipNumbers.stream().forEach(membershipNumber -> {
             //判断会员卡号是否使用
-            if (judgeMembershipNumber(membershipNumber)) {
-                throw new CommonException(CommonResponse.USED_ERROR);
+            Client client = new Client();
+            client.setMembershipNumber(membershipNumber.getNumber());
+            if (myClientMapper.findClient(client) != null) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
+
             //删除会员卡号
             if (myClientMapper.deleteMembershipNumber(membershipNumber) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
@@ -125,17 +127,27 @@ public class ClientService {
     /**
      * 修改会员卡号
      * @param membershipNumber
+     * @param check
      * @return
      */
-    public CommonResponse updateMembershipNumber(MembershipNumber membershipNumber) {
+    public CommonResponse updateMembershipNumber(MembershipNumber membershipNumber, String check) {
+        //判断权限
+        if (!checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
         //判断参数
         if (membershipNumber.getId() == null || membershipNumber.getDisabled() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //判断会员卡号是否使用
-        if (judgeMembershipNumber(membershipNumber)) {
-            return CommonResponse.error(CommonResponse.USED_ERROR);
+        Client client = new Client();
+        client.setMembershipNumber(membershipNumber.getNumber());
+        if (myClientMapper.findClient(client) != null) {
+            throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
         }
+
         //修改会员卡号
         if (myClientMapper.updateMembershipNumber(membershipNumber) != 1) {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);
@@ -147,18 +159,26 @@ public class ClientService {
      * 查找所有会员卡号
      * @param membershipNumber
      * @param pageVo
+     * @param check
      * @return
      */
-    public CommonResponse findAllMembershipNumber(MembershipNumber membershipNumber, PageVo pageVo) {
+    public CommonResponse findAllMembershipNumber(MembershipNumber membershipNumber, PageVo pageVo, String check) {
+        //判断权限
+        if (!checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
         //查询所有页数
         pageVo.setTotalPage((int) Math.ceil(myClientMapper.findCountMembershipNumber(membershipNumber) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<MembershipNumber> membershipNumbers = myClientMapper.findAllPagedMembershipNumber(membershipNumber, pageVo);
+
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("会员卡号", "number"));
         titles.add(new Title("是否停用", "disabled"));
         CommonResult commonResult = new CommonResult(titles, membershipNumbers, pageVo);
+
         return CommonResponse.success(commonResult);
     }
 
@@ -167,9 +187,15 @@ public class ClientService {
     /**
      * 新增客户级别
      * @param clientLevel
+     * @param check
      * @return
      */
-    public CommonResponse addClientLevel(ClientLevel clientLevel) {
+    public CommonResponse addClientLevel(ClientLevel clientLevel, String check) {
+        //判断权限
+        if (!checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
         if (myClientMapper.addClientLevel(clientLevel) != 1) {
             return CommonResponse.error(CommonResponse.ADD_ERROR);
         }
@@ -179,17 +205,24 @@ public class ClientService {
     /**
      * 删除客户级别
      * @param clientLevels
+     * @param check
      * @return
      */
     @Transactional
-    public CommonResponse deleteClientLevel(List<ClientLevel> clientLevels) {
-        //查询所有已经使用的客户级别
-        List<ClientLevel> clientLevelList = myClientMapper.findUsedClientLevel();
+    public CommonResponse deleteClientLevel(List<ClientLevel> clientLevels, String check) {
+        //判断权限
+        if (!checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
         clientLevels.stream().forEach(clientLevel -> {
             //判断客户级别是否使用
-            if (clientLevelList.stream().filter(c -> c.getId().toString().equals(clientLevel.getId().toString())).findFirst().isPresent()) {
-                throw new CommonException(CommonResponse.USED_ERROR);
+            Client client = new Client();
+            client.setLevelId(clientLevel.getId());
+            if (myClientMapper.findClient(client) != null) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
+
             //删除客户级别
             if (myClientMapper.deleteClientLevel(clientLevel) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
@@ -201,13 +234,20 @@ public class ClientService {
     /**
      * 修改客户级别
      * @param clientLevel
+     * @param check
      * @return
      */
-    public CommonResponse updateClientLevel(ClientLevel clientLevel) {
+    public CommonResponse updateClientLevel(ClientLevel clientLevel, String check) {
+        //判断权限
+        if (!checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
         //判断参数
         if (clientLevel.getId() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //修改客户级别
         if (myClientMapper.updateClientLevel(clientLevel) != 1) {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);
@@ -234,6 +274,7 @@ public class ClientService {
             CommonResult commonResult = new CommonResult(titles, clientLevels, pageVo);
             return CommonResponse.success(commonResult);
         }
+
         //不分页
         List<ClientLevel> clientLevels = myClientMapper.findAllClientLevel();
         return CommonResponse.success(clientLevels);
@@ -254,24 +295,37 @@ public class ClientService {
         clientVo.setPassword(phone.substring(phone.length() - 4));
         clientVo.setCreateTime(new Date());
         clientVo.setDisabled((byte)0);
+
+        //判断客户级别
+        if (clientVo.getLevelId() < 0 || myClientMapper.findClientLevelById(new ClientLevel(clientVo.getLevelId())) == null) {
+            throw new CommonException(CommonResponse.ADD_ERROR, "客户级别错误");
+        }
+
         //判断会员卡号是否存在
-        MembershipNumber membershipNumber = new MembershipNumber(clientVo.getMembershipNumber());
-        if (myClientMapper.findMembershipNumberByNumber(membershipNumber) == null) {
-            return CommonResponse.error(CommonResponse.ADD_ERROR, "会员卡号错误");
+        String membershipNumber = clientVo.getMembershipNumber();
+        if (myClientMapper.findMembershipNumberByNumber(new MembershipNumber(membershipNumber)) == null) {
+            throw new CommonException(CommonResponse.ADD_ERROR, "会员卡号不存在");
         }
+
         //判断会员卡号是否使用
-        if (judgeMembershipNumber(membershipNumber)) {
-            return CommonResponse.error(CommonResponse.ADD_ERROR, "会员卡号已被使用");
+        Client client = new Client();
+        client.setMembershipNumber(membershipNumber);
+        if (myClientMapper.findClient(client) != null) {
+            throw new CommonException(CommonResponse.ADD_ERROR, "会员卡号已被使用");
         }
+
         //判断邀请人是否填写
-        if (clientVo.getInviterId() != null || clientVo.getInviterPhone() != null) {
-            //判断邀请人是否存在
-            Client inviter = myClientMapper.findByIdOrPhone(new ClientVo(clientVo.getInviterId(), clientVo.getInviterPhone()));
-            if (inviter == null) {
-                return CommonResponse.error(CommonResponse.ADD_ERROR, "邀请人错误");
-            }
-            clientVo.setInviterId(inviter.getId());
+        if (clientVo.getInviterId() == null && clientVo.getInviterPhone() == null) {
+            throw new CommonException(CommonResponse.PARAMETER_ERROR, "邀请人必填");
         }
+
+        //判断邀请人是否存在
+        Client inviter = myClientMapper.findClient(new Client(clientVo.getInviterId(), clientVo.getInviterPhone()));
+        if (inviter == null) {
+            return CommonResponse.error(CommonResponse.ADD_ERROR, "邀请人错误");
+        }
+        clientVo.setInviterId(inviter.getId());
+
         //新增客户
         if (myClientMapper.add(clientVo) != 1) {
             return CommonResponse.error(CommonResponse.ADD_ERROR);
@@ -282,21 +336,21 @@ public class ClientService {
     /**
      * 删除客户
      * @param clientVos
+     * @param check
      * @return
      */
     @Transactional
-    public CommonResponse delete(List<ClientVo> clientVos) {
+    public CommonResponse delete(List<ClientVo> clientVos, String check) {
+        //判断权限
+        if (!checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
         clientVos.stream().forEach(clientVo -> {
             //删除客户
             if (myClientMapper.delete(clientVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
             }
-
-            //删除店铺/客户关系
-            myClientMapper.deleteStoreClientByClientId(new StoreClient(clientVo.getId()));
-
-            //删除店铺/客户明细关系
-            myClientMapper.deleteStoreClientDetailByClientId(new StoreClientDetail(clientVo.getId()));
         });
         return CommonResponse.success();
     }
@@ -311,6 +365,7 @@ public class ClientService {
         if (clientVo.getId() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //客户自己修改信息
         if (myClientMapper.update(clientVo) != 1) {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);
@@ -321,9 +376,15 @@ public class ClientService {
     /**
      * 修改客户停用和备注
      * @param clientVo
+     * @param check
      * @return
      */
-    public CommonResponse updateDisabledAndRemark(ClientVo clientVo) {
+    public CommonResponse updateDisabledAndRemark(ClientVo clientVo, String check) {
+        //判断权限
+        if (!checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
         if (myClientMapper.updateDisabledAndRemark(clientVo) != 1) {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
@@ -339,23 +400,19 @@ public class ClientService {
             //查询所有页数
             pageVo.setTotalPage((int) Math.ceil(myClientMapper.findCount(clientVo) * 1.0 / pageVo.getPageSize()));
             pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+
             //查找所有客户
             List<ClientVo> clientVos = myClientMapper.findAllPaged(clientVo, pageVo);
-            //补上邀请人姓名
-            List<ClientVo> vos = myClientMapper.findAll(new ClientVo());
-            clientVos.stream().forEach(vo -> {
-                Optional<ClientVo> optional = vos.stream().filter(vo2 -> vo2.getId().equals(vo.getInviterId())).findFirst();
-                if (optional.isPresent()) {
-                    vo.setInviterName(optional.get().getName());
-                }
-            });
+
             //封装返回结果
             List<Title> titles = new ArrayList<>();
             titles.add(new Title("客户编号", "id"));
             titles.add(new Title("客户姓名", "name"));
             titles.add(new Title("电话", "phone"));
             titles.add(new Title("客户级别", "clientLevel.name"));
-            titles.add(new Title("邀请人", "inviterName"));
+            titles.add(new Title("邀请人编号", "inviterId"));
+            titles.add(new Title("邀请人姓名", "inviterName"));
+            titles.add(new Title("邀请人电话", "inviterPhone"));
             titles.add(new Title("会员卡号", "membershipNumber"));
             titles.add(new Title("生日", "birthday"));
             titles.add(new Title("地址", "address"));
@@ -365,16 +422,18 @@ public class ClientService {
             titles.add(new Title("是否停用", "disabled"));
             titles.add(new Title("备注", "remark"));
             CommonResult commonResult = new CommonResult(titles, clientVos, pageVo);
-            return CommonResponse.success(commonResult);
-        } else {        //不分页
-            //判断参数
-            if (clientVo.getDisabled() == null) {
-                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
-            }
 
-            List<ClientVo> clientVos = myClientMapper.findAll(clientVo);
-            return CommonResponse.success(clientVos);
+            return CommonResponse.success(commonResult);
         }
+
+        //不分页
+        //判断参数
+        if (clientVo.getDisabled() == null) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
+        List<ClientVo> clientVos = myClientMapper.findAll(clientVo);
+        return CommonResponse.success(clientVos);
     }
 
     /**
@@ -383,7 +442,7 @@ public class ClientService {
      * @return
      */
     public CommonResponse findById(ClientVo clientVo) {
-        clientVo = myClientMapper.findById(clientVo);
+        clientVo = myClientMapper.findClientInviter(clientVo);
         if (clientVo == null) {
             return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
@@ -397,61 +456,55 @@ public class ClientService {
      * @param response
      * @throws IOException
      */
-    public void exportClient(ClientVo clientVo, HttpServletResponse response) throws IOException {
+    public void exportClient(ClientVo clientVo, HttpServletResponse response) {
         try {
             //根据筛选条件查找客户
             List<ClientVo> clientVos = myClientMapper.findAll(clientVo);
-            //补上邀请人姓名
-            List<ClientVo> vos = myClientMapper.findAll(new ClientVo());
-            clientVos.stream().forEach(vo -> {
-                Optional<ClientVo> optional = vos.stream().filter(vo2 -> vo2.getId().equals(vo.getInviterId())).findFirst();
-                if (optional.isPresent()) {
-                    vo.setInviterName(optional.get().getName());
-                }
-            });
-            ClientVo vo = clientVos.get(0);
+
             //备注
+            ClientVo vo = clientVos.get(0);
             String remark = "【筛选条件】" +
-                    "，客户编号：" + (clientVo.getId() == null ? "无" : vo.getId()) +
+                    "\n客户编号：" + (clientVo.getId() == null ? "无" : vo.getId()) +
                     "，客户姓名：" + (clientVo.getName() == null ? "无" : vo.getName()) +
                     "，电话：" + (clientVo.getPhone() == null ? "无" : vo.getPhone()) +
                     "，会员卡号：" + (clientVo.getMembershipNumber() == null ? "无" : vo.getMembershipNumber()) +
                     "，客户级别：" + (clientVo.getLevelId() == null ? "无" : vo.getClientLevel().getName());
-            //标题行内容
+
+            //标题行
             List<String> titleRowCell = Arrays.asList(new String[]{
-                    "客户编号", "姓名", "电话", "客户级别", "邀请人", "会员卡号", "生日", "地址", "邮编", "最近交易时间", "创建时间", "是否停用", "备注"
+                    "客户编号", "姓名", "电话", "客户级别", "邀请人编号", "邀请人姓名", "邀请人电话", "会员卡号", "生日", "地址", "邮编", "最近交易时间", "创建时间", "是否停用", "备注"
             });
+
             //最后一个必填列列数
             int lastRequiredCol = -1;
+
             //数据行
             List<List<String>> dataRowCells = new ArrayList<>();
             SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
             SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            clientVos.stream().forEach(gVo -> {
+            clientVos.stream().forEach(cVo -> {
                 List<String> dataRowCell = new ArrayList<>();
-                dataRowCell.add(gVo.getId());
-                dataRowCell.add(gVo.getName());
-                dataRowCell.add(gVo.getPhone());
-                dataRowCell.add(gVo.getClientLevel().getName());
-                dataRowCell.add(gVo.getInviterName());
-                dataRowCell.add(gVo.getMembershipNumber());
-                dataRowCell.add(gVo.getBirthday() == null ? "" : sdf1.format(gVo.getBirthday()));
-                dataRowCell.add(gVo.getAddress());
-                dataRowCell.add(gVo.getPostcode());
-                dataRowCell.add(gVo.getLastDealTime() == null ? "" : sdf2.format(gVo.getLastDealTime()));
-                dataRowCell.add(sdf2.format(gVo.getCreateTime()));
-                dataRowCell.add(gVo.getDisabled().toString());
-                dataRowCell.add(gVo.getRemark());
+                dataRowCell.add(cVo.getId());
+                dataRowCell.add(cVo.getName());
+                dataRowCell.add(cVo.getPhone());
+                dataRowCell.add(cVo.getClientLevel().getName());
+                dataRowCell.add(cVo.getInviterId());
+                dataRowCell.add(cVo.getInviterName());
+                dataRowCell.add(cVo.getInviterPhone());
+                dataRowCell.add(cVo.getMembershipNumber());
+                dataRowCell.add(cVo.getBirthday() == null ? "" : sdf1.format(cVo.getBirthday()));
+                dataRowCell.add(cVo.getAddress());
+                dataRowCell.add(cVo.getPostcode());
+                dataRowCell.add(cVo.getLastDealTime() == null ? "" : sdf2.format(cVo.getLastDealTime()));
+                dataRowCell.add(sdf2.format(cVo.getCreateTime()));
+                dataRowCell.add(cVo.getDisabled().toString());
+                dataRowCell.add(cVo.getRemark());
                 dataRowCells.add(dataRowCell);
             });
-            //文件名
-            String fileName = "【客户导出】_" + System.currentTimeMillis() + ".xls";
+
             //输出excel
-            List<List<String>> titleRowCells = new ArrayList<>();
-            titleRowCells.add(titleRowCell);
-            List<List<List<String>>> dataRowCellss = new ArrayList<>();
-            dataRowCellss.add(dataRowCells);
-            CommonUtil.outputExcel(remark, titleRowCells, lastRequiredCol, dataRowCellss, fileName, response);
+            String fileName = "【客户导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
         } catch (Exception e) {
             throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
         }
@@ -463,23 +516,33 @@ public class ClientService {
      * @throws IOException
      */
     public void getImportClientTemplate(HttpServletResponse response) throws IOException {
+        //查询所有客户级别
+        List<ClientLevel> clientLevels = myClientMapper.findAllClientLevel();
+        String clientLevel = "";
+        for (int i = 0; i < clientLevels.size(); i++) {
+            if (clientLevels.get(i).getId() > 1) {
+                clientLevel = clientLevel + clientLevels.get(i).getId() + ":" + clientLevels.get(i).getName() + ", ";
+            }
+        }
+
         //备注
-        String remark = "【导入备注】，只能增加行数，按照标题填写，不能增加其他列。" +
-                "必填列已标红，其中客户级别、邀请人、会员卡号需要填写系统中已经存在的，否则会导致导入失败。" +
-                "邀请人编号和邀请人电话只需选择填入一个就行。" +
-                "电话、会员卡号要求不能重复";
-        //标题行内容
+        String remark = "【导入备注】" +
+                "\n必填列已标红，其中“客户级别”填写对应编号，只能填写一个" +
+                "\n客户级别 ==> " + clientLevel +
+                "\n邀请人编号、邀请人姓名任选一个填，必填其中一个" +
+                "\n新增客户成功后默认用户名电话，密码电话后四位";
+
+        //标题行
         List<String> titleRowCell = Arrays.asList(new String[]{
                 "姓名", "电话", "客户级别", "邀请人编号", "邀请人电话", "会员卡号", "生日", "地址", "邮编", "备注"
         });
+
         //最后一个必填列列数
         int lastRequiredCol = 5;
-        //文件名
-        String fileName = "【客户导入模版】_" + System.currentTimeMillis() + ".xls";
+
         //输出excel
-        List<List<String>> titleRowCells = new ArrayList<>();
-        titleRowCells.add(titleRowCell);
-        CommonUtil.outputExcel(remark, titleRowCells, lastRequiredCol, new ArrayList<>(), fileName, response);
+        String fileName = "【客户导入模版】_" + System.currentTimeMillis() + ".xls";
+        CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, new ArrayList<>(), fileName, response);
     }
 
     /**
@@ -491,70 +554,61 @@ public class ClientService {
      */
     @Transactional
     public CommonResponse importClient(MultipartFile multipartFile) throws IOException, ParseException {
-        //创建Excel工作簿
         HSSFWorkbook workbook = new HSSFWorkbook(multipartFile.getInputStream());
-        //创建一个工作表sheet
         HSSFSheet sheet = workbook.getSheetAt(0);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        //查询所有客户级别
+        List<ClientLevel> clientLevels = myClientMapper.findAllClientLevel();
+
         //获取数据
         for (int j = 3; j <= sheet.getLastRowNum(); j++) {
             HSSFRow row = sheet.getRow(j);
             ClientVo clientVo = new ClientVo();
-            //设置初始属性
             clientVo.setId(UUID.randomUUID().toString().replace("-", ""));
             clientVo.setCreateTime(new Date());
             clientVo.setDisabled((byte) 0);
 
             String name = CommonUtil.getCellValue(row.getCell(0));
             if (name.equals("")) {
-                throw new CommonException(CommonResponse.IMPORT_ERROR, CommonResponse.NEED_ERROR);
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "姓名错误");
             }
             clientVo.setName(name);
 
             String phone = CommonUtil.getCellValue(row.getCell(1));
             if (phone.equals("") || phone.length() <= 4) {
-                throw new CommonException(CommonResponse.IMPORT_ERROR, CommonResponse.NEED_ERROR);
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "电话错误");
             }
             clientVo.setPhone(phone);
             clientVo.setUsername(phone);
             clientVo.setPassword(phone.substring(phone.length() - 4));
 
-            //判断客户级别分店是否可用
-            String levelName = CommonUtil.getCellValue(row.getCell(2));
-            if (levelName.equals("")) {
-                throw new CommonException(CommonResponse.IMPORT_ERROR, CommonResponse.NEED_ERROR);
-            }
-            //判断客户级别是否存在
-            ClientLevel clientLevel = new ClientLevel(levelName);
-            clientLevel = myClientMapper.findClientLevelByIdOrName(clientLevel);
-            if (clientLevel == null) {
+            String level = CommonUtil.getCellValue(row.getCell(2));
+            Optional<ClientLevel> levelOptional = clientLevels.stream().filter(clientLevel -> clientLevel.getId().toString().equals(level)).findFirst();
+            if (!levelOptional.isPresent()) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "客户级别错误");
             }
-            clientVo.setLevelId(clientLevel.getId());
+            clientVo.setLevelId(Integer.valueOf(level));
 
             String inviterId = CommonUtil.getCellValue(row.getCell(3));
             String inviterPhone = CommonUtil.getCellValue(row.getCell(4));
             if (inviterId.equals("") && inviterPhone.equals("")) {
-                throw new CommonException(CommonResponse.IMPORT_ERROR, CommonResponse.NEED_ERROR);
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "邀请人错误");
             }
-            //判断邀请人是否存在
-            Client inviter = myClientMapper.findByIdOrPhone(new ClientVo(inviterId.equals("") ? null : inviterId, inviterPhone.equals("") ? null : inviterPhone));
+            Client inviter = myClientMapper.findClient(new Client(inviterId.equals("") ? null : inviterId, inviterPhone.equals("") ? null : inviterPhone));
             if (inviter == null) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "邀请人错误");
             }
             clientVo.setInviterId(inviter.getId());
 
             String number = CommonUtil.getCellValue(row.getCell(5));
-            if (number.equals("")) {
-                throw new CommonException(CommonResponse.IMPORT_ERROR, CommonResponse.NEED_ERROR);
-            }
-            //判断会员卡号是否存在
             MembershipNumber membershipNumber = new MembershipNumber(number);
             if (myClientMapper.findMembershipNumberByNumber(membershipNumber) == null) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "会员卡号错误");
             }
-            //判断会员卡号是否使用
-            if (judgeMembershipNumber(membershipNumber)) {
+            Client client = new Client();
+            client.setMembershipNumber(number);
+            if (myClientMapper.findClient(client) != null) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "会员卡号错误");
             }
             clientVo.setMembershipNumber(number);
@@ -565,7 +619,9 @@ public class ClientService {
             }
 
             clientVo.setAddress(CommonUtil.getCellValue(row.getCell(9)));
+
             clientVo.setPostcode(CommonUtil.getCellValue(row.getCell(10)));
+
             clientVo.setRemark(CommonUtil.getCellValue(row.getCell(13)));
 
             //新增客户
