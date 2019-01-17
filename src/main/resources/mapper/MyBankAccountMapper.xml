@@ -3,7 +3,7 @@
 <mapper namespace="com.yeta.pps.mapper.MyBankAccountMapper" >
 
     <insert id="add" parameterType="com.yeta.pps.vo.BankAccountVo">
-        insert into bank_account_${storeId} (id, name, type, opening_money, head, account, gathering, qrCode, procurement) values (#{id}, #{name}, #{type}, 0, #{head}, #{account}, #{gathering}, #{qrCode}, #{procurement});
+        insert into bank_account_${storeId} (id, name, type, opening_money, head, account, gathering, qrCode, procurement) values (#{id}, #{name}, #{type}, 0.0, #{head}, #{account}, #{gathering}, #{qrCode}, #{procurement});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.BankAccountVo">
@@ -15,7 +15,7 @@
     </update>
 
     <update id="updateOpening" parameterType="com.yeta.pps.vo.BankAccountVo">
-        update bank_account_${storeId} set opening_money = #{openingMoney} where id = #{id} and opening_money = 0;
+        update bank_account_${storeId} set opening_money = #{openingMoney} where id = #{id};
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.BankAccountVo" resultType="java.lang.Integer">

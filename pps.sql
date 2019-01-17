@@ -894,7 +894,8 @@ CREATE TABLE store_client (
   store_id int(11) NOT NULL COMMENT '店铺编号',
   client_id varchar(50) NOT NULL COMMENT '客户编号',
   integral int(11) NOT NULL COMMENT '积分',
-  advance_money double(10,2) NOT NULL COMMENT '预收款余额',
+  advance_in_money_opening double(10,2) NOT NULL COMMENT '预收款期初',
+  need_in_money_opening double(10,2) NOT NULL COMMENT '应收款期初',
   push_money double(10,2) NOT NULL COMMENT '提成',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -923,7 +924,8 @@ DROP TABLE IF EXISTS supplier_1;
 CREATE TABLE supplier_1 (
   id varchar(20) NOT NULL COMMENT '供应商编号',
   name varchar(50) NOT NULL COMMENT '供应商名称',
-  advance_money double(10,2) DEFAULT NULL COMMENT '预付款余额',
+  advance_out_money_opening double(10,2) DEFAULT NULL COMMENT '预付款期初',
+  need_out_money_opening double(10,2) DEFAULT NULL COMMENT '应付款期初',
   contacts varchar(20) NOT NULL COMMENT '联系人',
   contact_number varchar(20) NOT NULL COMMENT '联系电话',
   contact_address varchar(100) DEFAULT NULL COMMENT '联系地址',
@@ -935,13 +937,15 @@ CREATE TABLE supplier_1 (
 
 DROP TABLE IF EXISTS system;
 CREATE TABLE system (
-  id int(11) NOT NULL COMMENT '系统设置编号',
+  store_id int(11) NOT NULL COMMENT '店铺编号',
   push_money_rate double(10,2) NOT NULL COMMENT '提成比例',
-  PRIMARY KEY (id)
+  start_bill tinyint NOT NULL COMMENT '系统开账，0：否，1：是',
+  PRIMARY KEY (store_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-INSERT INTO system VALUES ('1', '0.50');
+INSERT INTO system VALUES (0, 0.5, 6);
+INSERT INTO system VALUES (1, 6, 0);
 
 
 DROP TABLE IF EXISTS user_1;

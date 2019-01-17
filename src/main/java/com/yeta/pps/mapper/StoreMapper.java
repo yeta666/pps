@@ -10,6 +10,8 @@ public interface StoreMapper {
 
     int add(Store store);
 
+    int delete(Store store);
+
     int update(Store store);
 
     int findCount();

@@ -41,6 +41,66 @@ public class FundUtil {
     }
 
     /**
+     * 新增期初资金对账记录的方法
+     * @param storeId
+     * @param bankAccountId
+     * @param openingMoney
+     * @param userId
+     */
+    @Transactional
+    public void addOpeningFundCheckOrderMethod(Integer storeId, String bankAccountId, double openingMoney, String userId) {
+        //资金记账
+        FundCheckOrderVo fundCheckOrderVo = new FundCheckOrderVo();
+        fundCheckOrderVo.setStoreId(storeId);
+        fundCheckOrderVo.setOrderId("期初调整");
+        fundCheckOrderVo.setCreateTime(new Date());
+        fundCheckOrderVo.setOrderStatus((byte) 1);
+        fundCheckOrderVo.setBankAccountId(bankAccountId);
+        fundCheckOrderVo.setInMoney(0.0);
+        fundCheckOrderVo.setOutMoney(0.0);
+        fundCheckOrderVo.setBalanceMoney(openingMoney);
+        fundCheckOrderVo.setUserId(userId);
+        if (myFundMapper.addFundCheckOrder(fundCheckOrderVo) != 1) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+    }
+
+    /**
+     * 新增期初往来对账记录的方法
+     * @param flag
+     * @param storeId
+     * @param targetId
+     * @param needMoneyOpening
+     * @param advanceMoneyOpening
+     * @param userId
+     */
+    @Transactional
+    public void addOpeningFundTargetCheckOrderMethod(int flag, Integer storeId, String targetId, double needMoneyOpening, double advanceMoneyOpening, String userId) {
+        //往来记账
+        FundTargetCheckOrderVo fundTargetCheckOrderVo = new FundTargetCheckOrderVo();
+        fundTargetCheckOrderVo.setStoreId(storeId);
+        fundTargetCheckOrderVo.setOrderId("期初调整");
+        fundTargetCheckOrderVo.setCreateTime(new Date());
+        fundTargetCheckOrderVo.setOrderStatus((byte) 1);
+        fundTargetCheckOrderVo.setTargetId(targetId);
+        if (flag == 1) {
+            fundTargetCheckOrderVo.setNeedInMoneyIncrease(needMoneyOpening);       //设置应收增加
+            fundTargetCheckOrderVo.setNeedInMoney(fundTargetCheckOrderVo.getNeedInMoneyIncrease());       //设置期末应收
+            fundTargetCheckOrderVo.setAdvanceInMoneyIncrease(advanceMoneyOpening);       //设置预收增加
+            fundTargetCheckOrderVo.setAdvanceInMoney(fundTargetCheckOrderVo.getAdvanceInMoneyIncrease());       //设置期末预收
+        } else if (flag == 0) {
+            fundTargetCheckOrderVo.setNeedOutMoneyIncrease(needMoneyOpening);       //设置应付增加
+            fundTargetCheckOrderVo.setNeedOutMoney(fundTargetCheckOrderVo.getNeedOutMoneyIncrease());       //设置期末应付
+            fundTargetCheckOrderVo.setAdvanceOutMoneyIncrease(advanceMoneyOpening);       //设置预付增加
+            fundTargetCheckOrderVo.setAdvanceOutMoney(fundTargetCheckOrderVo.getAdvanceOutMoneyIncrease());       //设置期末预付
+        }
+        fundTargetCheckOrderVo.setUserId(userId);
+        if (myFundMapper.addFundTargetCheckOrder(fundTargetCheckOrderVo) != 1) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+    }
+
+    /**
      * 红冲资金对账记录的方法
      * @param vo
      */

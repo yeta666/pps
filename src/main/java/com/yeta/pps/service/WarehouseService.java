@@ -38,17 +38,19 @@ public class WarehouseService {
      * @param warehouseVo
      * @return
      */
+    @Transactional
     public CommonResponse add(WarehouseVo warehouseVo) {
         //新增
         if (myWarehouseMapper.add(warehouseVo) != 1) {
-            return CommonResponse.error(CommonResponse.ADD_ERROR);
+            throw new CommonException(CommonResponse.ADD_ERROR);
         }
 
         //查询所有商品规格
         List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(warehouseVo.getStoreId()));
         goodsSkus.stream().forEach(goodsSku -> {
             //新增商品规格仓库关系
-            if (myGoodsMapper.initializeOpening(new WarehouseGoodsSkuVo(warehouseVo.getStoreId(), warehouseVo.getId(), goodsSku.getId())) != 1) {
+            WarehouseGoodsSkuVo warehouseGoodsSkuVo = new WarehouseGoodsSkuVo(warehouseVo.getStoreId(), warehouseVo.getId(), goodsSku.getId(), 0, goodsSku.getPurchasePrice(), 0.0);
+            if (myGoodsMapper.addWarehouseGoodsSku(warehouseGoodsSkuVo) != 1) {
                 throw new CommonException(CommonResponse.ADD_ERROR);
             }
         });

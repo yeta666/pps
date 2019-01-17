@@ -29,23 +29,19 @@ public class StoreClient {
     /**
      * 预收款期初
      */
-    private Double advanceMoney;
+    private Double advanceInMoneyOpening;
+
+    /**
+     * 应收款期初
+     */
+    private Double needInMoneyOpening;
 
     /**
      * 提成
      */
     private Double pushMoney;
 
-    /**
-     * 经手人
-     */
-    private String userId;
-
     public StoreClient() {
-    }
-
-    public StoreClient(String clientId) {
-        this.clientId = clientId;
     }
 
     public StoreClient(Integer storeId, String clientId) {
@@ -85,12 +81,20 @@ public class StoreClient {
         this.integral = integral;
     }
 
-    public Double getAdvanceMoney() {
-        return advanceMoney;
+    public Double getAdvanceInMoneyOpening() {
+        return advanceInMoneyOpening;
     }
 
-    public void setAdvanceMoney(Double advanceMoney) {
-        this.advanceMoney = advanceMoney;
+    public void setAdvanceInMoneyOpening(Double advanceInMoneyOpening) {
+        this.advanceInMoneyOpening = advanceInMoneyOpening;
+    }
+
+    public Double getNeedInMoneyOpening() {
+        return needInMoneyOpening;
+    }
+
+    public void setNeedInMoneyOpening(Double needInMoneyOpening) {
+        this.needInMoneyOpening = needInMoneyOpening;
     }
 
     public Double getPushMoney() {
@@ -101,14 +105,6 @@ public class StoreClient {
         this.pushMoney = pushMoney;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     @Override
     public String toString() {
         return "StoreClient{" +
@@ -116,7 +112,8 @@ public class StoreClient {
                 ", storeId=" + storeId +
                 ", clientId='" + clientId + '\'' +
                 ", integral=" + integral +
-                ", advanceMoney=" + advanceMoney +
+                ", advanceInMoneyOpening=" + advanceInMoneyOpening +
+                ", needInMoneyOpening=" + needInMoneyOpening +
                 ", pushMoney=" + pushMoney +
                 '}';
     }

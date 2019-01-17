@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.System;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,7 +56,6 @@ public class GoodsService {
 
     /**
      * 删除商品标签
-     * 已经使用的商品标签不能删除，未使用的商品标签没有商品/商品标签关系，无需操作中间表
      * @param goodsLabelVos
      * @return
      */
@@ -69,6 +67,7 @@ public class GoodsService {
             if (myGoodsMapper.findGoodsLabel(goodsGoodsLabelVo).size() > 0) {
                 throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
+
             //删除商品标签
             if (myGoodsMapper.deleteLabel(goodsLabelVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
@@ -158,10 +157,12 @@ public class GoodsService {
             if (myGoodsMapper.findByTypeId(goodsVo).size() > 0) {
                 throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
+
             //删除商品类型
             if (myGoodsMapper.deleteType(goodsTypeVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
             }
+
             //获取该商品类型对应的商品属性名
             GoodsPropertyKeyVo goodsPropertyKeyVo = new GoodsPropertyKeyVo(goodsTypeVo.getStoreId(), null, goodsTypeVo.getId());
             List<GoodsPropertyKeyVo> goodsPropertyKeyVos = myGoodsMapper.findPropertyKey(goodsPropertyKeyVo);
@@ -170,6 +171,7 @@ public class GoodsService {
                 GoodsPropertyValueVo goodsPropertyValueVo = new GoodsPropertyValueVo(goodsTypeVo.getStoreId(), null, vo.getId());
                 myGoodsMapper.deletePropertyValueByPropertyKeyId(goodsPropertyValueVo);
             });
+
             //删除该商品类型对应的商品属性名
             myGoodsMapper.deletePropertyKeyByTypeId(goodsPropertyKeyVo);
         });
@@ -246,7 +248,6 @@ public class GoodsService {
 
     /**
      * 删除商品属性名
-     * 是否要做删除商品属性名功能，删除商品属性名之后，有的商品规格可能还存在该商品属性名？？
      * @param goodsPropertyKeyVos
      * @return
      */
@@ -257,6 +258,7 @@ public class GoodsService {
             if (myGoodsMapper.deletePropertyKeyById(goodsPropertyKeyVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
             }
+
             //删除该商品属性名对应的商品属性值
             GoodsPropertyValueVo goodsPropertyValueVo = new GoodsPropertyValueVo(goodsPropertyKeyVo.getStoreId(), null, goodsPropertyKeyVo.getId());
             myGoodsMapper.deletePropertyValueByPropertyKeyId(goodsPropertyValueVo);
@@ -266,7 +268,6 @@ public class GoodsService {
 
     /**
      * 修改商品属性名
-     * 是否要做修改商品属性名功能，修改商品属性名之后，有的商品规格可能还存在该商品属性名？？
      * @param goodsPropertyKeyVo
      * @return
      */
@@ -337,7 +338,6 @@ public class GoodsService {
 
     /**
      * 删除商品属性值
-     * 是否要做删除商品属性值功能，删除商品属性值之后，有的商品规格可能还存在该商品属性值？？
      * @param goodsPropertyValueVos
      * @return
      */
@@ -469,13 +469,18 @@ public class GoodsService {
     @Transactional
     public CommonResponse delete(List<GoodsVo> goodsVos) {
         goodsVos.stream().forEach(goodsVo -> {
+            //判断商品是否使用
+
+
             //删除商品
             if (myGoodsMapper.delete(goodsVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
             }
+
             //删除商品/商品标签关系
             GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(goodsVo.getStoreId(), goodsVo.getId());
             myGoodsMapper.deleteGoodsLabel(goodsGoodsLabelVo);
+
             //删除该商品对应的商品规格
             GoodsSkuVo goodsSkuVo = new GoodsSkuVo(goodsVo.getStoreId(), goodsVo.getId());
             myGoodsMapper.deleteGoodsSku(goodsSkuVo);
@@ -593,7 +598,8 @@ public class GoodsService {
 
                 warehouses.stream().forEach(warehouse -> {
                     //新增商品规格仓库关系
-                    if (myGoodsMapper.initializeOpening(new WarehouseGoodsSkuVo(goodsVo.getStoreId(), warehouse.getId(), goodsSkuVo.getId())) != 1) {
+                    WarehouseGoodsSkuVo warehouseGoodsSkuVo = new WarehouseGoodsSkuVo(goodsVo.getStoreId(), warehouse.getId(), goodsSkuVo.getId(), 0, goodsSkuVo.getPurchasePrice(), 0.0);
+                    if (myGoodsMapper.addWarehouseGoodsSku(warehouseGoodsSkuVo) != 1) {
                         throw new CommonException(CommonResponse.ADD_ERROR, "新增商品规格失败");
                     }
                 });
@@ -897,9 +903,15 @@ public class GoodsService {
             goodsTypeVo.getGoodsVos().stream().forEach(goodsVo -> {
                 goodsVo.getGoodsSkuVos().stream().forEach(goodsSkuVo -> {
                     StorageCheckOrderVo storageCheckOrderVo = myStorageMapper.findLastCheckMoneyByGoodsSkuIdAndWarehouseId(new StorageCheckOrderVo(warehouseGoodsSkuVo.getStoreId(), goodsSkuVo.getId(), warehouseGoodsSkuVo.getWarehouseId()));
-                    goodsSkuVo.setCheckQuantity(storageCheckOrderVo.getCheckQuantity());
-                    goodsSkuVo.setCheckMoney(storageCheckOrderVo.getCheckMoney());
-                    goodsSkuVo.setCheckTotalMoney(storageCheckOrderVo.getCheckTotalMoney());
+                    if (storageCheckOrderVo != null) {
+                        goodsSkuVo.setCheckQuantity(storageCheckOrderVo.getCheckQuantity());
+                        goodsSkuVo.setCheckMoney(storageCheckOrderVo.getCheckMoney());
+                        goodsSkuVo.setCheckTotalMoney(storageCheckOrderVo.getCheckTotalMoney());
+                    } else {
+                        goodsSkuVo.setCheckQuantity(0);
+                        goodsSkuVo.setCheckMoney(0.0);
+                        goodsSkuVo.setCheckTotalMoney(0.0);
+                    }
                 });
             });
         });

@@ -106,11 +106,13 @@ public interface MyGoodsMapper {
 
     //仓库/商品规格关系
 
-    int initializeOpening(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
+    int addWarehouseGoodsSku(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
-    WarehouseGoodsSkuVo findWarehouseGoodsSku(WarehouseGoodsSkuVo vo);
+    WarehouseGoodsSkuVo findWarehouseGoodsSku(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
-    int updateOpening(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
+    List<WarehouseGoodsSkuVo> findAllWarehouseGoodsSku(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
+
+    int updateInventoryOpening(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
     int increaseInventory(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 

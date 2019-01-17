@@ -7,7 +7,7 @@
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.UserVo">
-        delete from user_${storeId} where id = #{id};
+        delete from user_${storeId} where id = #{id} and id != 'dcb71baaf38411e8b25b54ee75c0f47a';
     </delete>
 
     <update id="update" parameterType="com.yeta.pps.vo.UserVo">
@@ -139,7 +139,7 @@
     </insert>
 
     <delete id="deleteAllUserRole" parameterType="com.yeta.pps.vo.UserRoleVo">
-        delete from user_role_${storeId} where user_id = #{userId};
+        delete from user_role_${storeId} where user_id = #{userId} and user_id > 1;
     </delete>
 
     <select id="findUserRole" parameterType="com.yeta.pps.vo.UserRoleVo" resultType="com.yeta.pps.po.Role">

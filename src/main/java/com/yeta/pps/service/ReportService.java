@@ -1,5 +1,6 @@
 package com.yeta.pps.service;
 
+import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyBankAccountMapper;
 import com.yeta.pps.mapper.MyFundMapper;
 import com.yeta.pps.mapper.MyGoodsMapper;
@@ -1432,8 +1433,10 @@ public class ReportService {
             //期末应收、期末应付
             fundTargetCheckOrderVo.setFlag(2);
             last = myFundMapper.findLastFundTargetCheckOrder(fundTargetCheckOrderVo);
-            vo.setNeedInMoney(last.getNeedInMoney());
-            vo.setNeedOutMoney(last.getNeedOutMoney());
+            if (last != null) {
+                vo.setNeedInMoney(last.getNeedInMoney());
+                vo.setNeedOutMoney(last.getNeedOutMoney());
+            }
         });
 
         //封装返回结果
@@ -1472,17 +1475,20 @@ public class ReportService {
         //资金余额
         myBankAccountMapper.findAll(new BankAccountVo(storeId)).stream().forEach(bankAccountVo -> {
             FundCheckOrderVo fundCheckOrderVo = myFundMapper.findLastBalanceMoney(new FundCheckOrderVo(storeId, startTime, endTime, bankAccountVo.getId()));
-            if (fundCheckOrderVo != null) {
-                vo.setBalanceMoney(vo.getBalanceMoney() + fundCheckOrderVo.getBalanceMoney());
+            if (fundCheckOrderVo == null) {
+               throw new CommonException(CommonResponse.FIND_ERROR);
             }
+            vo.setBalanceMoney(vo.getBalanceMoney() + fundCheckOrderVo.getBalanceMoney());
         });
 
         //应收余额、应付余额
         FundTargetCheckOrderVo fundTargetCheckOrderVo = new FundTargetCheckOrderVo(storeId, startTime, endTime);
         fundTargetCheckOrderVo.setFlag(2);
         fundTargetCheckOrderVo = myFundMapper.findLastFundTargetCheckOrder(fundTargetCheckOrderVo);
-        vo.setNeedInMoney(fundTargetCheckOrderVo.getNeedInMoney());
-        vo.setNeedOutMoney(fundTargetCheckOrderVo.getNeedOutMoney());
+        if (fundTargetCheckOrderVo != null) {
+            vo.setNeedInMoney(fundTargetCheckOrderVo.getNeedInMoney());
+            vo.setNeedOutMoney(fundTargetCheckOrderVo.getNeedOutMoney());
+        }
 
         return CommonResponse.success(vo);
 

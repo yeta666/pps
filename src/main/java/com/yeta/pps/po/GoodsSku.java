@@ -1,7 +1,5 @@
 package com.yeta.pps.po;
 
-import java.math.BigDecimal;
-
 public class GoodsSku {
 
     /**
@@ -17,17 +15,17 @@ public class GoodsSku {
     /**
      * 进价
      */
-    private BigDecimal purchasePrice;
+    private Double purchasePrice;
 
     /**
      * 零售价
      */
-    private BigDecimal retailPrice;
+    private Double retailPrice;
 
     /**
      * vip售价
      */
-    private BigDecimal vipPrice;
+    private Double vipPrice;
 
     /**
      * 商品积分
@@ -58,27 +56,27 @@ public class GoodsSku {
         this.goodsId = goodsId;
     }
 
-    public BigDecimal getPurchasePrice() {
+    public Double getPurchasePrice() {
         return purchasePrice;
     }
 
-    public void setPurchasePrice(BigDecimal purchasePrice) {
+    public void setPurchasePrice(Double purchasePrice) {
         this.purchasePrice = purchasePrice;
     }
 
-    public BigDecimal getRetailPrice() {
+    public Double getRetailPrice() {
         return retailPrice;
     }
 
-    public void setRetailPrice(BigDecimal retailPrice) {
+    public void setRetailPrice(Double retailPrice) {
         this.retailPrice = retailPrice;
     }
 
-    public BigDecimal getVipPrice() {
+    public Double getVipPrice() {
         return vipPrice;
     }
 
-    public void setVipPrice(BigDecimal vipPrice) {
+    public void setVipPrice(Double vipPrice) {
         this.vipPrice = vipPrice;
     }
 

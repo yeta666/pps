@@ -63,6 +63,8 @@ public interface MyClientMapper {
 
     Client findClient(Client client);
 
+    Client findSpecialClient(Client client);
+
     ClientVo findClientInviter(ClientVo clientVo);
 
     //店铺/客户关系
@@ -71,9 +73,11 @@ public interface MyClientMapper {
 
     int deleteStoreClientByClientId(StoreClient storeClient);
 
+    void deleteStoreClientByStoreId(StoreClient storeClient);
+
     int updateStoreClientIntegral(StoreClient storeClient);
 
-    int updateStoreClientAdvanceMoneyOpening(StoreClient storeClient);
+    int updateStoreClientOpening(StoreClient storeClient);
 
     int updateStoreClientPushMoney(StoreClient storeClient);
 
@@ -81,6 +85,8 @@ public interface MyClientMapper {
 
     List<StoreClientVo> findPagedStoreClient(@Param(value = "vo") StoreClientVo storeClientVo,
                                              @Param(value = "pageVo") PageVo pageVo);
+
+    List<StoreClientVo> findAllStoreClient(StoreClientVo storeClientVo);
 
     StoreClient findStoreClientByStoreIdAndClientId(StoreClient storeClient);
 

@@ -1,10 +1,18 @@
 package com.yeta.pps.mapper;
 
-import com.yeta.pps.po.System;
+import com.yeta.pps.po.SSystem;
 
 public interface SystemMapper {
 
-    System findSystem();
+    int addStoreSystem(SSystem sSystem);
 
-    int updatePushMoneyRate(System system);
+    int deleteStoreSystem(SSystem sSystem);
+
+    SSystem findPushMoneyRate();
+
+    int updatePushMoneyRate(SSystem sSystem);
+
+    SSystem findStartBill(SSystem sSystem);
+
+    int updateStartBill(SSystem sSystem);
 }

@@ -203,6 +203,26 @@ public class FundController {
     //期初设置
 
     /**
+     * 现金银行期初设置查询接口
+     * @param storeId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "现金银行期初设置查询")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页数，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每次显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/bankAccount/opening")
+    public CommonResponse<CommonResult<List<BankAccountVo>>> findBankAccountOpening(@RequestParam(value = "storeId") Integer storeId,
+                                                                                    @RequestParam(value = "page") Integer page,
+                                                                                    @RequestParam(value = "pageSize") Integer pageSize) {
+        return fundService.findBankAccountOpening(new BankAccountVo(storeId), new PageVo(page, pageSize));
+    }
+
+    /**
      * 现金银行期初设置接口
      * @param bankAccountVo
      * @return
@@ -215,15 +235,64 @@ public class FundController {
     }
 
     /**
+     * 应收期初设置查询接口
+     * @param storeId
+     * @param clientName
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "应收期初设置查询")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "clientName", value = "客户名称", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "page", value = "当前页数，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每次显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/needIn/opening")
+    public CommonResponse<CommonResult<List<StoreClientVo>>> findNeedInOpening(@RequestParam(value = "storeId") Integer storeId,
+                                                                               @RequestParam(value = "clientName", required = false) String clientName,
+                                                                               @RequestParam(value = "page") Integer page,
+                                                                               @RequestParam(value = "pageSize") Integer pageSize) {
+        StoreClientVo storeClientVo = new StoreClientVo();
+        storeClientVo.setStoreId(storeId);
+        storeClientVo.setClientName(clientName);
+        return fundService.findNeedInOpening(storeClientVo, new PageVo(page, pageSize));
+    }
+
+    /**
      * 应收期初设置接口
      * @param storeClient
      * @return
      */
     @ApiOperation(value = "应收期初设置")
-    @ApiImplicitParam(name = "storeClient", value = "storeId, clientId, advanceMoney, userId必填", required = true, paramType = "body", dataType = "StoreClient")
+    @ApiImplicitParam(name = "storeClient", value = "storeId, clientId, advanceInMoneyOpening, needInMoneyOpening, userId必填", required = true, paramType = "body", dataType = "StoreClient")
     @PutMapping(value = "/fund/needIn/opening")
     public CommonResponse updateNeedInOpening(@RequestBody StoreClient storeClient) {
         return fundService.updateNeedInOpening(storeClient);
+    }
+
+    /**
+     * 应付期初设置查询接口
+     * @param storeId
+     * @param supplierName
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "应付期初设置查询")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "supplierName", value = "供应商名称", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "page", value = "当前页数，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每次显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/fund/needOut/opening")
+    public CommonResponse<CommonResult<List<SupplierVo>>> findNeedOutOpening(@RequestParam(value = "storeId") Integer storeId,
+                                                                             @RequestParam(value = "supplierName", required = false) String supplierName,
+                                                                             @RequestParam(value = "page") Integer page,
+                                                                             @RequestParam(value = "pageSize") Integer pageSize) {
+        return fundService.findNeedOutOpening(new SupplierVo(storeId, null, supplierName), new PageVo(page, pageSize));
     }
 
     /**
@@ -232,7 +301,7 @@ public class FundController {
      * @return
      */
     @ApiOperation(value = "应付期初设置")
-    @ApiImplicitParam(name = "supplierVo", value = "storeId, id, advanceMoney, userId必填", required = true, paramType = "body", dataType = "SupplierVo")
+    @ApiImplicitParam(name = "supplierVo", value = "storeId, id, advanceOutMoneyOpening, needOutMoneyOpening, userId必填", required = true, paramType = "body", dataType = "SupplierVo")
     @PutMapping(value = "/fund/needOut/opening")
     public CommonResponse updateNeedOutOpening(@RequestBody SupplierVo supplierVo) {
         return fundService.updateNeedOutOpening(supplierVo);

@@ -83,6 +83,11 @@ public class FundResultOrderVo {
     public FundResultOrderVo() {
     }
 
+    public FundResultOrderVo(Integer storeId, String bankAccountId) {
+        this.storeId = storeId;
+        this.bankAccountId = bankAccountId;
+    }
+
     public FundResultOrderVo(Integer storeId, String id, String userId, String remark) {
         this.storeId = storeId;
         this.id = id;

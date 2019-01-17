@@ -35,7 +35,7 @@ public class BankAccountController {
      * @return
      */
     @ApiOperation(value = "新增银行账户")
-    @ApiImplicitParam(name = "bankAccountVo", value = "storeId, id, name, type(1：现金，2：支付宝，3：微信，4：银行卡)必填", required = true, paramType = "body", dataType = "BankAccountVo")
+    @ApiImplicitParam(name = "bankAccountVo", value = "storeId, id, name, type(1：现金，2：支付宝，3：微信，4：银行卡), userId必填", required = true, paramType = "body", dataType = "BankAccountVo")
     @PostMapping(value = "/bankAccounts")
     public CommonResponse add(@RequestBody @Valid BankAccountVo bankAccountVo) {
         return bankAccountService.add(bankAccountVo);

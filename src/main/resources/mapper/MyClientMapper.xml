@@ -323,6 +323,15 @@
         </if>
     </select>
 
+    <select id="findSpecialClient" parameterType="com.yeta.pps.po.Client" resultType="com.yeta.pps.po.Client">
+        select
+            id, name, username, password, phone, level_id, birthday, inviter_id, address, postcode, membership_number, last_deal_time, create_time, disabled, remark
+        from
+            client
+        where
+            id = #{id};
+    </select>
+
     <select id="findClientInviter" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.vo.ClientVo">
         SELECT
             c.id,
@@ -400,19 +409,23 @@
     <!--店铺/客户关系-->
 
     <insert id="addStoreClient" parameterType="com.yeta.pps.po.StoreClient">
-        insert into store_client (store_id, client_id, integral, advance_money, push_money) values (#{storeId}, #{clientId}, #{integral}, #{advanceMoney}, #{pushMoney});
+        insert into store_client (store_id, client_id, integral, advance_in_money_opening, need_in_money_opening, push_money) values (#{storeId}, #{clientId}, #{integral}, #{advanceInMoneyOpening}, #{needInMoneyOpening}, #{pushMoney});
     </insert>
         
     <delete id="deleteStoreClientByClientId" parameterType="com.yeta.pps.po.StoreClient">
         delete from store_client where client_id = #{clientId};
     </delete>
 
+    <delete id="deleteStoreClientByStoreId" parameterType="com.yeta.pps.po.StoreClient">
+        delete from store_client where store_id = #{storeId};
+    </delete>
+
     <update id="updateStoreClientIntegral" parameterType="com.yeta.pps.po.StoreClient">
         update store_client set integral = integral + #{integral} where store_id = #{storeId} and client_id = #{clientId} and integral + #{integral} &gt;= 0;
     </update>
     
-    <update id="updateStoreClientAdvanceMoneyOpening" parameterType="com.yeta.pps.po.StoreClient">
-        update store_client set advance_money = #{advanceMoney} where store_id = #{storeId} and client_id = #{clientId} and advance_money = 0;
+    <update id="updateStoreClientOpening" parameterType="com.yeta.pps.po.StoreClient">
+        update store_client set advance_in_money_opening = #{advanceInMoneyOpening}, need_in_money_opening = #{needInMoneyOpening} where store_id = #{storeId} and client_id = #{clientId};
     </update>
 
     <update id="updateStoreClientPushMoney" parameterType="com.yeta.pps.po.StoreClient">
@@ -447,7 +460,8 @@
             sc.client_id,
             c.name as client_name,
             sc.integral,
-            sc.advance_money,
+            sc.advance_in_money_opening,
+            sc.need_in_money_opening,
             sc.push_money
         from
             store_client as sc
@@ -468,8 +482,28 @@
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
+    <select id="findAllStoreClient" parameterType="com.yeta.pps.vo.StoreClientVo" resultType="com.yeta.pps.vo.StoreClientVo">
+        select
+            sc.id,
+            sc.store_id,
+            s.name as store_name,
+            sc.client_id,
+            c.name as client_name,
+            sc.integral,
+            sc.advance_in_money_opening,
+            sc.need_in_money_opening,
+            sc.push_money
+        from
+            store_client as sc
+        inner join store as s on s.id = sc.store_id
+        inner join client as c on c.id = sc.client_id
+        where
+            c.level_id > 0
+        and sc.store_id = #{storeId};
+    </select>
+
     <select id="findStoreClientByStoreIdAndClientId" parameterType="com.yeta.pps.po.StoreClient" resultType="com.yeta.pps.po.StoreClient">
-        select id, store_id, client_id, integral, advance_money, push_money from store_client where store_id = #{storeId} and client_id = #{clientId};
+        select id, store_id, client_id, integral, advance_in_money_opening, need_in_money_opening, push_money from store_client where store_id = #{storeId} and client_id = #{clientId};
     </select>
 
     <!--店铺/客户明细关系-->

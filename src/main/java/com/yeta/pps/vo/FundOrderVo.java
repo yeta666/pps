@@ -94,6 +94,11 @@ public class FundOrderVo {
     public FundOrderVo() {
     }
 
+    public FundOrderVo(Integer storeId, String bankAccountId) {
+        this.storeId = storeId;
+        this.bankAccountId = bankAccountId;
+    }
+
     public FundOrderVo(Integer storeId, Byte type, String targetId) {
         this.storeId = storeId;
         this.type = type;

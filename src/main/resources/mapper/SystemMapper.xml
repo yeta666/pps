@@ -2,12 +2,28 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.yeta.pps.mapper.SystemMapper" >
 
-    <select id="findSystem" resultType="com.yeta.pps.po.System">
-        select push_money_rate from system where id = 1;
+    <insert id="addStoreSystem" parameterType="com.yeta.pps.po.SSystem">
+        insert into system(store_id, push_money_rate, start_bill) values (#{storeId}, 6, 0);
+    </insert>
+
+    <delete id="deleteStoreSystem" parameterType="com.yeta.pps.po.SSystem">
+        delete from system where store_id = #{storeId} and store_id &gt; 0;
+    </delete>
+
+    <select id="findPushMoneyRate" resultType="com.yeta.pps.po.SSystem">
+        select push_money_rate from system where store_id = 0;
     </select>
 
-    <update id="updatePushMoneyRate" parameterType="com.yeta.pps.po.System">
-        update system set push_money_rate = #{pushMoneyRate} where id = 1 and #{pushMoneyRate} &gt;= 0;
+    <update id="updatePushMoneyRate" parameterType="com.yeta.pps.po.SSystem">
+        update system set push_money_rate = #{pushMoneyRate} where store_id = 0 and #{pushMoneyRate} &gt;= 0;
+    </update>
+
+    <select id="findStartBill" parameterType="com.yeta.pps.po.SSystem" resultType="com.yeta.pps.po.SSystem">
+        select start_bill from system where store_id = #{storeId} and store_id &gt; 0;
+    </select>
+
+    <update id="updateStartBill" parameterType="com.yeta.pps.po.SSystem">
+        update system set start_bill = 1 where store_id = #{storeId} and store_id &gt; 0 and start_bill = 0;
     </update>
 
 </mapper>

@@ -91,27 +91,28 @@ public class WarehouseGoodsSkuVo {
      */
     private Double openingTotalMoney;
 
-    /**
-     * 经手人
-     */
-    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
-    private String userId;
-
     public WarehouseGoodsSkuVo() {
     }
 
-    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer warehouseId) {
+    public WarehouseGoodsSkuVo(Integer storeId) {
+        this.storeId = storeId;
+    }
+
+    public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
     }
 
-    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer warehouseId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer goodsSkuId) {
+    public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId, Integer goodsSkuId, Integer openingQuantity, Double openingMoney, Double openingTotalMoney) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
         this.goodsSkuId = goodsSkuId;
+        this.openingQuantity = openingQuantity;
+        this.openingMoney = openingMoney;
+        this.openingTotalMoney = openingTotalMoney;
     }
 
-    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer warehouseId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer goodsSkuId, Integer realInventory, Integer canUseInventory, Integer bookInventory) {
+    public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId, Integer goodsSkuId, Integer realInventory, Integer canUseInventory, Integer bookInventory) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
         this.goodsSkuId = goodsSkuId;
@@ -120,7 +121,7 @@ public class WarehouseGoodsSkuVo {
         this.bookInventory = bookInventory;
     }
 
-    public WarehouseGoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer warehouseId, @NotNull(message = CommonResponse.PARAMETER_ERROR) Integer goodsSkuId, Integer notSentQuantity, Integer notReceivedQuantity) {
+    public WarehouseGoodsSkuVo(Integer storeId, Integer warehouseId, Integer goodsSkuId, Integer notSentQuantity, Integer notReceivedQuantity) {
         this.storeId = storeId;
         this.warehouseId = warehouseId;
         this.goodsSkuId = goodsSkuId;
@@ -248,14 +249,6 @@ public class WarehouseGoodsSkuVo {
         this.openingTotalMoney = openingTotalMoney;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     @Override
     public String toString() {
         return "WarehouseGoodsSkuVo{" +
@@ -274,7 +267,6 @@ public class WarehouseGoodsSkuVo {
                 ", openingQuantity=" + openingQuantity +
                 ", openingMoney=" + openingMoney +
                 ", openingTotalMoney=" + openingTotalMoney +
-                ", userId='" + userId + '\'' +
                 '}';
     }
 }

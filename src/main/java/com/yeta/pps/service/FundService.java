@@ -3,11 +3,9 @@ package com.yeta.pps.service;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.ProcurementApplyOrder;
+import com.yeta.pps.po.SSystem;
 import com.yeta.pps.po.StoreClient;
-import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.util.CommonResult;
-import com.yeta.pps.util.FundUtil;
-import com.yeta.pps.util.Title;
+import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +41,9 @@ public class FundService {
 
     @Autowired
     private MyBankAccountMapper myBankAccountMapper;
+
+    @Autowired
+    private SystemUtil systemUtil;
 
     @Autowired
     private FundUtil fundUtil;
@@ -124,19 +125,18 @@ public class FundService {
      */
     public CommonResponse findLastFundTargetCheckOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo, int type) {
         fundTargetCheckOrderVo = myFundMapper.findLastFundTargetCheckOrder(fundTargetCheckOrderVo);
-        if (fundTargetCheckOrderVo == null) {
-            return CommonResponse.error(CommonResponse.FIND_ERROR);
-        }
-
         double advanceMoney;
-        if (type == 1) {
-            advanceMoney = fundTargetCheckOrderVo.getAdvanceInMoney();
-        } else if (type == 2) {
-            advanceMoney = fundTargetCheckOrderVo.getAdvanceOutMoney();
+        if (fundTargetCheckOrderVo == null) {
+            advanceMoney = 0;
         } else {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            if (type == 1) {
+                advanceMoney = fundTargetCheckOrderVo.getAdvanceInMoney();
+            } else if (type == 2) {
+                advanceMoney = fundTargetCheckOrderVo.getAdvanceOutMoney();
+            } else {
+                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            }
         }
-
         return CommonResponse.success(advanceMoney);
     }
 
@@ -207,6 +207,11 @@ public class FundService {
         double advanceMoney;
         byte type = fundOrderVo.getType();
 
+        //判断系统是否开账
+        if (!systemUtil.judgeStartBillMethod(storeId)) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统未开账");
+        }
+
         //设置资金记账初始属性
         FundCheckOrderVo fcoVo = new FundCheckOrderVo();
         fcoVo.setStoreId(storeId);
@@ -230,9 +235,6 @@ public class FundService {
         ftcoVo.setTargetId(targetId);
         //查询最新的往来对账记录
         FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
-        if (lastFTCOVo == null) {
-            throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
-        }
         ftcoVo.setUserId(fundOrderVo.getUserId());
 
         //判断新增类型
@@ -267,10 +269,18 @@ public class FundService {
                 ftcoVo.setOrderId(fundOrderVo.getId());
                 advanceMoney = fundOrderVo.getAdvanceMoney();
                 ftcoVo.setNeedInMoneyDecrease(money + fundOrderVo.getDiscountMoney() + advanceMoney);       //设置应收减少
-                ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() - ftcoVo.getNeedInMoneyDecrease());       //设置期末应收
+                if (lastFTCOVo == null) {
+                    ftcoVo.setNeedInMoney(-ftcoVo.getNeedInMoneyDecrease());       //设置期末应收
+                } else {
+                    ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() - ftcoVo.getNeedInMoneyDecrease());       //设置期末应收
+                }
                 if (advanceMoney != 0) {
                     ftcoVo.setAdvanceInMoneyDecrease(advanceMoney);     //设置预收减少
-                    ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() - ftcoVo.getAdvanceInMoneyDecrease());      //设置期末预收
+                    if (lastFTCOVo == null) {
+                        ftcoVo.setAdvanceInMoney(-ftcoVo.getAdvanceInMoneyDecrease());      //设置期末预收
+                    } else {
+                        ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() - ftcoVo.getAdvanceInMoneyDecrease());      //设置期末预收
+                    }
                 }
                 break;
 
@@ -305,10 +315,18 @@ public class FundService {
                 ftcoVo.setOrderId(fundOrderVo.getId());
                 advanceMoney = fundOrderVo.getAdvanceMoney();
                 ftcoVo.setNeedOutMoneyDecrease(money + fundOrderVo.getDiscountMoney() + advanceMoney);      //设置应付减少
-                ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() - ftcoVo.getNeedOutMoneyDecrease());        //设置期末应付
+                if (lastFTCOVo == null) {
+                    ftcoVo.setNeedOutMoney(-ftcoVo.getNeedOutMoneyDecrease());        //设置期末应付
+                } else {
+                    ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() - ftcoVo.getNeedOutMoneyDecrease());        //设置期末应付
+                }
                 if (advanceMoney != 0) {
                     ftcoVo.setAdvanceOutMoneyDecrease(advanceMoney);        //设置预付减少
-                    ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() - lastFTCOVo.getAdvanceOutMoneyDecrease());       //设置期末预付
+                    if (lastFTCOVo == null) {
+                        ftcoVo.setAdvanceOutMoney(-lastFTCOVo.getAdvanceOutMoneyDecrease());       //设置期末预付
+                    } else {
+                        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() - lastFTCOVo.getAdvanceOutMoneyDecrease());       //设置期末预付
+                    }
                 }
                 break;
 
@@ -328,9 +346,14 @@ public class FundService {
                 fcoVo.setBalanceMoney(lastFCOVo.getBalanceMoney() + money);
 
                 ftcoVo.setOrderId(fundOrderVo.getId());
-                ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney());        //设置期末应收
+                if (lastFTCOVo == null) {
+                    ftcoVo.setNeedInMoney(0.0);        //设置期末应收
+                    ftcoVo.setAdvanceInMoney(ftcoVo.getAdvanceInMoneyIncrease());      //设置期末预收
+                } else {
+                    ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney());        //设置期末应收
+                    ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() + ftcoVo.getAdvanceInMoneyIncrease());      //设置期末预收
+                }
                 ftcoVo.setAdvanceInMoneyIncrease(money);        //设置预收增加
-                ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() + ftcoVo.getAdvanceInMoneyIncrease());      //设置期末预收
                 break;
 
             case 4:     //预付款单
@@ -349,9 +372,14 @@ public class FundService {
                 fcoVo.setBalanceMoney(lastFCOVo.getBalanceMoney() - money);
 
                 ftcoVo.setOrderId(fundOrderVo.getId());
-                ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney());        //设置期末应付
+                if (lastFTCOVo == null) {
+                    ftcoVo.setNeedOutMoney(0.0);        //设置期末应付
+                    ftcoVo.setAdvanceOutMoney(ftcoVo.getAdvanceOutMoneyIncrease());      //设置期末预付
+                } else {
+                    ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney());        //设置期末应付
+                    ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() + ftcoVo.getAdvanceOutMoneyIncrease());      //设置期末预付
+                }
                 ftcoVo.setAdvanceOutMoneyIncrease(money);        //设置预付增加
-                ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() + ftcoVo.getAdvanceOutMoneyIncrease());      //设置期末预付
                 break;
 
             default:
@@ -494,6 +522,27 @@ public class FundService {
     //期初设置
 
     /**
+     * 现金银行期初设置查询
+     * @param bankAccountVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findBankAccountOpening(BankAccountVo bankAccountVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myBankAccountMapper.findCount(bankAccountVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<BankAccountVo> bankAccountVos = myBankAccountMapper.findAllPaged(bankAccountVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("科目编号", "id"));
+        titles.add(new Title("科目名称", "name"));
+        titles.add(new Title("期初金额", "openingMoney"));
+        CommonResult commonResult = new CommonResult(titles, bankAccountVos, pageVo);
+        return CommonResponse.success(commonResult);
+    }
+
+    /**
      * 现金银行期初设置
      * @param bankAccountVo
      * @return
@@ -501,8 +550,13 @@ public class FundService {
     @Transactional
     public CommonResponse updateBankAccountOpening(BankAccountVo bankAccountVo) {
         //判断参数
-        if (bankAccountVo.getOpeningMoney() == null || bankAccountVo.getUserId() == null) {
+        if (bankAccountVo.getOpeningMoney() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
+        //判断系统是否开账
+        if (systemUtil.judgeStartBillMethod(bankAccountVo.getStoreId())) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统已开账");
         }
 
         //设置期初
@@ -510,22 +564,30 @@ public class FundService {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
 
-        //资金记账
-        FundCheckOrderVo fundCheckOrderVo = new FundCheckOrderVo();
-        fundCheckOrderVo.setStoreId(bankAccountVo.getStoreId());
-        fundCheckOrderVo.setOrderId("期初调整");
-        fundCheckOrderVo.setCreateTime(new Date());
-        fundCheckOrderVo.setOrderStatus((byte) 1);
-        fundCheckOrderVo.setBankAccountId(bankAccountVo.getId());
-        fundCheckOrderVo.setInMoney(0.0);
-        fundCheckOrderVo.setOutMoney(0.0);
-        fundCheckOrderVo.setBalanceMoney(bankAccountVo.getOpeningMoney());
-        fundCheckOrderVo.setUserId(bankAccountVo.getUserId());
-        if (myFundMapper.addFundCheckOrder(fundCheckOrderVo) != 1) {
-            throw new CommonException(CommonResponse.UPDATE_ERROR);
-        }
-
         return CommonResponse.success();
+    }
+
+    /**
+     * 应收期初设置查询
+     * @param storeClientVo
+     * @param pageVo
+     * @return
+     */
+    @Transactional
+    public CommonResponse findNeedInOpening(StoreClientVo storeClientVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myClientMapper.findCountStoreClient(storeClientVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<StoreClientVo> vos = myClientMapper.findPagedStoreClient(storeClientVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("客户编号", "clientId"));
+        titles.add(new Title("客户名称", "clientName"));
+        titles.add(new Title("预收款期初", "advanceInMoneyOpening"));
+        titles.add(new Title("应收款期初", "needInMoneyOpening"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -536,38 +598,45 @@ public class FundService {
     @Transactional
     public CommonResponse updateNeedInOpening(StoreClient storeClient) {
         //判断参数
-        if (storeClient.getStoreId() == null || storeClient.getClientId() == null || storeClient.getAdvanceMoney() == null || storeClient.getUserId() == null) {
+        if (storeClient.getStoreId() == null || storeClient.getClientId() == null ||
+                storeClient.getAdvanceInMoneyOpening() == null || storeClient.getNeedInMoneyOpening() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
-        //设置期初
-        if (myClientMapper.findStoreClientByStoreIdAndClientId(storeClient) != null) {
-            if (myClientMapper.updateStoreClientAdvanceMoneyOpening(storeClient) != 1) {
-                throw new CommonException(CommonResponse.UPDATE_ERROR);
-            }
-        } else {
-            storeClient.setIntegral(0);
-            storeClient.setPushMoney(0.0);
-            if (myClientMapper.addStoreClient(storeClient) != 1) {
-                throw new CommonException(CommonResponse.UPDATE_ERROR);
-            }
+        //判断系统是否开账
+        if (systemUtil.judgeStartBillMethod(storeClient.getStoreId())) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统已开账");
         }
 
-        //往来记账
-        FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
-        ftcoVo.setStoreId(storeClient.getStoreId());
-        ftcoVo.setOrderId("期初调整");
-        ftcoVo.setCreateTime(new Date());
-        ftcoVo.setOrderStatus((byte) 1);
-        ftcoVo.setTargetId(storeClient.getClientId());
-        ftcoVo.setNeedInMoneyIncrease(storeClient.getAdvanceMoney());       //设置应收增加
-        ftcoVo.setNeedInMoney(storeClient.getAdvanceMoney());       //设置期末应收
-        ftcoVo.setUserId(storeClient.getUserId());
-        if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
+        //设置期初
+        if (myClientMapper.updateStoreClientOpening(storeClient) != 1) {
             throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
 
         return CommonResponse.success();
+    }
+
+    /**
+     * 应付期初设置查询
+     * @param supplierVo
+     * @param pageVo
+     * @return
+     */
+    @Transactional
+    public CommonResponse findNeedOutOpening(SupplierVo supplierVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(mySupplierMapper.findCount(supplierVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<SupplierVo> vos = mySupplierMapper.findAllPaged(supplierVo, pageVo);
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("供应商编号", "id"));
+        titles.add(new Title("供应商名称", "name"));
+        titles.add(new Title("预付款期初", "advanceOutMoneyOpening"));
+        titles.add(new Title("应付款期初", "needOutMoneyOpening"));
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
+        return CommonResponse.success(commonResult);
     }
 
     /**
@@ -578,27 +647,19 @@ public class FundService {
     @Transactional
     public CommonResponse updateNeedOutOpening(SupplierVo supplierVo) {
         //判断参数
-        if (supplierVo.getStoreId() == null || supplierVo.getId() == null || supplierVo.getAdvanceMoney() == null || supplierVo.getUserId() == null) {
+        if (supplierVo.getStoreId() == null || supplierVo.getId() == null ||
+                supplierVo.getAdvanceOutMoneyOpening() == null || supplierVo.getNeedOutMoneyOpening() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
-        //设置期初
-        if (mySupplierMapper.updateAdvanceMoneyOpening(supplierVo) != 1) {
-            throw new CommonException(CommonResponse.ADD_ERROR);
+        //判断系统是否开账
+        if (systemUtil.judgeStartBillMethod(supplierVo.getStoreId())) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统已开账");
         }
 
-        //往来记账
-        FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
-        ftcoVo.setStoreId(supplierVo.getStoreId());
-        ftcoVo.setOrderId("期初调整");
-        ftcoVo.setCreateTime(new Date());
-        ftcoVo.setOrderStatus((byte) 1);
-        ftcoVo.setTargetId(supplierVo.getId());
-        ftcoVo.setNeedOutMoneyIncrease(supplierVo.getAdvanceMoney());       //设置应付增加
-        ftcoVo.setNeedOutMoney(supplierVo.getAdvanceMoney());       //设置期末应付
-        ftcoVo.setUserId(supplierVo.getUserId());
-        if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
-            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        //设置期初
+        if (mySupplierMapper.updateSupplierOpening(supplierVo) != 1) {
+            throw new CommonException(CommonResponse.ADD_ERROR);
         }
 
         return CommonResponse.success();
@@ -699,8 +760,10 @@ public class FundService {
             //期末应收、期末预收
             fundTargetCheckOrderVo.setFlag(2);
             lastVo = myFundMapper.findLastFundTargetCheckOrder(fundTargetCheckOrderVo);
-            vo.setNeedInMoney(lastVo.getNeedInMoney());
-            vo.setAdvanceInMoney(lastVo.getAdvanceInMoney());
+            if (lastVo != null) {
+                vo.setNeedInMoney(lastVo.getNeedInMoney());
+                vo.setAdvanceInMoney(lastVo.getAdvanceInMoney());
+            }
 
             //期末余额
             vo.setEndingMoney(vo.getNeedInMoney() - vo.getAdvanceInMoney());
@@ -782,8 +845,10 @@ public class FundService {
             //期末应付、期末预付
             fundTargetCheckOrderVo.setFlag(2);
             lastVo = myFundMapper.findLastFundTargetCheckOrder(fundTargetCheckOrderVo);
-            vo.setNeedOutMoney(lastVo.getNeedOutMoney());
-            vo.setAdvanceOutMoney(lastVo.getAdvanceOutMoney());
+            if (lastVo != null) {
+                vo.setNeedOutMoney(lastVo.getNeedOutMoney());
+                vo.setAdvanceOutMoney(lastVo.getAdvanceOutMoney());
+            }
 
             //期末余额
             vo.setEndingMoney(vo.getNeedOutMoney() - vo.getAdvanceOutMoney());
@@ -865,8 +930,10 @@ public class FundService {
             //期末应收、期末预收
             fundTargetCheckOrderVo.setFlag(2);
             lastVo = myFundMapper.findLastFundTargetCheckOrder(fundTargetCheckOrderVo);
-            vo.setNeedInMoney(lastVo.getNeedInMoney());
-            vo.setAdvanceInMoney(lastVo.getAdvanceInMoney());
+            if (lastVo != null) {
+                vo.setNeedInMoney(lastVo.getNeedInMoney());
+                vo.setAdvanceInMoney(lastVo.getAdvanceInMoney());
+            }
 
             //期末余额
             vo.setEndingMoney(vo.getNeedInMoney() - vo.getAdvanceInMoney());
@@ -915,8 +982,10 @@ public class FundService {
             //期末应付、期末预付
             fundTargetCheckOrderVo.setFlag(2);
             lastVo = myFundMapper.findLastFundTargetCheckOrder(fundTargetCheckOrderVo);
-            vo.setNeedOutMoney(lastVo.getNeedOutMoney());
-            vo.setAdvanceOutMoney(lastVo.getAdvanceOutMoney());
+            if (lastVo != null) {
+                vo.setNeedOutMoney(lastVo.getNeedOutMoney());
+                vo.setAdvanceOutMoney(lastVo.getAdvanceOutMoney());
+            }
 
             //期末余额
             vo.setEndingMoney(vo.getNeedOutMoney() - vo.getAdvanceOutMoney());
@@ -949,6 +1018,11 @@ public class FundService {
      */
     @Transactional
     public CommonResponse addFundResultOrder(FundResultOrderVo fundResultOrderVo) {
+        //判断系统是否开账
+        if (!systemUtil.judgeStartBillMethod(fundResultOrderVo.getStoreId())) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统未开账");
+        }
+
         fundUtil.addFundResultOrderMethod(fundResultOrderVo);
         return CommonResponse.success();
     }

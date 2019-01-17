@@ -448,8 +448,7 @@
         and
             date(so.create_time) between #{procurementApplyOrderVo.startTime} and #{procurementApplyOrderVo.endTime}
         </if>
-        order by
-            so.create_time desc
+        order by so.create_time desc
     </select>
 
     <resultMap id="storageOrderVoMap" type="com.yeta.pps.vo.StorageOrderVo">
@@ -508,8 +507,7 @@
         and
             date(so.create_time) between #{storageOrderVo.procurementApplyOrderVo.startTime} and #{storageOrderVo.procurementApplyOrderVo.endTime}
         </if>
-        order by
-            so.create_time desc
+        order by so.create_time desc
         limit
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
@@ -728,7 +726,8 @@
                         inner join warehouse_${storeId} as w on w.id = wgs.warehouse_id
                     )
                 inner join goods_type_${storeId} as gt on g.type_id = gt.id
-                where wgs.opening_money &gt; 0
+                where
+                    1 = 1
                 <if test="id != null">
                     and g.id like concat('%', #{id}, '%')
                 </if>
@@ -766,7 +765,8 @@
                 inner join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
             )
         inner join goods_type_${vo.storeId} as gt on g.type_id = gt.id
-        where wgs.opening_money &gt; 0
+        where
+            1 = 1
         <if test="vo.id != null">
             and g.id like concat('%', #{vo.id}, '%')
         </if>
@@ -800,7 +800,6 @@
                 )
             inner join goods_type_${storeId} as gt on g.type_id = gt.id
             where g.id = #{id}
-            and wgs.opening_money &gt; 0
             group by w.id
         ) as temp;
     </select>
@@ -830,7 +829,6 @@
             )
         inner join goods_type_${vo.storeId} as gt on g.type_id = gt.id
         where g.id = #{vo.id}
-        and wgs.opening_money &gt; 0
         group by w.id
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
@@ -866,7 +864,7 @@
             )
         left join warehouse_${storeId} as w on w.id = sco.warehouse_id
         where g.id = #{goodsId}
-        order by sco.create_time asc;
+        order by sco.id asc;
     </select>
 
     <select id="findPagedOrderByGoodsId" resultType="com.yeta.pps.vo.StorageCheckOrderVo">
@@ -976,7 +974,7 @@
             )
         left join warehouse_${vo.storeId} as w on w.id = sco.warehouse_id
         where g.id = #{vo.goodsId}
-        order by sco.create_time asc
+        order by sco.id asc
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -1000,7 +998,6 @@
                     )
                 inner join goods_type_${storeId} as gt on g.type_id = gt.id
                 where g.id = #{id}
-                and wgs.opening_money &gt; 0
                 group by gs.id
             ) as temp;
     </select>
@@ -1029,7 +1026,6 @@
             )
         inner join goods_type_${vo.storeId} as gt on g.type_id = gt.id
         where g.id = #{vo.id}
-        and wgs.opening_money &gt; 0
         group by gs.id
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
@@ -1053,7 +1049,6 @@
                         inner join warehouse_${storeId} as w on w.id = wgs.warehouse_id
                     )
                 inner join goods_type_${storeId} as gt on g.type_id = gt.id
-                where wgs.opening_money &gt; 0
                 <if test="id != null">
                     and g.id like concat('%', #{id}, '%')
                 </if>
@@ -1095,7 +1090,6 @@
                 inner join warehouse_${vo.storeId} as w on w.id = wgs.warehouse_id
             )
         inner join goods_type_${vo.storeId} as gt on g.type_id = gt.id
-        where wgs.opening_money &gt; 0
         <if test="vo.id != null">
             and g.id like concat('%', #{vo.id}, '%')
         </if>
@@ -1124,8 +1118,8 @@
                     inner join warehouse_${storeId} as w on w.id = wgs.warehouse_id
                 )
             inner join goods_type_${storeId} as gt on g.type_id = gt.id
-            where gs.id = #{goodsSkuId}
-            and wgs.opening_money &gt; 0;
+            where
+                gs.id = #{goodsSkuId};
     </select>
 
     <select id="findPagedDistributionByGoodsSkuId" resultType="com.yeta.pps.vo.GoodsWarehouseSkuVo">
@@ -1157,7 +1151,6 @@
             )
         inner join goods_type_${vo.storeId} as gt on g.type_id = gt.id
         where gs.id = #{vo.goodsSkuId}
-        and wgs.opening_money &gt; 0
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -1195,7 +1188,7 @@
         <if test="startTime != null and endTime != null">
             and date(sco.create_time) between #{startTime} and #{endTime}
         </if>
-        order by sco.create_time asc;
+        order by sco.id asc;
     </select>
 
     <select id="findPagedOrderByGoodsSkuId" resultType="com.yeta.pps.vo.StorageCheckOrderVo">
@@ -1308,7 +1301,7 @@
         <if test="vo.startTime != null and vo.endTime != null">
             and date(sco.create_time) between #{vo.startTime} and #{vo.endTime}
         </if>
-        order by sco.create_time asc
+        order by sco.id asc
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -1345,9 +1338,6 @@
         </if>
         <if test="flag == 3">
             and wgs.inventory_low_limit + wgs.not_sent_quantity - wgs.real_inventory - wgs.not_received_quantity &gt; 0
-        </if>
-        <if test="flag != 4">
-            and wgs.opening_money &gt; 0
         </if>
     </select>
 
@@ -1407,9 +1397,6 @@
         <if test="vo.flag == 3">
             and wgs.inventory_low_limit + wgs.not_sent_quantity - wgs.real_inventory - wgs.not_received_quantity &gt; 0
         </if>
-        <if test="vo.flag != 4">
-            and wgs.opening_money &gt; 0
-        </if>
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -1448,7 +1435,7 @@
         <if test="startTime != null and endTime != null">
             and date(sco.create_time) between #{startTime} and #{endTime}
         </if>
-        order by sco.create_time asc;
+        order by sco.id asc;
     </select>
 
     <select id="findPagedOrderByGoodsSkuIdAndWarehouseId" resultType="com.yeta.pps.vo.StorageCheckOrderVo">
@@ -1562,7 +1549,7 @@
         <if test="vo.startTime != null and vo.endTime != null">
             and date(sco.create_time) between #{vo.startTime} and #{vo.endTime}
         </if>
-        order by sco.create_time asc
+        order by sco.id asc
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -1584,8 +1571,6 @@
         and goods_sku_id = #{goodsSkuId}
         and warehouse_id = #{warehouseId}
         and order_status &gt; 0
-        and in_quantity != 0
-        and in_money != 0
         and in_total_money != 0;
     </update>
 
@@ -1599,8 +1584,6 @@
         and goods_sku_id = #{goodsSkuId}
         and warehouse_id = #{warehouseId}
         and order_status &gt; 0
-        and out_quantity != 0
-        and out_money != 0
         and out_total_money != 0;
     </update>
 
@@ -1613,8 +1596,6 @@
             order_id = #{orderId}
         and goods_sku_id = #{goodsSkuId}
         and warehouse_id = #{warehouseId}
-        and in_quantity != 0
-        and in_money != 0
         and in_total_money != 0;
     </select>
 
@@ -1627,8 +1608,6 @@
             order_id = #{orderId}
         and goods_sku_id = #{goodsSkuId}
         and warehouse_id = #{warehouseId}
-        and out_quantity != 0
-        and out_money != 0
         and out_total_money != 0;
     </select>
     
@@ -1640,8 +1619,7 @@
         where
             goods_sku_id = #{goodsSkuId}
         and warehouse_id = #{warehouseId}
-        order by
-            create_time desc
+        order by id desc
         limit 1;
     </select>
 
@@ -1652,8 +1630,7 @@
             storage_check_order_${storeId}
         where
             goods_sku_id = #{goodsSkuId}
-        order by
-            create_time desc
+        order by id desc
         limit 1;
     </select>
 
@@ -1664,8 +1641,7 @@
             storage_check_order_${storeId}
         where
             goods_id = #{goodsId}
-        order by
-            create_time desc
+        order by id desc
         limit 1;
     </select>
 </mapper>

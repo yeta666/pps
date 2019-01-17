@@ -4,6 +4,7 @@ import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.GoodsSku;
 import com.yeta.pps.po.SellResultOrder;
+import com.yeta.pps.po.SSystem;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
@@ -42,6 +43,9 @@ public class StorageService {
 
     @Autowired
     private MyFundMapper myFundMapper;
+
+    @Autowired
+    private SystemUtil systemUtil;
 
     @Autowired
     private InventoryUtil inventoryUtil;
@@ -296,7 +300,7 @@ public class StorageService {
             //统计数量
             check.setFinishQuantity(check.getFinishQuantity() + vo.getChangeQuantity());
         });
-        if (check.getQuantity() != check.getFinishQuantity()) {
+        if (check.getQuantity().intValue() != check.getFinishQuantity().intValue()) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
     }
@@ -596,10 +600,12 @@ public class StorageService {
         ftcoVo.setNeedOutMoneyIncrease(orderMoney);
         FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
         if (lastFTCOVo == null) {
-            throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+            ftcoVo.setNeedOutMoney( ftcoVo.getNeedOutMoneyIncrease());
+            ftcoVo.setAdvanceOutMoney(0.0);
+        } else {
+            ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
+            ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
         }
-        ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
-        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
         ftcoVo.setUserId(storageOrderVo.getUserId());
         if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
             throw new CommonException(CommonResponse.ADD_ERROR);
@@ -670,10 +676,12 @@ public class StorageService {
                 ftcoVo.setNeedOutMoneyIncrease(orderMoney);
                 FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
                 if (lastFTCOVo == null) {
-                    throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+                    ftcoVo.setNeedOutMoney(ftcoVo.getNeedOutMoneyIncrease());
+                    ftcoVo.setAdvanceOutMoney(0.0);
+                } else {
+                    ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
+                    ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
                 }
-                ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
-                ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
                 ftcoVo.setUserId(storageOrderVo.getUserId());
                 if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
                     throw new CommonException(CommonResponse.ADD_ERROR);
@@ -747,10 +755,12 @@ public class StorageService {
                 ftcoVo.setNeedInMoneyIncrease(orderMoney);
                 FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
                 if (lastFTCOVo == null) {
-                    throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+                    ftcoVo.setNeedInMoney(ftcoVo.getNeedInMoneyIncrease());
+                    ftcoVo.setAdvanceInMoney(0.0);
+                } else {
+                    ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
+                    ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
                 }
-                ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
-                ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
                 ftcoVo.setUserId(storageOrderVo.getUserId());
                 if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
                     throw new CommonException(CommonResponse.ADD_ERROR);
@@ -850,10 +860,12 @@ public class StorageService {
         ftcoVo.setNeedInMoneyIncrease(orderMoney);
         FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
         if (lastFTCOVo == null) {
-            throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+            ftcoVo.setNeedInMoney(ftcoVo.getNeedInMoneyIncrease());
+            ftcoVo.setAdvanceInMoney(0.0);
+        } else {
+            ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
+            ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
         }
-        ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
-        ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
         ftcoVo.setUserId(storageOrderVo.getUserId());
         if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
             throw new CommonException(CommonResponse.ADD_ERROR);
@@ -929,10 +941,12 @@ public class StorageService {
                 ftcoVo.setNeedOutMoneyIncrease(orderMoney);
                 FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
                 if (lastFTCOVo == null) {
-                    throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+                    ftcoVo.setNeedOutMoney(ftcoVo.getNeedOutMoneyIncrease());
+                    ftcoVo.setAdvanceOutMoney(0.0);
+                } else {
+                    ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
+                    ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
                 }
-                ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
-                ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
                 ftcoVo.setUserId(storageOrderVo.getUserId());
                 if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
                     throw new CommonException(CommonResponse.ADD_ERROR);
@@ -995,10 +1009,12 @@ public class StorageService {
                 ftcoVo.setNeedInMoneyIncrease(orderMoney);
                 FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
                 if (lastFTCOVo == null) {
-                    throw new CommonException(CommonResponse.ADD_ERROR, "应收/应付期初未设置");
+                    ftcoVo.setNeedInMoney(ftcoVo.getNeedInMoneyIncrease());
+                    ftcoVo.setAdvanceInMoney(0.0);
+                } else {
+                    ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
+                    ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
                 }
-                ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
-                ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
                 ftcoVo.setUserId(storageOrderVo.getUserId());
                 if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
                     throw new CommonException(CommonResponse.ADD_ERROR);
@@ -1019,6 +1035,11 @@ public class StorageService {
         //获取参数
         int storeId = storageOrderVo.getStoreId();
         String applyOrderId = storageOrderVo.getApplyOrderId();
+
+        //判断系统是否开账
+        if (!systemUtil.judgeStartBillMethod(storeId)) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统未开账");
+        }
 
         //判断参数、查询申请订单
         ProcurementApplyOrderVo pVo = null;
@@ -1181,6 +1202,11 @@ public class StorageService {
      */
     @Transactional
     public CommonResponse addStorageResultOrder(StorageResultOrderVo storageResultOrderVo) {
+        //判断系统是否开账
+        if (!systemUtil.judgeStartBillMethod(storageResultOrderVo.getStoreId())) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统未开账");
+        }
+
         //判断新增单据类型
         byte type = storageResultOrderVo.getType();
         int flag;
@@ -1301,6 +1327,13 @@ public class StorageService {
                         vo.getQuantity() == null || vo.getMoney() == null ||
                         vo.getCheckQuantity() == null || vo.getCheckMoney() == null || vo.getCheckTotalMoney() == null){
                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
+                }
+
+                if (flag == 0) {
+                    //判断商品规格是否能出库
+                    if (!inventoryUtil.judgeCanOutMethod(storeId, vo.getGoodsSkuId(), warehouseId)) {
+                        throw new CommonException(CommonResponse.PARAMETER_ERROR, "存在不能出库的商品规格");
+                    }
                 }
 
                 //设置初始属性
@@ -2038,9 +2071,24 @@ public class StorageService {
      * @return
      */
     @Transactional
-    public CommonResponse addWarehouseGoodsSku(WarehouseGoodsSkuVo vo) {
-        //库存期初设置
-        inventoryUtil.addOrUpdateWarehouseGoodsSkuMethod(vo);
+    public CommonResponse updateInventoryOpening(WarehouseGoodsSkuVo vo) {
+        //判断参数
+        if (vo.getStoreId() == null || vo.getWarehouseId() == null || vo.getGoodsSkuId() == null ||
+                vo.getOpeningQuantity() == null || vo.getOpeningMoney() == null || vo.getOpeningTotalMoney() == null ||
+                vo.getOpeningQuantity() * vo.getOpeningMoney() != vo.getOpeningTotalMoney()) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
+        }
+
+        //判断系统是否开账
+        if (systemUtil.judgeStartBillMethod(vo.getStoreId())) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统已开账");
+        }
+
+        //设置期初
+        if (myGoodsMapper.updateInventoryOpening(vo) != 1) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR);
+        }
+
         return CommonResponse.success();
     }
 }

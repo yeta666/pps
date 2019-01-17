@@ -5,7 +5,11 @@
     <insert id="add" parameterType="com.yeta.pps.po.Store" useGeneratedKeys="true" keyProperty="id">
         insert into store (name, address, client_id) values (#{name}, #{address}, #{clientId});
     </insert>
-
+    
+    <delete id="delete" parameterType="com.yeta.pps.po.Store">
+        delete from store where id = #{id};
+    </delete>
+    
     <update id="update" parameterType="com.yeta.pps.po.Store">
         update store set name = #{name}, address = #{address} where id = #{id};
     </update>

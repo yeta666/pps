@@ -271,7 +271,21 @@
     </select>
 
     <select id="findFundOrderById" parameterType="com.yeta.pps.vo.FundOrderVo" resultType="com.yeta.pps.vo.FundOrderVo">
-        select id, type, create_time, order_id, target_id, order_status, bank_account_id, discount_money, money, advance_money, user_id, remark from fund_order_${storeId} where id = #{id};
+        select
+            id, type, create_time, order_id, target_id, order_status, bank_account_id, discount_money, money, advance_money, user_id, remark
+        from
+            fund_order_${storeId}
+        where
+            id = #{id};
+    </select>
+
+    <select id="findFundOrderByBankAccountId" parameterType="com.yeta.pps.vo.FundOrderVo" resultType="com.yeta.pps.vo.FundOrderVo">
+        select
+            id, type, create_time, order_id, target_id, order_status, bank_account_id, discount_money, money, advance_money, user_id, remark
+        from
+            fund_order_${storeId}
+        where
+            bank_account_id = #{bankAccountId};
     </select>
 
     <!--资金对账-->
@@ -297,10 +311,9 @@
                 from
                     fund_check_order_${storeId}
                 where
-                    date(create_time) between #{startTime} and #{endTime}
-                and bank_account_id = #{bankAccountId}
-                order by
-                    create_time desc
+                    date(fco.create_time) between #{startTime} and #{endTime}
+                and fco.bank_account_id = #{bankAccountId}
+                order by fco.id desc
                 limit 1
             ) as balance_money
         from
@@ -434,7 +447,7 @@
         <if test="endTime != null">
             AND DATE(create_time) &lt;= #{endTime}
         </if>
-        order by create_time desc
+        order by id desc
         limit 1;
     </select>
 
@@ -497,7 +510,7 @@
             AND DATE(ftco.create_time) &lt;= #{endTime}
         </if>
         ORDER BY
-            ftco.create_time DESC
+            ftco.id DESC
         LIMIT 1;
     </select>
 
@@ -617,7 +630,7 @@
         AND DATE(ftco.create_time) BETWEEN #{vo.startTime}
         AND #{vo.endTime}
         ORDER BY
-            ftco.create_time ASC
+            ftco.id ASC
         LIMIT
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
@@ -738,7 +751,7 @@
         AND DATE(ftco.create_time) BETWEEN #{vo.startTime}
         AND #{vo.endTime}
         ORDER BY
-            ftco.create_time ASC
+            ftco.id ASC
         LIMIT
             #{pageVo.start}, #{pageVo.pageSize};
     </select>
@@ -964,5 +977,9 @@
 
     <select id="findFundResultOrderById" parameterType="com.yeta.pps.vo.FundResultOrderVo" resultType="com.yeta.pps.vo.FundResultOrderVo">
         select id, type, create_time, order_status, target_id, bank_account_id, money, income_expenses_id, user_id, remark from fund_result_order_${storeId} where id = #{id};
+    </select>
+
+    <select id="findFundResultOrderByBankAccountId" parameterType="com.yeta.pps.vo.FundResultOrderVo" resultType="com.yeta.pps.vo.FundResultOrderVo">
+        select id, type, create_time, order_status, target_id, bank_account_id, money, income_expenses_id, user_id, remark from fund_result_order_${storeId} where bank_account_id = #{bankAccountId};
     </select>
 </mapper>

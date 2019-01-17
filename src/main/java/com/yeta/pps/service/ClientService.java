@@ -33,10 +33,13 @@ public class ClientService {
     private MyClientMapper myClientMapper;
 
     @Autowired
+    private StoreMapper storeMapper;
+
+    @Autowired
     private FundUtil fundUtil;
 
     @Autowired
-    private StoreMapper storeMapper;
+    private SystemUtil systemUtil;
 
     /**
      * 客户登陆
@@ -67,7 +70,7 @@ public class ClientService {
     public boolean checkMethod(String check) {
         Client checkClient = new Client();
         checkClient.setId(check);
-        checkClient = myClientMapper.findClient(checkClient);
+        checkClient = myClientMapper.findSpecialClient(checkClient);
         if (checkClient == null || checkClient.getLevelId() > 0) {
             return false;
         }
@@ -84,7 +87,7 @@ public class ClientService {
     public CommonResponse addMembershipNumber(MembershipNumber membershipNumber, String check) {
         //判断权限
         if (!checkMethod(check)) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
         membershipNumber.setDisabled((byte) 0);
@@ -105,7 +108,7 @@ public class ClientService {
     public CommonResponse deleteMembershipNumber(List<MembershipNumber> membershipNumbers, String check) {
         //判断权限
         if (!checkMethod(check)) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
         membershipNumbers.stream().forEach(membershipNumber -> {
@@ -133,7 +136,7 @@ public class ClientService {
     public CommonResponse updateMembershipNumber(MembershipNumber membershipNumber, String check) {
         //判断权限
         if (!checkMethod(check)) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
         //判断参数
@@ -165,7 +168,7 @@ public class ClientService {
     public CommonResponse findAllMembershipNumber(MembershipNumber membershipNumber, PageVo pageVo, String check) {
         //判断权限
         if (!checkMethod(check)) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
         //查询所有页数
@@ -193,7 +196,7 @@ public class ClientService {
     public CommonResponse addClientLevel(ClientLevel clientLevel, String check) {
         //判断权限
         if (!checkMethod(check)) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
         if (myClientMapper.addClientLevel(clientLevel) != 1) {
@@ -212,7 +215,7 @@ public class ClientService {
     public CommonResponse deleteClientLevel(List<ClientLevel> clientLevels, String check) {
         //判断权限
         if (!checkMethod(check)) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
         clientLevels.stream().forEach(clientLevel -> {
@@ -240,7 +243,7 @@ public class ClientService {
     public CommonResponse updateClientLevel(ClientLevel clientLevel, String check) {
         //判断权限
         if (!checkMethod(check)) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
         //判断参数
@@ -287,6 +290,7 @@ public class ClientService {
      * @param clientVo
      * @return
      */
+    @Transactional
     public CommonResponse add(ClientVo clientVo) {
         //设置初始属性
         clientVo.setId(UUID.randomUUID().toString().replace("-", ""));
@@ -322,14 +326,28 @@ public class ClientService {
         //判断邀请人是否存在
         Client inviter = myClientMapper.findClient(new Client(clientVo.getInviterId(), clientVo.getInviterPhone()));
         if (inviter == null) {
-            return CommonResponse.error(CommonResponse.ADD_ERROR, "邀请人错误");
+            throw new CommonException(CommonResponse.ADD_ERROR, "邀请人错误");
         }
         clientVo.setInviterId(inviter.getId());
 
         //新增客户
         if (myClientMapper.add(clientVo) != 1) {
-            return CommonResponse.error(CommonResponse.ADD_ERROR);
+            throw new CommonException(CommonResponse.ADD_ERROR);
         }
+
+        //新增店铺客户关系
+        List<Store> stores = storeMapper.findAll();
+        stores.stream().forEach(store -> {
+            StoreClient storeClient = new StoreClient(store.getId(), clientVo.getId());
+            storeClient.setIntegral(0);
+            storeClient.setNeedInMoneyOpening(0.0);
+            storeClient.setAdvanceInMoneyOpening(0.0);
+            storeClient.setPushMoney(0.0);
+            if (myClientMapper.addStoreClient(storeClient) != 1) {
+                throw new CommonException(CommonResponse.ADD_ERROR);
+            }
+        });
+
         return CommonResponse.success();
     }
 
@@ -343,7 +361,7 @@ public class ClientService {
     public CommonResponse delete(List<ClientVo> clientVos, String check) {
         //判断权限
         if (!checkMethod(check)) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
         clientVos.stream().forEach(clientVo -> {
@@ -382,7 +400,7 @@ public class ClientService {
     public CommonResponse updateDisabledAndRemark(ClientVo clientVo, String check) {
         //判断权限
         if (!checkMethod(check)) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
         if (myClientMapper.updateDisabledAndRemark(clientVo) != 1) {
@@ -561,6 +579,9 @@ public class ClientService {
         //查询所有客户级别
         List<ClientLevel> clientLevels = myClientMapper.findAllClientLevel();
 
+        //查询所有店铺
+        List<Store> stores = storeMapper.findAll();
+
         //获取数据
         for (int j = 3; j <= sheet.getLastRowNum(); j++) {
             HSSFRow row = sheet.getRow(j);
@@ -628,6 +649,18 @@ public class ClientService {
             if (myClientMapper.add(clientVo) != 1) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR);
             }
+
+            //新增店铺客户关系
+            stores.stream().forEach(store -> {
+                StoreClient storeClient = new StoreClient(store.getId(), clientVo.getId());
+                storeClient.setIntegral(0);
+                storeClient.setNeedInMoneyOpening(0.0);
+                storeClient.setAdvanceInMoneyOpening(0.0);
+                storeClient.setPushMoney(0.0);
+                if (myClientMapper.addStoreClient(storeClient) != 1) {
+                    throw new CommonException(CommonResponse.ADD_ERROR);
+                }
+            });
         }
         return CommonResponse.success();
     }

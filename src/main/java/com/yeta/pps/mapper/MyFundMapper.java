@@ -38,6 +38,8 @@ public interface MyFundMapper {
 
     FundOrderVo findFundOrderById(FundOrderVo fundOrderVo);
 
+    List<FundOrderVo> findFundOrderByBankAccountId(FundOrderVo fundOrderVo);
+
     //资金对账
 
     int addFundCheckOrder(FundCheckOrderVo fundCheckOrderVo);
@@ -107,4 +109,6 @@ public interface MyFundMapper {
                                                        @Param(value = "pageVo") PageVo pageVo);
 
     FundResultOrderVo findFundResultOrderById(FundResultOrderVo fundResultOrderVo);
+
+    List<FundCheckOrderVo> findFundResultOrderByBankAccountId(FundResultOrderVo fundResultOrderVo);
 }

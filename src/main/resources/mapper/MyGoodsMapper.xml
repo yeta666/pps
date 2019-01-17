@@ -315,11 +315,11 @@
 
     <!--仓库/商品规格关系-->
 
-    <insert id="initializeOpening" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+    <insert id="addWarehouseGoodsSku" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
         insert into
             warehouse_goods_sku_${storeId} (warehouse_id, goods_sku_id, real_inventory, not_sent_quantity, not_received_quantity, can_use_inventory, book_inventory, opening_quantity, opening_money, opening_total_money)
         values
-            (#{warehouseId}, #{goodsSkuId}, 0, 0, 0, 0, 0, 0, 0, 0);
+            (#{warehouseId}, #{goodsSkuId}, 0, 0, 0, 0, 0, 0, #{openingMoney}, 0);
     </insert>
 
     <select id="findWarehouseGoodsSku" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo" resultType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
@@ -328,20 +328,29 @@
         from
             warehouse_goods_sku_${storeId}
         where
-            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+            warehouse_id = #{warehouseId}
+        and goods_sku_id = #{goodsSkuId};
     </select>
 
-    <update id="updateOpening" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+    <select id="findAllWarehouseGoodsSku" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo" resultType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
+        select
+            warehouse_id, goods_sku_id, real_inventory, not_sent_quantity, not_received_quantity, can_use_inventory, book_inventory, inventory_upper_limit, inventory_low_limit, opening_quantity, opening_money, opening_total_money
+        from
+            warehouse_goods_sku_${storeId}
+        where
+            opening_quantity &gt; 0
+        and opening_money &gt; 0
+        and opening_total_money &gt; 0;
+    </select>
+
+    <update id="updateInventoryOpening" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
         update
             warehouse_goods_sku_${storeId}
         set
             real_inventory = #{openingQuantity}, can_use_inventory = #{openingQuantity}, book_inventory = #{openingQuantity}, opening_quantity = #{openingQuantity}, opening_money = #{openingMoney}, opening_total_money = #{openingTotalMoney}
         where
             warehouse_id = #{warehouseId}
-        and goods_sku_id = #{goodsSkuId}
-        and opening_quantity = 0
-        and opening_money = 0
-        and opening_total_money = 0;
+        and goods_sku_id = #{goodsSkuId};
     </update>
 
     <update id="increaseInventory" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
@@ -350,7 +359,8 @@
         set
             real_inventory = real_inventory + #{realInventory}, can_use_inventory = can_use_inventory + #{canUseInventory}, book_inventory = book_inventory + #{bookInventory}
         where
-            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+            warehouse_id = #{warehouseId}
+        and goods_sku_id = #{goodsSkuId};
     </update>
 
     <update id="decreaseInventory" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
@@ -359,7 +369,8 @@
         set
             real_inventory = real_inventory - #{realInventory}, can_use_inventory = can_use_inventory - #{canUseInventory}, book_inventory = book_inventory - #{bookInventory}
         where
-            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+            warehouse_id = #{warehouseId}
+        and goods_sku_id = #{goodsSkuId};
     </update>
 
     <update id="increaseNotQuantity" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
@@ -368,7 +379,8 @@
         set
             not_sent_quantity = not_sent_quantity + #{notSentQuantity}, not_received_quantity = not_received_quantity + #{notReceivedQuantity}
         where
-            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+            warehouse_id = #{warehouseId}
+        and goods_sku_id = #{goodsSkuId};
     </update>
 
     <update id="decreaseNotQuantity" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
@@ -377,7 +389,8 @@
         set
             not_sent_quantity = not_sent_quantity - #{notSentQuantity}, not_received_quantity = not_received_quantity - #{notReceivedQuantity}
         where
-            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+            warehouse_id = #{warehouseId}
+        and goods_sku_id = #{goodsSkuId};
     </update>
 
     <update id="updateLimitInventoryMethod" parameterType="com.yeta.pps.vo.WarehouseGoodsSkuVo">
@@ -386,7 +399,8 @@
         set
             inventory_upper_limit = #{inventoryUpperLimit}, inventory_low_limit = #{inventoryLowLimit}
         where
-            warehouse_id = #{warehouseId} and goods_sku_id = #{goodsSkuId};
+            warehouse_id = #{warehouseId}
+        and goods_sku_id = #{goodsSkuId};
     </update>
 
     <!--商品-->
@@ -650,8 +664,7 @@
         inner join warehouse_goods_sku_${storeId} as wgs on wgs.goods_sku_id = gs.id
         where
             wgs.warehouse_id = #{warehouseId}
-        and g.putaway = 1
-        and wgs.opening_money &gt; 0;
+        and g.putaway = 1;
     </select>
 
 </mapper>

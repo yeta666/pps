@@ -2,11 +2,10 @@ package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyBankAccountMapper;
-import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.util.CommonResult;
-import com.yeta.pps.util.Title;
-import com.yeta.pps.vo.BankAccountVo;
-import com.yeta.pps.vo.PageVo;
+import com.yeta.pps.mapper.MyFundMapper;
+import com.yeta.pps.mapper.SystemMapper;
+import com.yeta.pps.util.*;
+import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +24,15 @@ public class BankAccountService {
     @Autowired
     private MyBankAccountMapper myBankAccountMapper;
 
+    @Autowired
+    private MyFundMapper myFundMapper;
+
+    @Autowired
+    private SystemUtil systemUtil;
+
+    @Autowired
+    private FundUtil fundUtil;
+
     /**
      * 新增银行账户
      * @param bankAccountVo
@@ -32,12 +40,18 @@ public class BankAccountService {
      */
     public CommonResponse add(BankAccountVo bankAccountVo) {
         //判断参数
-        if (bankAccountVo.getName() == null || bankAccountVo.getType() == null) {
+        if (bankAccountVo.getName() == null || bankAccountVo.getType() == null || bankAccountVo.getUserId() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //新增
         if (myBankAccountMapper.add(bankAccountVo) != 1) {
             return CommonResponse.error(CommonResponse.ADD_ERROR);
+        }
+
+        //判断系统是否开账
+        if (systemUtil.judgeStartBillMethod(bankAccountVo.getStoreId())) {
+            fundUtil.addOpeningFundCheckOrderMethod(bankAccountVo.getStoreId(), bankAccountVo.getId(), 0.0, bankAccountVo.getUserId());
         }
         return CommonResponse.success();
     }
@@ -50,6 +64,20 @@ public class BankAccountService {
     @Transactional
     public CommonResponse delete(List<BankAccountVo> bankAccountVos) {
         bankAccountVos.stream().forEach(bankAccountVo -> {
+            //判断银行账户是否使用
+            //1. fund_check_order
+            if (myFundMapper.findLastBalanceMoney(new FundCheckOrderVo(bankAccountVo.getStoreId(), bankAccountVo.getId())) != null) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //2. fund_order
+            if (myFundMapper.findFundOrderByBankAccountId(new FundOrderVo(bankAccountVo.getStoreId(), bankAccountVo.getId())).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //3. fund_result_order
+            if (myFundMapper.findFundResultOrderByBankAccountId(new FundResultOrderVo(bankAccountVo.getStoreId(), bankAccountVo.getId())).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+
             //删除银行账户
             if (myBankAccountMapper.delete(bankAccountVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
@@ -92,7 +120,6 @@ public class BankAccountService {
             titles.add(new Title("科目编号", "id"));
             titles.add(new Title("科目名称", "name"));
             titles.add(new Title("账户类型", "type"));
-            titles.add(new Title("期初金额", "openingMoney"));
             titles.add(new Title("户主名", "head"));
             titles.add(new Title("账户", "account"));
             titles.add(new Title("是否用于商城收款", "gathering"));

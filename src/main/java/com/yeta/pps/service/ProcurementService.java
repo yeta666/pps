@@ -38,6 +38,9 @@ public class ProcurementService {
     @Autowired
     private FundUtil fundUtil;
 
+    @Autowired
+    private SystemUtil systemUtil;
+
     //采购申请订单
 
     @Transactional
@@ -194,6 +197,11 @@ public class ProcurementService {
      */
     @Transactional
     public CommonResponse addApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo) {
+        //判断系统是否开账
+        if (!systemUtil.judgeStartBillMethod(procurementApplyOrderVo.getStoreId())) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统未开账");
+        }
+
         //获取参数
         List<OrderGoodsSkuVo> orderGoodsSkuVos = procurementApplyOrderVo.getDetails();
         Byte type = procurementApplyOrderVo.getType();

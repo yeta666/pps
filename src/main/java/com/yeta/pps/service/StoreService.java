@@ -1,17 +1,21 @@
 package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
-import com.yeta.pps.mapper.*;
+import com.yeta.pps.mapper.MyClientMapper;
+import com.yeta.pps.mapper.StoreMapper;
+import com.yeta.pps.mapper.SystemMapper;
+import com.yeta.pps.mapper.TableMapper;
 import com.yeta.pps.po.*;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
-import com.yeta.pps.vo.*;
+import com.yeta.pps.vo.ClientVo;
+import com.yeta.pps.vo.PageVo;
+import com.yeta.pps.vo.StoreVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.System;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,16 +36,10 @@ public class StoreService {
     private TableMapper tableMapper;
 
     @Autowired
-    private MyUserMapper myUserMapper;
-
-    @Autowired
-    private MyRoleMapper myRoleMapper;
-
-    @Autowired
-    private FunctionMapper functionMapper;
-
-    @Autowired
     private MyClientMapper myClientMapper;
+
+    @Autowired
+    private SystemMapper systemMapper;
 
     /**
      * 新增店铺，插入一套表
@@ -79,9 +77,24 @@ public class StoreService {
         clientVo.setMembershipNumber(storeVo.getClientMembershipNumber());
         clientVo.setDisabled((byte) 0);
         clientVo.setCreateTime(new Date());
+
+        //新增店长客户
         if (myClientMapper.add(clientVo) != 1) {
             throw new CommonException(CommonResponse.ADD_ERROR);
         }
+
+        //新增店铺客户关系
+        List<Store> stores = storeMapper.findAll();
+        stores.stream().forEach(store -> {
+            StoreClient storeClient = new StoreClient(store.getId(), clientVo.getId());
+            storeClient.setIntegral(0);
+            storeClient.setNeedInMoneyOpening(0.0);
+            storeClient.setAdvanceInMoneyOpening(0.0);
+            storeClient.setPushMoney(0.0);
+            if (myClientMapper.addStoreClient(storeClient) != 1) {
+                throw new CommonException(CommonResponse.ADD_ERROR);
+            }
+        });
 
         //新增店铺
         Store store = new Store();
@@ -92,60 +105,77 @@ public class StoreService {
             throw new CommonException(CommonResponse.ADD_ERROR);
         }
         Integer storeId = store.getId();
-        System.out.println(storeId);
+
+        //新增店铺客户关系
+        List<ClientVo> clientVos = myClientMapper.findAll(new ClientVo());
+        clientVos.stream().forEach(vo -> {
+            StoreClient storeClient = new StoreClient(storeId, vo.getId());
+            storeClient.setIntegral(0);
+            storeClient.setNeedInMoneyOpening(0.0);
+            storeClient.setAdvanceInMoneyOpening(0.0);
+            storeClient.setPushMoney(0.0);
+            if (myClientMapper.addStoreClient(storeClient) != 1) {
+                throw new CommonException(CommonResponse.ADD_ERROR);
+            }
+        });
+
+        //新增店铺系统设置
+        if (systemMapper.addStoreSystem(new SSystem(storeId)) != 1) {
+            throw new CommonException(CommonResponse.ADD_ERROR);
+        }
+
         try {
-            //创建该分店的一套表
-            //tableMapper.addBankAccount(storeId);
-            //tableMapper.addFundOrder(storeId);
-            /*tableMapper.addGoods(storeId);
-            tableMapper.addGoodsGoodsLabel(storeId);
-            tableMapper.addGoodsLabel(storeId);
-            tableMapper.addGoodsPropertyKey(storeId);
-            tableMapper.addGoodsPropertyValue(storeId);
-            tableMapper.addGoodsSkuMethod(storeId);
-            tableMapper.addGoodsType(storeId);
-            tableMapper.addIncomeExpenses(storeId);
-            tableMapper.addOrderGoodsSku(storeId);
-            tableMapper.addProcurementApplyOrder(storeId);
-            tableMapper.addProcurementResultOrder(storeId);
-            tableMapper.addRole(storeId);
-            tableMapper.addRoleFunction(storeId);
-            tableMapper.addSellApplyOrder(storeId);
-            tableMapper.addSellResultOrder(storeId);
-            tableMapper.addStorageOrder(storeId);
-            tableMapper.addSupplier(storeId);
-            tableMapper.addUser(storeId);
-            tableMapper.addUserRole(storeId);
-            tableMapper.addWarehouse(storeId);*/
-            //TODO
+            //新增一套表
+            tableMapper.add(storeId);
         } catch (Exception e) {
-            //手动尽量回滚事务，如果这部分出现异常会导致回滚不成功
-            //storeMapper.delete(storeVo);
-            //tableMapper.deleteBankAccount(storeId);
-            /*tableMapper.deleteFundOrder(storeId);
-            tableMapper.deleteGoods(storeId);
-            tableMapper.deleteGoodsGoodsLabel(storeId);
-            tableMapper.deleteGoodsLabel(storeId);
-            tableMapper.deleteGoodsPropertyKey(storeId);
-            tableMapper.deleteGoodsPropertyValue(storeId);
-            tableMapper.deleteGoodsSku(storeId);
-            tableMapper.deleteGoodsType(storeId);
-            tableMapper.deleteIncomeExpenses(storeId);
-            tableMapper.deleteOrderGoodsSku(storeId);
-            tableMapper.deleteProcurementApplyOrder(storeId);
-            tableMapper.deleteProcurementResultOrder(storeId);
-            tableMapper.deleteRole(storeId);
-            tableMapper.deleteRoleFunction(storeId);
-            tableMapper.deleteSellApplyOrder(storeId);
-            tableMapper.deleteSellResultOrder(storeId);
-            tableMapper.deleteStorageOrder(storeId);
-            tableMapper.deleteSupplier(storeId);
-            tableMapper.deleteUser(storeId);
-            tableMapper.deleteUserRole(storeId);
-            tableMapper.deleteWarehouse(storeId);*/
-            //TODO
+
+            //删除店铺系统设置
+            systemMapper.deleteStoreSystem(new SSystem(storeId));
+
+            //删除店铺客户关系
+            StoreClient storeClient = new StoreClient(store.getId(), storeVo.getClientId());
+            myClientMapper.deleteStoreClientByStoreId(storeClient);
+            myClientMapper.deleteStoreClientByClientId(storeClient);
+
+            //删除店铺
+            storeMapper.delete(store);
+
+            //删除店长客户
+            myClientMapper.delete(clientVo);
+
+            //删除一套表
+            tableMapper.delete(storeId);
             throw new CommonException(CommonResponse.ADD_ERROR, e.getMessage());
         }
+        
+        return CommonResponse.success();
+    }
+
+    /**
+     * 删除店铺接口
+     * @param store
+     * @return
+     */
+    @Transactional
+    public CommonResponse delete(Store store) {
+        //删除店铺系统设置
+        systemMapper.deleteStoreSystem(new SSystem(store.getId()));
+
+        StoreVo storeVo = storeMapper.findById(store);
+
+        //删除店铺客户关系
+        StoreClient storeClient = new StoreClient(store.getId(), storeVo.getClientId());
+        myClientMapper.deleteStoreClientByStoreId(storeClient);
+        myClientMapper.deleteStoreClientByClientId(storeClient);
+
+        //删除店铺
+        storeMapper.delete(store);
+
+        //删除店长客户
+        myClientMapper.delete(new ClientVo(storeVo.getClientId()));
+
+        //删除一套表
+        tableMapper.delete(store.getId());
         
         return CommonResponse.success();
     }

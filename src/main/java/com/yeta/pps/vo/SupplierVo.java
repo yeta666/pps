@@ -28,7 +28,12 @@ public class SupplierVo {
     /**
      * 预付款期初
      */
-    private Double advanceMoney;
+    private Double advanceOutMoneyOpening;
+
+    /**
+     * 应付款期初
+     */
+    private Double needOutMoneyOpening;
 
     /**
      * 联系人
@@ -57,12 +62,13 @@ public class SupplierVo {
      */
     private String remark;
 
-    /**
-     * 经手人
-     */
     private String userId;
 
     public SupplierVo() {
+    }
+
+    public SupplierVo(Integer storeId) {
+        this.storeId = storeId;
     }
 
     public SupplierVo(Integer storeId, String id) {
@@ -74,12 +80,6 @@ public class SupplierVo {
         this.storeId = storeId;
         this.id = id;
         this.name = name;
-    }
-
-    public SupplierVo(Integer storeId, String id, Double advanceMoney) {
-        this.storeId = storeId;
-        this.id = id;
-        this.advanceMoney = advanceMoney;
     }
 
     public Integer getStoreId() {
@@ -106,12 +106,20 @@ public class SupplierVo {
         this.name = name;
     }
 
-    public Double getAdvanceMoney() {
-        return advanceMoney;
+    public Double getAdvanceOutMoneyOpening() {
+        return advanceOutMoneyOpening;
     }
 
-    public void setAdvanceMoney(Double advanceMoney) {
-        this.advanceMoney = advanceMoney;
+    public void setAdvanceOutMoneyOpening(Double advanceOutMoneyOpening) {
+        this.advanceOutMoneyOpening = advanceOutMoneyOpening;
+    }
+
+    public Double getNeedOutMoneyOpening() {
+        return needOutMoneyOpening;
+    }
+
+    public void setNeedOutMoneyOpening(Double needOutMoneyOpening) {
+        this.needOutMoneyOpening = needOutMoneyOpening;
     }
 
     public String getContacts() {
@@ -168,7 +176,8 @@ public class SupplierVo {
                 "storeId=" + storeId +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", advanceMoney=" + advanceMoney +
+                ", advanceOutMoneyOpening=" + advanceOutMoneyOpening +
+                ", needOutMoneyOpening=" + needOutMoneyOpening +
                 ", contacts='" + contacts + '\'' +
                 ", contactNumber='" + contactNumber + '\'' +
                 ", contactAddress='" + contactAddress + '\'' +

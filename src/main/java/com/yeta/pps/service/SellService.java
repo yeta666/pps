@@ -49,6 +49,9 @@ public class SellService {
     @Autowired
     private FundUtil fundUtil;
 
+    @Autowired
+    private SystemUtil systemUtil;
+
     //销售申请订单
 
     /**
@@ -338,6 +341,11 @@ public class SellService {
      */
     @Transactional
     public CommonResponse addApplyOrder(SellApplyOrderVo sellApplyOrderVo) {
+        //判断系统是否开账
+        if (!systemUtil.judgeStartBillMethod(sellApplyOrderVo.getStoreId())) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统未开账");
+        }
+
         //获取参数
         List<OrderGoodsSkuVo> orderGoodsSkuVos = sellApplyOrderVo.getDetails();
         Byte type = sellApplyOrderVo.getType();
@@ -348,6 +356,11 @@ public class SellService {
             //判断参数
             if (orderGoodsSkuVo.getType() == null || orderGoodsSkuVo.getGoodsSkuId() == null || orderGoodsSkuVo.getQuantity() == null || orderGoodsSkuVo.getMoney() == null || orderGoodsSkuVo.getDiscountMoney() == null) {
                 throw new CommonException(CommonResponse.PARAMETER_ERROR);
+            }
+
+            //判断商品规格是否能出库
+            if (!inventoryUtil.judgeCanOutMethod(sellApplyOrderVo.getStoreId(), orderGoodsSkuVo.getGoodsSkuId(), sellApplyOrderVo.getOutWarehouseId())) {
+                throw new CommonException(CommonResponse.PARAMETER_ERROR, "存在不能出库的商品规格");
             }
 
             //统计总商品数量、总商品金额、总优惠金额

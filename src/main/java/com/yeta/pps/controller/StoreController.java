@@ -6,11 +6,11 @@ import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.StoreVo;
-import com.yeta.pps.vo.UserVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +38,18 @@ public class StoreController {
     @PostMapping(value = "/stores")
     public CommonResponse add(@RequestBody @Valid StoreVo storeVo) {
         return storeService.add(storeVo);
+    }
+
+    /**
+     * 删除店铺接口
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "删除店铺", notes = "只用于测试的接口")
+    @ApiImplicitParam(name = "id", value = "店铺编号", required = true, paramType = "path", dataType = "int")
+    @DeleteMapping(value = "/stores/{id}")
+    public CommonResponse delete(@PathVariable(value = "id") Integer id) {
+        return storeService.delete(new Store(id));
     }
 
     /**

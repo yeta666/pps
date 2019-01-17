@@ -74,9 +74,6 @@ public class BankAccountVo {
      */
     private Double balanceMoney;
 
-    /**
-     * 经手人
-     */
     private String userId;
 
     public BankAccountVo() {
@@ -219,7 +216,6 @@ public class BankAccountVo {
                 ", inMoney=" + inMoney +
                 ", outMoney=" + outMoney +
                 ", balanceMoney=" + balanceMoney +
-                ", userId='" + userId + '\'' +
                 '}';
     }
 }

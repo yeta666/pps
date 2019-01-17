@@ -2,9 +2,7 @@ package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MySupplierMapper;
-import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.util.CommonResult;
-import com.yeta.pps.util.Title;
+import com.yeta.pps.util.*;
 import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.SupplierVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +23,12 @@ public class SupplierService {
     @Autowired
     private MySupplierMapper mySupplierMapper;
 
+    @Autowired
+    private SystemUtil systemUtil;
+
+    @Autowired
+    private FundUtil fundUtil;
+
     /**
      * 新增供应商
      * @param supplierVo
@@ -34,6 +38,11 @@ public class SupplierService {
         //新增
         if (mySupplierMapper.add(supplierVo) != 1) {
             return CommonResponse.error(CommonResponse.ADD_ERROR);
+        }
+
+        //判断系统是否开账
+        if (systemUtil.judgeStartBillMethod(supplierVo.getStoreId())) {
+            fundUtil.addOpeningFundTargetCheckOrderMethod(0, supplierVo.getStoreId(), supplierVo.getId(), 0.0, 0.0, supplierVo.getUserId());
         }
         return CommonResponse.success();
     }
@@ -70,6 +79,7 @@ public class SupplierService {
     /**
      * 查询所有供应商
      * @param supplierVo
+     * @param pageVo
      * @return
      */
     public CommonResponse findAll(SupplierVo supplierVo, PageVo pageVo) {

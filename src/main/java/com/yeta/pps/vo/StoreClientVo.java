@@ -31,9 +31,14 @@ public class StoreClientVo {
     private Integer integral;
 
     /**
-     * 预收款余额
+     * 预收款期初
      */
-    private Double advanceMoney;
+    private Double advanceInMoneyOpening;
+
+    /**
+     * 应收款期初
+     */
+    private Double needInMoneyOpening;
 
     /**
      * 提成
@@ -41,6 +46,10 @@ public class StoreClientVo {
     private Double pushMoney;
 
     public StoreClientVo() {
+    }
+
+    public StoreClientVo(Integer storeId) {
+        this.storeId = storeId;
     }
 
     public StoreClientVo(Integer storeId, String clientId) {
@@ -96,12 +105,20 @@ public class StoreClientVo {
         this.integral = integral;
     }
 
-    public Double getAdvanceMoney() {
-        return advanceMoney;
+    public Double getAdvanceInMoneyOpening() {
+        return advanceInMoneyOpening;
     }
 
-    public void setAdvanceMoney(Double advanceMoney) {
-        this.advanceMoney = advanceMoney;
+    public void setAdvanceInMoneyOpening(Double advanceInMoneyOpening) {
+        this.advanceInMoneyOpening = advanceInMoneyOpening;
+    }
+
+    public Double getNeedInMoneyOpening() {
+        return needInMoneyOpening;
+    }
+
+    public void setNeedInMoneyOpening(Double needInMoneyOpening) {
+        this.needInMoneyOpening = needInMoneyOpening;
     }
 
     public Double getPushMoney() {
@@ -121,7 +138,8 @@ public class StoreClientVo {
                 ", clientId='" + clientId + '\'' +
                 ", clientName='" + clientName + '\'' +
                 ", integral=" + integral +
-                ", advanceMoney=" + advanceMoney +
+                ", advanceInMoneyOpening=" + advanceInMoneyOpening +
+                ", needInMoneyOpening=" + needInMoneyOpening +
                 ", pushMoney=" + pushMoney +
                 '}';
     }

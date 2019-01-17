@@ -6,7 +6,7 @@ import com.yeta.pps.mapper.SystemMapper;
 import com.yeta.pps.po.GoodsSku;
 import com.yeta.pps.po.StoreClient;
 import com.yeta.pps.po.StoreClientDetail;
-import com.yeta.pps.po.System;
+import com.yeta.pps.po.SSystem;
 import com.yeta.pps.vo.ClientVo;
 import com.yeta.pps.vo.OrderGoodsSkuVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,16 +55,8 @@ public class StoreClientUtil {
                     throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
             } else if (flag == 1) {     //增加积分
-                if (myClientMapper.findStoreClientByStoreIdAndClientId(storeClient) != null) {
-                    if (myClientMapper.updateStoreClientIntegral(storeClient) != 1) {
-                        throw new CommonException(CommonResponse.UPDATE_ERROR);
-                    }
-                } else {
-                    storeClient.setAdvanceMoney(0.0);
-                    storeClient.setPushMoney(0.0);
-                    if (myClientMapper.addStoreClient(storeClient) != 1) {
-                        throw new CommonException(CommonResponse.UPDATE_ERROR);
-                    }
+                if (myClientMapper.updateStoreClientIntegral(storeClient) != 1) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
             }
 
@@ -106,14 +98,14 @@ public class StoreClientUtil {
             StoreClient storeClient = new StoreClient(storeId, inviterId);
 
             //查询提成比例
-            System system = systemMapper.findSystem();
-            if (system == null || system.getPushMoneyRate() == null || system.getPushMoneyRate() < 0) {
+            SSystem sSystem = systemMapper.findPushMoneyRate();
+            if (sSystem == null || sSystem.getPushMoneyRate() == null || sSystem.getPushMoneyRate() < 0) {
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
             }
             switch (flag) {
                 case 0:
                     //减少
-                    storeClient.setPushMoney(orderMoney * system.getPushMoneyRate());
+                    storeClient.setPushMoney(orderMoney * sSystem.getPushMoneyRate());
                     if (myClientMapper.updateStoreClientPushMoney(storeClient) != 1) {
                         throw new CommonException(CommonResponse.UPDATE_ERROR);
                     }
@@ -121,19 +113,11 @@ public class StoreClientUtil {
 
                 case 1:
                     //设置提成
-                    storeClient.setPushMoney(orderMoney * system.getPushMoneyRate());
+                    storeClient.setPushMoney(orderMoney * sSystem.getPushMoneyRate());
 
-                    //增加或新增
-                    if (myClientMapper.findStoreClientByStoreIdAndClientId(storeClient) != null) {
-                        if (myClientMapper.updateStoreClientPushMoney(storeClient) != 1) {
-                            throw new CommonException(CommonResponse.UPDATE_ERROR);
-                        }
-                    } else {
-                        storeClient.setIntegral(0);
-                        storeClient.setAdvanceMoney(0.0);
-                        if (myClientMapper.addStoreClient(storeClient) != 1) {
-                            throw new CommonException(CommonResponse.UPDATE_ERROR);
-                        }
+                    //增加
+                    if (myClientMapper.updateStoreClientPushMoney(storeClient) != 1) {
+                        throw new CommonException(CommonResponse.UPDATE_ERROR);
                     }
 
                     break;
