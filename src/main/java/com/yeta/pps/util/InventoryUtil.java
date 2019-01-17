@@ -102,7 +102,7 @@ public class InventoryUtil {
                 }
 
                 changeQuantity1 = sVo1.getCheckQuantity1() - vo.getOutQuantity();
-                changeTotalMoney1 = getNumberMethod(sVo1.getCheckTotalMoney1() - vo.getOutQuantity() * sVo1.getCheckMoney1());
+                changeTotalMoney1 = getNumberMethod(sVo1.getCheckTotalMoney1() - vo.getOutQuantity() * sVo.getCheckMoney());
                 if (changeQuantity1 != 0) {
                     changeMoney1 = getNumberMethod(changeTotalMoney1 / changeQuantity1);
                 } else {
@@ -110,7 +110,7 @@ public class InventoryUtil {
                 }
 
                 changeQuantity2 = sVo2.getCheckQuantity2() - vo.getOutQuantity();
-                changeTotalMoney2 = getNumberMethod(sVo2.getCheckTotalMoney2() - vo.getOutQuantity() * sVo2.getCheckMoney2());
+                changeTotalMoney2 = getNumberMethod(sVo2.getCheckTotalMoney2() - vo.getOutQuantity() * sVo.getCheckMoney());
                 if (changeQuantity2 != 0) {
                     changeMoney2 = getNumberMethod(changeTotalMoney2 / changeQuantity2);
                 } else {

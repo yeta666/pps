@@ -346,6 +346,7 @@ public class FundService {
                 fcoVo.setBalanceMoney(lastFCOVo.getBalanceMoney() + money);
 
                 ftcoVo.setOrderId(fundOrderVo.getId());
+                ftcoVo.setAdvanceInMoneyIncrease(money);        //设置预收增加
                 if (lastFTCOVo == null) {
                     ftcoVo.setNeedInMoney(0.0);        //设置期末应收
                     ftcoVo.setAdvanceInMoney(ftcoVo.getAdvanceInMoneyIncrease());      //设置期末预收
@@ -353,7 +354,6 @@ public class FundService {
                     ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney());        //设置期末应收
                     ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() + ftcoVo.getAdvanceInMoneyIncrease());      //设置期末预收
                 }
-                ftcoVo.setAdvanceInMoneyIncrease(money);        //设置预收增加
                 break;
 
             case 4:     //预付款单
@@ -372,6 +372,7 @@ public class FundService {
                 fcoVo.setBalanceMoney(lastFCOVo.getBalanceMoney() - money);
 
                 ftcoVo.setOrderId(fundOrderVo.getId());
+                ftcoVo.setAdvanceOutMoneyIncrease(money);        //设置预付增加
                 if (lastFTCOVo == null) {
                     ftcoVo.setNeedOutMoney(0.0);        //设置期末应付
                     ftcoVo.setAdvanceOutMoney(ftcoVo.getAdvanceOutMoneyIncrease());      //设置期末预付
@@ -379,7 +380,6 @@ public class FundService {
                     ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney());        //设置期末应付
                     ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() + ftcoVo.getAdvanceOutMoneyIncrease());      //设置期末预付
                 }
-                ftcoVo.setAdvanceOutMoneyIncrease(money);        //设置预付增加
                 break;
 
             default:

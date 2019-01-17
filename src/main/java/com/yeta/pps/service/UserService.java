@@ -101,16 +101,16 @@ public class UserService {
         ServletContext servletContext = session.getServletContext();
         ConcurrentSkipListSet<String> onlineIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineIds");
         for (String onlineId: onlineIds) {
-            if (onlineId.equals(userId)) {
+            if (onlineId.equals(userId + userVo.getStoreId())) {
                 return CommonResponse.error(CommonResponse.LOGIN_ERROR, "重复登陆");
             }
         }
         //设置已登陆
-        onlineIds.add(userId);
-        session.setAttribute("userId", userId);
+        onlineIds.add(userId + userVo.getStoreId());
+        session.setAttribute("userId", userId + userVo.getStoreId());
         session.setMaxInactiveInterval(60 * 60);      //60分钟
         userVo.setId(userId);
-        userVo.setToken(CommonUtil.getMd5(userId));        //token就是md5加密后的用户id
+        userVo.setToken(CommonUtil.getMd5(userId + userVo.getStoreId()));        //token就是md5加密后的用户id
         return CommonResponse.success(userVo);
     }
 
@@ -127,7 +127,7 @@ public class UserService {
         ConcurrentSkipListSet<String> onlineIds = (ConcurrentSkipListSet<String>) servletContext.getAttribute("onlineIds");
         //注销
         for (String onlineId : onlineIds) {
-            if (onlineId.equals(userVo.getId())) {
+            if (onlineId.equals(userVo.getId() + userVo.getStoreId())) {
                 onlineIds.remove(onlineId);
                 break;
             }

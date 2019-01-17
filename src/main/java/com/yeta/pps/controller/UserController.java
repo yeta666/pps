@@ -59,16 +59,21 @@ public class UserController {
 
     /**
      * 注销接口
+     * @param storeId
      * @param userId
      * @param request
      * @return
      */
     @ApiOperation(value = "注销")
-    @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "path", dataType = "String")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户编号", required = true, paramType = "path", dataType = "String"),
+            @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int")
+    })
     @GetMapping(value = "/logout/{userId}")
-    public CommonResponse logout(@PathVariable(value = "userId") String userId,
+    public CommonResponse logout(@RequestParam(value = "storeId") Integer storeId,
+                                 @PathVariable(value = "userId") String userId,
                                  HttpServletRequest request) {
-        return userService.logout(new UserVo(userId), request);
+        return userService.logout(new UserVo(storeId, userId), request);
     }
 
     //

@@ -1664,11 +1664,10 @@ public class StorageService {
         goodsWarehouseSkuVos.stream().forEach(vo -> {
             //根据商品规格编号查询最新库存记账记录
             StorageCheckOrderVo scoVo = myStorageMapper.findLastCheckMoneyByGoodsId(new StorageCheckOrderVo(storeId, vo.getId()));
-            if (scoVo == null) {
-                throw new CommonException(CommonResponse.FIND_ERROR);
+            if (scoVo != null) {
+                vo.setCostMoney(scoVo.getCheckMoney2());
+                vo.setTotalCostMoney(scoVo.getCheckTotalMoney2());
             }
-            vo.setCostMoney(scoVo.getCheckMoney2());
-            vo.setTotalCostMoney(scoVo.getCheckTotalMoney2());
         });
 
         //封装返回结果
@@ -1823,10 +1822,12 @@ public class StorageService {
         //补上成本和售价
         goodsWarehouseSkuVos.stream().forEach(vo -> {
             StorageCheckOrderVo storageCheckOrderVo = myStorageMapper.findLastCheckMoneyByGoodsSkuId(new StorageCheckOrderVo(goodsWarehouseSkuVo.getStoreId(), vo.getGoodsSkuId()));
-            vo.setCostMoney(storageCheckOrderVo.getCheckMoney1());
-            vo.setTotalCostMoney(storageCheckOrderVo.getCheckTotalMoney1());
-            vo.setTotalRetailPrice(vo.getRetailPrice() * storageCheckOrderVo.getCheckQuantity1());
-            vo.setTotalVipPrice(vo.getVipPrice() * storageCheckOrderVo.getCheckQuantity1());
+            if (storageCheckOrderVo != null) {
+                vo.setCostMoney(storageCheckOrderVo.getCheckMoney1());
+                vo.setTotalCostMoney(storageCheckOrderVo.getCheckTotalMoney1());
+                vo.setTotalRetailPrice(vo.getRetailPrice() * storageCheckOrderVo.getCheckQuantity1());
+                vo.setTotalVipPrice(vo.getVipPrice() * storageCheckOrderVo.getCheckQuantity1());
+            }
         });
 
         //封装返回结果
@@ -1872,10 +1873,12 @@ public class StorageService {
         goodsWarehouseSkuVos.stream().forEach(vo -> {
             //根据商品规格编号和仓库编号查询最新库存记账记录
             StorageCheckOrderVo scoVo = myStorageMapper.findLastCheckMoneyByGoodsSkuIdAndWarehouseId(new StorageCheckOrderVo(storeId, vo.getGoodsSkuId(), vo.getWarehouseId()));
-            vo.setCostMoney(scoVo.getCheckMoney());
-            vo.setTotalCostMoney(scoVo.getCheckTotalMoney());
-            vo.setTotalRetailPrice(vo.getRetailPrice() * scoVo.getCheckQuantity());
-            vo.setTotalVipPrice(vo.getVipPrice() * scoVo.getCheckQuantity());
+            if (scoVo != null) {
+                vo.setCostMoney(scoVo.getCheckMoney());
+                vo.setTotalCostMoney(scoVo.getCheckTotalMoney());
+                vo.setTotalRetailPrice(vo.getRetailPrice() * scoVo.getCheckQuantity());
+                vo.setTotalVipPrice(vo.getVipPrice() * scoVo.getCheckQuantity());
+            }
         });
 
         //封装返回结果
@@ -1964,10 +1967,12 @@ public class StorageService {
                 //补上成本和售价
                 goodsWarehouseSkuVos.stream().forEach(vo -> {
                     StorageCheckOrderVo scoVo = myStorageMapper.findLastCheckMoneyByGoodsSkuIdAndWarehouseId(new StorageCheckOrderVo(goodsWarehouseSkuVo.getStoreId(), vo.getGoodsSkuId(), vo.getWarehouseId()));
-                    vo.setCostMoney(scoVo.getCheckMoney());
-                    vo.setTotalCostMoney(scoVo.getCheckTotalMoney());
-                    vo.setTotalRetailPrice(vo.getRetailPrice() * scoVo.getCheckQuantity());
-                    vo.setTotalVipPrice(vo.getVipPrice() * scoVo.getCheckQuantity());
+                    if (scoVo != null) {
+                        vo.setCostMoney(scoVo.getCheckMoney());
+                        vo.setTotalCostMoney(scoVo.getCheckTotalMoney());
+                        vo.setTotalRetailPrice(vo.getRetailPrice() * scoVo.getCheckQuantity());
+                        vo.setTotalVipPrice(vo.getVipPrice() * scoVo.getCheckQuantity());
+                    }
                 });
                 titles.add(new Title("实物库存", "realInventory"));
                 titles.add(new Title("待发货数量", "notSentQuantity"));
