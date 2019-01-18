@@ -3,7 +3,7 @@ package com.yeta.pps.service;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyBankAccountMapper;
 import com.yeta.pps.mapper.MyFundMapper;
-import com.yeta.pps.mapper.SystemMapper;
+import com.yeta.pps.po.SSystem;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +77,8 @@ public class BankAccountService {
             if (myFundMapper.findFundResultOrderByBankAccountId(new FundResultOrderVo(bankAccountVo.getStoreId(), bankAccountVo.getId())).size() > 0) {
                 throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
+            //4. system
+            systemUtil.judgeRetailMethod(new SSystem(bankAccountVo.getStoreId(), bankAccountVo.getId()));
 
             //删除银行账户
             if (myBankAccountMapper.delete(bankAccountVo) != 1) {

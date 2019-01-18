@@ -3,7 +3,7 @@
 <mapper namespace="com.yeta.pps.mapper.SystemMapper" >
 
     <insert id="addStoreSystem" parameterType="com.yeta.pps.po.SSystem">
-        insert into system(store_id, push_money_rate, start_bill) values (#{storeId}, 6, 0);
+        insert into system(store_id, push_money_rate, start_bill, retail_warehouse_id, retail_bank_account_id) values (#{storeId}, 6, 0, null, null);
     </insert>
 
     <delete id="deleteStoreSystem" parameterType="com.yeta.pps.po.SSystem">
@@ -19,11 +19,31 @@
     </update>
 
     <select id="findStartBill" parameterType="com.yeta.pps.po.SSystem" resultType="com.yeta.pps.po.SSystem">
-        select start_bill from system where store_id = #{storeId} and store_id &gt; 0;
+        select store_id, start_bill from system where store_id = #{storeId} and store_id &gt; 0;
     </select>
 
     <update id="updateStartBill" parameterType="com.yeta.pps.po.SSystem">
         update system set start_bill = 1 where store_id = #{storeId} and store_id &gt; 0 and start_bill = 0;
+    </update>
+
+    <select id="findRetail" parameterType="com.yeta.pps.po.SSystem" resultType="com.yeta.pps.po.SSystem">
+        select
+            store_id, retail_warehouse_id, retail_bank_account_id
+        from
+            system
+        where
+            store_id = #{storeId}
+        and store_id &gt; 0
+        <if test="retailWarehouseId != null">
+            and retail_warehouse_id = #{retailWarehouseId}
+        </if>
+        <if test="retailBankAccountId != null">
+            and retail_bank_account_id = #{retailBankAccountId}
+        </if>
+    </select>
+
+    <update id="updateRetail" parameterType="com.yeta.pps.po.SSystem">
+        update system set retail_warehouse_id = #{retailWarehouseId}, retail_bank_account_id = #{retailBankAccountId} where store_id = #{storeId} and store_id &gt; 0;
     </update>
 
 </mapper>

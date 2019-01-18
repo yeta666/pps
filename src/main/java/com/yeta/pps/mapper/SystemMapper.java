@@ -15,4 +15,8 @@ public interface SystemMapper {
     SSystem findStartBill(SSystem sSystem);
 
     int updateStartBill(SSystem sSystem);
+
+    SSystem findRetail(SSystem sSystem);
+
+    int updateRetail(SSystem sSystem);
 }

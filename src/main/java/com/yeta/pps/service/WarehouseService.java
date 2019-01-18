@@ -4,9 +4,11 @@ import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyGoodsMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.GoodsSku;
+import com.yeta.pps.po.SSystem;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
+import com.yeta.pps.util.SystemUtil;
 import com.yeta.pps.util.Title;
 import com.yeta.pps.vo.GoodsSkuVo;
 import com.yeta.pps.vo.PageVo;
@@ -32,6 +34,9 @@ public class WarehouseService {
 
     @Autowired
     private MyGoodsMapper myGoodsMapper;
+
+    @Autowired
+    private SystemUtil systemUtil;
 
     /**
      * 新增仓库
@@ -66,6 +71,10 @@ public class WarehouseService {
     @Transactional
     public CommonResponse delete(List<WarehouseVo> warehouseVos) {
         warehouseVos.stream().forEach(warehouseVo -> {
+            //判断仓库是否使用
+            //1. system
+            systemUtil.judgeRetailMethod(new SSystem(warehouseVo.getStoreId(), warehouseVo.getId()));
+
             //删除仓库
             if (myWarehouseMapper.delete(warehouseVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);

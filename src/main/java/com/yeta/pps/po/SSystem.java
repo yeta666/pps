@@ -22,6 +22,16 @@ public class SSystem {
     private Byte startBill;
 
     /**
+     * 零售默认仓库编号
+     */
+    private Integer retailWarehouseId;
+
+    /**
+     * 零售默认银行账户编号
+     */
+    private String retailBankAccountId;
+
+    /**
      * 经手人
      */
     private String userId;
@@ -31,6 +41,16 @@ public class SSystem {
 
     public SSystem(Integer storeId) {
         this.storeId = storeId;
+    }
+
+    public SSystem(Integer storeId, Integer retailWarehouseId) {
+        this.storeId = storeId;
+        this.retailWarehouseId = retailWarehouseId;
+    }
+
+    public SSystem(Integer storeId, String retailBankAccountId) {
+        this.storeId = storeId;
+        this.retailBankAccountId = retailBankAccountId;
     }
 
     public Integer getStoreId() {
@@ -57,6 +77,22 @@ public class SSystem {
         this.startBill = startBill;
     }
 
+    public Integer getRetailWarehouseId() {
+        return retailWarehouseId;
+    }
+
+    public void setRetailWarehouseId(Integer retailWarehouseId) {
+        this.retailWarehouseId = retailWarehouseId;
+    }
+
+    public String getRetailBankAccountId() {
+        return retailBankAccountId;
+    }
+
+    public void setRetailBankAccountId(String retailBankAccountId) {
+        this.retailBankAccountId = retailBankAccountId;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -71,6 +107,8 @@ public class SSystem {
                 "storeId=" + storeId +
                 ", pushMoneyRate=" + pushMoneyRate +
                 ", startBill=" + startBill +
+                ", retailWarehouseId=" + retailWarehouseId +
+                ", retailBankAccountId='" + retailBankAccountId + '\'' +
                 ", userId='" + userId + '\'' +
                 '}';
     }

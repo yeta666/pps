@@ -66,4 +66,28 @@ public class SystemController {
     public CommonResponse updateStartBill(@RequestBody SSystem sSystem) {
         return systemService.updateStartBill(sSystem);
     }
+
+    /**
+     * 查询零售默认设置接口
+     * @param storeId
+     * @return
+     */
+    @ApiOperation(value = "查询零售默认设置")
+    @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "path", dataType = "int")
+    @GetMapping(value = "/system/retail/{storeId}")
+    public CommonResponse<SSystem> findRetail(@PathVariable(value = "storeId") Integer storeId) {
+        return systemService.findRetail(new SSystem(storeId));
+    }
+
+    /**
+     * 修改零售默认设置接口
+     * @param sSystem
+     * @return
+     */
+    @ApiOperation(value = "修改零售默认设置")
+    @ApiImplicitParam(name = "sSystem", value = "storeId, retailWarehouseId, retailBankAccountId必填", required = true, paramType = "body", dataType = "SSystem")
+    @PutMapping(value = "/system/retail")
+    public CommonResponse updateRetail(@RequestBody SSystem sSystem) {
+        return systemService.updateRetail(sSystem);
+    }
 }

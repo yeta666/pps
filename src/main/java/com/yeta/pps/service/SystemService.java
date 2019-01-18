@@ -199,4 +199,38 @@ public class SystemService {
 
         return CommonResponse.success();
     }
+
+    /**
+     * 查询零售默认设置
+     * @param sSystem
+     * @return
+     */
+    public CommonResponse findRetail(SSystem sSystem) {
+        sSystem = systemMapper.findRetail(sSystem);
+        if (sSystem == null) {
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
+        }
+
+        return CommonResponse.success(sSystem);
+    }
+
+    /**
+     * 修改零售默认设置
+     * @param sSystem
+     * @return
+     */
+    @Transactional
+    public synchronized CommonResponse updateRetail(SSystem sSystem) {
+        //判断参数
+        if (sSystem.getRetailWarehouseId() == null || sSystem.getRetailBankAccountId() == null) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
+        //修改零售默认设置
+        if (systemMapper.updateRetail(sSystem) != 1) {
+            throw new CommonException(CommonResponse.UPDATE_ERROR);
+        }
+
+        return CommonResponse.success();
+    }
 }

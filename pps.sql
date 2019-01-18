@@ -940,12 +940,14 @@ CREATE TABLE system (
   store_id int(11) NOT NULL COMMENT '店铺编号',
   push_money_rate double(10,2) NOT NULL COMMENT '提成比例',
   start_bill tinyint NOT NULL COMMENT '系统开账，0：否，1：是',
+  retail_warehouse_id int comment '零售默认仓库编号',
+  retail_bank_account_id varchar(20) comment '零售默认银行账户编号',
   PRIMARY KEY (store_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-INSERT INTO system VALUES (0, 0.5, 6);
-INSERT INTO system VALUES (1, 6, 0);
+INSERT INTO system VALUES (0, 0.5, 6, null, null);
+INSERT INTO system VALUES (1, 6, 0, null, null);
 
 
 DROP TABLE IF EXISTS user_1;
