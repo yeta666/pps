@@ -6,13 +6,13 @@
 
     <insert id="addApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo">
       insert into
-            sell_apply_order_${storeId} (id, type, create_time, result_order_id, prodcing_way, order_status, clear_status, client_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, discount_money, discount_coupon_id, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark)
+            sell_apply_order_${storeId} (id, type, create_time, result_order_id, prodcing_way, order_status, clear_status, client_id, in_warehouse_id, in_total_quantity, in_received_quantity, in_not_received_quantity, out_warehouse_id, out_total_quantity, out_sent_quantity, out_not_sent_quantity, total_money, discount_money, discount_coupon_id, total_discount_money, order_money, cleared_money, not_cleared_money, user_id, remark, cash_money, alipay_money, wechat_money, bankCard_money, advance_money)
       values
-            (#{id}, #{type}, #{createTime}, #{resultOrderId}, #{prodcingWay}, #{orderStatus}, #{clearStatus}, #{clientId}, #{inWarehouseId}, #{inTotalQuantity}, #{inReceivedQuantity}, #{inNotReceivedQuantity}, #{outWarehouseId}, #{outTotalQuantity}, #{outSentQuantity}, #{outNotSentQuantity}, #{totalMoney}, #{discountMoney}, #{discountCouponId}, #{totalDiscountMoney}, #{orderMoney}, #{clearedMoney}, #{notClearedMoney}, #{userId}, #{remark});
+            (#{id}, #{type}, #{createTime}, #{resultOrderId}, #{prodcingWay}, #{orderStatus}, #{clearStatus}, #{clientId}, #{inWarehouseId}, #{inTotalQuantity}, #{inReceivedQuantity}, #{inNotReceivedQuantity}, #{outWarehouseId}, #{outTotalQuantity}, #{outSentQuantity}, #{outNotSentQuantity}, #{totalMoney}, #{discountMoney}, #{discountCouponId}, #{totalDiscountMoney}, #{orderMoney}, #{clearedMoney}, #{notClearedMoney}, #{userId}, #{remark}, #{cashMoney}, #{alipayMoney}, #{wechatMoney}, #{bankCardMoney}, #{advanceMoney});
     </insert>
 
     <delete id="deleteApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo">
-        delete from sell_apply_order_${storeId} where id = #{id};
+        delete from sell_apply_order_${storeId} where id = #{id} and type > 1;
     </delete>
 
     <update id="updateApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo">
@@ -21,7 +21,8 @@
         set
             out_total_quantity = #{outTotalQuantity}, total_money = #{totalMoney}, discount_money = #{discountMoney}, discount_coupon_id = #{discountCouponId}, total_discount_money = #{totalDiscountMoney}, order_money = #{orderMoney}
         where
-            id = #{id};
+            id = #{id}
+        and type > 1;
     </update>
 
     <update id="updateApplyOrderRemark" parameterType="com.yeta.pps.vo.SellApplyOrderVo">
@@ -95,6 +96,8 @@
         <result column="in_not_received_quantity" property="inNotReceivedQuantity" />
         <result column="out_warehouse_id" property="outWarehouseId" />
         <result column="out_total_quantity" property="outTotalQuantity" />
+        <result column="out_sent_quantity" property="outSentQuantity" />
+        <result column="out_not_sent_quantity" property="outNotSentQuantity" />
         <result column="total_money" property="totalMoney" />
         <result column="discount_money" property="discountMoney" />
         <result column="discount_coupon_id" property="discountCouponId" />
@@ -102,8 +105,14 @@
         <result column="order_money" property="orderMoney" />
         <result column="cleared_money" property="clearedMoney" />
         <result column="not_cleared_money" property="notClearedMoney" />
+        <result column="user_id" property="userId" />
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
+        <result column="cash_money" property="cashMoney" />
+        <result column="alipay_money" property="alipayMoney" />
+        <result column="wechat_money" property="wechatMoney" />
+        <result column="bankCard_money" property="bankCardMoney" />
+        <result column="advance_money" property="advanceMoney" />
         <collection property="client" ofType="com.yeta.pps.po.Client">
             <result column="client_id" property="id" />
             <result column="client_name" property="name" />
@@ -140,8 +149,14 @@
             sao.order_money,
             sao.cleared_money,
             sao.not_cleared_money,
+            sao.user_id as user_id,
             u.name as user_name,
-            sao.remark
+            sao.remark,
+            sao.cash_money,
+            sao.alipay_money,
+            sao.wechat_money,
+            sao.bankCard_money,
+            sao.advance_money
         from
             (
                 sell_apply_order_${sellApplyOrderVo.storeId} as sao
@@ -200,8 +215,14 @@
         <result column="order_money" property="orderMoney" />
         <result column="cleared_money" property="clearedMoney" />
         <result column="not_cleared_money" property="notClearedMoney" />
+        <result column="user_id" property="userId" />
         <result column="user_name" property="userName" />
         <result column="remark" property="remark" />
+        <result column="cash_money" property="cashMoney" />
+        <result column="alipay_money" property="alipayMoney" />
+        <result column="wechat_money" property="wechatMoney" />
+        <result column="bankCard_money" property="bankCardMoney" />
+        <result column="advance_money" property="advanceMoney" />
         <collection property="client" ofType="com.yeta.pps.po.Client">
             <result column="client_id" property="id" />
             <result column="client_name" property="name" />
@@ -255,8 +276,14 @@
             sao.order_money,
             sao.cleared_money,
             sao.not_cleared_money,
+            sao.user_id,
             u.name as user_name,
             sao.remark,
+            sao.cash_money,
+            sao.alipay_money,
+            sao.wechat_money,
+            sao.bankCard_money,
+            sao.advance_money,
             ogs.id as ogs_id,
             ogs.type as ogs_type,
             ogs.goods_sku_id as ogs_goods_sku_id,

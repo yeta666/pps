@@ -129,457 +129,272 @@ public class SellApplyOrder {
      */
     private String remark;
 
+    /**
+     * 零售单现金金额
+     */
+    private Double cashMoney;
+
+    /**
+     * 零售单支付宝金额
+     */
+    private Double alipayMoney;
+
+    /**
+     * 零售单微信金额
+     */
+    private Double wechatMoney;
+
+    /**
+     * 零售单银行卡金额
+     */
+    private Double bankCardMoney;
+
+    /**
+     * 零售单使用预收款金额
+     */
+    private Double advanceMoney;
+
     public SellApplyOrder() {
     }
 
-    /**
-     * 获取单据编号
-     *
-     * @return id - 单据编号
-     */
     public String getId() {
         return id;
     }
 
-    /**
-     * 设置单据编号
-     *
-     * @param id 单据编号
-     */
     public void setId(String id) {
         this.id = id;
     }
 
-    /**
-     * 获取单据类型，1：零售单，2：销售订单，3：销售退货申请单，4：销售换货申请单
-     *
-     * @return type - 单据类型，1：零售单，2：销售订单，3：销售退货申请单，4：销售换货申请单
-     */
     public Byte getType() {
         return type;
     }
 
-    /**
-     * 设置单据类型，1：零售单，2：销售订单，3：销售退货申请单，4：销售换货申请单
-     *
-     * @param type 单据类型，1：零售单，2：销售订单，3：销售退货申请单，4：销售换货申请单
-     */
     public void setType(Byte type) {
         this.type = type;
     }
 
-    /**
-     * 获取单据日期
-     *
-     * @return create_time - 单据日期
-     */
     public Date getCreateTime() {
         return createTime;
     }
 
-    /**
-     * 设置单据日期
-     *
-     * @param createTime 单据日期
-     */
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
 
-    /**
-     * 获取来源订单，销售退货申请单和销售换货申请单应该有该字段
-     *
-     * @return result_order_id - 来源订单，销售退货申请单和销售换货申请单应该有该字段
-     */
     public String getResultOrderId() {
         return resultOrderId;
     }
 
-    /**
-     * 设置来源订单，销售退货申请单和销售换货申请单应该有该字段
-     *
-     * @param resultOrderId 来源订单，销售退货申请单和销售换货申请单应该有该字段
-     */
     public void setResultOrderId(String resultOrderId) {
         this.resultOrderId = resultOrderId;
     }
 
-    /**
-     * 获取产生方式，1：线下录单，2：线上下单
-     *
-     * @return prodcing_way - 产生方式，1：线下录单，2：线上下单
-     */
     public Byte getProdcingWay() {
         return prodcingWay;
     }
 
-    /**
-     * 设置产生方式，1：线下录单，2：线上下单
-     *
-     * @param prodcingWay 产生方式，1：线下录单，2：线上下单
-     */
     public void setProdcingWay(Byte prodcingWay) {
         this.prodcingWay = prodcingWay;
     }
 
-    /**
-     * 获取单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发
-     *
-     * @return order_status - 单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发
-     */
     public Byte getOrderStatus() {
         return orderStatus;
     }
 
-    /**
-     * 设置单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发
-     *
-     * @param orderStatus 单据状态，1：未收，2：部分收，3：已收，4：未发，5：部分发，6：已发，7：未收未发，8：未收部分发，9：未收已发，10：部分收未发，11：部分收部分发，12：部分收已发，13：已收未发，14：已收部分发：15：已收已发
-     */
     public void setOrderStatus(Byte orderStatus) {
         this.orderStatus = orderStatus;
     }
 
-    /**
-     * 获取结算状态：0：未完成，1：已完成
-     *
-     * @return clear_status - 结算状态：0：未完成，1：已完成
-     */
     public Byte getClearStatus() {
         return clearStatus;
     }
 
-    /**
-     * 设置结算状态：0：未完成，1：已完成
-     *
-     * @param clearStatus 结算状态：0：未完成，1：已完成
-     */
     public void setClearStatus(Byte clearStatus) {
         this.clearStatus = clearStatus;
     }
 
-    /**
-     * 获取客户编号
-     *
-     * @return client_id - 客户编号
-     */
     public String getClientId() {
         return clientId;
     }
 
-    /**
-     * 设置客户编号
-     *
-     * @param clientId 客户编号
-     */
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
 
-    /**
-     * 获取入库仓库编号，对应收货
-     *
-     * @return in_warehouse_id - 入库仓库编号，对应收货
-     */
     public Integer getInWarehouseId() {
         return inWarehouseId;
     }
 
-    /**
-     * 设置入库仓库编号，对应收货
-     *
-     * @param inWarehouseId 入库仓库编号，对应收货
-     */
     public void setInWarehouseId(Integer inWarehouseId) {
         this.inWarehouseId = inWarehouseId;
     }
 
-    /**
-     * 获取总收货数量
-     *
-     * @return in_total_quantity - 总收货数量
-     */
     public Integer getInTotalQuantity() {
         return inTotalQuantity;
     }
 
-    /**
-     * 设置总收货数量
-     *
-     * @param inTotalQuantity 总收货数量
-     */
     public void setInTotalQuantity(Integer inTotalQuantity) {
         this.inTotalQuantity = inTotalQuantity;
     }
 
-    /**
-     * 获取已收货数量
-     *
-     * @return in_received_quantity - 已收货数量
-     */
     public Integer getInReceivedQuantity() {
         return inReceivedQuantity;
     }
 
-    /**
-     * 设置已收货数量
-     *
-     * @param inReceivedQuantity 已收货数量
-     */
     public void setInReceivedQuantity(Integer inReceivedQuantity) {
         this.inReceivedQuantity = inReceivedQuantity;
     }
 
-    /**
-     * 获取未收货数量
-     *
-     * @return in_not_received_quantity - 未收货数量
-     */
     public Integer getInNotReceivedQuantity() {
         return inNotReceivedQuantity;
     }
 
-    /**
-     * 设置未收货数量
-     *
-     * @param inNotReceivedQuantity 未收货数量
-     */
     public void setInNotReceivedQuantity(Integer inNotReceivedQuantity) {
         this.inNotReceivedQuantity = inNotReceivedQuantity;
     }
 
-    /**
-     * 获取出库仓库编号，对应发货
-     *
-     * @return out_warehouse_id - 出库仓库编号，对应发货
-     */
     public Integer getOutWarehouseId() {
         return outWarehouseId;
     }
 
-    /**
-     * 设置出库仓库编号，对应发货
-     *
-     * @param outWarehouseId 出库仓库编号，对应发货
-     */
     public void setOutWarehouseId(Integer outWarehouseId) {
         this.outWarehouseId = outWarehouseId;
     }
 
-    /**
-     * 获取总发货数量
-     *
-     * @return out_total_quantity - 总发货数量
-     */
     public Integer getOutTotalQuantity() {
         return outTotalQuantity;
     }
 
-    /**
-     * 设置总发货数量
-     *
-     * @param outTotalQuantity 总发货数量
-     */
     public void setOutTotalQuantity(Integer outTotalQuantity) {
         this.outTotalQuantity = outTotalQuantity;
     }
 
-    /**
-     * 获取已发货数量
-     *
-     * @return out_sent_quantity - 已发货数量
-     */
     public Integer getOutSentQuantity() {
         return outSentQuantity;
     }
 
-    /**
-     * 设置已发货数量
-     *
-     * @param outSentQuantity 已发货数量
-     */
     public void setOutSentQuantity(Integer outSentQuantity) {
         this.outSentQuantity = outSentQuantity;
     }
 
-    /**
-     * 获取未发货数量
-     *
-     * @return out_not_sent_quantity - 未发货数量
-     */
     public Integer getOutNotSentQuantity() {
         return outNotSentQuantity;
     }
 
-    /**
-     * 设置未发货数量
-     *
-     * @param outNotSentQuantity 未发货数量
-     */
     public void setOutNotSentQuantity(Integer outNotSentQuantity) {
         this.outNotSentQuantity = outNotSentQuantity;
     }
 
-    /**
-     * 获取总商品金额
-     *
-     * @return total_money - 总商品金额
-     */
     public Double getTotalMoney() {
         return totalMoney;
     }
 
-    /**
-     * 设置总商品金额
-     *
-     * @param totalMoney 总商品金额
-     */
     public void setTotalMoney(Double totalMoney) {
         this.totalMoney = totalMoney;
     }
 
-    /**
-     * 获取直接优惠金额
-     *
-     * @return discount_money - 直接优惠金额
-     */
     public Double getDiscountMoney() {
         return discountMoney;
     }
 
-    /**
-     * 设置直接优惠金额
-     *
-     * @param discountMoney 直接优惠金额
-     */
     public void setDiscountMoney(Double discountMoney) {
         this.discountMoney = discountMoney;
     }
 
-    /**
-     * 获取优惠券编号
-     *
-     * @return discount_coupon_id - 优惠券编号
-     */
     public Integer getDiscountCouponId() {
         return discountCouponId;
     }
 
-    /**
-     * 设置优惠券编号
-     *
-     * @param discountCouponId 优惠券编号
-     */
     public void setDiscountCouponId(Integer discountCouponId) {
         this.discountCouponId = discountCouponId;
     }
 
-    /**
-     * 获取总优惠金额
-     *
-     * @return total_discount_money - 总优惠金额
-     */
     public Double getTotalDiscountMoney() {
         return totalDiscountMoney;
     }
 
-    /**
-     * 设置总优惠金额
-     *
-     * @param totalDiscountMoney 总优惠金额
-     */
     public void setTotalDiscountMoney(Double totalDiscountMoney) {
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
-    /**
-     * 获取本单金额
-     *
-     * @return order_money - 本单金额
-     */
     public Double getOrderMoney() {
         return orderMoney;
     }
 
-    /**
-     * 设置本单金额
-     *
-     * @param orderMoney 本单金额
-     */
     public void setOrderMoney(Double orderMoney) {
         this.orderMoney = orderMoney;
     }
 
-    /**
-     * 获取已结算金额
-     *
-     * @return cleared_money - 已结算金额
-     */
     public Double getClearedMoney() {
         return clearedMoney;
     }
 
-    /**
-     * 设置已结算金额
-     *
-     * @param clearedMoney 已结算金额
-     */
     public void setClearedMoney(Double clearedMoney) {
         this.clearedMoney = clearedMoney;
     }
 
-    /**
-     * 获取未结算金额
-     *
-     * @return not_cleared_money - 未结算金额
-     */
     public Double getNotClearedMoney() {
         return notClearedMoney;
     }
 
-    /**
-     * 设置未结算金额
-     *
-     * @param notClearedMoney 未结算金额
-     */
     public void setNotClearedMoney(Double notClearedMoney) {
         this.notClearedMoney = notClearedMoney;
     }
 
-    /**
-     * 获取经手人编号
-     *
-     * @return user_id - 经手人编号
-     */
     public String getUserId() {
         return userId;
     }
 
-    /**
-     * 设置经手人编号
-     *
-     * @param userId 经手人编号
-     */
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    /**
-     * 获取单据备注
-     *
-     * @return remark - 单据备注
-     */
     public String getRemark() {
         return remark;
     }
 
-    /**
-     * 设置单据备注
-     *
-     * @param remark 单据备注
-     */
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Double getCashMoney() {
+        return cashMoney;
+    }
+
+    public void setCashMoney(Double cashMoney) {
+        this.cashMoney = cashMoney;
+    }
+
+    public Double getAlipayMoney() {
+        return alipayMoney;
+    }
+
+    public void setAlipayMoney(Double alipayMoney) {
+        this.alipayMoney = alipayMoney;
+    }
+
+    public Double getWechatMoney() {
+        return wechatMoney;
+    }
+
+    public void setWechatMoney(Double wechatMoney) {
+        this.wechatMoney = wechatMoney;
+    }
+
+    public Double getBankCardMoney() {
+        return bankCardMoney;
+    }
+
+    public void setBankCardMoney(Double bankCardMoney) {
+        this.bankCardMoney = bankCardMoney;
+    }
+
+    public Double getAdvanceMoney() {
+        return advanceMoney;
+    }
+
+    public void setAdvanceMoney(Double advanceMoney) {
+        this.advanceMoney = advanceMoney;
     }
 
     @Override
@@ -610,6 +425,11 @@ public class SellApplyOrder {
                 ", notClearedMoney=" + notClearedMoney +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
+                ", cashMoney=" + cashMoney +
+                ", alipayMoney=" + alipayMoney +
+                ", wechatMoney=" + wechatMoney +
+                ", bankCardMoney=" + bankCardMoney +
+                ", advanceMoney=" + advanceMoney +
                 '}';
     }
 }

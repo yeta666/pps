@@ -787,6 +787,11 @@ CREATE TABLE sell_apply_order_1 (
   not_cleared_money double(10,2) NOT NULL COMMENT '未结算金额',
   user_id varchar(50) NOT NULL COMMENT '经手人编号',
   remark varchar(255) DEFAULT NULL COMMENT '单据备注',
+  cash_money double(10, 2) comment '零售单现金金额',
+  alipay_money double(10, 2) comment '零售单支付宝金额',
+  wechat_money double(10, 2) comment '零售单微信金额',
+  bankCard_money double(10, 2) comment '零售单银行卡金额',
+  advance_money double(10, 2) comment '零售单使用预收款金额',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

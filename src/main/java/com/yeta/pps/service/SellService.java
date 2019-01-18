@@ -3,7 +3,7 @@ package com.yeta.pps.service;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.GoodsSku;
-import com.yeta.pps.po.StoreClient;
+import com.yeta.pps.po.SSystem;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
@@ -52,22 +52,40 @@ public class SellService {
     @Autowired
     private SystemUtil systemUtil;
 
+    @Autowired
+    private SystemMapper systemMapper;
+
     //销售申请订单
 
     /**
      * 零售单
      * @param sellApplyOrderVo
+     * @param sSystem
      */
     @Transactional
-    public void lsd(SellApplyOrderVo sellApplyOrderVo) {
+    public void lsd(SellApplyOrderVo sellApplyOrderVo, SSystem sSystem) {
         //获取参数
         Integer storeId = sellApplyOrderVo.getStoreId();
         List<OrderGoodsSkuVo> orderGoodsSkuVos = sellApplyOrderVo.getDetails();
-
+        
         //判断参数
-        if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null || sellApplyOrderVo.getBankAccountId() == null) {
+        if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getOutTotalQuantity() == null ||
+                (sellApplyOrderVo.getAdvanceMoney() > 0 && sellApplyOrderVo.getClientId() == null) ||
+                (sellApplyOrderVo.getDiscountCouponId() != null && sellApplyOrderVo.getClientId() == null)) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
+
+        //判断收款金额
+        if (sellApplyOrderVo.getCashMoney() +
+                sellApplyOrderVo.getAlipayMoney() +
+                sellApplyOrderVo.getWechatMoney() +
+                sellApplyOrderVo.getBankCardMoney() +
+                sellApplyOrderVo.getAdvanceMoney() != sellApplyOrderVo.getOrderMoney()) {
+            throw new CommonException(CommonResponse.PARAMETER_ERROR, "收款金额错误");
+        }
+
+        Integer warehouseId = sSystem.getRetailWarehouseId();
+        String bankAccountId = sSystem.getRetailBankAccountId();
 
         //设置初始属性
         sellApplyOrderVo.setId("LSD_" + UUID.randomUUID().toString().replace("-", ""));
@@ -98,17 +116,17 @@ public class SellService {
             orderGoodsSkuVo.setOperatedQuantity(0);
 
             //减库存
-            inventoryUtil.updateInventoryMethod((byte) 0, new WarehouseGoodsSkuVo(storeId, sellApplyOrderVo.getOutWarehouseId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
+            inventoryUtil.updateInventoryMethod((byte) 0, new WarehouseGoodsSkuVo(storeId, warehouseId, orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity(), orderGoodsSkuVo.getQuantity()));
 
             //库存记账
             StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
             storageCheckOrderVo.setStoreId(storeId);
             storageCheckOrderVo.setOrderId(sellApplyOrderVo.getId());
-            storageCheckOrderVo.setTargetId(sellApplyOrderVo.getClientId() == null ? null : sellApplyOrderVo.getClientId());
+            storageCheckOrderVo.setTargetId(sellApplyOrderVo.getClientId());
             storageCheckOrderVo.setCreateTime(new Date());
             storageCheckOrderVo.setOrderStatus((byte) 1);
             storageCheckOrderVo.setGoodsSkuId(orderGoodsSkuVo.getGoodsSkuId());
-            storageCheckOrderVo.setWarehouseId(sellApplyOrderVo.getOutWarehouseId());
+            storageCheckOrderVo.setWarehouseId(warehouseId);
             storageCheckOrderVo.setOutQuantity(orderGoodsSkuVo.getQuantity());
             storageCheckOrderVo.setUserId(sellApplyOrderVo.getUserId());
             double costMoney = inventoryUtil.addStorageCheckOrderMethod(0, storageCheckOrderVo, null);
@@ -138,7 +156,7 @@ public class SellService {
             throw new CommonException(CommonResponse.ADD_ERROR);
         }
 
-
+        //增加客户积分和该客户邀请人的提成
         if (sellApplyOrderVo.getClientId() != null) {
             //增加客户积分
             List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(storeId));
@@ -154,17 +172,75 @@ public class SellService {
         vo.setOrderId(sellApplyOrderVo.getId());
         vo.setCreateTime(new Date());
         vo.setOrderStatus((byte) 1);
-        vo.setTargetId(sellApplyOrderVo.getClientId() == null ? null : sellApplyOrderVo.getClientId());
-        vo.setBankAccountId(sellApplyOrderVo.getBankAccountId());
+        vo.setTargetId(sellApplyOrderVo.getClientId());
         vo.setUserId(sellApplyOrderVo.getUserId());
-        vo.setRemark(sellApplyOrderVo.getRemark());
+
+        //现金收款
+        double cashMoney = sellApplyOrderVo.getCashMoney();
+        if (cashMoney > 0) {
+            vo.setBankAccountId("1001");
+            inMoneyMethod(vo, cashMoney);
+        }
+
+        //支付宝收款
+        double alipayMoney = sellApplyOrderVo.getAlipayMoney();
+        if (alipayMoney > 0) {
+            vo.setBankAccountId("1002");
+            inMoneyMethod(vo, alipayMoney);
+        }
+
+        //银行卡收款
+        double wechatMoney = sellApplyOrderVo.getWechatMoney();
+        if (wechatMoney > 0) {
+            vo.setBankAccountId("1003");
+            inMoneyMethod(vo, wechatMoney);
+        }
+
+        //银行卡收款
+        double bankCardMoney = sellApplyOrderVo.getBankCardMoney();
+        if (bankCardMoney > 0) {
+            vo.setBankAccountId(bankAccountId);
+            inMoneyMethod(vo, bankCardMoney);
+        }
+
+        //预收款收款
+        double advanceMoney = sellApplyOrderVo.getAdvanceMoney();
+        if (advanceMoney > 0) {
+            //设置往来记账初始属性
+            FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
+            ftcoVo.setStoreId(storeId);
+            ftcoVo.setOrderId(sellApplyOrderVo.getId());
+            ftcoVo.setCreateTime(new Date());
+            ftcoVo.setOrderStatus((byte) 1);
+            ftcoVo.setTargetId(sellApplyOrderVo.getClientId());
+            ftcoVo.setUserId(sellApplyOrderVo.getUserId());
+            ftcoVo.setAdvanceInMoneyDecrease(advanceMoney);     //设置预收减少
+            FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
+            if (lastFTCOVo == null || lastFTCOVo.getAdvanceInMoney() < advanceMoney) {
+                throw new CommonException(CommonResponse.ADD_ERROR, "使用预收款金额错误");
+            }
+            ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney());       //设置期末应收
+            ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() - ftcoVo.getAdvanceInMoneyDecrease());      //设置期末预收
+            if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
+                throw new CommonException(CommonResponse.ADD_ERROR);
+            }
+        }
+    }
+
+    /**
+     * 收款的方法
+     * @param vo
+     * @param money
+     */
+    @Transactional
+    public void inMoneyMethod(FundCheckOrderVo vo, double money) {
         FundCheckOrderVo lastVo = myFundMapper.findLastBalanceMoney(vo);
         if (lastVo == null) {
             throw new CommonException(CommonResponse.ADD_ERROR);
         }
-        vo.setInMoney(sellApplyOrderVo.getOrderMoney());
+        vo.setInMoney(money);
         vo.setOutMoney(0.0);
-        vo.setBalanceMoney(lastVo.getBalanceMoney() + sellApplyOrderVo.getOrderMoney());
+        vo.setBalanceMoney(lastVo.getBalanceMoney() + money);
         if (myFundMapper.addFundCheckOrder(vo) != 1) {
             throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
@@ -350,6 +426,16 @@ public class SellService {
         List<OrderGoodsSkuVo> orderGoodsSkuVos = sellApplyOrderVo.getDetails();
         Byte type = sellApplyOrderVo.getType();
 
+        //获取零售默认仓库和银行卡
+        SSystem sSystem = null;
+        if (type == 1) {
+            sSystem = systemMapper.findRetail(new SSystem(sellApplyOrderVo.getStoreId()));
+            if (sSystem == null || sSystem.getRetailWarehouseId() == null || sSystem.getRetailBankAccountId() == null) {
+                throw new CommonException(CommonResponse.ADD_ERROR, "零售默认仓库或零售默认银行卡未设置");
+            }
+            sellApplyOrderVo.setOutWarehouseId(sSystem.getRetailWarehouseId());
+        }
+
         //判断参数、总商品数量、总商品金额、总优惠金额
         SellApplyOrderVo check = new SellApplyOrderVo(0, 0, 0.0, 0.0);
         orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
@@ -387,7 +473,7 @@ public class SellService {
         //判断新增类型
         switch (type) {
             case 1:     //零售单
-                lsd(sellApplyOrderVo);
+                lsd(sellApplyOrderVo, sSystem);
                 break;
 
             case 2:     //销售订单
@@ -412,8 +498,10 @@ public class SellService {
         }
 
         //修改客户最近交易时间
-        if (myClientMapper.updateLastDealTime(new ClientVo(sellApplyOrderVo.getClientId())) != 1) {
-            throw new CommonException(CommonResponse.ADD_ERROR);
+        if (sellApplyOrderVo.getClientId() != null) {
+            if (myClientMapper.updateLastDealTime(new ClientVo(sellApplyOrderVo.getClientId())) != 1) {
+                throw new CommonException(CommonResponse.ADD_ERROR);
+            }
         }
         return CommonResponse.success();
     }
@@ -597,19 +685,30 @@ public class SellService {
         titles.add(new Title("客户", "client.name"));
         titles.add(new Title("电话", "client.phone"));
         titles.add(new Title("会员卡号", "client.membershipNumber"));
-        titles.add(new Title("入库仓库", "inWarehouseName"));
-        titles.add(new Title("总收货数量", "inTotalQuantity"));
-        titles.add(new Title("已收货数量", "inReceivedQuantity"));
-        titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
-        titles.add(new Title("出库仓库", "outWarehouseName"));
-        titles.add(new Title("总发货数量", "outTotalQuantity"));
-        titles.add(new Title("已发货数量", "outSentQuantity"));
-        titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
+        if (sellApplyOrderVo.getType() == 3 || sellApplyOrderVo.getType() == 4) {
+            titles.add(new Title("入库仓库", "inWarehouseName"));
+            titles.add(new Title("总收货数量", "inTotalQuantity"));
+            titles.add(new Title("已收货数量", "inReceivedQuantity"));
+            titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
+        }
+        if (sellApplyOrderVo.getType() == 1 || sellApplyOrderVo.getType() == 2 || sellApplyOrderVo.getType() == 4) {
+            titles.add(new Title("出库仓库", "outWarehouseName"));
+            titles.add(new Title("总发货数量", "outTotalQuantity"));
+            titles.add(new Title("已发货数量", "outSentQuantity"));
+            titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
+        }
         titles.add(new Title("总商品金额", "totalMoney"));
         titles.add(new Title("直接优惠金额", "discountMoney"));
         titles.add(new Title("优惠券编号", "discountCouponId"));
         titles.add(new Title("总优惠金额", "totalDiscountMoney"));
         titles.add(new Title("本单金额", "orderMoney"));
+        if (sellApplyOrderVo.getType() == 1) {
+            titles.add(new Title("现金金额", "cashMoney"));
+            titles.add(new Title("支付宝金额", "alipayMoney"));
+            titles.add(new Title("微信金额", "wechatMoney"));
+            titles.add(new Title("银行卡金额", "bankCardMoney"));
+            titles.add(new Title("使用预收款金额", "advanceMoney"));
+        }
         titles.add(new Title("结算状态", "clearStatus"));
         titles.add(new Title("已结金额", "clearedMoney"));
         titles.add(new Title("未结金额", "notClearedMoney"));
@@ -800,6 +899,7 @@ public class SellService {
 
                 //减少该客户邀请人提成
                 storeClientUtil.updatePushMoneyMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), userId, sellResultOrderVo.getOrderMoney());
+
                 break;
 
             case 2:     //销售订单
@@ -882,9 +982,7 @@ public class SellService {
         }
 
         //红冲往来对账记录
-        if (applyOrderVo.getType() != 1) {
-            fundUtil.redDashedFundTargetCheckOrderMethod(new FundTargetCheckOrderVo(storeId, oldResultOrderId, userId));
-        }
+        fundUtil.redDashedFundTargetCheckOrderMethod(new FundTargetCheckOrderVo(storeId, oldResultOrderId, userId));
 
         return CommonResponse.success();
     }

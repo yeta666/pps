@@ -268,6 +268,9 @@ public class FundService {
 
                 ftcoVo.setOrderId(fundOrderVo.getId());
                 advanceMoney = fundOrderVo.getAdvanceMoney();
+                if (advanceMoney != 0 && (lastFTCOVo == null || lastFTCOVo.getAdvanceInMoney() < advanceMoney)) {
+                    throw new CommonException(CommonResponse.ADD_ERROR, "使用预收款金额错误");
+                }
                 ftcoVo.setNeedInMoneyDecrease(money + fundOrderVo.getDiscountMoney() + advanceMoney);       //设置应收减少
                 if (lastFTCOVo == null) {
                     ftcoVo.setNeedInMoney(-ftcoVo.getNeedInMoneyDecrease());       //设置期末应收
@@ -276,11 +279,7 @@ public class FundService {
                 }
                 if (advanceMoney != 0) {
                     ftcoVo.setAdvanceInMoneyDecrease(advanceMoney);     //设置预收减少
-                    if (lastFTCOVo == null) {
-                        ftcoVo.setAdvanceInMoney(-ftcoVo.getAdvanceInMoneyDecrease());      //设置期末预收
-                    } else {
-                        ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() - ftcoVo.getAdvanceInMoneyDecrease());      //设置期末预收
-                    }
+                    ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() - ftcoVo.getAdvanceInMoneyDecrease());      //设置期末预收
                 }
                 break;
 
@@ -314,6 +313,9 @@ public class FundService {
 
                 ftcoVo.setOrderId(fundOrderVo.getId());
                 advanceMoney = fundOrderVo.getAdvanceMoney();
+                if (advanceMoney != 0 && (lastFTCOVo == null || lastFTCOVo.getAdvanceOutMoney() < advanceMoney)) {
+                    throw new CommonException(CommonResponse.ADD_ERROR, "使用预付款金额错误");
+                }
                 ftcoVo.setNeedOutMoneyDecrease(money + fundOrderVo.getDiscountMoney() + advanceMoney);      //设置应付减少
                 if (lastFTCOVo == null) {
                     ftcoVo.setNeedOutMoney(-ftcoVo.getNeedOutMoneyDecrease());        //设置期末应付
@@ -322,11 +324,7 @@ public class FundService {
                 }
                 if (advanceMoney != 0) {
                     ftcoVo.setAdvanceOutMoneyDecrease(advanceMoney);        //设置预付减少
-                    if (lastFTCOVo == null) {
-                        ftcoVo.setAdvanceOutMoney(-lastFTCOVo.getAdvanceOutMoneyDecrease());       //设置期末预付
-                    } else {
-                        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() - lastFTCOVo.getAdvanceOutMoneyDecrease());       //设置期末预付
-                    }
+                    ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() - lastFTCOVo.getAdvanceOutMoneyDecrease());       //设置期末预付
                 }
                 break;
 

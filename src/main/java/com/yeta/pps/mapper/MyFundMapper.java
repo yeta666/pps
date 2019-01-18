@@ -53,7 +53,7 @@ public interface MyFundMapper {
     List<FundCheckOrderVo> findAllPagedFundCheckOrder(@Param(value = "vo") FundCheckOrderVo fundCheckOrderVo,
                                                       @Param(value = "pageVo") PageVo pageVo);
 
-    FundCheckOrderVo findFundCheckOrderByOrderId(FundCheckOrderVo fundCheckOrderVo);
+    List<FundCheckOrderVo> findFundCheckOrderByOrderId(FundCheckOrderVo fundCheckOrderVo);
 
     FundCheckOrderVo findLastBalanceMoney(FundCheckOrderVo fundCheckOrderVo);
 
@@ -63,7 +63,7 @@ public interface MyFundMapper {
 
     int redDashedFundTargetCheckOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
 
-    FundTargetCheckOrderVo findFundTargetCheckOrderByOrderId(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+    List<FundTargetCheckOrderVo> findFundTargetCheckOrderByOrderId(FundTargetCheckOrderVo fundTargetCheckOrderVo);
 
     FundTargetCheckOrderVo findLastFundTargetCheckOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
 

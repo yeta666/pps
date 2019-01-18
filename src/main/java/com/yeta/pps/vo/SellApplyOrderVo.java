@@ -36,11 +36,6 @@ public class SellApplyOrderVo {
     private Date endTime;
 
     /**
-     * 银行账户编号
-     */
-    private String bankAccountId;
-
-    /**
      * 单据编号
      */
     private String id;
@@ -176,22 +171,47 @@ public class SellApplyOrderVo {
      */
     private String remark;
 
+    /**
+     * 零售单现金金额
+     */
+    private Double cashMoney;
+
+    /**
+     * 零售单支付宝金额
+     */
+    private Double alipayMoney;
+
+    /**
+     * 零售单微信金额
+     */
+    private Double wechatMoney;
+
+    /**
+     * 零售单银行卡金额
+     */
+    private Double bankCardMoney;
+
+    /**
+     * 零售单使用预收款金额
+     */
+    private Double advanceMoney;
+
     public SellApplyOrderVo() {
     }
 
-    public SellApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
+    public SellApplyOrderVo(Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public SellApplyOrderVo(Integer inTotalQuantity, Integer outTotalQuantity, @NotNull(message = CommonResponse.PARAMETER_ERROR) Double totalMoney, @NotNull(message = CommonResponse.PARAMETER_ERROR) Double totalDiscountMoney) {
+    public SellApplyOrderVo(Integer inTotalQuantity, Integer outTotalQuantity, Double totalMoney, Double totalDiscountMoney) {
         this.inTotalQuantity = inTotalQuantity;
         this.outTotalQuantity = outTotalQuantity;
         this.totalMoney = totalMoney;
         this.totalDiscountMoney = totalDiscountMoney;
     }
 
-    public SellApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
+    public SellApplyOrderVo(Integer storeId, String id, String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
@@ -204,7 +224,7 @@ public class SellApplyOrderVo {
         this.client = client;
     }
 
-    public SellApplyOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Date startTime, Date endTime, String id, @NotNull(message = CommonResponse.PARAMETER_ERROR) Byte type, Client client) {
+    public SellApplyOrderVo(Integer storeId, Date startTime, Date endTime, String id, Byte type, Client client) {
         this.storeId = storeId;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -267,14 +287,6 @@ public class SellApplyOrderVo {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
-    }
-
-    public String getBankAccountId() {
-        return bankAccountId;
-    }
-
-    public void setBankAccountId(String bankAccountId) {
-        this.bankAccountId = bankAccountId;
     }
 
     public String getId() {
@@ -485,6 +497,46 @@ public class SellApplyOrderVo {
         this.remark = remark;
     }
 
+    public Double getCashMoney() {
+        return cashMoney;
+    }
+
+    public void setCashMoney(Double cashMoney) {
+        this.cashMoney = cashMoney;
+    }
+
+    public Double getAlipayMoney() {
+        return alipayMoney;
+    }
+
+    public void setAlipayMoney(Double alipayMoney) {
+        this.alipayMoney = alipayMoney;
+    }
+
+    public Double getWechatMoney() {
+        return wechatMoney;
+    }
+
+    public void setWechatMoney(Double wechatMoney) {
+        this.wechatMoney = wechatMoney;
+    }
+
+    public Double getBankCardMoney() {
+        return bankCardMoney;
+    }
+
+    public void setBankCardMoney(Double bankCardMoney) {
+        this.bankCardMoney = bankCardMoney;
+    }
+
+    public Double getAdvanceMoney() {
+        return advanceMoney;
+    }
+
+    public void setAdvanceMoney(Double advanceMoney) {
+        this.advanceMoney = advanceMoney;
+    }
+
     @Override
     public String toString() {
         return "SellApplyOrderVo{" +
@@ -495,7 +547,6 @@ public class SellApplyOrderVo {
                 ", userName='" + userName + '\'' +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
-                ", bankAccountId='" + bankAccountId + '\'' +
                 ", id='" + id + '\'' +
                 ", type=" + type +
                 ", createTime=" + createTime +
@@ -522,6 +573,11 @@ public class SellApplyOrderVo {
                 ", notClearedMoney=" + notClearedMoney +
                 ", userId='" + userId + '\'' +
                 ", remark='" + remark + '\'' +
+                ", cashMoney=" + cashMoney +
+                ", alipayMoney=" + alipayMoney +
+                ", wechatMoney=" + wechatMoney +
+                ", bankCardMoney=" + bankCardMoney +
+                ", advanceMoney=" + advanceMoney +
                 '}';
     }
 }
