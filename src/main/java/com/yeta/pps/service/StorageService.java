@@ -100,10 +100,10 @@ public class StorageService {
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(procurementApplyOrderVo.getStoreId()));
         procurementApplyOrderVos.stream().forEach(vo -> {
             warehouses.stream().forEach(warehouse -> {
-                if (vo.getInWarehouseId() == warehouse.getId()) {
+                if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
                     vo.setInWarehouseName(warehouse.getName());
                 }
-                if (vo.getOutWarehouseId() == warehouse.getId()) {
+                if (vo.getOutWarehouseId() != null && vo.getOutWarehouseId().intValue() == warehouse.getId()) {
                     vo.setOutWarehouseName(warehouse.getName());
                 }
             });
@@ -1155,34 +1155,15 @@ public class StorageService {
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<StorageOrderVo> storageOrderVos = myStorageMapper.findAllPagedStorageOrder(storageOrderVo, pageVo);
         
-        //补上仓库名
-        if (storageOrderVos.size() > 0) {
-            List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storageOrderVo.getStoreId()));
-            storageOrderVos.stream().forEach(vo -> {
-                warehouses.stream().forEach(warehouse -> {
-                    if (vo.getProcurementApplyOrderVo().getInWarehouseId() == warehouse.getId()) {
-                        vo.getProcurementApplyOrderVo().setInWarehouseName(warehouse.getName());
-                    }
-                    if (vo.getProcurementApplyOrderVo().getOutWarehouseId() == warehouse.getId()) {
-                        vo.getProcurementApplyOrderVo().setOutWarehouseName(warehouse.getName());
-                    }
-                });
-            });
-        }
-        
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("单据编号", "id"));
-        titles.add(new Title("单据类型", "type"));
         titles.add(new Title("单据日期", "createTime"));
-        /*titles.add(new Title("单据状态", "orderStatus"));*/
         titles.add(new Title("来源订单", "applyOrderId"));
-        titles.add(new Title("供应商", "procurementApplyOrderVo.supplierName"));
-        if (storageOrderVo.getType() == 1 || storageOrderVo.getType() == 2) {
-            titles.add(new Title("入库仓库", "procurementApplyOrderVo.inWarehouseName"));
-        } else if (storageOrderVo.getType() == 3 || storageOrderVo.getType() == 4) {
-            titles.add(new Title("出库仓库", "procurementApplyOrderVo.outWarehouseName"));
-        }
+        titles.add(new Title("往来单位编号", "targetId"));
+        titles.add(new Title("往来单位名称", "targetName"));
+        titles.add(new Title("往来单位电话", "targetPhone"));
+        titles.add(new Title("仓库", "warehouseName"));
         titles.add(new Title("本单数量", "quantity"));
         titles.add(new Title("物流公司", "logisticsCompany"));
         titles.add(new Title("运单号", "waybillNumber"));

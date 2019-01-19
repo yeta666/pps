@@ -28,6 +28,11 @@ public class GoodsSku {
     private Double vipPrice;
 
     /**
+     * 店长售价
+     */
+    private Double bossPrice;
+
+    /**
      * 商品积分
      */
     private Integer integral;
@@ -80,6 +85,14 @@ public class GoodsSku {
         this.vipPrice = vipPrice;
     }
 
+    public Double getBossPrice() {
+        return bossPrice;
+    }
+
+    public void setBossPrice(Double bossPrice) {
+        this.bossPrice = bossPrice;
+    }
+
     public Integer getIntegral() {
         return integral;
     }
@@ -104,6 +117,7 @@ public class GoodsSku {
                 ", purchasePrice=" + purchasePrice +
                 ", retailPrice=" + retailPrice +
                 ", vipPrice=" + vipPrice +
+                ", bossPrice=" + bossPrice +
                 ", integral=" + integral +
                 ", sku='" + sku + '\'' +
                 '}';

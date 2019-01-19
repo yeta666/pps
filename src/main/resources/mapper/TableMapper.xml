@@ -183,6 +183,7 @@
           purchase_price double(10,2) NOT NULL COMMENT '进价',
           retail_price double(10,2) NOT NULL COMMENT '零售价',
           vip_price double(10,2) NOT NULL COMMENT 'vip售价',
+          boss_price double(10, 2) NOT NULL COMMENT '店长售价',
           integral int(11) NOT NULL COMMENT '积分',
           PRIMARY KEY (id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

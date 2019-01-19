@@ -43,6 +43,12 @@ public class GoodsSkuVo {
     private Double vipPrice;
 
     /**
+     * 店长售价
+     */
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
+    private Double bossPrice;
+
+    /**
      * 积分
      */
     @NotNull(message = CommonResponse.PARAMETER_ERROR)
@@ -82,12 +88,12 @@ public class GoodsSkuVo {
         this.storeId = storeId;
     }
 
-    public GoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String goodsId) {
+    public GoodsSkuVo(Integer storeId, String goodsId) {
         this.storeId = storeId;
         this.goodsId = goodsId;
     }
 
-    public GoodsSkuVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, Integer id) {
+    public GoodsSkuVo(Integer storeId, Integer id) {
         this.storeId = storeId;
         this.id = id;
     }
@@ -140,6 +146,13 @@ public class GoodsSkuVo {
         this.vipPrice = vipPrice;
     }
 
+    public Double getBossPrice() {
+        return bossPrice;
+    }
+
+    public void setBossPrice(Double bossPrice) {
+        this.bossPrice = bossPrice;
+    }
 
     public Integer getIntegral() {
         return integral;
@@ -214,6 +227,7 @@ public class GoodsSkuVo {
                 ", purchasePrice=" + purchasePrice +
                 ", retailPrice=" + retailPrice +
                 ", vipPrice=" + vipPrice +
+                ", bossPrice=" + bossPrice +
                 ", integral=" + integral +
                 ", sku='" + sku + '\'' +
                 ", realInventory=" + realInventory +

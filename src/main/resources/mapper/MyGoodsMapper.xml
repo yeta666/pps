@@ -292,9 +292,9 @@
 
     <insert id="addGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo" useGeneratedKeys="true" keyProperty="id">
         insert into
-            goods_sku_${storeId} (goods_id, sku, purchase_price, retail_price, vip_price, integral)
+            goods_sku_${storeId} (goods_id, sku, purchase_price, retail_price, vip_price, boss_price, integral)
         values
-            (#{goodsId}, #{sku}, #{purchasePrice}, #{retailPrice}, #{vipPrice}, #{integral});
+            (#{goodsId}, #{sku}, #{purchasePrice}, #{retailPrice}, #{vipPrice}, #{bossPrice}, #{integral});
     </insert>
     
     <delete id="deleteGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
@@ -302,15 +302,15 @@
     </delete>
 
     <update id="updateGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo">
-        update goods_sku_${storeId} set sku = #{sku}, purchase_price = #{purchasePrice}, retail_price = #{retailPrice}, vip_price = #{vipPrice}, integral = #{integral} where id = #{id};
+        update goods_sku_${storeId} set sku = #{sku}, purchase_price = #{purchasePrice}, retail_price = #{retailPrice}, vip_price = #{vipPrice}, boss_price = #{bossPrice}, integral = #{integral} where id = #{id};
     </update>
 
     <select id="findAllGoodsSku" parameterType="com.yeta.pps.vo.GoodsSkuVo" resultType="com.yeta.pps.po.GoodsSku">
-        select id, goods_id, sku, purchase_price, retail_price, vip_price, integral from goods_sku_${storeId};
+        select id, goods_id, sku, purchase_price, retail_price, boss_price, vip_price, integral from goods_sku_${storeId};
     </select>
 
     <select id="findGoodsSkuById" parameterType="com.yeta.pps.vo.GoodsSkuVo" resultType="com.yeta.pps.po.GoodsSku">
-        select id, goods_id, sku, purchase_price, retail_price, vip_price, integral from goods_sku_${storeId} where id = #{id};
+        select id, goods_id, sku, purchase_price, retail_price, vip_price, boss_price, integral from goods_sku_${storeId} where id = #{id};
     </select>
 
     <!--仓库/商品规格关系-->
@@ -480,6 +480,7 @@
             <result column="sku_purchase_price" property="purchasePrice" />
             <result column="sku_retail_price" property="retailPrice" />
             <result column="sku_vip_price" property="vipPrice" />
+            <result column="sku_boss_price" property="bossPrice" />
             <result column="sku_integral" property="integral" />
         </collection>
     </resultMap>
@@ -505,6 +506,7 @@
             gsku.purchase_price as sku_purchase_price,
             gsku.retail_price as sku_retail_price,
             gsku.vip_price as sku_vip_price,
+            gsku.boss_price as sku_boss_price,
             gsku.integral as sku_integral
         from
             (
@@ -561,6 +563,7 @@
             gsku.purchase_price as sku_purchase_price,
             gsku.retail_price as sku_retail_price,
             gsku.vip_price as sku_vip_price,
+            gsku.boss_price as sku_boss_price,
             gsku.integral as sku_integral
         from
             (
@@ -621,6 +624,7 @@
                 <result column="gs_purchase_price" property="purchasePrice" />
                 <result column="gs_retail_price" property="retailPrice" />
                 <result column="gs_vip_price" property="vipPrice" />
+                <result column="gs_boss_price" property="bossPrice" />
                 <result column="gs_integral" property="integral" />
                 <result column="wgs_real_inventory" property="realInventory" />
                 <result column="wgs_can_use_inventory" property="canUseInventory" />
@@ -649,6 +653,7 @@
             gs.purchase_price as gs_purchase_price,
             gs.retail_price as gs_retail_price,
             gs.vip_price as gs_vip_price,
+            gs.boss_price as gs_boss_price,
             gs.integral as gs_integral,
             wgs.real_inventory as wgs_real_inventory,
             wgs.can_use_inventory as wgs_can_use_inventory,

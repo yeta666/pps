@@ -694,10 +694,10 @@ public class ProcurementService {
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(procurementResultOrderVo.getStoreId()));
         procurementResultOrderVos.stream().forEach(vo -> {
             warehouses.stream().forEach(warehouse -> {
-                if (vo.getProcurementApplyOrderVo().getInWarehouseId() == warehouse.getId()) {
+                if (vo.getProcurementApplyOrderVo().getInWarehouseId() != null && vo.getProcurementApplyOrderVo().getInWarehouseId().intValue() == warehouse.getId()) {
                     vo.getProcurementApplyOrderVo().setInWarehouseName(warehouse.getName());
                 }
-                if (vo.getProcurementApplyOrderVo().getOutWarehouseId() == warehouse.getId()) {
+                if (vo.getProcurementApplyOrderVo().getOutWarehouseId() != null && vo.getProcurementApplyOrderVo().getOutWarehouseId().intValue() == warehouse.getId()) {
                     vo.getProcurementApplyOrderVo().setOutWarehouseName(warehouse.getName());
                 }
             });

@@ -423,91 +423,112 @@
     </update>
 
     <select id="findCountStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo" resultType="java.lang.Integer">
-        select
-            count(0)
-        from
-            (
-                (
-                    storage_order_${storeId} as so
-                    left join procurement_apply_order_${storeId} as pao on so.apply_order_id = pao.id
-                )
-              left join supplier_${storeId} as s on pao.supplier_id = s.id
+        SELECT
+            COUNT(0)
+        FROM
+            storage_order_${storeId} AS so
+        LEFT JOIN procurement_apply_order_${storeId} AS pao ON pao.id = so.apply_order_id
+        LEFT JOIN supplier_${storeId} AS s ON s.id = pao.supplier_id
+        LEFT JOIN sell_apply_order_${storeId} AS sao ON sao.id = so.apply_order_id
+        LEFT JOIN client AS c ON c.id = sao.client_id
+        <if test="flag == 1">
+            LEFT JOIN warehouse_${storeId} AS w ON (
+            w.id = pao.in_warehouse_id
+            OR w.id = sao.in_warehouse_id
             )
-        left join user_${storeId} as u on so.user_id = u.id
-        where
-            so.type = #{type}
-        <if test="id != null">
-        and
-            so.id = #{id}
         </if>
-        <if test="procurementApplyOrderVo.supplierName != null">
-        and
-            s.name like concat('%', #{procurementApplyOrderVo.supplierName}, '%')
+        <if test="flag == 0">
+            LEFT JOIN warehouse_${storeId} AS w ON (
+            w.id = pao.out_warehouse_id
+            OR w.id = sao.out_warehouse_id
+            )
         </if>
-        <if test="procurementApplyOrderVo.startTime != null and procurementApplyOrderVo.endTime != null">
-        and
-            date(so.create_time) between #{procurementApplyOrderVo.startTime} and #{procurementApplyOrderVo.endTime}
+        LEFT JOIN user_${storeId} AS u ON u.id = so.user_id
+        WHERE
+            1 = 1
+        <if test="startTime != null and endTime != null">
+            AND DATE(so.create_time) BETWEEN #{startTime} AND #{endTime}
         </if>
-        order by so.create_time desc
+        <if test="targetName != null">
+            AND s.name LIKE concat('%', #{targetName}, '%') OR c.name LIKE concat('%', #{targetName}, '%')
+        </if>
+        <if test="warehouseId != null and flag == 1">
+            AND pao.in_warehouse_id = #{warehouseId} OR sao.in_warehouse_id = #{warehouseId}
+        </if>
+        <if test="warehouseId != null and flag == 0">
+            AND pao.out_warehouse_id = #{warehouseId} OR sao.out_warehouse_id = #{warehouseId}
+        </if>
+        <if test="flag == 1">
+            AND so.type IN (1, 2)
+        </if>
+        <if test="flag == 0">
+            AND so.type IN (3, 4)
+        </if>
     </select>
 
-    <resultMap id="storageOrderVoMap" type="com.yeta.pps.vo.StorageOrderVo">
-        <id column="id" property="id" />
-        <result column="type" property="type" />
-        <result column="create_time" property="createTime" />
-        <result column="apply_order_id" property="applyOrderId" />
-        <result column="order_status" property="orderStatus" />
-        <result column="quantity" property="quantity" />
-        <result column="logistics_company" property="logisticsCompany" />
-        <result column="waybill_number" property="waybillNumber" />
-        <result column="user_name" property="userName" />
-        <result column="remark" property="remark" />
-        <collection property="procurementApplyOrderVo" ofType="com.yeta.pps.vo.ProcurementApplyOrderVo">
-            <result column="supplier_name" property="supplierName" />
-            <result column="in_warehouse_id" property="inWarehouseId" />
-            <result column="out_warehouse_id" property="outWarehouseId" />
-        </collection>
-    </resultMap>
-
-    <select id="findAllPagedStorageOrder" resultMap="storageOrderVoMap">
-        select
+    <select id="findAllPagedStorageOrder" resultType="com.yeta.pps.vo.StorageOrderVo">
+        SELECT
             so.id,
             so.type,
             so.create_time,
             so.apply_order_id,
-            so.order_status,
-            s.name as supplier_name,
-            pao.in_warehouse_id,
-            pao.out_warehouse_id,
+            IF (pao.supplier_id IS NOT NULL, pao.supplier_id, sao.client_id ) AS target_id,
+            IF (s.name IS NOT NULL, s.name, c.name) AS target_name,
+            IF (s.contact_number IS NOT NULL, s.contact_number, c.phone) AS targetPhone,
+            <if test="vo.flag == 1">
+                IF (pao.in_warehouse_id IS NOT NULL, pao.in_warehouse_id, sao.in_warehouse_id) AS warehouse_id,
+            </if>
+            <if test="vo.flag == 0">
+                IF (pao.out_warehouse_id IS NOT NULL, pao.out_warehouse_id, sao.out_warehouse_id) AS warehouse_id,
+            </if>
+            w.name AS warehouse_name,
             so.quantity,
             so.logistics_company,
             so.waybill_number,
-            u.name as user_name,
-            so.remark as remark
-        from
-            (
-                (
-                    storage_order_${storageOrderVo.storeId} as so
-                    left join procurement_apply_order_${storageOrderVo.storeId} as pao on so.apply_order_id = pao.id
-                )
-                left join supplier_${storageOrderVo.storeId} as s on pao.supplier_id = s.id
+            so.user_id,
+            u.name AS user_name,
+            so.remark
+        FROM
+            storage_order_${vo.storeId} AS so
+        LEFT JOIN procurement_apply_order_${vo.storeId} AS pao ON pao.id = so.apply_order_id
+        LEFT JOIN supplier_${vo.storeId} AS s ON s.id = pao.supplier_id
+        LEFT JOIN sell_apply_order_${vo.storeId} AS sao ON sao.id = so.apply_order_id
+        LEFT JOIN client AS c ON c.id = sao.client_id
+        <if test="vo.flag == 1">
+            LEFT JOIN warehouse_${vo.storeId} AS w ON (
+                w.id = pao.in_warehouse_id
+                OR w.id = sao.in_warehouse_id
             )
-        left join user_${storageOrderVo.storeId} as u on so.user_id = u.id
-        where
-            so.type = #{storageOrderVo.type}
-        <if test="storageOrderVo.id != null">
-        and
-            so.id = #{storageOrderVo.id}
         </if>
-        <if test="storageOrderVo.procurementApplyOrderVo.supplierName != null">
-        and
-            s.name like concat('%', #{storageOrderVo.procurementApplyOrderVo.supplierName}, '%')
+        <if test="vo.flag == 0">
+            LEFT JOIN warehouse_${vo.storeId} AS w ON (
+                w.id = pao.out_warehouse_id
+                OR w.id = sao.out_warehouse_id
+            )
         </if>
-        <if test="storageOrderVo.procurementApplyOrderVo.startTime != null and storageOrderVo.procurementApplyOrderVo.endTime != null">
-        and
-            date(so.create_time) between #{storageOrderVo.procurementApplyOrderVo.startTime} and #{storageOrderVo.procurementApplyOrderVo.endTime}
+        LEFT JOIN user_${vo.storeId} AS u ON u.id = so.user_id
+        WHERE
+            1 = 1
+        <if test="vo.startTime != null and vo.endTime != null">
+            AND DATE(so.create_time) BETWEEN #{vo.startTime} AND #{vo.endTime}
         </if>
-        order by so.create_time desc
+        <if test="vo.targetName != null">
+            AND s.name LIKE concat('%', #{vo.targetName}, '%') OR c.name LIKE concat('%', #{vo.targetName}, '%')
+        </if>
+        <if test="vo.warehouseId != null and vo.flag == 1">
+            AND pao.in_warehouse_id = #{vo.warehouseId} OR sao.in_warehouse_id = #{vo.warehouseId}
+        </if>
+        <if test="vo.warehouseId != null and vo.flag == 0">
+            AND pao.out_warehouse_id = #{vo.warehouseId} OR sao.out_warehouse_id = #{vo.warehouseId}
+        </if>
+        <if test="vo.flag == 1">
+            AND so.type IN (1, 2)
+        </if>
+        <if test="vo.flag == 0">
+            AND so.type IN (3, 4)
+        </if>
+        ORDER BY
+            so.create_time DESC
         limit
             #{pageVo.start}, #{pageVo.pageSize};
     </select>

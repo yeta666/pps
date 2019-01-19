@@ -99,7 +99,7 @@ public class SellService {
 
         //判断优惠券金额
         if (sellApplyOrderVo.getDiscountCouponId() != null) {
-            double discountCouponMoney = fundUtil.getDiscountCouponMoneyMethod(storeId, sellApplyOrderVo.getDiscountCouponId(), sellApplyOrderVo.getClientId(), sellApplyOrderVo.getOrderMoney());
+            double discountCouponMoney = fundUtil.getDiscountCouponMoneyMethod(storeId, sellApplyOrderVo.getDiscountCouponId(), sellApplyOrderVo.getClientId(), sellApplyOrderVo.getTotalMoney());
             if (sellApplyOrderVo.getDiscountMoney() + discountCouponMoney != sellApplyOrderVo.getTotalDiscountMoney()) {
                 throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
@@ -273,7 +273,7 @@ public class SellService {
 
         //判断优惠券金额
         if (sellApplyOrderVo.getDiscountCouponId() != null) {
-            double discountCouponMoney = fundUtil.getDiscountCouponMoneyMethod(storeId, sellApplyOrderVo.getDiscountCouponId(), sellApplyOrderVo.getClientId(), sellApplyOrderVo.getOrderMoney());
+            double discountCouponMoney = fundUtil.getDiscountCouponMoneyMethod(storeId, sellApplyOrderVo.getDiscountCouponId(), sellApplyOrderVo.getClientId(), sellApplyOrderVo.getTotalMoney());
             if (sellApplyOrderVo.getDiscountMoney() + discountCouponMoney != sellApplyOrderVo.getTotalDiscountMoney()) {
                 throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
@@ -625,7 +625,7 @@ public class SellService {
 
         //判断优惠券金额
         if (sellApplyOrderVo.getDiscountCouponId() != null) {
-            double discountCouponMoney = fundUtil.getDiscountCouponMoneyMethod(sellApplyOrderVo.getStoreId(), sellApplyOrderVo.getDiscountCouponId(), oldVo.getClient().getId(), sellApplyOrderVo.getOrderMoney());
+            double discountCouponMoney = fundUtil.getDiscountCouponMoneyMethod(sellApplyOrderVo.getStoreId(), sellApplyOrderVo.getDiscountCouponId(), oldVo.getClient().getId(), sellApplyOrderVo.getTotalMoney());
             if (sellApplyOrderVo.getDiscountMoney() + discountCouponMoney != sellApplyOrderVo.getTotalDiscountMoney()) {
                 throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
@@ -1003,10 +1003,11 @@ public class SellService {
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellResultOrderVo.getStoreId()));
         sellResultOrderVos.stream().forEach(vo -> {
             warehouses.stream().forEach(warehouse -> {
-                if (vo.getSellApplyOrderVo().getInWarehouseId() == warehouse.getId()) {
+
+                if (vo.getSellApplyOrderVo().getInWarehouseId() != null &&vo.getSellApplyOrderVo().getInWarehouseId().intValue() == warehouse.getId()) {
                     vo.getSellApplyOrderVo().setInWarehouseName(warehouse.getName());
                 }
-                if (vo.getSellApplyOrderVo().getOutWarehouseId() == warehouse.getId()) {
+                if (vo.getSellApplyOrderVo().getOutWarehouseId() != null && vo.getSellApplyOrderVo().getOutWarehouseId().intValue() == warehouse.getId()) {
                     vo.getSellApplyOrderVo().setOutWarehouseName(warehouse.getName());
                 }
             });

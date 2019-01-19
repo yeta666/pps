@@ -43,7 +43,7 @@ public interface MyStorageMapper {
 
     int findCountStorageOrder(StorageOrderVo storageOrderVo);
 
-    List<StorageOrderVo> findAllPagedStorageOrder(@Param(value = "storageOrderVo") StorageOrderVo storageOrderVo,
+    List<StorageOrderVo> findAllPagedStorageOrder(@Param(value = "vo") StorageOrderVo storageOrderVo,
                                                   @Param(value = "pageVo") PageVo pageVo);
 
     StorageOrderVo findStorageOrderById(StorageOrderVo storageOrderVo);

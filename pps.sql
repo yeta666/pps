@@ -62,7 +62,7 @@ DROP TABLE IF EXISTS client_level;
 CREATE TABLE client_level (
   id int(11) NOT NULL AUTO_INCREMENT COMMENT '客户级别编号',
   name varchar(20) NOT NULL COMMENT '客户级别',
-  price_type tinyint(4) NOT NULL COMMENT '级别价格类型，1：零售价，2：vip售价',
+  price_type tinyint(4) NOT NULL COMMENT '级别价格类型，1：零售价，2：vip售价，3：店长售价',
   price decimal(10,2) NOT NULL COMMENT '级别默认价格，级别价格类型*0.几',
   PRIMARY KEY (id),
   UNIQUE KEY name (name)
@@ -409,6 +409,7 @@ CREATE TABLE goods_sku_1 (
   purchase_price double(10,2) NOT NULL COMMENT '进价',
   retail_price double(10,2) NOT NULL COMMENT '零售价',
   vip_price double(10,2) NOT NULL COMMENT 'vip售价',
+  boss_price double(10, 2) NOT NULL COMMENT '店长售价',
   integral int(11) NOT NULL COMMENT '积分',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

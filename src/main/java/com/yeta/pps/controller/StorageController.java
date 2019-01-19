@@ -101,44 +101,39 @@ public class StorageController {
     /**
      * 根据type查询所有收/发货单接口
      * @param storeId
-     * @param supplierName
+     * @param id
      * @param startTime
      * @param endTime
-     * @param id
+     * @param targetName
+     * @param warehouseId
+     * @param flag
      * @param page
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "根据type查询所有收/发货单", notes = "分页、筛选查询，其中type必填，supplierName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiOperation(value = "根据type查询所有收/发货单", notes = "分页、筛选查询，其中flag必填，targetName为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "type", value = "单据类型(1：采购订单收货单，2：退换货申请收货单，3：销售订单发货单，4：退换货申请发货单)", required = true, paramType = "path", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "收/发货单编号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "supplierName", value = "供应商名", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "clientName", value = "客户名", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "phone", value = "电话", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "membershipNumber", value = "会员卡号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "targetName", value = "往来单位", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "warehouseId", value = "仓库编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "flag", value = "单据类型(0：发货单，1：收货单)", required = true, paramType = "path", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
-    @GetMapping(value = "/storage/{type}")
+    @GetMapping(value = "/storage/{flag}")
     public CommonResponse<CommonResult<List<StorageOrderVo>>> findAllStorageOrder(@RequestParam(value = "storeId") Integer storeId,
-                                                                                  @PathVariable(value = "type") Byte type,
-                                                                                  @RequestParam(value = "supplierName", required = false) String supplierName,
-                                                                                  @RequestParam(value = "clientName", required = false) String clientName,
-                                                                                  @RequestParam(value = "phone", required = false) String phone,
-                                                                                  @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
+                                                                                  @RequestParam(value = "id", required = false) String id,
                                                                                   @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
                                                                                   @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
-                                                                                  @RequestParam(value = "id", required = false) String id,
+                                                                                  @RequestParam(value = "targetName", required = false) String targetName,
+                                                                                  @RequestParam(value = "warehouseId", required = false) Integer warehouseId,
+                                                                                  @PathVariable(value = "flag") Integer flag,
                                                                                   @RequestParam(value = "page") Integer page,
                                                                                   @RequestParam(value = "pageSize") Integer pageSize) {
-        ProcurementApplyOrderVo procurementApplyOrderVo = new ProcurementApplyOrderVo(supplierName, startTime, endTime);
-        Client client = new Client(clientName, phone, membershipNumber);
-        SellApplyOrderVo sellApplyOrderVo = new SellApplyOrderVo(startTime, endTime, client);
-        return storageService.findAllStorageOrder(new StorageOrderVo(storeId, id, type, procurementApplyOrderVo, sellApplyOrderVo), new PageVo(page, pageSize));
+        return storageService.findAllStorageOrder(new StorageOrderVo(storeId, id, startTime, endTime, targetName, warehouseId, flag), new PageVo(page, pageSize));
     }
 
     //其他入/出库单、报溢/损单、成本调价单、库存盘点单

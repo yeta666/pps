@@ -545,7 +545,7 @@ public class GoodsService {
                             if (goodsSkuVo.getId() != null && goodsSku.getId() == goodsSkuVo.getId()) {
                                 flag++;
                                 //判断商品规格参数
-                                if (goodsSkuVo.getSku() == null || goodsSkuVo.getPurchasePrice() == null || goodsSkuVo.getRetailPrice() == null || goodsSkuVo.getVipPrice() == null || goodsSkuVo.getIntegral() == null) {
+                                if (goodsSkuVo.getSku() == null || goodsSkuVo.getPurchasePrice() == null || goodsSkuVo.getRetailPrice() == null || goodsSkuVo.getVipPrice() == null || goodsSkuVo.getBossPrice() == null || goodsSkuVo.getIntegral() == null) {
                                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
                                 }
                                 if (myGoodsMapper.updateGoodsSku(goodsSkuVo) != 1) {
@@ -583,7 +583,7 @@ public class GoodsService {
             //关联新添加的商品规格
             goodsSkuVos.stream().forEach(goodsSkuVo -> {
                 //判断商品规格参数
-                if (goodsSkuVo.getSku() == null || goodsSkuVo.getPurchasePrice() == null || goodsSkuVo.getRetailPrice() == null || goodsSkuVo.getVipPrice() == null || goodsSkuVo.getIntegral() == null) {
+                if (goodsSkuVo.getSku() == null || goodsSkuVo.getPurchasePrice() == null || goodsSkuVo.getRetailPrice() == null || goodsSkuVo.getVipPrice() == null || goodsSkuVo.getBossPrice() == null || goodsSkuVo.getIntegral() == null) {
                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
@@ -722,7 +722,7 @@ public class GoodsService {
 
             //标题行
             List<String> titleRowCell = new ArrayList<>(Arrays.asList(new String[]{
-                    "商品货号", "商品名", "条码", "分类", "上架状态", "产地", "图片", "备注", "创建时间", "标签", "规格", "进价", "零售价", "vip售价", "积分"
+                    "商品货号", "商品名", "条码", "分类", "上架状态", "产地", "图片", "备注", "创建时间", "标签", "规格", "进价", "零售价", "vip售价", "店长售价", "积分"
             }));
 
             //最后一个必填列列数
@@ -751,6 +751,7 @@ public class GoodsService {
                         dataRowCell.add(goodsSkuVo.getPurchasePrice().toString());
                         dataRowCell.add(goodsSkuVo.getRetailPrice().toString());
                         dataRowCell.add(goodsSkuVo.getVipPrice().toString());
+                        dataRowCell.add(goodsSkuVo.getBossPrice().toString());
                         dataRowCell.add(goodsSkuVo.getIntegral().toString());
                         dataRowCells.add(dataRowCell);
                     });
