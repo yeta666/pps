@@ -171,8 +171,8 @@
         </collection>
     </resultMap>
 
-    <select id="findApplyOrderDetailById" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultMap="procurementApplyOrderVoMap">
-        select 
+    <select id="findAllApplyOrderDetail" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultMap="procurementApplyOrderVoMap">
+        select
             pao.id,
             pao.type,
             pao.create_time,
@@ -210,7 +210,7 @@
             g.bar_code as g_bar_code,
             gs.sku as gs_sku,
             gs.purchase_price as gs_purchase_price
-        from 
+        from
             (
                 (
                     (
@@ -226,7 +226,16 @@
             )
         left join goods_${storeId} as g on gs.goods_id = g.id
         where
-            pao.id = #{id};
+            1 = 1
+        <if test="id != null">
+            and pao.id = #{id}
+        </if>
+        <if test="supplierId != null">
+            and pao.supplier_id = #{supplierId}
+        </if>
+        <if test="userId != null">
+            and pao.user_id = #{userId}
+        </if>
     </select>
 
     <!--采购结果订单-->

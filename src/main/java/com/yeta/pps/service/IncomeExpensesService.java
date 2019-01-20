@@ -1,11 +1,13 @@
 package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
+import com.yeta.pps.mapper.MyFundMapper;
 import com.yeta.pps.mapper.MyIncomeExpensesMapper;
 import com.yeta.pps.po.IncomeExpenses;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.Title;
+import com.yeta.pps.vo.FundResultOrderVo;
 import com.yeta.pps.vo.IncomeExpensesVo;
 import com.yeta.pps.vo.PageVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class IncomeExpensesService {
 
     @Autowired
     private MyIncomeExpensesMapper myIncomeExpensesMapper;
+
+    @Autowired
+    private MyFundMapper myFundMapper;
 
     /**
      * 新增收支费用
@@ -47,6 +52,12 @@ public class IncomeExpensesService {
     @Transactional
     public CommonResponse delete(List<IncomeExpensesVo> incomeExpensesVos) {
         incomeExpensesVos.stream().forEach(incomeExpensesVo -> {
+            //判断收支费用是否使用
+            //1. fund_result_order
+            if (myFundMapper.findFundResultOrder(new FundResultOrderVo(incomeExpensesVo.getStoreId(), incomeExpensesVo.getId())).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+
             //删除收支费用
             if (myIncomeExpensesMapper.delete(incomeExpensesVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);

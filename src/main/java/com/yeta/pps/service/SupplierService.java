@@ -1,10 +1,12 @@
 package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
+import com.yeta.pps.mapper.MyFundMapper;
+import com.yeta.pps.mapper.MyProcurementMapper;
+import com.yeta.pps.mapper.MyStorageMapper;
 import com.yeta.pps.mapper.MySupplierMapper;
 import com.yeta.pps.util.*;
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.SupplierVo;
+import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,15 @@ public class SupplierService {
 
     @Autowired
     private FundUtil fundUtil;
+
+    @Autowired
+    private MyProcurementMapper myProcurementMapper;
+
+    @Autowired
+    private MyStorageMapper myStorageMapper;
+
+    @Autowired
+    private MyFundMapper myFundMapper;
 
     /**
      * 新增供应商
@@ -55,6 +66,61 @@ public class SupplierService {
     @Transactional
     public CommonResponse delete(List<SupplierVo> supplierVos) {
         supplierVos.stream().forEach(supplierVo -> {
+            //获取参数
+            Integer storeId = supplierVo.getStoreId();
+            String id = supplierVo.getId();
+
+            //判断供应商是否使用
+            /*//1. procurement_apply_order
+            ProcurementApplyOrderVo paoVo = new ProcurementApplyOrderVo();
+            paoVo.setStoreId(storeId);
+            paoVo.setSupplierId(id);
+            if (myProcurementMapper.findAllApplyOrderDetail(paoVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //2. storage_check_order
+            StorageCheckOrderVo scoVo = new StorageCheckOrderVo();
+            scoVo.setStoreId(storeId);
+            scoVo.setTargetId(id);
+            if (myStorageMapper.findAllStorageCheckOrder(scoVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //3. storage_result_order
+            StorageResultOrderVo sroVo = new StorageResultOrderVo();
+            sroVo.setStoreId(storeId);
+            sroVo.setTargetId(id);
+            if (myStorageMapper.findAllStorageResultOrderDetail(sroVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //4. fund_check_order
+            FundCheckOrderVo fcoVo = new FundCheckOrderVo();
+            fcoVo.setStoreId(storeId);
+            fcoVo.setTargetId(id);
+            if (myFundMapper.findAllFundCheckOrder(fcoVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //5. fund_order
+            FundOrderVo foVo = new FundOrderVo();
+            foVo.setStoreId(storeId);
+            foVo.setTargetId(id);
+            if (myFundMapper.findFundOrder(foVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //6. fund_result_order
+            FundResultOrderVo froVo = new FundResultOrderVo();
+            froVo.setStoreId(storeId);
+            froVo.setTargetId(id);
+            if (myFundMapper.findFundResultOrder(froVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }*/
+            //7. fund_target_check_order
+            FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
+            ftcoVo.setStoreId(storeId);
+            ftcoVo.setTargetId(id);
+            if (myFundMapper.findFundTargetCheckOrder(ftcoVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+
             //删除供应商
             if (mySupplierMapper.delete(supplierVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);

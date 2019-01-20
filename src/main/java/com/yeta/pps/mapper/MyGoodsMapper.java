@@ -108,8 +108,6 @@ public interface MyGoodsMapper {
 
     int addWarehouseGoodsSku(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
-    WarehouseGoodsSkuVo findWarehouseGoodsSku(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
-
     List<WarehouseGoodsSkuVo> findAllWarehouseGoodsSku(WarehouseGoodsSkuVo warehouseGoodsSkuVo);
 
     int updateInventoryOpening(WarehouseGoodsSkuVo warehouseGoodsSkuVo);

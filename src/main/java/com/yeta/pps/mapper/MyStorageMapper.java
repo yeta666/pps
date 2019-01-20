@@ -59,7 +59,7 @@ public interface MyStorageMapper {
     List<StorageResultOrderVo> findAllPagedStorageResultOrder(@Param(value = "vo") StorageResultOrderVo storageResultOrderVo,
                                                               @Param(value = "pageVo") PageVo pageVo);
 
-    StorageResultOrderVo findStorageResultOrderDetailById(StorageResultOrderVo storageResultOrderVo);
+    List<StorageResultOrderVo> findAllStorageResultOrderDetail(StorageResultOrderVo storageResultOrderVo);
 
     //查库存
 
@@ -125,4 +125,6 @@ public interface MyStorageMapper {
     StorageCheckOrderVo findLastCheckMoneyByGoodsSkuId(StorageCheckOrderVo storageCheckOrderVo);
 
     StorageCheckOrderVo findLastCheckMoneyByGoodsId(StorageCheckOrderVo storageCheckOrderVo);
+
+    List<StorageCheckOrderVo> findAllStorageCheckOrder(StorageCheckOrderVo storageCheckOrderVo);
 }

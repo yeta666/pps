@@ -2,6 +2,7 @@ package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyGoodsMapper;
+import com.yeta.pps.mapper.MyStorageMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.GoodsSku;
 import com.yeta.pps.po.SSystem;
@@ -10,10 +11,7 @@ import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.SystemUtil;
 import com.yeta.pps.util.Title;
-import com.yeta.pps.vo.GoodsSkuVo;
-import com.yeta.pps.vo.PageVo;
-import com.yeta.pps.vo.WarehouseGoodsSkuVo;
-import com.yeta.pps.vo.WarehouseVo;
+import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +32,9 @@ public class WarehouseService {
 
     @Autowired
     private MyGoodsMapper myGoodsMapper;
+
+    @Autowired
+    private MyStorageMapper myStorageMapper;
 
     @Autowired
     private SystemUtil systemUtil;
@@ -71,9 +72,20 @@ public class WarehouseService {
     @Transactional
     public CommonResponse delete(List<WarehouseVo> warehouseVos) {
         warehouseVos.stream().forEach(warehouseVo -> {
+            //获取参数
+            Integer storeId = warehouseVo.getStoreId();
+            Integer id = warehouseVo.getId();
+
             //判断仓库是否使用
             //1. system
-            systemUtil.judgeRetailMethod(new SSystem(warehouseVo.getStoreId(), warehouseVo.getId()));
+            systemUtil.judgeRetailMethod(new SSystem(storeId, id));
+            //2. storage_check_order
+            StorageCheckOrderVo scoVo = new StorageCheckOrderVo();
+            scoVo.setStoreId(storeId);
+            scoVo.setWarehouseId(id);
+            if (myStorageMapper.findAllStorageCheckOrder(scoVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
 
             //删除仓库
             if (myWarehouseMapper.delete(warehouseVo) != 1) {

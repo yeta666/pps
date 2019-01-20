@@ -6,7 +6,6 @@ import com.yeta.pps.mapper.MyMarketingMapper;
 import com.yeta.pps.po.ClientDiscountCoupon;
 import com.yeta.pps.po.DiscountCoupon;
 import com.yeta.pps.vo.FundCheckOrderVo;
-import com.yeta.pps.vo.FundOrderVo;
 import com.yeta.pps.vo.FundResultOrderVo;
 import com.yeta.pps.vo.FundTargetCheckOrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,7 +167,7 @@ public class FundUtil {
         myFundMapper.redDashedFundTargetCheckOrder(vo);
 
         //获取红冲蓝单
-        List<FundTargetCheckOrderVo> vos = myFundMapper.findFundTargetCheckOrderByOrderId(vo);
+        List<FundTargetCheckOrderVo> vos = myFundMapper.findFundTargetCheckOrder(vo);
         vos.stream().forEach(vo1 -> {
             vo1.setStoreId(storeId);
 

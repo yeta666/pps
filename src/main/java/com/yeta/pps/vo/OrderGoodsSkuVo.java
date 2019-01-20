@@ -125,6 +125,10 @@ public class OrderGoodsSkuVo {
     public OrderGoodsSkuVo() {
     }
 
+    public OrderGoodsSkuVo(Integer storeId) {
+        this.storeId = storeId;
+    }
+
     public OrderGoodsSkuVo(Integer quantity, Integer finishQuantity) {
         this.quantity = quantity;
         this.finishQuantity = finishQuantity;

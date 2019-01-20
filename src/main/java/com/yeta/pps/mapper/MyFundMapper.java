@@ -3,6 +3,7 @@ package com.yeta.pps.mapper;
 import com.yeta.pps.vo.*;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -11,14 +12,12 @@ import java.util.List;
  */
 public interface MyFundMapper {
 
-    //按单收款
+    //按单收款、按单付款
 
     int findCountNotClearedSellApplyOrder(SellApplyOrderVo sellApplyOrderVo);
 
     List<SellApplyOrderVo> findPagedNotClearedSellApplyOrder(@Param(value = "vo") SellApplyOrderVo sellApplyOrderVo,
                                                              @Param(value = "pageVo") PageVo pageVo);
-
-    //按单付款
 
     int findCountNotClearedProcurementApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
 
@@ -36,9 +35,7 @@ public interface MyFundMapper {
     List<FundOrderVo> findAllPagedFundOrder(@Param(value = "fundOrderVo") FundOrderVo fundOrderVo,
                                             @Param(value = "pageVo") PageVo pageVo);
 
-    FundOrderVo findFundOrderById(FundOrderVo fundOrderVo);
-
-    List<FundOrderVo> findFundOrderByBankAccountId(FundOrderVo fundOrderVo);
+    List<FundOrderVo> findFundOrder(FundOrderVo fundOrderVo);
 
     //资金对账
 
@@ -57,15 +54,17 @@ public interface MyFundMapper {
 
     FundCheckOrderVo findLastBalanceMoney(FundCheckOrderVo fundCheckOrderVo);
 
+    List<FundCheckOrderVo> findAllFundCheckOrder(FundCheckOrderVo fundCheckOrderVo);
+
     //往来对账
 
     int addFundTargetCheckOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
 
     int redDashedFundTargetCheckOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
 
-    List<FundTargetCheckOrderVo> findFundTargetCheckOrderByOrderId(FundTargetCheckOrderVo fundTargetCheckOrderVo);
-
     FundTargetCheckOrderVo findLastFundTargetCheckOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
+
+    List<FundTargetCheckOrderVo> findFundTargetCheckOrder(FundTargetCheckOrderVo fundTargetCheckOrderVo);
 
     int findCountFundTargetCheckOrderNeedInByClient(FundTargetCheckOrderVo fundTargetCheckOrderVo);
 
@@ -108,7 +107,5 @@ public interface MyFundMapper {
     List<FundCheckOrderVo> findAllPagedFundResultOrder(@Param(value = "vo") FundResultOrderVo fundResultOrderVo,
                                                        @Param(value = "pageVo") PageVo pageVo);
 
-    FundResultOrderVo findFundResultOrderById(FundResultOrderVo fundResultOrderVo);
-
-    List<FundCheckOrderVo> findFundResultOrderByBankAccountId(FundResultOrderVo fundResultOrderVo);
+    List<FundResultOrderVo> findFundResultOrder(FundResultOrderVo fundResultOrderVo);
 }

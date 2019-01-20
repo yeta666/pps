@@ -4,7 +4,6 @@ import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.GoodsSku;
 import com.yeta.pps.po.SellResultOrder;
-import com.yeta.pps.po.SSystem;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
@@ -1051,10 +1050,11 @@ public class StorageService {
             }
 
             //查询申请订单
-            pVo = myProcurementMapper.findApplyOrderDetailById(new ProcurementApplyOrderVo(storeId, applyOrderId));
-            if (pVo == null || pVo.getDetails() == null || pVo.getDetails().size() == 0) {
+            List<ProcurementApplyOrderVo> pVos = myProcurementMapper.findAllApplyOrderDetail(new ProcurementApplyOrderVo(storeId, applyOrderId));
+            if (pVos.size() == 0 || pVos.get(0).getDetails() == null || pVos.get(0).getDetails().size() == 0) {
                 throw new CommonException("申请订单编号错误");
             }
+            pVo = pVos.get(0);
 
         } else if (storageOrderVo.getProcurementApplyOrderVo() == null && storageOrderVo.getSellApplyOrderVo() != null) {       //销售相关
             //判断参数
@@ -1063,10 +1063,11 @@ public class StorageService {
             }
 
             //查询申请订单
-            sVo = mySellMapper.findApplyOrderDetailById(new SellApplyOrderVo(storeId, applyOrderId));
-            if (sVo == null || sVo.getDetails() == null || sVo.getDetails().size() == 0) {
+            List<SellApplyOrderVo> sVos = mySellMapper.findApplyOrderDetail(new SellApplyOrderVo(storeId, applyOrderId));
+            if (sVos.size() == 0 || sVos.get(0).getDetails() == null || sVos.get(0).getDetails().size() == 0) {
                 throw new CommonException("申请订单编号错误");
             }
+            sVo = sVos.get(0);
 
         } else {
             throw new CommonException("参数不匹配：【申请订单为空】");
@@ -1505,7 +1506,7 @@ public class StorageService {
         }
 
         //查询红冲蓝单
-        storageResultOrderVo = myStorageMapper.findStorageResultOrderDetailById(storageResultOrderVo);
+        storageResultOrderVo = myStorageMapper.findAllStorageResultOrderDetail(storageResultOrderVo).get(0);
         List<OrderGoodsSkuVo> vos = storageResultOrderVo.getDetails();
         Integer warehouseId = storageResultOrderVo.getWarehouseId();
         byte type  = storageResultOrderVo.getType();
@@ -1621,7 +1622,7 @@ public class StorageService {
      * @return
      */
     public CommonResponse findStorageResultOrderDetailById(StorageResultOrderVo storageResultOrderVo) {
-        storageResultOrderVo = myStorageMapper.findStorageResultOrderDetailById(storageResultOrderVo);
+        storageResultOrderVo = myStorageMapper.findAllStorageResultOrderDetail(storageResultOrderVo).get(0);
         return CommonResponse.success(storageResultOrderVo);
     }
 

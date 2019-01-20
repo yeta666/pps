@@ -535,10 +535,11 @@ public class SellService {
         Integer storeId = sellApplyOrderVo.getStoreId();
 
         //获取销售申请订单
-        SellApplyOrderVo oldVo =  mySellMapper.findApplyOrderDetailById(sellApplyOrderVo);
-        if (oldVo == null || oldVo.getDetails().size() == 0) {
+        List<SellApplyOrderVo> oldVos =  mySellMapper.findApplyOrderDetail(sellApplyOrderVo);
+        if (oldVos.size() == 0 || oldVos.get(0).getDetails().size() == 0) {
             throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
+        SellApplyOrderVo oldVo = oldVos.get(0);
 
         //判断单据状态
         Byte orderStatus = oldVo.getOrderStatus();
@@ -666,10 +667,10 @@ public class SellService {
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellApplyOrderVo.getStoreId()));
         sellApplyOrderVos.stream().forEach(vo -> {
             warehouses.stream().forEach(warehouse -> {
-                if (vo.getInWarehouseId() == warehouse.getId()) {
+                if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
                     vo.setInWarehouseName(warehouse.getName());
                 }
-                if (vo.getOutWarehouseId() == warehouse.getId()) {
+                if (vo.getOutWarehouseId() != null && vo.getOutWarehouseId().intValue() == warehouse.getId()) {
                     vo.setOutWarehouseName(warehouse.getName());
                 }
             });
@@ -729,18 +730,19 @@ public class SellService {
         Integer storeId = sellApplyOrderVo.getStoreId();
 
         //根据单据编号查询单据详情
-        sellApplyOrderVo = mySellMapper.findApplyOrderDetailById(sellApplyOrderVo);
-        if (sellApplyOrderVo == null || sellApplyOrderVo.getDetails().size() == 0) {
+        List<SellApplyOrderVo> saoVos = mySellMapper.findApplyOrderDetail(sellApplyOrderVo);
+        if (saoVos.size() == 0 || saoVos.get(0).getDetails().size() == 0) {
             return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
+        sellApplyOrderVo = saoVos.get(0);
 
         //补上仓库名
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storeId));
         for (Warehouse warehouse : warehouses) {
-            if (sellApplyOrderVo.getInWarehouseId() == warehouse.getId()) {
+            if (sellApplyOrderVo.getInWarehouseId() != null && sellApplyOrderVo.getInWarehouseId().intValue() == warehouse.getId()) {
                 sellApplyOrderVo.setInWarehouseName(warehouse.getName());
             }
-            if (sellApplyOrderVo.getOutWarehouseId() == warehouse.getId()) {
+            if (sellApplyOrderVo.getOutWarehouseId() != null && sellApplyOrderVo.getOutWarehouseId().intValue() == warehouse.getId()) {
                 sellApplyOrderVo.setOutWarehouseName(warehouse.getName());
             }
         }
@@ -791,7 +793,7 @@ public class SellService {
         }
 
         //查询该结果单对应的申请单
-        SellApplyOrderVo applyOrderVo = mySellMapper.findApplyOrderDetailById(new SellApplyOrderVo(storeId, sellResultOrderVo.getApplyOrderId()));
+        SellApplyOrderVo applyOrderVo = mySellMapper.findApplyOrderDetail(new SellApplyOrderVo(storeId, sellResultOrderVo.getApplyOrderId())).get(0);
         List<OrderGoodsSkuVo> applyOrderDetails = applyOrderVo.getDetails();
         List<OrderGoodsSkuVo> applyOrderInVos = applyOrderDetails.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("1")).collect(Collectors.toList());
         List<OrderGoodsSkuVo> applyOrderOutVos = applyOrderDetails.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("0")).collect(Collectors.toList());
@@ -1003,11 +1005,12 @@ public class SellService {
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellResultOrderVo.getStoreId()));
         sellResultOrderVos.stream().forEach(vo -> {
             warehouses.stream().forEach(warehouse -> {
-
-                if (vo.getSellApplyOrderVo().getInWarehouseId() != null &&vo.getSellApplyOrderVo().getInWarehouseId().intValue() == warehouse.getId()) {
+                if (vo.getSellApplyOrderVo() != null && vo.getSellApplyOrderVo().getInWarehouseId() != null &&
+                        vo.getSellApplyOrderVo().getInWarehouseId().intValue() == warehouse.getId()) {
                     vo.getSellApplyOrderVo().setInWarehouseName(warehouse.getName());
                 }
-                if (vo.getSellApplyOrderVo().getOutWarehouseId() != null && vo.getSellApplyOrderVo().getOutWarehouseId().intValue() == warehouse.getId()) {
+                if (vo.getSellApplyOrderVo() != null && vo.getSellApplyOrderVo().getOutWarehouseId() != null &&
+                        vo.getSellApplyOrderVo().getOutWarehouseId().intValue() == warehouse.getId()) {
                     vo.getSellApplyOrderVo().setOutWarehouseName(warehouse.getName());
                 }
             });
@@ -1056,10 +1059,12 @@ public class SellService {
         //补上仓库名
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storeId));
         for (Warehouse warehouse : warehouses) {
-            if (sellResultOrderVo.getSellApplyOrderVo().getInWarehouseId() == warehouse.getId()) {
+            if (sellResultOrderVo.getSellApplyOrderVo() != null && sellResultOrderVo.getSellApplyOrderVo().getInWarehouseId() != null &&
+                    sellResultOrderVo.getSellApplyOrderVo().getInWarehouseId().intValue() == warehouse.getId()) {
                 sellResultOrderVo.getSellApplyOrderVo().setInWarehouseName(warehouse.getName());
             }
-            if (sellResultOrderVo.getSellApplyOrderVo().getOutWarehouseId() == warehouse.getId()) {
+            if (sellResultOrderVo.getSellApplyOrderVo() != null && sellResultOrderVo.getSellApplyOrderVo().getOutWarehouseId() != null
+                    && sellResultOrderVo.getSellApplyOrderVo().getOutWarehouseId().intValue() == warehouse.getId()) {
                 sellResultOrderVo.getSellApplyOrderVo().setOutWarehouseName(warehouse.getName());
             }
         }

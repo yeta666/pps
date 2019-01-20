@@ -28,7 +28,7 @@ public interface MySellMapper {
 
     SellApplyOrderVo findApplyOrderById(SellApplyOrderVo sellApplyOrderVo);
 
-    SellApplyOrderVo findApplyOrderDetailById(SellApplyOrderVo sellApplyOrderVo);
+    List<SellApplyOrderVo> findAllApplyOrderDetail(SellApplyOrderVo sellApplyOrderVo);
 
     //销售结果单
 

@@ -3,6 +3,7 @@ package com.yeta.pps.service;
 import com.alibaba.fastjson.JSON;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyGoodsMapper;
+import com.yeta.pps.mapper.MyOrderGoodsSkuMapper;
 import com.yeta.pps.mapper.MyStorageMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
 import com.yeta.pps.po.*;
@@ -38,6 +39,9 @@ public class GoodsService {
 
     @Autowired
     private MyStorageMapper myStorageMapper;
+
+    @Autowired
+    private MyOrderGoodsSkuMapper myOrderGoodsSkuMapper;
 
     //商品标签
 
@@ -354,7 +358,6 @@ public class GoodsService {
 
     /**
      * 修改商品属性值
-     * 是否要做修改商品属性值功能，修改商品属性值之后，有的商品规格可能还存在该商品属性值？？
      * @param goodsPropertyValueVo
      * @return
      */
@@ -468,22 +471,28 @@ public class GoodsService {
      */
     @Transactional
     public CommonResponse delete(List<GoodsVo> goodsVos) {
+        //查询所有商品规格
+        List<GoodsSku> goodsSkus = myGoodsMapper.findAllGoodsSku(new GoodsSkuVo(goodsVos.get(0).getStoreId()));
+        //查询所有单据/商品规格关系
+        List<OrderGoodsSkuVo> orderGoodsSkuVos = myOrderGoodsSkuMapper.findAllOrderGoodsSku(new OrderGoodsSkuVo(goodsVos.get(0).getStoreId()));
         goodsVos.stream().forEach(goodsVo -> {
             //判断商品是否使用
-
+            //1. storage_check_order
+            if (myStorageMapper.findLastCheckMoneyByGoodsId(new StorageCheckOrderVo(goodsVo.getStoreId(), goodsVo.getId())) != null) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //2. order_goods_sku
+            goodsSkus.stream().filter(goodsSku -> goodsSku.getGoodsId().equals(goodsVo.getId())).collect(Collectors.toList()).stream().forEach(goodsSku -> {
+                Optional<OrderGoodsSkuVo> optional = orderGoodsSkuVos.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getGoodsSkuId().toString().equals(goodsSku.getId().toString())).findFirst();
+                if (optional.isPresent()) {
+                    throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+                }
+            });
 
             //删除商品
             if (myGoodsMapper.delete(goodsVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
             }
-
-            //删除商品/商品标签关系
-            GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(goodsVo.getStoreId(), goodsVo.getId());
-            myGoodsMapper.deleteGoodsLabel(goodsGoodsLabelVo);
-
-            //删除该商品对应的商品规格
-            GoodsSkuVo goodsSkuVo = new GoodsSkuVo(goodsVo.getStoreId(), goodsVo.getId());
-            myGoodsMapper.deleteGoodsSku(goodsSkuVo);
         });
         return CommonResponse.success();
     }

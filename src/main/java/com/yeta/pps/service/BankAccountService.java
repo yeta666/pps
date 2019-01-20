@@ -3,6 +3,7 @@ package com.yeta.pps.service;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyBankAccountMapper;
 import com.yeta.pps.mapper.MyFundMapper;
+import com.yeta.pps.mapper.SystemMapper;
 import com.yeta.pps.po.SSystem;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
@@ -28,6 +29,9 @@ public class BankAccountService {
     private MyFundMapper myFundMapper;
 
     @Autowired
+    private SystemMapper systemMapper;
+
+    @Autowired
     private SystemUtil systemUtil;
 
     @Autowired
@@ -42,6 +46,10 @@ public class BankAccountService {
         //判断参数
         if (bankAccountVo.getName() == null || bankAccountVo.getType() == null || bankAccountVo.getUserId() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
+        if (!bankAccountVo.getId().startsWith("1004")) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR, "银行账户只能新增编号以1004开头的银行卡");
         }
 
         //新增
@@ -63,20 +71,32 @@ public class BankAccountService {
      */
     @Transactional
     public CommonResponse delete(List<BankAccountVo> bankAccountVos) {
+        SSystem sSystem = systemMapper.findRetail(new SSystem(bankAccountVos.get(0).getStoreId()));
+        if (sSystem == null) {
+            throw new CommonException(CommonResponse.DELETE_ERROR);
+        }
         bankAccountVos.stream().forEach(bankAccountVo -> {
+            //判断银行账户是否可以删除
+            if ((sSystem.getRetailBankAccountId() != null && bankAccountVo.getId().equals(sSystem.getRetailBankAccountId())) ||
+                    bankAccountVo.getId().equals("1001") ||
+                    bankAccountVo.getId().equals("1002") ||
+                    bankAccountVo.getId().equals("1003")) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+
             //判断银行账户是否使用
             //1. fund_check_order
             if (myFundMapper.findLastBalanceMoney(new FundCheckOrderVo(bankAccountVo.getStoreId(), bankAccountVo.getId())) != null) {
                 throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
-            //2. fund_order
-            if (myFundMapper.findFundOrderByBankAccountId(new FundOrderVo(bankAccountVo.getStoreId(), bankAccountVo.getId())).size() > 0) {
+            /*//2. fund_order
+            if (myFundMapper.findFundOrder(new FundOrderVo(bankAccountVo.getStoreId(), bankAccountVo.getId())).size() > 0) {
                 throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
             //3. fund_result_order
-            if (myFundMapper.findFundResultOrderByBankAccountId(new FundResultOrderVo(bankAccountVo.getStoreId(), bankAccountVo.getId())).size() > 0) {
+            if (myFundMapper.findFundResultOrder(new FundResultOrderVo(bankAccountVo.getStoreId(), bankAccountVo.getId())).size() > 0) {
                 throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
-            }
+            }*/
             //4. system
             systemUtil.judgeRetailMethod(new SSystem(bankAccountVo.getStoreId(), bankAccountVo.getId()));
 

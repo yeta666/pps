@@ -1,9 +1,7 @@
 package com.yeta.pps.service;
 
 import com.yeta.pps.exception.CommonException;
-import com.yeta.pps.mapper.MyRoleMapper;
-import com.yeta.pps.mapper.MyUserMapper;
-import com.yeta.pps.mapper.MyWarehouseMapper;
+import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.Role;
 import com.yeta.pps.po.User;
 import com.yeta.pps.util.CommonResponse;
@@ -11,8 +9,6 @@ import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.util.CommonUtil;
 import com.yeta.pps.util.Title;
 import com.yeta.pps.vo.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +31,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Service
 public class UserService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
-
     @Autowired
     private MyUserMapper myUserMapper;
 
@@ -44,7 +38,16 @@ public class UserService {
     private MyRoleMapper myRoleMapper;
 
     @Autowired
-    private MyWarehouseMapper myWarehouseMapper;
+    private MyProcurementMapper myProcurementMapper;
+
+    @Autowired
+    private MySellMapper mySellMapper;
+
+    @Autowired
+    private MyStorageMapper myStorageMapper;
+
+    @Autowired
+    private MyFundMapper myFundMapper;
 
     /**
      * 获取验证码
@@ -181,6 +184,68 @@ public class UserService {
     @Transactional
     public CommonResponse delete(List<UserVo> userVos) {
         userVos.stream().forEach(userVo -> {
+            //获取参数
+            Integer storeId = userVo.getStoreId();
+            String id = userVo.getId();
+
+            //判断用户是否使用
+            //1. procurement_apply_order
+            ProcurementApplyOrderVo paoVo = new ProcurementApplyOrderVo();
+            paoVo.setStoreId(storeId);
+            paoVo.setUserId(id);
+            if (myProcurementMapper.findAllApplyOrderDetail(paoVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //2. sell_apply_order
+            SellApplyOrderVo saoVo = new SellApplyOrderVo();
+            saoVo.setStoreId(storeId);
+            saoVo.setUserId(id);
+            if (mySellMapper.findAllApplyOrderDetail(saoVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //3. storage_check_order
+            StorageCheckOrderVo scoVo = new StorageCheckOrderVo();
+            scoVo.setStoreId(storeId);
+            scoVo.setUserId(id);
+            if (myStorageMapper.findAllStorageCheckOrder(scoVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //4. storage_result_order
+            StorageResultOrderVo sroVo = new StorageResultOrderVo();
+            sroVo.setStoreId(storeId);
+            sroVo.setUserId(id);
+            if (myStorageMapper.findAllStorageResultOrderDetail(sroVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //5. fund_check_order
+            FundCheckOrderVo fcoVo = new FundCheckOrderVo();
+            fcoVo.setStoreId(storeId);
+            fcoVo.setUserId(id);
+            if (myFundMapper.findAllFundCheckOrder(fcoVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //6. fund_order
+            FundOrderVo foVo = new FundOrderVo();
+            foVo.setStoreId(storeId);
+            foVo.setUserId(id);
+            if (myFundMapper.findFundOrder(foVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //7. fund_result_order
+            FundResultOrderVo froVo = new FundResultOrderVo();
+            froVo.setStoreId(storeId);
+            froVo.setUserId(id);
+            if (myFundMapper.findFundResultOrder(froVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+            //8. fund_target_check_order
+            FundTargetCheckOrderVo ftcoVo = new FundTargetCheckOrderVo();
+            ftcoVo.setStoreId(storeId);
+            ftcoVo.setUserId(id);
+            if (myFundMapper.findFundTargetCheckOrder(ftcoVo).size() > 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
+            }
+
             //删除用户
             if (myUserMapper.delete(userVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);

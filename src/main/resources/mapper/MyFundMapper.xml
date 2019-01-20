@@ -270,22 +270,22 @@
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findFundOrderById" parameterType="com.yeta.pps.vo.FundOrderVo" resultType="com.yeta.pps.vo.FundOrderVo">
+    <select id="findFundOrder" parameterType="com.yeta.pps.vo.FundOrderVo" resultType="com.yeta.pps.vo.FundOrderVo">
         select
             id, type, create_time, order_id, target_id, order_status, bank_account_id, discount_money, money, advance_money, user_id, remark
         from
             fund_order_${storeId}
         where
-            id = #{id};
-    </select>
-
-    <select id="findFundOrderByBankAccountId" parameterType="com.yeta.pps.vo.FundOrderVo" resultType="com.yeta.pps.vo.FundOrderVo">
-        select
-            id, type, create_time, order_id, target_id, order_status, bank_account_id, discount_money, money, advance_money, user_id, remark
-        from
-            fund_order_${storeId}
-        where
-            bank_account_id = #{bankAccountId};
+            1 = 1
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="targetId != null">
+            and target_id = #{targetId}
+        </if>
+        <if test="bankAccountId != null">
+            and bank_account_id = #{bankAccountId}
+        </if>
     </select>
 
     <!--资金对账-->
@@ -451,6 +451,18 @@
         limit 1;
     </select>
 
+    <select id="findAllFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo" resultType="com.yeta.pps.vo.FundCheckOrderVo">
+        select
+            id, order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id
+        from
+            fund_check_order_${storeId}
+        where
+            1 = 1
+        <if test="targetId != null">
+            target_id = #{targetId}
+        </if>
+    </select>
+
     <!--往来对账-->
 
     <insert id="addFundTargetCheckOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo">
@@ -463,15 +475,6 @@
     <update id="redDashedFundTargetCheckOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo">
         update fund_target_check_order_${storeId} set order_status = -1 where order_id = #{orderId} and order_status &gt; 0;
     </update>
-
-    <select id="findFundTargetCheckOrderByOrderId" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        select
-            id, order_id, create_time, order_status, target_id, need_in_money_increase, need_in_money_decrease, need_in_money, advance_in_money_increase, advance_in_money_decrease, advance_in_money, need_out_money_increase, need_out_money_decrease, need_out_money, advance_out_money_increase, advance_out_money_decrease, advance_out_money, user_id
-        from
-            fund_target_check_order_${storeId}
-        where
-            order_id = #{orderId};
-    </select>
 
     <select id="findLastFundTargetCheckOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
         SELECT
@@ -512,6 +515,21 @@
         ORDER BY
             ftco.id DESC
         LIMIT 1;
+    </select>
+
+    <select id="findFundTargetCheckOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
+        select
+            id, order_id, create_time, order_status, target_id, need_in_money_increase, need_in_money_decrease, need_in_money, advance_in_money_increase, advance_in_money_decrease, advance_in_money, need_out_money_increase, need_out_money_decrease, need_out_money, advance_out_money_increase, advance_out_money_decrease, advance_out_money, user_id
+        from
+            fund_target_check_order_${storeId}
+        where
+            1 = 1
+        <if test="orderId != null">
+            and order_id = #{orderId}
+        </if>
+        <if test="targetId != null">
+            and target_id = #{targetId}
+        </if>
     </select>
 
     <select id="findCountFundTargetCheckOrderNeedInByClient" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="java.lang.Integer">
@@ -975,11 +993,24 @@
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findFundResultOrderById" parameterType="com.yeta.pps.vo.FundResultOrderVo" resultType="com.yeta.pps.vo.FundResultOrderVo">
-        select id, type, create_time, order_status, target_id, bank_account_id, money, income_expenses_id, user_id, remark from fund_result_order_${storeId} where id = #{id};
-    </select>
-
-    <select id="findFundResultOrderByBankAccountId" parameterType="com.yeta.pps.vo.FundResultOrderVo" resultType="com.yeta.pps.vo.FundResultOrderVo">
-        select id, type, create_time, order_status, target_id, bank_account_id, money, income_expenses_id, user_id, remark from fund_result_order_${storeId} where bank_account_id = #{bankAccountId};
+    <select id="findFundResultOrder" parameterType="com.yeta.pps.vo.FundResultOrderVo" resultType="com.yeta.pps.vo.FundResultOrderVo">
+        select
+            id, type, create_time, order_status, target_id, bank_account_id, money, income_expenses_id, user_id, remark
+        from
+            fund_result_order_${storeId}
+        where
+            1 = 1
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="targetId != null">
+            and target_id = #{targetId}
+        </if>
+        <if test="bankAccountId != null">
+            and bank_account_id = #{bankAccountId}
+        </if>
+        <if test="incomeExpensesId != null">
+            and income_expenses_id = #{incomeExpensesId}
+        </if>
     </select>
 </mapper>

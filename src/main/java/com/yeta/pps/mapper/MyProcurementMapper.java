@@ -29,7 +29,7 @@ public interface MyProcurementMapper {
 
     ProcurementApplyOrder findApplyOrderById(ProcurementApplyOrderVo procurementApplyOrderVo);
 
-    ProcurementApplyOrderVo findApplyOrderDetailById(ProcurementApplyOrderVo procurementApplyOrderVo);
+    List<ProcurementApplyOrderVo> findAllApplyOrderDetail(ProcurementApplyOrderVo procurementApplyOrderVo);
 
     //采购结果订单
 

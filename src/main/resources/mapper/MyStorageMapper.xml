@@ -661,7 +661,7 @@
         </collection>
     </resultMap>
 
-    <select id="findStorageResultOrderDetailById" parameterType="com.yeta.pps.vo.StorageResultOrderVo" resultMap="storageResultOrderVoMap">
+    <select id="findAllStorageResultOrderDetail" parameterType="com.yeta.pps.vo.StorageResultOrderVo" resultMap="storageResultOrderVoMap">
         select
             sro.id,
             sro.type,
@@ -723,7 +723,13 @@
             )
         left join goods_${storeId} as g on gs.goods_id = g.id
         where
-            sro.id = #{id};
+            1 = 1
+        <if test="id != null">
+            and sro.id = #{id}
+        </if>
+        <if test="targetId != null">
+            and sro.target_id = #{targetId}
+        </if>
     </select>
 
     <!--查库存-->
@@ -1664,5 +1670,20 @@
             goods_id = #{goodsId}
         order by id desc
         limit 1;
+    </select>
+
+    <select id="findAllStorageCheckOrder" parameterType="com.yeta.pps.vo.StorageCheckOrderVo" resultType="com.yeta.pps.vo.StorageCheckOrderVo">
+       select
+            id, order_id, create_time, order_status, target_id, goods_id, goods_sku_id, warehouse_id, in_quantity, in_money, in_total_money, out_quantity, out_money, out_total_money, check_quantity, check_money, check_total_money, check_quantity1, check_money1, check_total_money1, check_quantity2, check_money2, check_total_money2, user_id
+        from
+            storage_check_order_${storeId}
+        where
+            1 = 1
+        <if test="targetId != null">
+            and target_id = #{targetId};
+        </if>
+        <if test="warehouseId != null">
+            and warehouse_id = #{warehouseId};
+        </if>
     </select>
 </mapper>

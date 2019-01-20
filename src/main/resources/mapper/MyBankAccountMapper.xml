@@ -19,7 +19,7 @@
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.BankAccountVo" resultType="java.lang.Integer">
-        select COUNT(0) from bank_account_${storeId};
+        select count(0) from bank_account_${storeId};
     </select>
 
     <select id="findAll" parameterType="com.yeta.pps.vo.BankAccountVo" resultType="com.yeta.pps.vo.BankAccountVo">

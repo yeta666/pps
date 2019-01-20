@@ -289,10 +289,12 @@ public class ProcurementService {
         Integer storeId = procurementApplyOrderVo.getStoreId();
 
         //获取采购申请订单
-        ProcurementApplyOrderVo oldVo =  myProcurementMapper.findApplyOrderDetailById(procurementApplyOrderVo);
-        if (oldVo == null || oldVo.getDetails().size() == 0) {
+        List<ProcurementApplyOrderVo> oldVos =  myProcurementMapper.findAllApplyOrderDetail(procurementApplyOrderVo);
+        if (oldVos.size() == 0 || oldVos.get(0).getDetails().size() == 0) {
             throw new CommonException(CommonResponse.DELETE_ERROR);
         }
+        ProcurementApplyOrderVo oldVo = oldVos.get(0);
+
 
         //判断单据状态
         Byte orderStatus = oldVo.getOrderStatus();
@@ -407,10 +409,10 @@ public class ProcurementService {
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(procurementApplyOrderVo.getStoreId()));
         procurementApplyOrderVos.stream().forEach(vo -> {
             warehouses.stream().forEach(warehouse -> {
-                if (vo.getInWarehouseId() == warehouse.getId()) {
+                if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
                     vo.setInWarehouseName(warehouse.getName());
                 }
-                if (vo.getOutWarehouseId() == warehouse.getId()) {
+                if (vo.getOutWarehouseId() != null && vo.getOutWarehouseId().intValue() == warehouse.getId()) {
                     vo.setOutWarehouseName(warehouse.getName());
                 }
             });
@@ -455,18 +457,20 @@ public class ProcurementService {
         Integer storeId = procurementApplyOrderVo.getStoreId();
 
         //根据单据编号查询单据详情
-        procurementApplyOrderVo = myProcurementMapper.findApplyOrderDetailById(procurementApplyOrderVo);
-        if (procurementApplyOrderVo == null || procurementApplyOrderVo.getDetails().size() == 0) {
+        List<ProcurementApplyOrderVo> paoVos = myProcurementMapper.findAllApplyOrderDetail(procurementApplyOrderVo);
+        if (paoVos.size() == 0 || paoVos.get(0).getDetails().size() == 0) {
             return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
+        procurementApplyOrderVo = paoVos.get(0);
+
 
         //补上仓库名
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storeId));
         for (Warehouse warehouse : warehouses) {
-            if (procurementApplyOrderVo.getInWarehouseId() == warehouse.getId()) {
+            if (procurementApplyOrderVo.getInWarehouseId() != null && procurementApplyOrderVo.getInWarehouseId().intValue() == warehouse.getId()) {
                 procurementApplyOrderVo.setInWarehouseName(warehouse.getName());
             }
-            if (procurementApplyOrderVo.getOutWarehouseId() == warehouse.getId()) {
+            if (procurementApplyOrderVo.getOutWarehouseId() != null && procurementApplyOrderVo.getOutWarehouseId().intValue() == warehouse.getId()) {
                 procurementApplyOrderVo.setOutWarehouseName(warehouse.getName());
             }
         }
@@ -515,7 +519,7 @@ public class ProcurementService {
         }
 
         //查询该结果单对应的申请单
-        ProcurementApplyOrderVo applyOrderVo = myProcurementMapper.findApplyOrderDetailById(new ProcurementApplyOrderVo(storeId, procurementResultOrderVo.getApplyOrderId()));
+        ProcurementApplyOrderVo applyOrderVo = myProcurementMapper.findAllApplyOrderDetail(new ProcurementApplyOrderVo(storeId, procurementResultOrderVo.getApplyOrderId())).get(0);
         List<OrderGoodsSkuVo> applyOrderDetails = applyOrderVo.getDetails();
 
         //红冲采购换货单要先入库再出库
@@ -694,10 +698,12 @@ public class ProcurementService {
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(procurementResultOrderVo.getStoreId()));
         procurementResultOrderVos.stream().forEach(vo -> {
             warehouses.stream().forEach(warehouse -> {
-                if (vo.getProcurementApplyOrderVo().getInWarehouseId() != null && vo.getProcurementApplyOrderVo().getInWarehouseId().intValue() == warehouse.getId()) {
+                if (vo.getProcurementApplyOrderVo() != null && vo.getProcurementApplyOrderVo().getInWarehouseId() != null &&
+                        vo.getProcurementApplyOrderVo().getInWarehouseId().intValue() == warehouse.getId()) {
                     vo.getProcurementApplyOrderVo().setInWarehouseName(warehouse.getName());
                 }
-                if (vo.getProcurementApplyOrderVo().getOutWarehouseId() != null && vo.getProcurementApplyOrderVo().getOutWarehouseId().intValue() == warehouse.getId()) {
+                if (vo.getProcurementApplyOrderVo() != null && vo.getProcurementApplyOrderVo().getOutWarehouseId() != null &&
+                        vo.getProcurementApplyOrderVo().getOutWarehouseId().intValue() == warehouse.getId()) {
                     vo.getProcurementApplyOrderVo().setOutWarehouseName(warehouse.getName());
                 }
             });
@@ -742,10 +748,12 @@ public class ProcurementService {
         //补上仓库名
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storeId));
         for (Warehouse warehouse : warehouses) {
-            if (procurementResultOrderVo.getProcurementApplyOrderVo().getInWarehouseId() == warehouse.getId()) {
+            if (procurementResultOrderVo.getProcurementApplyOrderVo() != null && procurementResultOrderVo.getProcurementApplyOrderVo().getInWarehouseId() != null &&
+                    procurementResultOrderVo.getProcurementApplyOrderVo().getInWarehouseId().intValue() == warehouse.getId()) {
                 procurementResultOrderVo.getProcurementApplyOrderVo().setInWarehouseName(warehouse.getName());
             }
-            if (procurementResultOrderVo.getProcurementApplyOrderVo().getOutWarehouseId() == warehouse.getId()) {
+            if (procurementResultOrderVo.getProcurementApplyOrderVo() != null && procurementResultOrderVo.getProcurementApplyOrderVo().getOutWarehouseId() != null &&
+                    procurementResultOrderVo.getProcurementApplyOrderVo().getOutWarehouseId().intValue() == warehouse.getId()) {
                 procurementResultOrderVo.getProcurementApplyOrderVo().setOutWarehouseName(warehouse.getName());
             }
         }

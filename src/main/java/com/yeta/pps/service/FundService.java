@@ -3,7 +3,6 @@ package com.yeta.pps.service;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.*;
 import com.yeta.pps.po.ProcurementApplyOrder;
-import com.yeta.pps.po.SSystem;
 import com.yeta.pps.po.StoreClient;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
@@ -425,7 +424,7 @@ public class FundService {
         }
 
         //获取红冲蓝单
-        fundOrderVo = myFundMapper.findFundOrderById(fundOrderVo);
+        fundOrderVo = myFundMapper.findFundOrder(fundOrderVo).get(0);
 
         //设置红冲红单
         fundOrderVo.setStoreId(storeId);
@@ -1043,7 +1042,7 @@ public class FundService {
         }
 
         //获取红冲蓝单
-        fundResultOrderVo = myFundMapper.findFundResultOrderById(fundResultOrderVo);
+        fundResultOrderVo = myFundMapper.findFundResultOrder(fundResultOrderVo).get(0);
 
         //红冲资金记账记录
         fundUtil.redDashedFundCheckOrderMethod(new FundCheckOrderVo(storeId, fundResultOrderVo.getId(), userId));

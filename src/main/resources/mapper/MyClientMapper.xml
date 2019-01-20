@@ -120,7 +120,7 @@
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.ClientVo">
-        delete from client where id = #{id} and level_id > 0;
+        delete from client where id = #{id} and level_id > 1;
     </delete>
 
     <update id="update" parameterType="com.yeta.pps.vo.ClientVo">

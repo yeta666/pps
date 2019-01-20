@@ -248,7 +248,7 @@
         </collection>
     </resultMap>
 
-    <select id="findApplyOrderDetailById" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultMap="sellApplyOrderVoMap2">
+    <select id="findAllApplyOrderDetail" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultMap="sellApplyOrderVoMap2">
         select
             sao.id,
             sao.type,
@@ -315,7 +315,13 @@
             )
         left join goods_${storeId} as g on gs.goods_id = g.id
         where
-            sao.id = #{id};
+            1 = 1
+        <if test="id != null">
+            and sao.id = #{id}
+        </if>
+        <if test="userId != null">
+            and sao.user_id = #{userId}
+        </if>
     </select>
 
     <!--销售结果订单-->
