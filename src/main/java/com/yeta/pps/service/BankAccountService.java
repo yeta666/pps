@@ -48,10 +48,6 @@ public class BankAccountService {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
-        if (!bankAccountVo.getId().startsWith("1004")) {
-            return CommonResponse.error(CommonResponse.PARAMETER_ERROR, "银行账户只能新增编号以1004开头的银行卡");
-        }
-
         //新增
         if (myBankAccountMapper.add(bankAccountVo) != 1) {
             return CommonResponse.error(CommonResponse.ADD_ERROR);
@@ -77,10 +73,7 @@ public class BankAccountService {
         }
         bankAccountVos.stream().forEach(bankAccountVo -> {
             //判断银行账户是否可以删除
-            if ((sSystem.getRetailBankAccountId() != null && bankAccountVo.getId().equals(sSystem.getRetailBankAccountId())) ||
-                    bankAccountVo.getId().equals("1001") ||
-                    bankAccountVo.getId().equals("1002") ||
-                    bankAccountVo.getId().equals("1003")) {
+            if ((sSystem.getRetailBankAccountId() != null && bankAccountVo.getId().equals(sSystem.getRetailBankAccountId()))) {
                 throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
 
@@ -118,6 +111,7 @@ public class BankAccountService {
         if (bankAccountVo.getName() == null || bankAccountVo.getType() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
+
         //修改
         if (myBankAccountMapper.update(bankAccountVo) != 1) {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);

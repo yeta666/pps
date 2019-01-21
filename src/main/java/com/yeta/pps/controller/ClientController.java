@@ -55,7 +55,7 @@ public class ClientController {
                                 @RequestParam(value = "password") String password) {
         ClientVo clientVo = new ClientVo();
         clientVo.setUsername(username);
-        clientVo.setPhone(password);
+        clientVo.setPassword(password);
         return clientService.login(clientVo);
     }
 

@@ -433,6 +433,7 @@ public class GoodsController {
      * 查询所有商品接口
      * @param storeId
      * @param id
+     * @param name
      * @param barCode
      * @param typeId
      * @param putaway
@@ -444,6 +445,7 @@ public class GoodsController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "商品货号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "name", value = "商品名称", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "barCode", value = "条码", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "typeId", value = "类型id", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "putaway", value = "上架状态，0：未上架，1：已上架", required = false, paramType = "query", dataType = "int"),
@@ -453,28 +455,30 @@ public class GoodsController {
     @GetMapping(value = "/goods")
     public CommonResponse<CommonResult<GoodsVo>> findAll(@RequestParam(value = "storeId") Integer storeId,
                                                          @RequestParam(value = "id", required = false) String id,
+                                                         @RequestParam(value = "name", required = false) String name,
                                                          @RequestParam(value = "barCode", required = false) String barCode,
                                                          @RequestParam(value = "typeId", required = false) Integer typeId,
                                                          @RequestParam(value = "putaway", required = false) Byte putaway,
                                                          @RequestParam(value = "page", required = true) Integer page,
                                                          @RequestParam(value = "pageSize", required = true) Integer pageSize) {
-        return goodsService.findAll(new GoodsVo(storeId, id, barCode, typeId, putaway), new PageVo(page, pageSize));
+        return goodsService.findAll(new GoodsVo(storeId, id, name, barCode, typeId, putaway), new PageVo(page, pageSize));
     }
 
     /**
      * 导出商品接口
      * @param storeId
      * @param id
+     * @param name
      * @param barCode
      * @param typeId
      * @param putaway
      * @param response
-     * @throws IOException
      */
     @ApiOperation(value = "导出商品", notes = "可筛选导出")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "商品货号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "name", value = "商品名称", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "barCode", value = "条码", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "typeId", value = "类型id", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "putaway", value = "上架状态，0：未上架，1：已上架", required = false, paramType = "query", dataType = "int")
@@ -482,27 +486,29 @@ public class GoodsController {
     @GetMapping(value = "/goods/export")
     public void exportGoods(@RequestParam(value = "storeId") Integer storeId,
                             @RequestParam(value = "id", required = false) String id,
+                            @RequestParam(value = "name", required = false) String name,
                             @RequestParam(value = "barCode", required = false) String barCode,
                             @RequestParam(value = "typeId", required = false) Integer typeId,
                             @RequestParam(value = "putaway", required = false) Byte putaway,
                             HttpServletResponse response) {
-        goodsService.exportGoods(new GoodsVo(storeId, id, barCode, typeId, putaway), response);
+        goodsService.exportGoods(new GoodsVo(storeId, id, name, barCode, typeId, putaway), response);
     }
 
     /**
      * 导出商品及sku接口
      * @param storeId
      * @param id
+     * @param name
      * @param barCode
      * @param typeId
      * @param putaway
      * @param response
-     * @throws IOException
      */
     @ApiOperation(value = "导出商品及sku", notes = "可筛选导出")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "商品货号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "name", value = "商品名称", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "barCode", value = "条码", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "typeId", value = "类型id", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "putaway", value = "上架状态，0：未上架，1：已上架", required = false, paramType = "query", dataType = "int")
@@ -510,11 +516,12 @@ public class GoodsController {
     @GetMapping(value = "/goods/export/skus")
     public void exportGoodsSku(@RequestParam(value = "storeId") Integer storeId,
                                @RequestParam(value = "id", required = false) String id,
+                               @RequestParam(value = "name", required = false) String name,
                                @RequestParam(value = "barCode", required = false) String barCode,
                                @RequestParam(value = "typeId", required = false) Integer typeId,
                                @RequestParam(value = "putaway", required = false) Byte putaway,
                                HttpServletResponse response) {
-        goodsService.exportGoodsSku(new GoodsVo(storeId, id, barCode, typeId, putaway), response);
+        goodsService.exportGoodsSku(new GoodsVo(storeId, id, name, barCode, typeId, putaway), response);
     }
 
     /**

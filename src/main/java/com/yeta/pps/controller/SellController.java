@@ -208,6 +208,8 @@ public class SellController {
      * @param startTime
      * @param endTime
      * @param id
+     * @param type
+     * @param flag
      * @param page
      * @param pageSize
      * @return
@@ -222,6 +224,7 @@ public class SellController {
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "id", value = "销售结果订单编号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "type", value = "类型", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "flag", value = "标志位，1表示申请退换货的时候查询采购入库单", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
@@ -234,11 +237,12 @@ public class SellController {
                                                                                     @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
                                                                                     @RequestParam(value = "id", required = false) String id,
                                                                                     @RequestParam(value = "type", required = false) Byte type,
+                                                                                    @RequestParam(value = "flag", required = false) Integer flag,
                                                                                     @RequestParam(value = "page") Integer page,
                                                                                     @RequestParam(value = "pageSize") Integer pageSize) {
         Client client = new Client(clientName, phone, membershipNumber);
         SellApplyOrderVo sellApplyOrderVo = new SellApplyOrderVo(startTime, endTime, client);
-        return sellService.findAllResultOrder(new SellResultOrderVo(storeId, sellApplyOrderVo, id, type), new PageVo(page, pageSize));
+        return sellService.findAllResultOrder(new SellResultOrderVo(storeId, sellApplyOrderVo, id, type, flag), new PageVo(page, pageSize));
     }
 
     /**

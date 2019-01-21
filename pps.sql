@@ -1,5 +1,162 @@
 
 
+DROP TABLE IF EXISTS accounting_document_1;
+CREATE TABLE accounting_document_1 (
+  id varchar(50) NOT NULL DEFAULT '' COMMENT '单据编号',
+  create_time datetime NOT NULL COMMENT '单据日期',
+  order_status tinyint(4) NOT NULL COMMENT '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
+  order_id varchar(50) DEFAULT NULL COMMENT '来源单据编号',
+  subject_id varchar(20) NOT NULL COMMENT '科目编号',
+  type tinyint(4) NOT NULL COMMENT '单据类型，1：系统凭证，2：自制凭证',
+  target_id varchar(50) NOT NULL COMMENT '核算单位编号',
+  debit_money double(10,2) NOT NULL COMMENT '借方金额',
+  credit_money double(10,2) NOT NULL COMMENT '贷方金额',
+  user_id varchar(50) NOT NULL COMMENT '经手人',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS accounting_subject_1;
+CREATE TABLE accounting_subject_1(
+  id varchar(20) COMMENT '会计科目编号',
+  name varchar(20) NOT NULL COMMENT '会计科目名称',
+  check_item tinyint(4) DEFAULT NULL COMMENT '核算项，1：供应商，2：客户，3：职员',
+  debit_credit tinyint(4) NOT NULL COMMENT '借贷，1：贷，2：借',
+  fixed_assets_opening double(10,2) NOT NULL COMMENT '固定资产期初',
+  assets_liabilities_opening double(10,2) NOT NULL COMMENT '资产负债期初',
+  can_operation tinyint(4) NOT NULL COMMENT '是否可以删除或修改，0：否，1：是',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+INSERT INTO accounting_subject_1 VALUES ('1', '资产类', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1001', '库存现金', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1002', '支付宝账户', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1003', '微信账户', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1004', '银行存款', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('100401', '建设银行', null, 2, 0, 0, 1);
+INSERT INTO accounting_subject_1 VALUES ('100402', '招商银行', null, 2, 0, 0, 1);
+INSERT INTO accounting_subject_1 VALUES ('100403', '华夏银行', null, 2, 0, 0, 1);
+INSERT INTO accounting_subject_1 VALUES ('1012', '其他货币资金', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1121', '应收票据', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1122', '应收账款', 2, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1123', '预付账款', 1, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1131', '应收股利', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1132', '应收利息', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1221', '其他应收款', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1231', '坏账准备', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1401', '材料采购', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1402', '在途物资', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1403', '原材料', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1404', '材料成本差异', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1405', '库存商品', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1406', '发出商品', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1407', '商品进销差价', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1408', '委托代销商品', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1471', '存货跌价准备', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1531', '长期应收款', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1601', '固定资产', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1602', '累计折旧', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1603', '固定资产减值准备', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1606', '固定资产清理', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1701', '无形资产', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1801', '长期待摊费用', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('1901', '待处理财产损溢', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2', '负债类', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2001', '短期借款', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2201', '应付票据', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2202', '应付账款', 1, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2203', '预收账款', 2, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2211', '应付职工薪酬', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2221', '应交税费', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('222101', '应交增值税', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('22210101', '进项税额', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('22210102', '已交税金', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('22210103', '转出未交增值税', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('22210104', '减免税款', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('22210105', '销项税额', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('222102', '应交营业税', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('222103', '关税', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('222104', '消费税', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2231', '应付利息', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2232', '应付股利', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2241', '其他应付款', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2501', '长期借款', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2502', '应付债券', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('2701', '长期应付款', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('4', '所有者权益类', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('4000', '期初资本', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('4001', '实收资本', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('4002', '资本公积', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('4101', '盈余公积', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('410101', '法定盈余公积', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('410102', '任意盈余公积', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('4103', '本年利润', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('4104', '利润分配', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('410401', '提取法定盈余公积', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('410402', '提取任意盈余公积', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('410499', '未分配利润', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6001', '主营业务收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605101', '进货退货差价', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605102', '调拨收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605103', '商品报溢收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605104', '成本调价收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605105', '商品拆装收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605106', '调账收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605107', '其他入库收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6052', '其他收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605201', '利息收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605202', '损赠收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605203', '租赁收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('605204', '罚没收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6111', '投资收益', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6301', '营业外收入', null, 1, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6401', '主营业务成本', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6402', '其他业务成本', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('640201', '商品报损支出', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('640202', '其他出库费用', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6403', '营业税金及附加', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6601', '销售费用', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660101', '优惠金额', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660102', '包装费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660103', '运输费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660104', '广告费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660105', '装卸费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660106', '保险费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660107', '展览费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660108', '租赁费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660109', '销售服务费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660110', '差旅费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660111', '办公费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660112', '折旧费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660113', '修理费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660114', '网店运费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660115', '快递费', 2, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660116', '招待费', 2, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660117', '水电气费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660118', '积分提现', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660119', '提成提现', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6602', '管理费用', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660202', '工会经费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660203', '职工教育经费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660204', '业务招待费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660205', '技术转让费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660206', '无形资产摊销', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660207', '咨询费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660208', '诉讼费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660209', '坏账损失', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660210', '工资', '3', 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660211', '房租', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660212', '水电气', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6603', '财务费用', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660302', '汇兑净损失', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('660303', '金融机构手续费', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6701', '资产减值损失', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6711', '营业外支出', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6801', '所得税费用', null, 2, 0, 0, 0);
+INSERT INTO accounting_subject_1 VALUES ('6901', '以前年度损益调整', null, 2, 0, 0, 0);
+
+
 DROP TABLE IF EXISTS bank_account_1;
 CREATE TABLE bank_account_1 (
   id varchar(20) NOT NULL COMMENT '科目编号',
@@ -11,17 +168,18 @@ CREATE TABLE bank_account_1 (
   gathering tinyint(4) DEFAULT '0' COMMENT '是否用于商城收款，0：否，1：是',
   qrCode varchar(50) DEFAULT NULL COMMENT '收款码',
   procurement tinyint(4) DEFAULT '0' COMMENT '是否用于订货平台，0：否，1：是',
+  can_operation tinyint(4) NOT NULL COMMENT '是否可以删除或修改，0：否，1：是',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-INSERT INTO bank_account_1 VALUES ('1001', '库存现金', '1', '0.00', null, null, '0', null, '0');
-INSERT INTO bank_account_1 VALUES ('1002', '支付宝账户', '2', '0.00', null, null, '0', null, '0');
-INSERT INTO bank_account_1 VALUES ('1003', '微信账户', '3', '0.00', null, null, '0', null, '0');
-INSERT INTO bank_account_1 VALUES ('1004', '银行存款', '4', '0.00', null, null, '0', null, '0');
-INSERT INTO bank_account_1 VALUES ('100401', '建设银行', '4', '0.00', null, null, '0', null, '0');
-INSERT INTO bank_account_1 VALUES ('100402', '招商银行', '4', '0.00', null, null, '0', null, '0');
-INSERT INTO bank_account_1 VALUES ('100403', '华夏银行', '4', '0.00', null, null, '0', null, '0');
+INSERT INTO bank_account_1 VALUES ('1001', '库存现金', '1', '0.00', null, null, '0', null, '0', 0);
+INSERT INTO bank_account_1 VALUES ('1002', '支付宝账户', '2', '0.00', null, null, '0', null, '0', 0);
+INSERT INTO bank_account_1 VALUES ('1003', '微信账户', '3', '0.00', null, null, '0', null, '0', 0);
+INSERT INTO bank_account_1 VALUES ('1004', '银行存款', '4', '0.00', null, null, '0', null, '0', 0);
+INSERT INTO bank_account_1 VALUES ('100401', '建设银行', '4', '0.00', null, null, '0', null, '0', 1);
+INSERT INTO bank_account_1 VALUES ('100402', '招商银行', '4', '0.00', null, null, '0', null, '0', 1);
+INSERT INTO bank_account_1 VALUES ('100403', '华夏银行', '4', '0.00', null, null, '0', null, '0', 1);
 
 
 DROP TABLE IF EXISTS client;
@@ -428,60 +586,61 @@ DROP TABLE IF EXISTS income_expenses_1;
 CREATE TABLE income_expenses_1 (
   id varchar(20) NOT NULL COMMENT '科目编号',
   name varchar(20) NOT NULL COMMENT '科目名称',
-  check_item tinyint(4) DEFAULT NULL COMMENT '核算项，1：供应商，2：客户，3：往来单位，4：职员，5：部门',
+  check_item tinyint(4) DEFAULT NULL COMMENT '核算项，1：供应商，2：客户，3：职员',
   debit_credit tinyint(4) NOT NULL COMMENT '借贷，1：贷，2：借',
   type tinyint(4) NOT NULL COMMENT '收支，1：收入，2：支出',
+  can_operation tinyint(4) NOT NULL COMMENT '是否可以删除或修改，0：否，1：是',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-INSERT INTO income_expenses_1 VALUES ('6052', '其他收入', null, '1', '1');
-INSERT INTO income_expenses_1 VALUES ('605201', '利息收入', null, '1', '1');
-INSERT INTO income_expenses_1 VALUES ('605202', '损赠收入', null, '1', '1');
-INSERT INTO income_expenses_1 VALUES ('605203', '租赁收入', null, '1', '1');
-INSERT INTO income_expenses_1 VALUES ('605204', '罚没收入', null, '1', '1');
-INSERT INTO income_expenses_1 VALUES ('6111', '投资收益', null, '1', '1');
-INSERT INTO income_expenses_1 VALUES ('6301', '营业外收入', null, '1', '1');
-INSERT INTO income_expenses_1 VALUES ('6403', '营业税金及附加', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('6601', '销售费用', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660101', '优惠金额', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660102', '包装费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660103', '运输费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660104', '广告费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660105', '装卸费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660106', '保险费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660107', '展览费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660108', '租赁费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660109', '销售服务费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660110', '差旅费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660111', '办公费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660112', '折旧费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660113', '修理费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660114', '网店运费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660115', '快递费', '2', '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660116', '招待费', '2', '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660117', '水电气费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660118', '积分提现', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660119', '提成提现', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('6602', '管理费用', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660202', '工会经费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660203', '职工教育经费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660204', '业务招待费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660205', '技术转让费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660206', '无形资产摊销', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660207', '咨询费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660208', '诉讼费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660209', '坏账损失', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660210', '工资', '4', '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660211', '房租', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660212', '水电气', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('6603', '财务费用', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660302', '汇兑净损失', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('660303', '金融机构手续费', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('6701', '资产减值损失', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('6711', '营业外支出', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('6801', '所得税费用', null, '2', '2');
-INSERT INTO income_expenses_1 VALUES ('6901', '以前年度损益调整', null, '2', '2');
+INSERT INTO income_expenses_1 VALUES ('6052', '其他收入', null, '1', '1', 0);
+INSERT INTO income_expenses_1 VALUES ('605201', '利息收入', null, '1', '1', 0);
+INSERT INTO income_expenses_1 VALUES ('605202', '损赠收入', null, '1', '1', 0);
+INSERT INTO income_expenses_1 VALUES ('605203', '租赁收入', null, '1', '1', 0);
+INSERT INTO income_expenses_1 VALUES ('605204', '罚没收入', null, '1', '1', 0);
+INSERT INTO income_expenses_1 VALUES ('6111', '投资收益', null, '1', '1', 0);
+INSERT INTO income_expenses_1 VALUES ('6301', '营业外收入', null, '1', '1', 0);
+INSERT INTO income_expenses_1 VALUES ('6403', '营业税金及附加', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('6601', '销售费用', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660101', '优惠金额', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660102', '包装费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660103', '运输费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660104', '广告费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660105', '装卸费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660106', '保险费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660107', '展览费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660108', '租赁费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660109', '销售服务费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660110', '差旅费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660111', '办公费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660112', '折旧费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660113', '修理费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660114', '网店运费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660115', '快递费', '2', '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660116', '招待费', '2', '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660117', '水电气费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660118', '积分提现', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660119', '提成提现', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('6602', '管理费用', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660202', '工会经费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660203', '职工教育经费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660204', '业务招待费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660205', '技术转让费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660206', '无形资产摊销', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660207', '咨询费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660208', '诉讼费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660209', '坏账损失', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660210', '工资', '3', '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660211', '房租', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660212', '水电气', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('6603', '财务费用', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660302', '汇兑净损失', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('660303', '金融机构手续费', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('6701', '资产减值损失', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('6711', '营业外支出', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('6801', '所得税费用', null, '2', '2', 0);
+INSERT INTO income_expenses_1 VALUES ('6901', '以前年度损益调整', null, '2', '2', 0);
 
 
 DROP TABLE IF EXISTS membership_number;

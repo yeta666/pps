@@ -41,6 +41,9 @@ public class ProcurementService {
     @Autowired
     private SystemUtil systemUtil;
 
+    @Autowired
+    private FinancialAffairsUtil financialAffairsUtil;
+
     //采购申请订单
 
     @Transactional
@@ -106,7 +109,7 @@ public class ProcurementService {
         //判断参数
         if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null ||
                 procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null ||
-                procurementApplyOrderVo.getInTotalQuantity() != procurementApplyOrderVo.getOutTotalQuantity() ||
+                procurementApplyOrderVo.getInTotalQuantity().intValue() != procurementApplyOrderVo.getOutTotalQuantity() ||
                 procurementApplyOrderVo.getTotalMoney() != 0 || procurementApplyOrderVo.getTotalDiscountMoney() != 0 || procurementApplyOrderVo.getOrderMoney() != 0 ||
                 procurementApplyOrderVo.getResultOrderId() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
@@ -678,6 +681,9 @@ public class ProcurementService {
 
         //红冲往来对账记录
         fundUtil.redDashedFundTargetCheckOrderMethod(new FundTargetCheckOrderVo(storeId, oldResultOrderId, userId));
+
+        //红冲会计凭证
+        financialAffairsUtil.redDashedAccountingDocumentMethod(new AccountingDocumentVo(storeId, oldResultOrderId, userId));
 
         return CommonResponse.success();
     }

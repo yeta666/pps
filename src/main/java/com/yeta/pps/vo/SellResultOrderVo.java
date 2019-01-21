@@ -89,6 +89,8 @@ public class SellResultOrderVo {
      */
     private String remark;
 
+    private Integer flag;
+
     public SellResultOrderVo() {
     }
 
@@ -96,26 +98,27 @@ public class SellResultOrderVo {
         this.costMoney = costMoney;
     }
 
-    public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
+    public SellResultOrderVo(Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
+    public SellResultOrderVo(Integer storeId, String id, String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
         this.remark = remark;
     }
 
-    public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, SellApplyOrderVo sellApplyOrderVo, String id, Byte type) {
+    public SellResultOrderVo(Integer storeId, SellApplyOrderVo sellApplyOrderVo, String id, Byte type, Integer flag) {
         this.storeId = storeId;
         this.sellApplyOrderVo = sellApplyOrderVo;
         this.id = id;
         this.type = type;
+        this.flag = flag;
     }
 
-    public SellResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, Double costMoney, Double grossMarginMoney, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
+    public SellResultOrderVo(Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, Double costMoney, Double grossMarginMoney, String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
@@ -266,6 +269,14 @@ public class SellResultOrderVo {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
     }
 
     @Override

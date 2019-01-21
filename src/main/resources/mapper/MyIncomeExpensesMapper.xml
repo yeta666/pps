@@ -3,15 +3,15 @@
 <mapper namespace="com.yeta.pps.mapper.MyIncomeExpensesMapper">
 
     <insert id="add" parameterType="com.yeta.pps.vo.IncomeExpensesVo">
-        insert into income_expenses_${storeId} (id, name, debit_credit, check_item, type) values (#{id}, #{name}, #{debitCredit}, #{checkItem}, #{type});
+        insert into income_expenses_${storeId} (id, name, debit_credit, check_item, type, can_operation) values (#{id}, #{name}, #{debitCredit}, #{checkItem}, #{type}, 1);
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.IncomeExpensesVo">
-        delete from income_expenses_${storeId} where id = #{id};
+        delete from income_expenses_${storeId} where id = #{id} and can_operation = 1;
     </delete>
 
     <update id="update" parameterType="com.yeta.pps.vo.IncomeExpensesVo">
-        update income_expenses_${storeId} set name = #{name}, debit_credit = #{debitCredit}, check_item = #{checkItem}, type = #{type} where id = #{id};
+        update income_expenses_${storeId} set name = #{name}, debit_credit = #{debitCredit}, check_item = #{checkItem}, type = #{type} where id = #{id} and can_operation = 1;
     </update>
 
     <select id="findAll" parameterType="com.yeta.pps.vo.IncomeExpensesVo" resultType="com.yeta.pps.po.IncomeExpenses">

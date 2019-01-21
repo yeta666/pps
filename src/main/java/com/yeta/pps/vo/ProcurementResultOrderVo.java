@@ -79,29 +79,32 @@ public class ProcurementResultOrderVo {
      */
     private String remark;
 
+    private Integer flag;
+
     public ProcurementResultOrderVo() {
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
+    public ProcurementResultOrderVo(Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
+    public ProcurementResultOrderVo(Integer storeId, String id, String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
         this.remark = remark;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id, Byte type) {
+    public ProcurementResultOrderVo(Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id, Byte type, Integer flag) {
         this.storeId = storeId;
         this.procurementApplyOrderVo = procurementApplyOrderVo;
         this.id = id;
         this.type = type;
+        this.flag = flag;
     }
 
-    public ProcurementResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
+    public ProcurementResultOrderVo(Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
@@ -234,6 +237,14 @@ public class ProcurementResultOrderVo {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
     }
 
     @Override

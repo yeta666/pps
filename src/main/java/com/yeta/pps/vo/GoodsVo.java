@@ -82,20 +82,21 @@ public class GoodsVo {
         this.typeId = typeId;
     }
 
-    public GoodsVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
+    public GoodsVo(Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public GoodsVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String barCode, Integer typeId, @NotBlank(message = CommonResponse.PARAMETER_ERROR) Byte putaway) {
+    public GoodsVo(Integer storeId, String id, String name, String barCode, Integer typeId, Byte putaway) {
         this.storeId = storeId;
         this.id = id;
+        this.name = name;
         this.barCode = barCode;
         this.typeId = typeId;
         this.putaway = putaway;
     }
 
-    public GoodsVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String barCode, Integer typeId) {
+    public GoodsVo(Integer storeId, String id, String barCode, Integer typeId) {
         this.storeId = storeId;
         this.id = id;
         this.barCode = barCode;

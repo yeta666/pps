@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yeta.pps.mapper.FinancialAffairsMapper">
+
+    <!--会计科目-->
+
+    <insert id="addAccountingSubject" parameterType="com.yeta.pps.po.AccountingSubject">
+        INSERT INTO accounting_subject_${storeId} (id,
+                                                   name,
+                                                   check_item,
+                                                   debit_credit,
+                                                   fixed_assets_opening,
+                                                   assets_liabilities_opening,
+                                                   can_operation)
+        VALUES (#{id}, #{name}, #{checkItem}, #{debitCredit}, 0, 0, 1);
+    </insert>
+
+    <delete id="deleteAccountingSubject" parameterType="com.yeta.pps.po.AccountingSubject">
+        DELETE
+        FROM accounting_subject_${storeId}
+        WHERE id = #{id}
+          AND can_operation = 1;
+    </delete>
+
+    <update id="updateAccountingSubject" parameterType="com.yeta.pps.po.AccountingSubject">
+        UPDATE accounting_subject_${storeId}
+        SET id           = #{id},
+            name         = #{name},
+            check_item   = #{checkItem},
+            debit_credit = #{debitCredit}
+        WHERE id = #{id}
+          AND can_operation = 1;
+    </update>
+
+    <select id="findCountAccountingSubject" parameterType="com.yeta.pps.po.AccountingSubject"
+            resultType="java.lang.Integer">
+        SELECT COUNT(0)
+        FROM accounting_subject_${storeId};
+    </select>
+
+    <select id="findPagedAccountingSubject" resultType="com.yeta.pps.po.AccountingSubject">
+        SELECT id, name, check_item, debit_credit
+        FROM accounting_subject_${vo.storeId}
+        LIMIT #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllAccountingSubject" parameterType="com.yeta.pps.po.AccountingSubject"
+            resultType="com.yeta.pps.po.AccountingSubject">
+        SELECT id, name, check_item, debit_credit
+        FROM accounting_subject_${storeId};
+    </select>
+
+    <!--财务期初-->
+
+    <select id="findFixedAssetsOpening" parameterType="com.yeta.pps.po.AccountingSubject"
+            resultType="com.yeta.pps.po.AccountingSubject">
+        SELECT id, name, check_item, debit_credit, fixed_assets_opening
+        FROM accounting_subject_${storeId}
+        WHERE id = '1601';
+    </select>
+
+    <update id="updateFixedAssetsOpening" parameterType="com.yeta.pps.po.AccountingSubject">
+        UPDATE accounting_subject_${storeId}
+        SET fixed_assets_opening = #{fixedAssetsOpening}
+        WHERE id = #{id};
+    </update>
+
+    <select id="findAssetsLiabilitiesOpening" parameterType="com.yeta.pps.po.AccountingSubject"
+            resultType="com.yeta.pps.po.AccountingSubject">
+        SELECT id, name, check_item, debit_credit, assets_liabilities_opening
+        FROM accounting_subject_${storeId}
+        WHERE SUBSTR(id, 1) LIKE '1%'
+           OR SUBSTR(id, 1) LIKE '2%'
+           OR SUBSTR(id, 1) LIKE '4%'
+    </select>
+
+    <update id="updateAssetsLiabilitiesOpening" parameterType="com.yeta.pps.po.AccountingSubject">
+        UPDATE accounting_subject_${storeId}
+        SET assets_liabilities_opening = #{assetsLiabilitiesOpening}
+        WHERE id = #{id};
+    </update>
+
+    <!--会计凭证-->
+
+    <insert id="addAccountingDocument" parameterType="com.yeta.pps.vo.AccountingDocumentVo">
+        INSERT INTO accounting_document_${storeId} (id,
+                                                    create_time,
+                                                    order_status,
+                                                    order_id,
+                                                    subject_id,
+                                                    type,
+                                                    target_id,
+                                                    debit_money,
+                                                    credit_money,
+                                                    user_id)
+        VALUES (#{id},
+                now(),
+                #{orderStatus},
+                #{orderId},
+                #{subjectId},
+                #{type},
+                #{targetId},
+                #{debitMoney},
+                #{creditMoney},
+                #{userId})
+    </insert>
+
+    <update id="redDashedAccountingDocument" parameterType="com.yeta.pps.vo.AccountingDocumentVo">
+        UPDATE accounting_document_${storeId}
+        SET order_status = -1
+        WHERE order_id = #{orderId}
+          AND order_status &gt; 0;
+    </update>
+
+    <select id="findCountAccountingDocument" parameterType="com.yeta.pps.vo.AccountingDocumentVo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(0)
+        FROM accounting_document_${storeId} AS ad
+        LEFT JOIN accounting_subject_${storeId} AS ast ON ast.id = ad.subject_id
+        LEFT JOIN supplier_${storeId} AS s ON s.id = ad.target_id
+        LEFT JOIN client AS c ON c.id = ad.target_id
+        LEFT JOIN user_${storeId} AS u ON u.id = ad.target_id
+        WHERE DATE(ad.create_time) BETWEEN #{startTime}
+        AND #{endTime}
+        <if test="id != null">
+            AND ad.id = #{id}
+        </if>
+        <if test="subjectId != null">
+            AND ad.subject_id = #{subjectId}
+        </if>
+    </select>
+
+    <select id="findPagedAccountingDocument" resultType="com.yeta.pps.vo.AccountingDocumentVo">
+        SELECT ad.id AS id,
+        ad.create_time AS create_time,
+        ad.order_status AS order_status,
+        ad.order_id AS order_id,
+        ad.subject_id AS subject_id,
+        ast.name AS subject_name,
+        ad.type AS type,
+        IF(ad.type = 1, '系统凭证', '自制凭证') AS type_name,
+        ad.target_id AS target_id,
+        IF(s.name IS NOT NULL, s.name, IF(c.name IS NOT NULL, c.name, u.name)) AS target_name,
+        ad.debit_money AS debit_money,
+        ad.credit_money AS credit_money,
+        ad.user_id AS user_id,
+        u.name AS user_name
+        FROM accounting_document_${vo.storeId} AS ad
+        LEFT JOIN accounting_subject_${vo.storeId} AS ast ON ast.id = ad.subject_id
+        LEFT JOIN supplier_${vo.storeId} AS s ON s.id = ad.target_id
+        LEFT JOIN client AS c ON c.id = ad.target_id
+        LEFT JOIN user_${vo.storeId} AS u ON u.id = ad.target_id
+        WHERE DATE(ad.create_time) BETWEEN #{vo.startTime}
+        AND #{vo.endTime}
+        <if test="vo.id != null">
+            AND ad.id = #{vo.id}
+        </if>
+        <if test="vo.subjectId != null">
+            AND ad.subject_id = #{vo.subjectId}
+        </if>
+        ORDER BY ad.create_time DESC
+        LIMIT #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllAccountingDocument" parameterType="com.yeta.pps.vo.AccountingDocumentVo"
+            resultType="com.yeta.pps.vo.AccountingDocumentVo">
+        SELECT ad.id,
+        ad.create_time,
+        ad.order_status,
+        ad.order_id,
+        ad.subject_id,
+        ad.type,
+        ad.target_id,
+        ad.debit_money,
+        ad.credit_money,
+        ad.user_id
+        FROM accounting_document_${vo.storeId}
+        WHERE
+        1 = 1
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+        <if test="orderId != null">
+            AND order_id = #{orderId}
+        </if>
+    </select>
+</mapper>

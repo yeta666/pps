@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.yeta.pps.mapper.MyFundMapper" >
+<mapper namespace="com.yeta.pps.mapper.MyFundMapper">
 
     <!--按单收款-->
 
-    <select id="findCountNotClearedSellApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultType="java.lang.Integer">
+    <select id="findCountNotClearedSellApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo"
+            resultType="java.lang.Integer">
         select
-            count(0)
+        count(0)
         from
-            (
-                sell_apply_order_${storeId} as sao
-                left join client as c on sao.client_id = c.id
-            )
+        (
+        sell_apply_order_${storeId} as sao
+        left join client as c on sao.client_id = c.id
+        )
         left join user_${storeId} as u on sao.user_id = u.id
         where sao.clear_status = 0
         <if test="id != null">
@@ -35,63 +36,63 @@
     </select>
 
     <resultMap id="sellApplyOrderVoMap1" type="com.yeta.pps.vo.SellApplyOrderVo">
-        <id column="id" property="id" />
-        <result column="type" property="type" />
-        <result column="create_time" property="createTime" />
-        <result column="result_order_id" property="resultOrderId" />
-        <result column="prodcing_way" property="prodcingWay" />
-        <result column="order_status" property="orderStatus" />
-        <result column="clear_status" property="clearStatus" />
-        <result column="in_warehouse_id" property="inWarehouseId" />
-        <result column="in_total_quantity" property="inTotalQuantity" />
-        <result column="in_received_quantity" property="inReceivedQuantity" />
-        <result column="in_not_received_quantity" property="inNotReceivedQuantity" />
-        <result column="out_warehouse_id" property="outWarehouseId" />
-        <result column="out_total_quantity" property="outTotalQuantity" />
-        <result column="total_money" property="totalMoney" />
-        <result column="discount_money" property="discountMoney" />
-        <result column="discount_coupon_id" property="discountCouponId" />
-        <result column="total_discount_money" property="totalDiscountMoney" />
-        <result column="order_money" property="orderMoney" />
-        <result column="cleared_money" property="clearedMoney" />
-        <result column="not_cleared_money" property="notClearedMoney" />
-        <result column="user_name" property="userName" />
-        <result column="remark" property="remark" />
+        <id column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="create_time" property="createTime"/>
+        <result column="result_order_id" property="resultOrderId"/>
+        <result column="prodcing_way" property="prodcingWay"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="clear_status" property="clearStatus"/>
+        <result column="in_warehouse_id" property="inWarehouseId"/>
+        <result column="in_total_quantity" property="inTotalQuantity"/>
+        <result column="in_received_quantity" property="inReceivedQuantity"/>
+        <result column="in_not_received_quantity" property="inNotReceivedQuantity"/>
+        <result column="out_warehouse_id" property="outWarehouseId"/>
+        <result column="out_total_quantity" property="outTotalQuantity"/>
+        <result column="total_money" property="totalMoney"/>
+        <result column="discount_money" property="discountMoney"/>
+        <result column="discount_coupon_id" property="discountCouponId"/>
+        <result column="total_discount_money" property="totalDiscountMoney"/>
+        <result column="order_money" property="orderMoney"/>
+        <result column="cleared_money" property="clearedMoney"/>
+        <result column="not_cleared_money" property="notClearedMoney"/>
+        <result column="user_name" property="userName"/>
+        <result column="remark" property="remark"/>
         <collection property="client" ofType="com.yeta.pps.po.Client">
-            <result column="client_id" property="id" />
-            <result column="client_name" property="name" />
-            <result column="client_phone" property="phone" />
-            <result column="client_membership_number" property="membershipNumber" />
+            <result column="client_id" property="id"/>
+            <result column="client_name" property="name"/>
+            <result column="client_phone" property="phone"/>
+            <result column="client_membership_number" property="membershipNumber"/>
         </collection>
     </resultMap>
 
     <select id="findPagedNotClearedSellApplyOrder" resultMap="sellApplyOrderVoMap1">
         select
-            sao.id,
-            sao.type,
-            sao.create_time,
-            sao.result_order_id,
-            sao.prodcing_way,
-            sao.order_status,
-            sao.clear_status,
-            c.id as client_id,
-            c.name as client_name,
-            c.phone as client_phone,
-            c.membership_number as client_membership_number,
-            sao.total_money,
-            sao.discount_money,
-            sao.discount_coupon_id,
-            sao.total_discount_money,
-            sao.order_money,
-            sao.cleared_money,
-            sao.not_cleared_money,
-            u.name as user_name,
-            sao.remark
+        sao.id,
+        sao.type,
+        sao.create_time,
+        sao.result_order_id,
+        sao.prodcing_way,
+        sao.order_status,
+        sao.clear_status,
+        c.id as client_id,
+        c.name as client_name,
+        c.phone as client_phone,
+        c.membership_number as client_membership_number,
+        sao.total_money,
+        sao.discount_money,
+        sao.discount_coupon_id,
+        sao.total_discount_money,
+        sao.order_money,
+        sao.cleared_money,
+        sao.not_cleared_money,
+        u.name as user_name,
+        sao.remark
         from
-            (
-                sell_apply_order_${vo.storeId} as sao
-                left join client as c on sao.client_id = c.id
-            )
+        (
+        sell_apply_order_${vo.storeId} as sao
+        left join client as c on sao.client_id = c.id
+        )
         left join user_${vo.storeId} as u on sao.user_id = u.id
         where sao.clear_status = 0
         <if test="vo.id != null">
@@ -118,14 +119,15 @@
 
     <!--按单付款-->
 
-    <select id="findCountNotClearedProcurementApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo" resultType="java.lang.Integer">
+    <select id="findCountNotClearedProcurementApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo"
+            resultType="java.lang.Integer">
         select
-            count(0)
+        count(0)
         from
-            (
-                procurement_apply_order_${storeId} as pao
-                left join supplier_${storeId} as s on pao.supplier_id = s.id
-            )
+        (
+        procurement_apply_order_${storeId} as pao
+        left join supplier_${storeId} as s on pao.supplier_id = s.id
+        )
         left join user_${storeId} as u on pao.user_id = u.id
         where pao.clear_status = 0
         <if test="id != null">
@@ -144,26 +146,26 @@
 
     <select id="findPagedNotClearedProcurementApplyOrder" resultType="com.yeta.pps.vo.ProcurementApplyOrderVo">
         select
-            pao.id,
-            pao.type,
-            pao.create_time,
-            pao.result_order_id,
-            pao.order_status,
-            pao.clear_status,
-            s.id as supplier_id,
-            s.name as supplier_name,
-            pao.total_money,
-            pao.total_discount_money,
-            pao.order_money,
-            pao.cleared_money,
-            pao.not_cleared_money,
-            u.name as user_name,
-            pao.remark
+        pao.id,
+        pao.type,
+        pao.create_time,
+        pao.result_order_id,
+        pao.order_status,
+        pao.clear_status,
+        s.id as supplier_id,
+        s.name as supplier_name,
+        pao.total_money,
+        pao.total_discount_money,
+        pao.order_money,
+        pao.cleared_money,
+        pao.not_cleared_money,
+        u.name as user_name,
+        pao.remark
         from
-            (
-                procurement_apply_order_${vo.storeId} as pao
-                left join supplier_${vo.storeId} as s on pao.supplier_id = s.id
-            )
+        (
+        procurement_apply_order_${vo.storeId} as pao
+        left join supplier_${vo.storeId} as s on pao.supplier_id = s.id
+        )
         left join user_${vo.storeId} as u on pao.user_id = u.id
         where pao.clear_status = 0
         <if test="vo.id != null">
@@ -185,30 +187,53 @@
     <!--收/付款单-->
 
     <insert id="addFundOrder" parameterType="com.yeta.pps.vo.FundOrderVo">
-        insert into
-            fund_order_${storeId} (id, type, create_time, order_id, target_id, order_status, bank_account_id, discount_money, money, advance_money, user_id, remark)
-        values
-            (#{id}, #{type}, #{createTime}, #{orderId}, #{targetId}, #{orderStatus}, #{bankAccountId}, #{discountMoney}, #{money}, #{advanceMoney}, #{userId}, #{remark});
+        insert into fund_order_${storeId} (id,
+                                           type,
+                                           create_time,
+                                           order_id,
+                                           target_id,
+                                           order_status,
+                                           bank_account_id,
+                                           discount_money,
+                                           money,
+                                           advance_money,
+                                           user_id,
+                                           remark)
+        values (#{id},
+                #{type},
+                #{createTime},
+                #{orderId},
+                #{targetId},
+                #{orderStatus},
+                #{bankAccountId},
+                #{discountMoney},
+                #{money},
+                #{advanceMoney},
+                #{userId},
+                #{remark});
     </insert>
 
     <update id="redDashed" parameterType="com.yeta.pps.vo.FundOrderVo">
-        update fund_order_${storeId} set order_status = -1 where id = #{id} and order_status &gt; 0;
+        update fund_order_${storeId}
+        set order_status = -1
+        where id = #{id}
+          and order_status &gt; 0;
     </update>
 
     <select id="findCountFundOrder" parameterType="com.yeta.pps.vo.FundOrderVo" resultType="java.lang.Integer">
         select
-            count(0)
+        count(0)
         from
-            (
-                (
-                    (
-                        fund_order_${storeId} as fo
-                        left join user_${storeId} as u on fo.user_id = u.id
-                    )
-                    left join bank_account_${storeId} as ba on fo.bank_account_id = ba.id
-                )
-                left join supplier_${storeId} as s on fo.target_id = s.id
-            )
+        (
+        (
+        (
+        fund_order_${storeId} as fo
+        left join user_${storeId} as u on fo.user_id = u.id
+        )
+        left join bank_account_${storeId} as ba on fo.bank_account_id = ba.id
+        )
+        left join supplier_${storeId} as s on fo.target_id = s.id
+        )
         left join client as c on fo.target_id = c.id
         where fo.type = #{type}
         <if test="id != null">
@@ -225,45 +250,46 @@
 
     <select id="findAllPagedFundOrder" resultType="com.yeta.pps.vo.FundOrderVo">
         select
-            fo.id,
-            fo.type,
-            fo.create_time,
-            fo.order_id,
-            fo.target_id,
-            if (s.name is not null, s.name, c.name) as target_name,
-            fo.order_status,
-            fo.bank_account_id,
-            ba.name as bank_account,
-            fo.discount_money,
-            fo.money,
-            fo.advance_money,
-            fo.user_id as user_id,
-            u.name as user_name,
-            fo.remark
+        fo.id,
+        fo.type,
+        fo.create_time,
+        fo.order_id,
+        fo.target_id,
+        if (s.name is not null, s.name, c.name) as target_name,
+        fo.order_status,
+        fo.bank_account_id,
+        ba.name as bank_account,
+        fo.discount_money,
+        fo.money,
+        fo.advance_money,
+        fo.user_id as user_id,
+        u.name as user_name,
+        fo.remark
         from
-            (
-                (
-                    (
-                        fund_order_${fundOrderVo.storeId} as fo
-                        left join user_${fundOrderVo.storeId} as u on fo.user_id = u.id
-                    )
-                    left join bank_account_${fundOrderVo.storeId} as ba on fo.bank_account_id = ba.id
-                )
-                left join supplier_${fundOrderVo.storeId} as s on fo.target_id = s.id
-            )
+        (
+        (
+        (
+        fund_order_${fundOrderVo.storeId} as fo
+        left join user_${fundOrderVo.storeId} as u on fo.user_id = u.id
+        )
+        left join bank_account_${fundOrderVo.storeId} as ba on fo.bank_account_id = ba.id
+        )
+        left join supplier_${fundOrderVo.storeId} as s on fo.target_id = s.id
+        )
         left join client as c on fo.target_id = c.id
         where
-            fo.type = #{fundOrderVo.type}
+        fo.type = #{fundOrderVo.type}
         <if test="fundOrderVo.id != null">
-        and
+            and
             fo.id = #{fundOrderVo.id}
         </if>
         <if test="fundOrderVo.targetName != null">
-        and
-            s.name like concat('%', #{fundOrderVo.targetName}, '%') or c.name like concat('%', #{fundOrderVo.targetName}, '%')
+            and
+            s.name like concat('%', #{fundOrderVo.targetName}, '%') or c.name like concat('%',
+            #{fundOrderVo.targetName}, '%')
         </if>
         <if test="fundOrderVo.startTime != null and fundOrderVo.endTime != null">
-        and
+            and
             date(fo.create_time) between #{fundOrderVo.startTime} and #{fundOrderVo.endTime}
         </if>
         order by fo.create_time desc
@@ -272,11 +298,12 @@
 
     <select id="findFundOrder" parameterType="com.yeta.pps.vo.FundOrderVo" resultType="com.yeta.pps.vo.FundOrderVo">
         select
-            id, type, create_time, order_id, target_id, order_status, bank_account_id, discount_money, money, advance_money, user_id, remark
+        id, type, create_time, order_id, target_id, order_status, bank_account_id, discount_money, money, advance_money,
+        user_id, remark
         from
-            fund_order_${storeId}
+        fund_order_${storeId}
         where
-            1 = 1
+        1 = 1
         <if test="id != null">
             and id = #{id}
         </if>
@@ -291,62 +318,73 @@
     <!--资金对账-->
 
     <insert id="addFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo">
-        insert into
-            fund_check_order_${storeId} (order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id)
-        value
-            (#{orderId}, #{createTime}, #{orderStatus}, #{targetId}, #{bankAccountId}, #{inMoney}, #{outMoney}, #{balanceMoney}, #{userId});
+        insert into fund_check_order_${storeId} (order_id,
+                                                 create_time,
+                                                 order_status,
+                                                 target_id,
+                                                 bank_account_id,
+                                                 in_money,
+                                                 out_money,
+                                                 balance_money,
+                                                 user_id)
+        value (#{orderId},
+               #{createTime},
+               #{orderStatus},
+               #{targetId},
+               #{bankAccountId},
+               #{inMoney},
+               #{outMoney},
+               #{balanceMoney},
+               #{userId});
     </insert>
 
     <update id="redDashedFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo">
-        update fund_check_order_${storeId} set order_status = -1 where order_id = #{orderId} and order_status &gt; 0;
+        update fund_check_order_${storeId}
+        set order_status = -1
+        where order_id = #{orderId}
+          and order_status &gt; 0;
     </update>
 
-    <select id="findSumFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo" resultType="com.yeta.pps.vo.FundCheckOrderVo">
-        select
-            sum(fco.in_money) AS in_money,
-            sum(fco.out_money) AS out_money,
-            (
-                select
-                    balance_money
-                from
-                    fund_check_order_${storeId}
-                where
-                    date(fco.create_time) between #{startTime} and #{endTime}
-                and fco.bank_account_id = #{bankAccountId}
+    <select id="findSumFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo"
+            resultType="com.yeta.pps.vo.FundCheckOrderVo">
+        select sum(fco.in_money)  AS in_money,
+               sum(fco.out_money) AS out_money,
+               (select balance_money
+                from fund_check_order_${storeId}
+                where date(fco.create_time) between #{startTime} and #{endTime}
+                  and fco.bank_account_id = #{bankAccountId}
                 order by fco.id desc
-                limit 1
-            ) as balance_money
-        from
-            bank_account_${storeId} as ba
-        left join fund_check_order_${storeId} as fco on fco.bank_account_id = ba.id
-        where
-            date(fco.create_time) between #{startTime} and #{endTime}
-        and fco.bank_account_id = #{bankAccountId}
+                limit 1)          as balance_money
+        from bank_account_${storeId} as ba
+                 left join fund_check_order_${storeId} as fco on fco.bank_account_id = ba.id
+        where date(fco.create_time) between #{startTime} and #{endTime}
+          and fco.bank_account_id = #{bankAccountId}
     </select>
 
-    <select id="findCountFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo" resultType="java.lang.Integer">
+    <select id="findCountFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo"
+            resultType="java.lang.Integer">
         select
-            count(0)
+        count(0)
         from
-            (
-                (
-                    (
-                        (
-                            (
-                                (
-                                    fund_check_order_${storeId} as fco
-                                    left join fund_order_${storeId} as fo on fo.id = fco.id
-                                )
-                                left join sell_result_order_${storeId} as sro on sro.id = fco.id
-                            )
-                            left join fund_result_order_${storeId} as fro on fro.id = fco.id
-                        )
-                        left join client as c on c.id = fo.target_id
-                    )
-                    left join supplier_${storeId} as s on s.id = fo.target_id
-                )
-                left join user_${storeId} as u on u.id = fco.user_id
-            )
+        (
+        (
+        (
+        (
+        (
+        (
+        fund_check_order_${storeId} as fco
+        left join fund_order_${storeId} as fo on fo.id = fco.id
+        )
+        left join sell_result_order_${storeId} as sro on sro.id = fco.id
+        )
+        left join fund_result_order_${storeId} as fro on fro.id = fco.id
+        )
+        left join client as c on c.id = fo.target_id
+        )
+        left join supplier_${storeId} as s on s.id = fo.target_id
+        )
+        left join user_${storeId} as u on u.id = fco.user_id
+        )
         left join bank_account_${storeId} as ba on ba.id = fco.bank_account_id
         where date(fco.create_time) between #{startTime} and #{endTime}
         <if test="bankAccountId != null">
@@ -359,91 +397,99 @@
 
     <select id="findAllPagedFundCheckOrder" resultType="com.yeta.pps.vo.FundCheckOrderVo">
         select
-            fco.id,
-            fco.order_id,
-            if (fo.type = 1,
-                '收款单',
-            if (fo.type = 2,
-                '付款单',
-            if (fo.type = 3,
-                '预收款单',
-            if (fo.type = 4,
-                '预付款单',
-            if (sro.type = 1,
-                '零售单',
-            if (fro.type = 1,
-                '其他收入单',
-            if (fro.type = 2,
-                '费用单',
-                null
-            ))))))) as type_name,
-            fco.create_time,
-            fco.order_status,
-            fco.target_id,
-            if (s.name is not null, s.name, c.name) as target_name,
-            fo.order_id as apply_order_id,
-            fco.bank_account_id,
-            ba.name as bank_account,
-            fco.in_money,
-            fco.out_money,
-            fco.balance_money,
-            fco.user_id,
-            u.name as user_name,
-            if (fo.remark is not null,
-                fo.remark,
-            if (sro.remark is not null,
-                sro.remark,
-            if (fro.remark is not null,
-                fro.remark,
-                null
-            ))) as remark
-            from
-                (
-                    (
-                        (
-                            (
-                                (
-                                    (
-                                        fund_check_order_${vo.storeId} as fco
-                                        left join fund_order_${vo.storeId} as fo on fo.id = fco.id
-                                    )
-                                    left join sell_result_order_${vo.storeId} as sro on sro.id = fco.id
-                                )
-                                left join fund_result_order_${vo.storeId} as fro on fro.id = fco.id
-                            )
-                            left join client as c on c.id = fo.target_id
-                        )
-                        left join supplier_${vo.storeId} as s on s.id = fo.target_id
-                    )
-                    left join user_${vo.storeId} as u on u.id = fco.user_id
-                )
-            left join bank_account_${vo.storeId} as ba on ba.id = fco.bank_account_id
-            where date(fco.create_time) between #{vo.startTime} and #{vo.endTime}
-            <if test="vo.bankAccountId != null">
-                and fco.bank_account_id = #{vo.bankAccountId}
-            </if>
-            <if test="vo.targetName != null">
-                and c.name like concat('%', #{vo.targetname}, '%') or s.name like concat('%', #{vo.targetname}, '%')
-            </if>
-            limit #{pageVo.start}, #{pageVo.pageSize};
+        fco.id,
+        fco.order_id,
+        if (fo.type = 1,
+        '收款单',
+        if (fo.type = 2,
+        '付款单',
+        if (fo.type = 3,
+        '预收款单',
+        if (fo.type = 4,
+        '预付款单',
+        if (sro.type = 1,
+        '零售单',
+        if (fro.type = 1,
+        '其他收入单',
+        if (fro.type = 2,
+        '费用单',
+        null
+        ))))))) as type_name,
+        fco.create_time,
+        fco.order_status,
+        fco.target_id,
+        if (s.name is not null, s.name, c.name) as target_name,
+        fo.order_id as apply_order_id,
+        fco.bank_account_id,
+        ba.name as bank_account,
+        fco.in_money,
+        fco.out_money,
+        fco.balance_money,
+        fco.user_id,
+        u.name as user_name,
+        if (fo.remark is not null,
+        fo.remark,
+        if (sro.remark is not null,
+        sro.remark,
+        if (fro.remark is not null,
+        fro.remark,
+        null
+        ))) as remark
+        from
+        (
+        (
+        (
+        (
+        (
+        (
+        fund_check_order_${vo.storeId} as fco
+        left join fund_order_${vo.storeId} as fo on fo.id = fco.id
+        )
+        left join sell_result_order_${vo.storeId} as sro on sro.id = fco.id
+        )
+        left join fund_result_order_${vo.storeId} as fro on fro.id = fco.id
+        )
+        left join client as c on c.id = fo.target_id
+        )
+        left join supplier_${vo.storeId} as s on s.id = fo.target_id
+        )
+        left join user_${vo.storeId} as u on u.id = fco.user_id
+        )
+        left join bank_account_${vo.storeId} as ba on ba.id = fco.bank_account_id
+        where date(fco.create_time) between #{vo.startTime} and #{vo.endTime}
+        <if test="vo.bankAccountId != null">
+            and fco.bank_account_id = #{vo.bankAccountId}
+        </if>
+        <if test="vo.targetName != null">
+            and c.name like concat('%', #{vo.targetname}, '%') or s.name like concat('%', #{vo.targetname}, '%')
+        </if>
+        limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findFundCheckOrderByOrderId" parameterType="com.yeta.pps.vo.FundCheckOrderVo" resultType="com.yeta.pps.vo.FundCheckOrderVo">
-        select
-            id, order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id
-        from
-            fund_check_order_${storeId}
-        where
-            order_id = #{orderId};
+    <select id="findFundCheckOrderByOrderId" parameterType="com.yeta.pps.vo.FundCheckOrderVo"
+            resultType="com.yeta.pps.vo.FundCheckOrderVo">
+        select id,
+               order_id,
+               create_time,
+               order_status,
+               target_id,
+               bank_account_id,
+               in_money,
+               out_money,
+               balance_money,
+               user_id
+        from fund_check_order_${storeId}
+        where order_id = #{orderId};
     </select>
 
-    <select id="findLastBalanceMoney" parameterType="com.yeta.pps.vo.FundCheckOrderVo" resultType="com.yeta.pps.vo.FundCheckOrderVo">
+    <select id="findLastBalanceMoney" parameterType="com.yeta.pps.vo.FundCheckOrderVo"
+            resultType="com.yeta.pps.vo.FundCheckOrderVo">
         select
-            id, order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id
+        id, order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id
         from
-            fund_check_order_${storeId}
+        fund_check_order_${storeId}
         where
-            bank_account_id = #{bankAccountId}
+        bank_account_id = #{bankAccountId}
         <if test="endTime != null">
             AND DATE(create_time) &lt;= #{endTime}
         </if>
@@ -451,13 +497,14 @@
         limit 1;
     </select>
 
-    <select id="findAllFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo" resultType="com.yeta.pps.vo.FundCheckOrderVo">
+    <select id="findAllFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo"
+            resultType="com.yeta.pps.vo.FundCheckOrderVo">
         select
-            id, order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id
+        id, order_id, create_time, order_status, target_id, bank_account_id, in_money, out_money, balance_money, user_id
         from
-            fund_check_order_${storeId}
+        fund_check_order_${storeId}
         where
-            1 = 1
+        1 = 1
         <if test="targetId != null">
             target_id = #{targetId}
         </if>
@@ -466,40 +513,74 @@
     <!--往来对账-->
 
     <insert id="addFundTargetCheckOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        insert into
-            fund_target_check_order_${storeId} (order_id, create_time, order_status, target_id, need_in_money_increase, need_in_money_decrease, need_in_money, advance_in_money_increase, advance_in_money_decrease, advance_in_money, need_out_money_increase, need_out_money_decrease, need_out_money, advance_out_money_increase, advance_out_money_decrease, advance_out_money, user_id)
-        value
-            (#{orderId}, #{createTime}, #{orderStatus}, #{targetId}, #{needInMoneyIncrease}, #{needInMoneyDecrease}, #{needInMoney}, #{advanceInMoneyIncrease}, #{advanceInMoneyDecrease}, #{advanceInMoney}, #{needOutMoneyIncrease}, #{needOutMoneyDecrease}, #{needOutMoney}, #{advanceOutMoneyIncrease}, #{advanceOutMoneyDecrease}, #{advanceOutMoney}, #{userId});
+        insert into fund_target_check_order_${storeId} (order_id,
+                                                        create_time,
+                                                        order_status,
+                                                        target_id,
+                                                        need_in_money_increase,
+                                                        need_in_money_decrease,
+                                                        need_in_money,
+                                                        advance_in_money_increase,
+                                                        advance_in_money_decrease,
+                                                        advance_in_money,
+                                                        need_out_money_increase,
+                                                        need_out_money_decrease,
+                                                        need_out_money,
+                                                        advance_out_money_increase,
+                                                        advance_out_money_decrease,
+                                                        advance_out_money,
+                                                        user_id)
+        value (#{orderId},
+               #{createTime},
+               #{orderStatus},
+               #{targetId},
+               #{needInMoneyIncrease},
+               #{needInMoneyDecrease},
+               #{needInMoney},
+               #{advanceInMoneyIncrease},
+               #{advanceInMoneyDecrease},
+               #{advanceInMoney},
+               #{needOutMoneyIncrease},
+               #{needOutMoneyDecrease},
+               #{needOutMoney},
+               #{advanceOutMoneyIncrease},
+               #{advanceOutMoneyDecrease},
+               #{advanceOutMoney},
+               #{userId});
     </insert>
 
     <update id="redDashedFundTargetCheckOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        update fund_target_check_order_${storeId} set order_status = -1 where order_id = #{orderId} and order_status &gt; 0;
+        update fund_target_check_order_${storeId}
+        set order_status = -1
+        where order_id = #{orderId}
+          and order_status &gt; 0;
     </update>
 
-    <select id="findLastFundTargetCheckOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
+    <select id="findLastFundTargetCheckOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo"
+            resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
         SELECT
-            id,
-            order_id,
-            create_time,
-            order_status,
-            target_id,
-            need_in_money_increase,
-            need_in_money_decrease,
-            need_in_money,
-            advance_in_money_increase,
-            advance_in_money_decrease,
-            advance_in_money,
-            need_out_money_increase,
-            need_out_money_decrease,
-            need_out_money,
-            advance_out_money_increase,
-            advance_out_money_decrease,
-            advance_out_money,
-            user_id
+        id,
+        order_id,
+        create_time,
+        order_status,
+        target_id,
+        need_in_money_increase,
+        need_in_money_decrease,
+        need_in_money,
+        advance_in_money_increase,
+        advance_in_money_decrease,
+        advance_in_money,
+        need_out_money_increase,
+        need_out_money_decrease,
+        need_out_money,
+        advance_out_money_increase,
+        advance_out_money_decrease,
+        advance_out_money,
+        user_id
         FROM
-            fund_target_check_order_${storeId} AS ftco
+        fund_target_check_order_${storeId} AS ftco
         WHERE
-            1 = 1
+        1 = 1
         <if test="targetId != null">
             AND ftco.target_id = #{targetId}
         </if>
@@ -513,17 +594,21 @@
             AND DATE(ftco.create_time) &lt;= #{endTime}
         </if>
         ORDER BY
-            ftco.id DESC
+        ftco.id DESC
         LIMIT 1;
     </select>
 
-    <select id="findFundTargetCheckOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
+    <select id="findFundTargetCheckOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo"
+            resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
         select
-            id, order_id, create_time, order_status, target_id, need_in_money_increase, need_in_money_decrease, need_in_money, advance_in_money_increase, advance_in_money_decrease, advance_in_money, need_out_money_increase, need_out_money_decrease, need_out_money, advance_out_money_increase, advance_out_money_decrease, advance_out_money, user_id
+        id, order_id, create_time, order_status, target_id, need_in_money_increase, need_in_money_decrease,
+        need_in_money, advance_in_money_increase, advance_in_money_decrease, advance_in_money, need_out_money_increase,
+        need_out_money_decrease, need_out_money, advance_out_money_increase, advance_out_money_decrease,
+        advance_out_money, user_id
         from
-            fund_target_check_order_${storeId}
+        fund_target_check_order_${storeId}
         where
-            1 = 1
+        1 = 1
         <if test="orderId != null">
             and order_id = #{orderId}
         </if>
@@ -532,396 +617,332 @@
         </if>
     </select>
 
-    <select id="findCountFundTargetCheckOrderNeedInByClient" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="java.lang.Integer">
-        SELECT
-            COUNT(0)
-        FROM
-            (
-                SELECT
-                    c.id AS targetId,
-                    c.name AS targetName,
-                    c.phone AS targetPhone,
-                    sum(
-                        ftco.need_in_money_increase
-                    ) AS needInMoneyIncrease,
-                    sum(
-                        ftco.need_in_money_decrease
-                    ) AS needInMoneyDecrease,
-                    sum(
-                        ftco.advance_in_money_increase
-                    ) AS advanceInMoneyIncrease,
-                    sum(
-                        ftco.advance_in_money_decrease
-                    ) AS advanceInMoneyDecrease
-                FROM
-                    fund_target_check_order_${storeId} AS ftco
-                INNER JOIN client AS c ON c.id = ftco.target_id
-                WHERE
-                    DATE(ftco.create_time) BETWEEN #{startTime}
-                AND #{endTime}
-                GROUP BY
-                    ftco.target_id
-            ) AS temp;
+    <select id="findCountFundTargetCheckOrderNeedInByClient" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(0)
+        FROM (SELECT c.id      AS targetId, c.name AS targetName, c.phone AS targetPhone, sum(
+                                                                                              ftco.need_in_money_increase
+                )              AS needInMoneyIncrease, sum(
+                                                           ftco.need_in_money_decrease
+                             ) AS needInMoneyDecrease, sum(
+                                                           ftco.advance_in_money_increase
+                             ) AS advanceInMoneyIncrease, sum(
+                                                              ftco.advance_in_money_decrease
+                             ) AS advanceInMoneyDecrease
+              FROM fund_target_check_order_${storeId} AS ftco
+                       INNER JOIN client AS c ON c.id = ftco.target_id
+              WHERE DATE(ftco.create_time) BETWEEN #{startTime}
+                            AND #{endTime}
+              GROUP BY ftco.target_id) AS temp;
     </select>
 
     <select id="findPagedFundTargetCheckOrderNeedInByClient" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        SELECT
-            c.id AS targetId,
-            c.name AS targetName,
-            c.phone AS targetPhone,
-            sum(
-                ftco.need_in_money_increase
-            ) AS needInMoneyIncrease,
-            sum(
-                ftco.need_in_money_decrease
-            ) AS needInMoneyDecrease,
-            sum(
-                ftco.advance_in_money_increase
-            ) AS advanceInMoneyIncrease,
-            sum(
-                ftco.advance_in_money_decrease
-            ) AS advanceInMoneyDecrease
-        FROM
-            fund_target_check_order_${vo.storeId} AS ftco
-        INNER JOIN client AS c ON c.id = ftco.target_id
-        WHERE
-            DATE(ftco.create_time) BETWEEN #{vo.startTime}
-        AND #{vo.endTime}
-        GROUP BY
-            ftco.target_id
-        LIMIT
-            #{pageVo.start}, #{pageVo.pageSize};
+        SELECT c.id      AS targetId,
+               c.name    AS targetName,
+               c.phone   AS targetPhone,
+               sum(
+                   ftco.need_in_money_increase
+                       ) AS needInMoneyIncrease,
+               sum(
+                   ftco.need_in_money_decrease
+                       ) AS needInMoneyDecrease,
+               sum(
+                   ftco.advance_in_money_increase
+                       ) AS advanceInMoneyIncrease,
+               sum(
+                   ftco.advance_in_money_decrease
+                       ) AS advanceInMoneyDecrease
+        FROM fund_target_check_order_${vo.storeId} AS ftco
+                 INNER JOIN client AS c ON c.id = ftco.target_id
+        WHERE DATE(ftco.create_time) BETWEEN #{vo.startTime}
+                      AND #{vo.endTime}
+        GROUP BY ftco.target_id
+        LIMIT #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findCountFundTargetCheckOrderNeedInByClientOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="java.lang.Integer">
-        SELECT
-            count(0)
-        FROM
-            fund_target_check_order_${storeId} AS ftco
-        LEFT JOIN fund_order_${storeId} AS fo ON fo.id = ftco.order_id
-        LEFT JOIN sell_result_order_${storeId} AS sro ON sro.id = ftco.order_id
-        LEFT JOIN user_${storeId} AS u ON u.id = ftco.user_id
-        WHERE
-            ftco.target_id = #{targetId}
-        AND DATE(ftco.create_time) BETWEEN #{startTime}
-        AND #{endTime}
+    <select id="findCountFundTargetCheckOrderNeedInByClientOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo"
+            resultType="java.lang.Integer">
+        SELECT count(0)
+        FROM fund_target_check_order_${storeId} AS ftco
+                 LEFT JOIN fund_order_${storeId} AS fo ON fo.id = ftco.order_id
+                 LEFT JOIN sell_result_order_${storeId} AS sro ON sro.id = ftco.order_id
+                 LEFT JOIN user_${storeId} AS u ON u.id = ftco.user_id
+        WHERE ftco.target_id = #{targetId}
+          AND DATE(ftco.create_time) BETWEEN #{startTime}
+                      AND #{endTime}
     </select>
 
     <select id="findPagedFundTargetCheckOrderNeedInByClientOrder" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        SELECT
-            ftco.order_id,
-            ftco.create_time,
-            IF (fo.type = 1,
-                '收款单',
-                IF (fo.type = 3,
-                    '预收款单',
-                    IF (sro.type = 2,
+        SELECT ftco.order_id,
+               ftco.create_time,
+               IF(fo.type = 1,
+                  '收款单',
+                  IF(fo.type = 3,
+                     '预收款单',
+                     IF(sro.type = 2,
                         '销售出库单',
-                        IF (sro.type = 3,
-                            '销售退货单',
-                            IF (sro.type = 4,
-                                '销售换货单',
-                                NULL
-                            )
-                        )
-                    )
-                )
-            ) AS typeName,
-            fo.order_id AS clearOrderId,
-            sro.apply_order_id AS applyOrderId,
-            ftco.need_in_money_increase AS needInMoneyIncrease,
-            ftco.need_in_money_decrease AS needInMoneyDecrease,
-            ftco.need_in_money AS needInMoney,
-            ftco.advance_in_money_increase AS advanceInMoneyIncrease,
-            ftco.advance_in_money_decrease AS advanceInMoneyDecrease,
-            ftco.advance_in_money AS advanceInMoney,
-            ftco.user_id AS userId,
-            u.name AS userName,
-            IF (fo.remark IS NULL, sro.remark, fo.remark) AS remark
-        FROM
-            fund_target_check_order_${vo.storeId} AS ftco
-        LEFT JOIN fund_order_${vo.storeId} AS fo ON fo.id = ftco.order_id
-        LEFT JOIN sell_result_order_${vo.storeId} AS sro ON sro.id = ftco.order_id
-        LEFT JOIN user_${vo.storeId} AS u ON u.id = ftco.user_id
-        WHERE
-            ftco.target_id = #{vo.targetId}
-        AND DATE(ftco.create_time) BETWEEN #{vo.startTime}
-        AND #{vo.endTime}
-        ORDER BY
-            ftco.id ASC
-        LIMIT
-            #{pageVo.start}, #{pageVo.pageSize};
+                        IF(sro.type = 3,
+                           '销售退货单',
+                           IF(sro.type = 4,
+                              '销售换货单',
+                              NULL
+                                   )
+                                )
+                             )
+                          )
+                       )                                    AS typeName,
+               fo.order_id                                  AS clearOrderId,
+               sro.apply_order_id                           AS applyOrderId,
+               ftco.need_in_money_increase                  AS needInMoneyIncrease,
+               ftco.need_in_money_decrease                  AS needInMoneyDecrease,
+               ftco.need_in_money                           AS needInMoney,
+               ftco.advance_in_money_increase               AS advanceInMoneyIncrease,
+               ftco.advance_in_money_decrease               AS advanceInMoneyDecrease,
+               ftco.advance_in_money                        AS advanceInMoney,
+               ftco.user_id                                 AS userId,
+               u.name                                       AS userName,
+               IF(fo.remark IS NULL, sro.remark, fo.remark) AS remark
+        FROM fund_target_check_order_${vo.storeId} AS ftco
+                 LEFT JOIN fund_order_${vo.storeId} AS fo ON fo.id = ftco.order_id
+                 LEFT JOIN sell_result_order_${vo.storeId} AS sro ON sro.id = ftco.order_id
+                 LEFT JOIN user_${vo.storeId} AS u ON u.id = ftco.user_id
+        WHERE ftco.target_id = #{vo.targetId}
+          AND DATE(ftco.create_time) BETWEEN #{vo.startTime}
+                      AND #{vo.endTime}
+        ORDER BY ftco.id ASC
+        LIMIT #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findCountFundTargetCheckOrderNeedOutByClient" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="java.lang.Integer">
-        SELECT
-            COUNT(0)
-        FROM
-            (
-                SELECT
-                    s.id AS targetId,
-                    s.name AS targetName,
-                    s.contact_number AS targetPhone,
-                    sum(
-                        ftco.need_out_money_increase
-                    ) AS needOutMoneyIncrease,
-                    sum(
-                        ftco.need_out_money_decrease
-                    ) AS needOutMoneyDecrease,
-                    sum(
-                        ftco.advance_out_money_increase
-                    ) AS advanceOutMoneyIncrease,
-                    sum(
-                        ftco.advance_out_money_decrease
-                    ) AS advanceOutMoneyDecrease
-                FROM
-                    fund_target_check_order_${storeId} AS ftco
-                INNER JOIN supplier_${storeId} AS s ON s.id = ftco.target_id
-                WHERE
-                    DATE(ftco.create_time) BETWEEN #{startTime}
-                AND #{endTime}
-                GROUP BY
-                    ftco.target_id
-            ) AS temp;
+    <select id="findCountFundTargetCheckOrderNeedOutByClient" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(0)
+        FROM (SELECT s.id      AS targetId, s.name AS targetName, s.contact_number AS targetPhone, sum(
+                                                                                                       ftco.need_out_money_increase
+                )              AS needOutMoneyIncrease, sum(
+                                                            ftco.need_out_money_decrease
+                             ) AS needOutMoneyDecrease, sum(
+                                                            ftco.advance_out_money_increase
+                             ) AS advanceOutMoneyIncrease, sum(
+                                                               ftco.advance_out_money_decrease
+                             ) AS advanceOutMoneyDecrease
+              FROM fund_target_check_order_${storeId} AS ftco
+                       INNER JOIN supplier_${storeId} AS s ON s.id = ftco.target_id
+              WHERE DATE(ftco.create_time) BETWEEN #{startTime}
+                            AND #{endTime}
+              GROUP BY ftco.target_id) AS temp;
     </select>
 
     <select id="findPagedFundTargetCheckOrderNeedOutByClient" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        SELECT
-            s.id AS targetId,
-            s.name AS targetName,
-            s.contact_number AS targetPhone,
-            sum(
-                ftco.need_out_money_increase
-            ) AS needOutMoneyIncrease,
-            sum(
-                ftco.need_out_money_decrease
-            ) AS needOutMoneyDecrease,
-            sum(
-                ftco.advance_out_money_increase
-            ) AS advanceOutMoneyIncrease,
-            sum(
-                ftco.advance_out_money_decrease
-            ) AS advanceOutMoneyDecrease
-        FROM
-            fund_target_check_order_${vo.storeId} AS ftco
-        INNER JOIN supplier_${vo.storeId} AS s ON s.id = ftco.target_id
-        WHERE
-            DATE(ftco.create_time) BETWEEN #{vo.startTime}
-        AND #{vo.endTime}
-        GROUP BY
-            ftco.target_id
-        LIMIT
-            #{pageVo.start}, #{pageVo.pageSize};
+        SELECT s.id             AS targetId,
+               s.name           AS targetName,
+               s.contact_number AS targetPhone,
+               sum(
+                   ftco.need_out_money_increase
+                       )        AS needOutMoneyIncrease,
+               sum(
+                   ftco.need_out_money_decrease
+                       )        AS needOutMoneyDecrease,
+               sum(
+                   ftco.advance_out_money_increase
+                       )        AS advanceOutMoneyIncrease,
+               sum(
+                   ftco.advance_out_money_decrease
+                       )        AS advanceOutMoneyDecrease
+        FROM fund_target_check_order_${vo.storeId} AS ftco
+                 INNER JOIN supplier_${vo.storeId} AS s ON s.id = ftco.target_id
+        WHERE DATE(ftco.create_time) BETWEEN #{vo.startTime}
+                      AND #{vo.endTime}
+        GROUP BY ftco.target_id
+        LIMIT #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findCountFundTargetCheckOrderNeedOutByClientOrder" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="java.lang.Integer">
-        SELECT
-            count(0)
-        FROM
-            fund_target_check_order_${storeId} AS ftco
-        LEFT JOIN fund_order_${storeId} AS fo ON fo.id = ftco.order_id
-        LEFT JOIN procurement_result_order_${storeId} AS pro ON pro.id = ftco.order_id
-        LEFT JOIN user_${storeId} AS u ON u.id = ftco.user_id
-        WHERE
-            ftco.target_id = #{targetId}
-        AND DATE(ftco.create_time) BETWEEN #{startTime}
-        AND #{endTime}
+    <select id="findCountFundTargetCheckOrderNeedOutByClientOrder"
+            parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="java.lang.Integer">
+        SELECT count(0)
+        FROM fund_target_check_order_${storeId} AS ftco
+                 LEFT JOIN fund_order_${storeId} AS fo ON fo.id = ftco.order_id
+                 LEFT JOIN procurement_result_order_${storeId} AS pro ON pro.id = ftco.order_id
+                 LEFT JOIN user_${storeId} AS u ON u.id = ftco.user_id
+        WHERE ftco.target_id = #{targetId}
+          AND DATE(ftco.create_time) BETWEEN #{startTime}
+                      AND #{endTime}
     </select>
 
     <select id="findPagedFundTargetCheckOrderNeedOutByClientOrder" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        SELECT
-            ftco.order_id,
-            ftco.create_time,
-            IF (fo.type = 1,
-                '付款单',
-                IF (fo.type = 3,
-                    '预付款单',
-                    IF (pro.type = 1,
+        SELECT ftco.order_id,
+               ftco.create_time,
+               IF(fo.type = 1,
+                  '付款单',
+                  IF(fo.type = 3,
+                     '预付款单',
+                     IF(pro.type = 1,
                         '采购入库单',
-                        IF (pro.type = 2,
-                            '采购退货单',
-                            IF (pro.type = 3,
-                                '采购换货单',
-                                NULL
-                            )
-                        )
-                    )
-                )
-            ) AS typeName,
-            fo.order_id AS clearOrderId,
-            pro.apply_order_id AS applyOrderId,
-            ftco.need_out_money_increase AS needOutMoneyIncrease,
-            ftco.need_out_money_decrease AS needOutMoneyDecrease,
-            ftco.need_out_money AS needOutMoney,
-            ftco.advance_out_money_increase AS advanceOutMoneyIncrease,
-            ftco.advance_out_money_decrease AS advanceOutMoneyDecrease,
-            ftco.advance_out_money AS advanceOutMoney,
-            ftco.user_id AS userId,
-            u.name AS userName,
-            IF (fo.remark IS NULL, pro.remark, fo.remark) AS remark
-        FROM
-            fund_target_check_order_${vo.storeId} AS ftco
-        LEFT JOIN fund_order_${vo.storeId} AS fo ON fo.id = ftco.order_id
-        LEFT JOIN procurement_result_order_${vo.storeId} AS pro ON pro.id = ftco.order_id
-        LEFT JOIN user_${vo.storeId} AS u ON u.id = ftco.user_id
-        WHERE
-            ftco.target_id = #{vo.targetId}
-        AND DATE(ftco.create_time) BETWEEN #{vo.startTime}
-        AND #{vo.endTime}
-        ORDER BY
-            ftco.id ASC
-        LIMIT
-            #{pageVo.start}, #{pageVo.pageSize};
+                        IF(pro.type = 2,
+                           '采购退货单',
+                           IF(pro.type = 3,
+                              '采购换货单',
+                              NULL
+                                   )
+                                )
+                             )
+                          )
+                       )                                    AS typeName,
+               fo.order_id                                  AS clearOrderId,
+               pro.apply_order_id                           AS applyOrderId,
+               ftco.need_out_money_increase                 AS needOutMoneyIncrease,
+               ftco.need_out_money_decrease                 AS needOutMoneyDecrease,
+               ftco.need_out_money                          AS needOutMoney,
+               ftco.advance_out_money_increase              AS advanceOutMoneyIncrease,
+               ftco.advance_out_money_decrease              AS advanceOutMoneyDecrease,
+               ftco.advance_out_money                       AS advanceOutMoney,
+               ftco.user_id                                 AS userId,
+               u.name                                       AS userName,
+               IF(fo.remark IS NULL, pro.remark, fo.remark) AS remark
+        FROM fund_target_check_order_${vo.storeId} AS ftco
+                 LEFT JOIN fund_order_${vo.storeId} AS fo ON fo.id = ftco.order_id
+                 LEFT JOIN procurement_result_order_${vo.storeId} AS pro ON pro.id = ftco.order_id
+                 LEFT JOIN user_${vo.storeId} AS u ON u.id = ftco.user_id
+        WHERE ftco.target_id = #{vo.targetId}
+          AND DATE(ftco.create_time) BETWEEN #{vo.startTime}
+                      AND #{vo.endTime}
+        ORDER BY ftco.id ASC
+        LIMIT #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findCountFundTargetCheckOrderNeedInByUser" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="java.lang.Integer">
-        SELECT
-            COUNT(0)
-        FROM
-            (
-                SELECT
-                    u.id AS userId,
-                    u.name AS userName,
-                    sum(
-                        ftco.need_in_money_increase
-                    ) AS needInMoneyIncrease,
-                    sum(
-                        ftco.need_in_money_decrease
-                    ) AS needInMoneyDecrease,
-                    sum(
-                        ftco.advance_in_money_increase
-                    ) AS advanceInMoneyIncrease,
-                    sum(
-                        ftco.advance_in_money_decrease
-                    ) AS advanceInMoneyDecrease
-                FROM
-                    fund_target_check_order_${storeId} AS ftco
-                INNER JOIN user_${storeId} AS u ON u.id = ftco.user_id
-                WHERE
-                    DATE(ftco.create_time) BETWEEN #{startTime}
-                AND #{endTime}
-                GROUP BY
-                    ftco.user_id
-            ) AS temp;
+    <select id="findCountFundTargetCheckOrderNeedInByUser" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(0)
+        FROM (SELECT u.id      AS userId, u.name AS userName, sum(
+                                                                  ftco.need_in_money_increase
+                )              AS needInMoneyIncrease, sum(
+                                                           ftco.need_in_money_decrease
+                             ) AS needInMoneyDecrease, sum(
+                                                           ftco.advance_in_money_increase
+                             ) AS advanceInMoneyIncrease, sum(
+                                                              ftco.advance_in_money_decrease
+                             ) AS advanceInMoneyDecrease
+              FROM fund_target_check_order_${storeId} AS ftco
+                       INNER JOIN user_${storeId} AS u ON u.id = ftco.user_id
+              WHERE DATE(ftco.create_time) BETWEEN #{startTime}
+                            AND #{endTime}
+              GROUP BY ftco.user_id) AS temp;
     </select>
 
     <select id="findPagedFundTargetCheckOrderNeedInByUser" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        SELECT
-            u.id AS userId,
-            u.name AS userName,
-            sum(
-                ftco.need_in_money_increase
-            ) AS needInMoneyIncrease,
-            sum(
-                ftco.need_in_money_decrease
-            ) AS needInMoneyDecrease,
-            sum(
-                ftco.advance_in_money_increase
-            ) AS advanceInMoneyIncrease,
-            sum(
-                ftco.advance_in_money_decrease
-            ) AS advanceInMoneyDecrease
-        FROM
-            fund_target_check_order_${vo.storeId} AS ftco
-        INNER JOIN user_${vo.storeId} AS u ON u.id = ftco.user_id
-        WHERE
-            DATE(ftco.create_time) BETWEEN #{vo.startTime}
-        AND #{vo.endTime}
-        GROUP BY
-            ftco.user_id
-        LIMIT
-            #{pageVo.start}, #{pageVo.pageSize};
+        SELECT u.id      AS userId,
+               u.name    AS userName,
+               sum(
+                   ftco.need_in_money_increase
+                       ) AS needInMoneyIncrease,
+               sum(
+                   ftco.need_in_money_decrease
+                       ) AS needInMoneyDecrease,
+               sum(
+                   ftco.advance_in_money_increase
+                       ) AS advanceInMoneyIncrease,
+               sum(
+                   ftco.advance_in_money_decrease
+                       ) AS advanceInMoneyDecrease
+        FROM fund_target_check_order_${vo.storeId} AS ftco
+                 INNER JOIN user_${vo.storeId} AS u ON u.id = ftco.user_id
+        WHERE DATE(ftco.create_time) BETWEEN #{vo.startTime}
+                      AND #{vo.endTime}
+        GROUP BY ftco.user_id
+        LIMIT #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findCountFundTargetCheckOrderNeedOutByUser" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo" resultType="java.lang.Integer">
-        SELECT
-            COUNT(0)
-        FROM
-            (
-                SELECT
-                    u.id AS userId,
-                    u.name AS userName,
-                    sum(
-                        ftco.need_out_money_increase
-                    ) AS needOutMoneyIncrease,
-                    sum(
-                        ftco.need_out_money_decrease
-                    ) AS needOutMoneyDecrease,
-                    sum(
-                        ftco.advance_out_money_increase
-                    ) AS advanceOutMoneyIncrease,
-                    sum(
-                        ftco.advance_out_money_decrease
-                    ) AS advanceOutMoneyDecrease
-                FROM
-                    fund_target_check_order_${storeId} AS ftco
-                INNER JOIN user_${storeId} AS u ON u.id = ftco.user_id
-                WHERE
-                    DATE(ftco.create_time) BETWEEN #{startTime}
-                AND #{endTime}
-                GROUP BY
-                    ftco.user_id
-            ) AS temp;
+    <select id="findCountFundTargetCheckOrderNeedOutByUser" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(0)
+        FROM (SELECT u.id      AS userId, u.name AS userName, sum(
+                                                                  ftco.need_out_money_increase
+                )              AS needOutMoneyIncrease, sum(
+                                                            ftco.need_out_money_decrease
+                             ) AS needOutMoneyDecrease, sum(
+                                                            ftco.advance_out_money_increase
+                             ) AS advanceOutMoneyIncrease, sum(
+                                                               ftco.advance_out_money_decrease
+                             ) AS advanceOutMoneyDecrease
+              FROM fund_target_check_order_${storeId} AS ftco
+                       INNER JOIN user_${storeId} AS u ON u.id = ftco.user_id
+              WHERE DATE(ftco.create_time) BETWEEN #{startTime}
+                            AND #{endTime}
+              GROUP BY ftco.user_id) AS temp;
     </select>
 
     <select id="findPagedFundTargetCheckOrderNeedOutByUser" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        SELECT
-            u.id AS userId,
-            u.name AS userName,
-            sum(
-                ftco.need_out_money_increase
-            ) AS needOutMoneyIncrease,
-            sum(
-                ftco.need_out_money_decrease
-            ) AS needOutMoneyDecrease,
-            sum(
-                ftco.advance_out_money_increase
-            ) AS advanceOutMoneyIncrease,
-            sum(
-                ftco.advance_out_money_decrease
-            ) AS advanceOutMoneyDecrease
-        FROM
-            fund_target_check_order_${vo.storeId} AS ftco
-        INNER JOIN user_${vo.storeId} AS u ON u.id = ftco.user_id
-        WHERE
-            DATE(ftco.create_time) BETWEEN #{vo.startTime}
-        AND #{vo.endTime}
-        GROUP BY
-            ftco.user_id
-        LIMIT
-            #{pageVo.start}, #{pageVo.pageSize};
+        SELECT u.id      AS userId,
+               u.name    AS userName,
+               sum(
+                   ftco.need_out_money_increase
+                       ) AS needOutMoneyIncrease,
+               sum(
+                   ftco.need_out_money_decrease
+                       ) AS needOutMoneyDecrease,
+               sum(
+                   ftco.advance_out_money_increase
+                       ) AS advanceOutMoneyIncrease,
+               sum(
+                   ftco.advance_out_money_decrease
+                       ) AS advanceOutMoneyDecrease
+        FROM fund_target_check_order_${vo.storeId} AS ftco
+                 INNER JOIN user_${vo.storeId} AS u ON u.id = ftco.user_id
+        WHERE DATE(ftco.create_time) BETWEEN #{vo.startTime}
+                      AND #{vo.endTime}
+        GROUP BY ftco.user_id
+        LIMIT #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <!--其他收入单/费用单-->
 
     <insert id="addFundResultOrder" parameterType="com.yeta.pps.vo.FundResultOrderVo">
-        insert into
-            fund_result_order_${storeId} (id, type, create_time, order_status, target_id, bank_account_id, money, income_expenses_id, user_id, remark)
-        value
-            (#{id}, #{type}, #{createTime}, #{orderStatus}, #{targetId}, #{bankAccountId}, #{money}, #{incomeExpensesId}, #{userId}, #{remark});
+        insert into fund_result_order_${storeId} (id,
+                                                  type,
+                                                  create_time,
+                                                  order_status,
+                                                  target_id,
+                                                  bank_account_id,
+                                                  money,
+                                                  income_expenses_id,
+                                                  user_id,
+                                                  remark)
+        value (#{id},
+               #{type},
+               #{createTime},
+               #{orderStatus},
+               #{targetId},
+               #{bankAccountId},
+               #{money},
+               #{incomeExpensesId},
+               #{userId},
+               #{remark});
     </insert>
 
     <update id="redDashedFundResultOrder" parameterType="com.yeta.pps.vo.FundResultOrderVo">
-        update fund_result_order_${storeId} set order_status = -1 where id = #{id} and order_status &gt; 0;
+        update fund_result_order_${storeId}
+        set order_status = -1
+        where id = #{id}
+          and order_status &gt; 0;
     </update>
 
-    <select id="findCountFundResultOrder" parameterType="com.yeta.pps.vo.FundResultOrderVo" resultType="java.lang.Integer">
+    <select id="findCountFundResultOrder" parameterType="com.yeta.pps.vo.FundResultOrderVo"
+            resultType="java.lang.Integer">
         select
-            count(0)
+        count(0)
         from
-            (
-                (
-                    (
-                        (
-                            fund_result_order_${storeId} as fro
-                            left join bank_account_${storeId} as ba on ba.id = fro.bank_account_id
-                        )
-                        left join income_expenses_${storeId} as ie on ie.id = fro.income_expenses_id
-                    )
-                    left join client as c on c.id = fro.target_id
-                )
-                left join supplier_${storeId} as s on s.id = fro.target_id
-            )
+        (
+        (
+        (
+        (
+        fund_result_order_${storeId} as fro
+        left join bank_account_${storeId} as ba on ba.id = fro.bank_account_id
+        )
+        left join income_expenses_${storeId} as ie on ie.id = fro.income_expenses_id
+        )
+        left join client as c on c.id = fro.target_id
+        )
+        left join supplier_${storeId} as s on s.id = fro.target_id
+        )
         left join user_${storeId} as u on u.id = fro.user_id
         where fro.type = #{type}
         <if test="startTime != null and endTime != null">
@@ -944,34 +965,34 @@
 
     <select id="findAllPagedFundResultOrder" resultType="com.yeta.pps.vo.FundResultOrderVo">
         select
-            fro.id,
-            fro.type,
-            fro.create_time,
-            fro.order_status,
-            fro.target_id,
-            if (c.name is not null, c.name, s.name) as target_name,
-            fro.bank_account_id,
-            ba.name as bank_account,
-            fro.money,
-            fro.income_expenses_id,
-            ie.name as income_expenses,
-            fro.user_id,
-            u.name as user_name,
-            fro.remark
+        fro.id,
+        fro.type,
+        fro.create_time,
+        fro.order_status,
+        fro.target_id,
+        if (c.name is not null, c.name, s.name) as target_name,
+        fro.bank_account_id,
+        ba.name as bank_account,
+        fro.money,
+        fro.income_expenses_id,
+        ie.name as income_expenses,
+        fro.user_id,
+        u.name as user_name,
+        fro.remark
         from
-            (
-                (
-                    (
-                        (
-                            fund_result_order_${vo.storeId} as fro
-                            left join bank_account_${vo.storeId} as ba on ba.id = fro.bank_account_id
-                        )
-                        left join income_expenses_${vo.storeId} as ie on ie.id = fro.income_expenses_id
-                    )
-                    left join client as c on c.id = fro.target_id
-                )
-                left join supplier_${vo.storeId} as s on s.id = fro.target_id
-            )
+        (
+        (
+        (
+        (
+        fund_result_order_${vo.storeId} as fro
+        left join bank_account_${vo.storeId} as ba on ba.id = fro.bank_account_id
+        )
+        left join income_expenses_${vo.storeId} as ie on ie.id = fro.income_expenses_id
+        )
+        left join client as c on c.id = fro.target_id
+        )
+        left join supplier_${vo.storeId} as s on s.id = fro.target_id
+        )
         left join user_${vo.storeId} as u on u.id = fro.user_id
         where fro.type = #{vo.type}
         <if test="vo.startTime != null and vo.endTime != null">
@@ -993,13 +1014,14 @@
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findFundResultOrder" parameterType="com.yeta.pps.vo.FundResultOrderVo" resultType="com.yeta.pps.vo.FundResultOrderVo">
+    <select id="findFundResultOrder" parameterType="com.yeta.pps.vo.FundResultOrderVo"
+            resultType="com.yeta.pps.vo.FundResultOrderVo">
         select
-            id, type, create_time, order_status, target_id, bank_account_id, money, income_expenses_id, user_id, remark
+        id, type, create_time, order_status, target_id, bank_account_id, money, income_expenses_id, user_id, remark
         from
-            fund_result_order_${storeId}
+        fund_result_order_${storeId}
         where
-            1 = 1
+        1 = 1
         <if test="id != null">
             and id = #{id}
         </if>
