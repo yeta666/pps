@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 资金相关逻辑处理
@@ -49,6 +48,9 @@ public class FundService {
 
     @Autowired
     private FinancialAffairsUtil financialAffairsUtil;
+
+    @Autowired
+    private PrimaryKeyUtil primaryKeyUtil;
 
     /**
      * 按单收款
@@ -254,7 +256,7 @@ public class FundService {
                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
-                fundOrderVo.setId("SKD_" + UUID.randomUUID().toString().replace("-", ""));
+                fundOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myFundMapper.findFundOrderPrimaryKey(fundOrderVo), "SKD"));
 
                 //获取结算单据
                 SellApplyOrderVo sVo = mySellMapper.findApplyOrderById(new SellApplyOrderVo(storeId, fundOrderVo.getOrderId()));
@@ -319,7 +321,7 @@ public class FundService {
                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
-                fundOrderVo.setId("FKD_" + UUID.randomUUID().toString().replace("-", ""));
+                fundOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myFundMapper.findFundOrderPrimaryKey(fundOrderVo), "FKD"));
 
                 //获取结算单据
                 ProcurementApplyOrder procurementApplyOrder = myProcurementMapper.findApplyOrderById(new ProcurementApplyOrderVo(storeId, fundOrderVo.getOrderId()));
@@ -385,7 +387,7 @@ public class FundService {
                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
-                fundOrderVo.setId("YSKD_" + UUID.randomUUID().toString().replace("-", ""));
+                fundOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myFundMapper.findFundOrderPrimaryKey(fundOrderVo), "YSKD"));
                 fundOrderVo.setDiscountMoney(0.0);
                 fundOrderVo.setAdvanceMoney(0.0);
 
@@ -421,7 +423,7 @@ public class FundService {
                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
-                fundOrderVo.setId("YFKD_" + UUID.randomUUID().toString().replace("-", ""));
+                fundOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myFundMapper.findFundOrderPrimaryKey(fundOrderVo), "YFKD"));
                 fundOrderVo.setDiscountMoney(0.0);
                 fundOrderVo.setAdvanceMoney(0.0);
 
@@ -545,7 +547,7 @@ public class FundService {
         financialAffairsUtil.redDashedAccountingDocumentMethod(new AccountingDocumentVo(storeId, fundOrderVo.getId(), userId));
 
         //新增红冲红单
-        fundOrderVo.setId("HC_" + fundOrderVo.getId());
+        fundOrderVo.setId("HC-" + fundOrderVo.getId());
         fundOrderVo.setCreateTime(new Date());
         fundOrderVo.setOrderStatus((byte) -2);
         fundOrderVo.setUserId(userId);
@@ -1124,7 +1126,7 @@ public class FundService {
 
         //设置红冲红单
         fundResultOrderVo.setStoreId(storeId);
-        fundResultOrderVo.setId("HC_" + fundResultOrderVo.getId());
+        fundResultOrderVo.setId("HC-" + fundResultOrderVo.getId());
         fundResultOrderVo.setCreateTime(new Date());
         fundResultOrderVo.setOrderStatus((byte) -2);
         fundResultOrderVo.setMoney(-fundResultOrderVo.getMoney());

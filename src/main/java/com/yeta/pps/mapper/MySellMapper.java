@@ -30,6 +30,8 @@ public interface MySellMapper {
 
     List<SellApplyOrderVo> findAllApplyOrderDetail(SellApplyOrderVo sellApplyOrderVo);
 
+    List<String> findApplyOrderPrimaryKey(SellApplyOrderVo sellApplyOrderVo);
+
     //销售结果单
 
     int addResultOrder(SellResultOrderVo sellResultOrderVo);
@@ -42,4 +44,6 @@ public interface MySellMapper {
                                                     @Param("pageVo") PageVo pageVo);
 
     SellResultOrderVo findResultOrderDetailById(SellResultOrderVo sellResultOrderVo);
+
+    List<String> findResultOrderPrimaryKey(SellResultOrderVo sellResultOrderVo);
 }

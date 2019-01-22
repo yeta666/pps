@@ -23,4 +23,6 @@ public interface MySupplierMapper {
     List<SupplierVo> findAllPaged(@Param(value = "supplierVo") SupplierVo supplierVo, @Param(value = "pageVo") PageVo pageVo);
 
     SupplierVo findById(SupplierVo supplierVo);
+
+    List<String> findPrimaryKey(SupplierVo supplierVo);
 }

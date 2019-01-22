@@ -30,6 +30,9 @@ public class FundUtil {
     @Autowired
     private MyMarketingMapper myMarketingMapper;
 
+    @Autowired
+    private PrimaryKeyUtil primaryKeyUtil;
+
     /**
      * 返回四舍五入2位小数的方法
      * @param number
@@ -328,7 +331,7 @@ public class FundUtil {
                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
-                fundResultOrderVo.setId("QTSRD_" + UUID.randomUUID().toString().replace("-", ""));
+                fundResultOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myFundMapper.findFundResultOrderPrimaryKey(fundResultOrderVo), "QTSRD"));
 
                 fundCheckOrderVo.setOrderId(fundResultOrderVo.getId());
                 fundCheckOrderVo.setInMoney(fundResultOrderVo.getMoney());
@@ -337,7 +340,7 @@ public class FundUtil {
                 break;
 
             case 2:     //费用单:
-                fundResultOrderVo.setId("YBFYD_" + UUID.randomUUID().toString().replace("-", ""));
+                fundResultOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myFundMapper.findFundResultOrderPrimaryKey(fundResultOrderVo), "YBFYD"));
 
                 fundCheckOrderVo.setOrderId(fundResultOrderVo.getId());
                 fundCheckOrderVo.setInMoney(0.0);

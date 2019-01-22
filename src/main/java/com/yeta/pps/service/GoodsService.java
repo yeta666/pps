@@ -43,6 +43,9 @@ public class GoodsService {
     @Autowired
     private MyOrderGoodsSkuMapper myOrderGoodsSkuMapper;
 
+    @Autowired
+    private PrimaryKeyUtil primaryKeyUtil;
+
     //商品标签
 
     /**
@@ -433,7 +436,7 @@ public class GoodsService {
         }
 
         //设置初始属性
-        goodsVo.setId(UUID.randomUUID().toString().replace("-", ""));
+        goodsVo.setId(primaryKeyUtil.getPrimaryKeyMethod(myGoodsMapper.findPrimaryKey(goodsVo), "sp"));
         goodsVo.setCreateTime(new Date());
 
         //新增商品
@@ -844,7 +847,7 @@ public class GoodsService {
             HSSFRow row = sheet.getRow(j);
             GoodsVo goodsVo = new GoodsVo();
             goodsVo.setStoreId(storeId);
-            goodsVo.setId(UUID.randomUUID().toString().replace("-", ""));
+            goodsVo.setId(primaryKeyUtil.getPrimaryKeyMethod(myGoodsMapper.findPrimaryKey(goodsVo), "sp"));
             goodsVo.setCreateTime(new Date());
 
             String name = CommonUtil.getCellValue(row.getCell(0));

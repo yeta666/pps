@@ -8,6 +8,7 @@ import com.yeta.pps.mapper.TableMapper;
 import com.yeta.pps.po.*;
 import com.yeta.pps.util.CommonResponse;
 import com.yeta.pps.util.CommonResult;
+import com.yeta.pps.util.PrimaryKeyUtil;
 import com.yeta.pps.util.Title;
 import com.yeta.pps.vo.ClientVo;
 import com.yeta.pps.vo.PageVo;
@@ -41,6 +42,9 @@ public class StoreService {
     @Autowired
     private SystemMapper systemMapper;
 
+    @Autowired
+    private PrimaryKeyUtil primaryKeyUtil;
+
     /**
      * 新增店铺，插入一套表
      * @param storeVo
@@ -50,7 +54,7 @@ public class StoreService {
     public CommonResponse add(StoreVo storeVo) {
         //新增店长级别客户
         ClientVo clientVo = new ClientVo();
-        clientVo.setId(UUID.randomUUID().toString().replace("-", ""));
+        clientVo.setId(primaryKeyUtil.getPrimaryKeyMethod(myClientMapper.findPrimaryKey(), "kh"));
         clientVo.setName(storeVo.getClientName());
         clientVo.setUsername(storeVo.getClientPhone());
         clientVo.setPassword(storeVo.getClientPhone().substring(storeVo.getClientPhone().length() - 4));

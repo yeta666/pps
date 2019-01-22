@@ -4,7 +4,6 @@ import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyOrderGoodsSkuMapper;
 import com.yeta.pps.mapper.MyProcurementMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
-import com.yeta.pps.po.ProcurementApplyOrder;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
@@ -44,6 +43,9 @@ public class ProcurementService {
     @Autowired
     private FinancialAffairsUtil financialAffairsUtil;
 
+    @Autowired
+    private PrimaryKeyUtil primaryKeyUtil;
+
     //采购申请订单
 
     @Transactional
@@ -57,7 +59,7 @@ public class ProcurementService {
         }
 
         //设置初始属性
-        procurementApplyOrderVo.setId("CGDD_" + UUID.randomUUID().toString().replace("-", ""));
+        procurementApplyOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myProcurementMapper.findApplyOrderPrimaryKey(procurementApplyOrderVo), "CGDD"));
         procurementApplyOrderVo.setCreateTime(new Date());
         procurementApplyOrderVo.setOrderStatus((byte) 1);       //未收
         procurementApplyOrderVo.setClearStatus((byte) 0);       //未完成
@@ -88,7 +90,7 @@ public class ProcurementService {
         }
 
         //设置初始属性
-        procurementApplyOrderVo.setId("CGTHSQD_" + UUID.randomUUID().toString().replace("-", ""));
+        procurementApplyOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myProcurementMapper.findApplyOrderPrimaryKey(procurementApplyOrderVo), "CGTHSQD"));
         procurementApplyOrderVo.setCreateTime(new Date());
         procurementApplyOrderVo.setOrderStatus((byte) 4);       //未发
         procurementApplyOrderVo.setClearStatus((byte) 0);       //未完成
@@ -122,7 +124,7 @@ public class ProcurementService {
         }
 
         //设置初始属性
-        procurementApplyOrderVo.setId("CGHHSQD_" + UUID.randomUUID().toString().replace("-", ""));
+        procurementApplyOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myProcurementMapper.findApplyOrderPrimaryKey(procurementApplyOrderVo), "CGHHSQD"));
         procurementApplyOrderVo.setCreateTime(new Date());
         procurementApplyOrderVo.setOrderStatus((byte) 7);       //未收未发
         procurementApplyOrderVo.setClearStatus((byte) 1);       //已完成
@@ -506,7 +508,7 @@ public class ProcurementService {
         //设置红冲红单
         procurementResultOrderVo.setStoreId(storeId);
         String oldResultOrderId = procurementResultOrderVo.getId();
-        procurementResultOrderVo.setId("HC_" + oldResultOrderId);
+        procurementResultOrderVo.setId("HC-" + oldResultOrderId);
         procurementResultOrderVo.setCreateTime(new Date());
         procurementResultOrderVo.setOrderStatus((byte) -2);
         procurementResultOrderVo.setTotalQuantity(-procurementResultOrderVo.getTotalQuantity());

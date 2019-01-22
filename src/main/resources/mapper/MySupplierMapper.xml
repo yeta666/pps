@@ -1,73 +1,105 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.yeta.pps.mapper.MySupplierMapper" >
+<mapper namespace="com.yeta.pps.mapper.MySupplierMapper">
 
     <insert id="add" parameterType="com.yeta.pps.vo.SupplierVo">
-        insert into
-            supplier_${storeId} (id, name, advance_out_money_opening, need_out_money_opening, contacts, contact_number, contact_address, fax, remark)
-        values
-            (#{id}, #{name}, 0.0, 0.0, #{contacts}, #{contactNumber}, #{contactAddress}, #{fax}, #{remark});
+        insert into supplier_${storeId} (id,
+                                         name,
+                                         advance_out_money_opening,
+                                         need_out_money_opening,
+                                         contacts,
+                                         contact_number,
+                                         contact_address,
+                                         fax,
+                                         remark)
+        values (#{id}, #{name}, 0.0, 0.0, #{contacts}, #{contactNumber}, #{contactAddress}, #{fax}, #{remark});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.vo.SupplierVo">
-        delete from supplier_${storeId} where id = #{id};
+        delete
+        from supplier_${storeId}
+        where id = #{id};
     </delete>
 
     <update id="update" parameterType="com.yeta.pps.vo.SupplierVo">
         update
-            supplier_${storeId}
-        set
-            name = #{name}, contacts = #{contacts}, contact_number = #{contactNumber}, contact_address = #{contactAddress}, fax = #{fax}, remark = #{remark}
-        where
-            id = #{id};
+                supplier_${storeId}
+        set name            = #{name},
+            contacts        = #{contacts},
+            contact_number  = #{contactNumber},
+            contact_address = #{contactAddress},
+            fax             = #{fax},
+            remark          = #{remark}
+        where id = #{id};
     </update>
-    
+
     <update id="updateSupplierOpening" parameterType="com.yeta.pps.vo.SupplierVo">
         update
-            supplier_${storeId}
-        set
-            advance_out_money_opening = #{advanceOutMoneyOpening}, need_out_money_opening = #{needOutMoneyOpening}
-        where
-            id = #{id};
+                supplier_${storeId}
+        set advance_out_money_opening = #{advanceOutMoneyOpening},
+            need_out_money_opening    = #{needOutMoneyOpening}
+        where id = #{id};
     </update>
 
     <select id="findCount" parameterType="com.yeta.pps.vo.SupplierVo" resultType="java.lang.Integer">
         select
-            COUNT(0)
+        COUNT(0)
         from
-            supplier_${storeId}
+        supplier_${storeId}
         where
-            1 = 1
+        1 = 1
         <if test="name != null">
-        and
+            and
             name like concat('%', #{name}, '%');
         </if>
     </select>
 
     <select id="findAllPaged" resultType="com.yeta.pps.vo.SupplierVo">
         select
-            id, name, advance_out_money_opening, need_out_money_opening, contacts, contact_number, contact_address, fax, remark
+        id, name, advance_out_money_opening, need_out_money_opening, contacts, contact_number, contact_address, fax,
+        remark
         from
-            supplier_${supplierVo.storeId}
+        supplier_${supplierVo.storeId}
         where
-            1 = 1
+        1 = 1
         <if test="supplierVo.name != null">
-        and
+            and
             name like concat('%', #{supplierVo.name}, '%')
         </if>
         limit
-            #{pageVo.start}, #{pageVo.pageSize};
+        #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
     <select id="findAll" parameterType="com.yeta.pps.vo.SupplierVo" resultType="com.yeta.pps.vo.SupplierVo">
-        select
-            id, name, advance_out_money_opening, need_out_money_opening, contacts, contact_number, contact_address, fax, remark
-        from
-            supplier_${storeId};
+        select id,
+               name,
+               advance_out_money_opening,
+               need_out_money_opening,
+               contacts,
+               contact_number,
+               contact_address,
+               fax,
+               remark
+        from supplier_${storeId};
     </select>
 
     <select id="findById" parameterType="com.yeta.pps.vo.SupplierVo" resultType="com.yeta.pps.vo.SupplierVo">
-        select id, name, advance_out_money_opening, need_out_money_opening, contacts, contact_number, contact_address, fax, remark from supplier_${storeId} where id = #{id};
+        select id,
+               name,
+               advance_out_money_opening,
+               need_out_money_opening,
+               contacts,
+               contact_number,
+               contact_address,
+               fax,
+               remark
+        from supplier_${storeId}
+        where id = #{id};
+    </select>
+
+    <select id="findPrimaryKey" parameterType="com.yeta.pps.vo.SupplierVo" resultType="java.lang.String">
+        select id
+        from supplier_${storeId};
     </select>
 
 </mapper>

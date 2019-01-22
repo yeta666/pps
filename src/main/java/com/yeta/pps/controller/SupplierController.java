@@ -35,7 +35,7 @@ public class SupplierController {
      * @return
      */
     @ApiOperation(value = "新增供应商")
-    @ApiImplicitParam(name = "supplierVo", value = "storeId, id, name, contacts, contact_number, userId必填", required = true, paramType = "body", dataType = "SupplierVo")
+    @ApiImplicitParam(name = "supplierVo", value = "storeId, name, contacts, contact_number, userId必填", required = true, paramType = "body", dataType = "SupplierVo")
     @PostMapping(value = "/suppliers")
     public CommonResponse add(@RequestBody @Valid SupplierVo supplierVo) {
         return supplierService.add(supplierVo);

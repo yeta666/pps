@@ -16,7 +16,6 @@ public class SupplierVo {
     /**
      * 供应商编号
      */
-    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String id;
 
     /**

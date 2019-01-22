@@ -82,8 +82,8 @@
             out_total_quantity       = #{outTotalQuantity},
             out_not_sent_quantity    = #{outNotSentQuantity},
             total_money              = #{totalMoney},
-            discount_money       = #{discountMoney},
-            discount_coupon_id   = #{discountCouponId},
+            discount_money           = #{discountMoney},
+            discount_coupon_id       = #{discountCouponId},
             total_discount_money     = #{totalDiscountMoney},
             order_money              = #{orderMoney},
             not_cleared_money        = #{orderMoney}
@@ -416,6 +416,14 @@
         </if>
     </select>
 
+    <select id="findApplyOrderPrimaryKey" parameterType="com.yeta.pps.vo.SellApplyOrderVo"
+            resultType="java.lang.String">
+        select id
+        from sell_apply_order_${storeId}
+        where date(create_time) = date(now)
+          and type = #{type};
+    </select>
+
     <!--销售结果订单-->
 
     <insert id="addResultOrder" parameterType="com.yeta.pps.vo.SellResultOrderVo">
@@ -683,6 +691,14 @@
                      )
                  left join goods_${storeId} as g on gs.goods_id = g.id
         where sro.id = #{id};
+    </select>
+
+    <select id="findResultOrderPrimaryKey" parameterType="com.yeta.pps.vo.SellResultOrderVo"
+            resultType="java.lang.String">
+        select id
+        from sell_result_order_${storeId}
+        where date(create_time) = date(now)
+          and type = #{type};
     </select>
 
 </mapper>

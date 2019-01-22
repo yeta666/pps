@@ -563,6 +563,14 @@
         where id = #{id};
     </select>
 
+    <select id="findStorageOrderPrimaryKey" parameterType="com.yeta.pps.vo.StorageOrderVo"
+            resultType="java.lang.String">
+        select id
+        from storage_order_${storeId}
+        where date(create_time) = date(now())
+          and type = #{type};
+    </select>
+
     <!--其他入/出库单、报溢/损单、成本调价单、库存盘点单-->
 
     <insert id="addStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo">
@@ -787,6 +795,14 @@
         <if test="targetId != null">
             and sro.target_id = #{targetId}
         </if>
+    </select>
+
+    <select id="findStorageResultOrderPrimaryKey" parameterType="com.yeta.pps.vo.StorageResultOrderVo"
+            resultType="java.lang.String">
+        select id
+        from storage_result_order_${storeId}
+        where date(create_time) = date(now())
+          and type = #{type};
     </select>
 
     <!--查库存-->

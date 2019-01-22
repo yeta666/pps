@@ -672,6 +672,11 @@
         where type_id = #{typeId};
     </select>
 
+    <select id="findPrimaryKey" parameterType="com.yeta.pps.vo.GoodsVo" resultType="java.lang.String">
+        select id
+        from goods_${storeId};
+    </select>
+
     <!--下单查商品-->
 
     <resultMap id="canUserMap" type="com.yeta.pps.vo.GoodsTypeVo">

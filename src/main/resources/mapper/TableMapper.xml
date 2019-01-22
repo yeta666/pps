@@ -887,6 +887,8 @@
     <!--删除表-->
 
     <delete id="delete" parameterType="java.lang.Integer">
+        DROP TABLE IF EXISTS accounting_document_${storeId};
+        DROP TABLE IF EXISTS accounting_subject_${storeId};
         DROP TABLE IF EXISTS bank_account_${storeId};
         DROP TABLE IF EXISTS discount_coupon_${storeId};
         DROP TABLE IF EXISTS fund_check_order_${storeId};

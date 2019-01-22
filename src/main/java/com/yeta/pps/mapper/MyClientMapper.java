@@ -67,6 +67,8 @@ public interface MyClientMapper {
 
     ClientVo findClientInviter(ClientVo clientVo);
 
+    List<String> findPrimaryKey();
+
     //店铺/客户关系
 
     int addStoreClient(StoreClient storeClient);

@@ -89,6 +89,11 @@ public class ProcurementResultOrderVo {
         this.id = id;
     }
 
+    public ProcurementResultOrderVo(Integer storeId, Byte type) {
+        this.storeId = storeId;
+        this.type = type;
+    }
+
     public ProcurementResultOrderVo(Integer storeId, String id, String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
@@ -102,21 +107,6 @@ public class ProcurementResultOrderVo {
         this.id = id;
         this.type = type;
         this.flag = flag;
-    }
-
-    public ProcurementResultOrderVo(Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer totalQuantity, Double totalMoney, Double totalDiscountMoney, Double orderMoney, String userId, String remark) {
-        this.storeId = storeId;
-        this.id = id;
-        this.type = type;
-        this.createTime = createTime;
-        this.applyOrderId = applyOrderId;
-        this.orderStatus = orderStatus;
-        this.totalQuantity = totalQuantity;
-        this.totalMoney = totalMoney;
-        this.totalDiscountMoney = totalDiscountMoney;
-        this.orderMoney = orderMoney;
-        this.userId = userId;
-        this.remark = remark;
     }
 
     public Integer getStoreId() {

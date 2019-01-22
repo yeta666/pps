@@ -31,6 +31,8 @@ public interface MyProcurementMapper {
 
     List<ProcurementApplyOrderVo> findAllApplyOrderDetail(ProcurementApplyOrderVo procurementApplyOrderVo);
 
+    List<String> findApplyOrderPrimaryKey(ProcurementApplyOrderVo procurementApplyOrderVo);
+
     //采购结果订单
 
     int addResultOrder(ProcurementResultOrderVo procurementResultOrderVo);
@@ -43,4 +45,6 @@ public interface MyProcurementMapper {
                                                            @Param("pageVo") PageVo pageVo);
 
     ProcurementResultOrderVo findResultOrderDetailById(ProcurementResultOrderVo procurementResultOrderVo);
+
+    List<String> findResultOrderPrimaryKey(ProcurementResultOrderVo procurementResultOrderVo);
 }

@@ -55,6 +55,9 @@ public class StorageService {
     @Autowired
     private FinancialAffairsUtil financialAffairsUtil;
 
+    @Autowired
+    private PrimaryKeyUtil primaryKeyUtil;
+
     /**
      * 待收/发货
      * @param procurementApplyOrderVo
@@ -445,33 +448,30 @@ public class StorageService {
 
         if (pVo != null && sVo == null) {       //采购相关
             orderGoodsSkuVos = storageOrderVo.getProcurementApplyOrderVo().getDetails();
+            ProcurementResultOrderVo procurementResultOrderVo = new ProcurementResultOrderVo(storageOrderVo.getStoreId(), pVo.getType());
             if (pVo.getType() == 1) {       //采购订单
-                resultOrderId = "CGRKD_" + UUID.randomUUID().toString().replace("-", "");
+                resultOrderId = primaryKeyUtil.getOrderPrimaryKeyMethod(myProcurementMapper.findResultOrderPrimaryKey(procurementResultOrderVo), "CGRKD");
                 quantity = storageOrderVo.getQuantity();
             } else if (pVo.getType() == 2) {        //采购退货申请单
-                resultOrderId = "CGTHD_" + UUID.randomUUID().toString().replace("-", "");
+                resultOrderId = primaryKeyUtil.getOrderPrimaryKeyMethod(myProcurementMapper.findResultOrderPrimaryKey(procurementResultOrderVo), "CGTHD");
                 quantity = -storageOrderVo.getQuantity();
             } else if (pVo.getType() == 3) {        //采购换货申请单
-                resultOrderId = "CGHHD_" + UUID.randomUUID().toString().replace("-", "");
+                resultOrderId = primaryKeyUtil.getOrderPrimaryKeyMethod(myProcurementMapper.findResultOrderPrimaryKey(procurementResultOrderVo), "CGHHD");
                 quantity = pVo.getInTotalQuantity() - pVo.getOutTotalQuantity();
                 orderGoodsSkuVos = pVo.getDetails();
             }
             money = getMoneyMethod(1, orderGoodsSkuVos, pVo.getDetails());
-            if (myProcurementMapper.addResultOrder(
-                    new ProcurementResultOrderVo(
-                            storageOrderVo.getStoreId(),
-                            resultOrderId,
-                            pVo.getType(),
-                            new Date(),
-                            pVo.getId(),
-                            (byte) 1,
-                            quantity,
-                            money.getTotalMoney(),
-                            money.getTotalDiscountMoney(),
-                            money.getOrderMoney(),
-                            storageOrderVo.getUserId(),
-                            storageOrderVo.getRemark()
-                    )) != 1) {
+            procurementResultOrderVo.setId(resultOrderId);
+            procurementResultOrderVo.setCreateTime(new Date());
+            procurementResultOrderVo.setApplyOrderId(pVo.getId());
+            procurementResultOrderVo.setOrderStatus((byte) 1);
+            procurementResultOrderVo.setTotalQuantity(quantity);
+            procurementResultOrderVo.setTotalMoney(money.getTotalMoney());
+            procurementResultOrderVo.setTotalDiscountMoney(money.getTotalDiscountMoney());
+            procurementResultOrderVo.setOrderMoney(money.getOrderMoney());
+            procurementResultOrderVo.setUserId(storageOrderVo.getUserId());
+            procurementResultOrderVo.setRemark(storageOrderVo.getRemark());
+            if (myProcurementMapper.addResultOrder(procurementResultOrderVo) != 1) {
                 throw new CommonException(CommonResponse.ADD_ERROR);
             }
         } else if (pVo == null && sVo != null) {        //销售相关
@@ -545,9 +545,6 @@ public class StorageService {
         byte type = storageOrderVo.getType();
         String targetId = pVo.getSupplierId();
         String userId = storageOrderVo.getUserId();
-
-        //设置单据编号
-        storageOrderVo.setId("CGDD_SHD_" + UUID.randomUUID().toString().replace("-", ""));
 
         //获取申请订单应该改为哪种单据状态
         byte applyOrderStatus = getApplyOrderStatusMethod(type, quantity, pVo.getInTotalQuantity(), pVo.getInReceivedQuantity(), pVo.getInNotReceivedQuantity(), pVo.getOrderStatus());
@@ -750,7 +747,7 @@ public class StorageService {
             //判断销售类型
             if (sVo.getType() == 3) {       //销售退货收货
                 //销售结果订单单据编号
-                String resultOrderId = "XSTHD_" + UUID.randomUUID().toString().replace("-", "");
+                String resultOrderId = primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findResultOrderPrimaryKey(new SellResultOrderVo(storeId, (byte) 3)), "XSTHD");
 
                 //统计成本
                 double costMoney = 0;
@@ -846,9 +843,6 @@ public class StorageService {
                 }
             }
         }
-
-        //设置单据编号
-        storageOrderVo.setId("THHSQD_SHD_" + UUID.randomUUID().toString().replace("-", ""));
     }
 
     /**
@@ -867,9 +861,6 @@ public class StorageService {
         String userId = storageOrderVo.getUserId();
         String clientId = sVo.getClient().getId();
 
-        //设置单据编号
-        storageOrderVo.setId("XSDD_FHD_" + UUID.randomUUID().toString().replace("-", ""));
-
         //获取申请订单应该改为哪种单据状态
         byte applyOrderStatus = getApplyOrderStatusMethod(type, quantity, sVo.getOutTotalQuantity(), sVo.getOutSentQuantity(), sVo.getOutNotSentQuantity(), sVo.getOrderStatus());
 
@@ -880,7 +871,7 @@ public class StorageService {
         updateOrderGoodsSkuMethod(storeId, quantity, orderGoodsSkuVos);
 
         //销售结果订单单据编号
-        String resultOrderId = "XSCKD_" + UUID.randomUUID().toString().replace("-", "");
+        String resultOrderId = primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findResultOrderPrimaryKey(new SellResultOrderVo(storeId, (byte) 2)), "XSCKD");
 
         //统计成本
         double costMoney = 0;
@@ -1113,7 +1104,7 @@ public class StorageService {
                 inventoryUtil.updateNotQuantityMethod(0, new WarehouseGoodsSkuVo(storeId, sVo.getOutWarehouseId(), vo.getGoodsSkuId(), vo.getChangeQuantity(), 0));
             }
             if (applyOrderStatus == 15) {
-                String resultOrderId = "XSHHD_" + UUID.randomUUID().toString().replace("-", "");
+                String resultOrderId = primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findResultOrderPrimaryKey(new SellResultOrderVo(storeId, (byte) 4)), "XSHHD");
 
                 //修改商品规格账面库存
                 double costMoney = updateBookInventoryMethod(storageOrderVo, pVo, sVo, resultOrderId);
@@ -1180,8 +1171,6 @@ public class StorageService {
                 financialAffairsUtil.addAccountingDocumentMethod(adVo);
             }
         }
-        //设置单据编号
-        storageOrderVo.setId("THHSQD_FHD_" + UUID.randomUUID().toString().replace("-", ""));
     }
 
     /**
@@ -1237,18 +1226,26 @@ public class StorageService {
         Byte type = storageOrderVo.getType();
         switch (type) {
             case 1:     //采购订单收货单
+                //设置单据编号
+                storageOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageOrderPrimaryKey(storageOrderVo), "SHD-CGSH"));
                 cgshd(storageOrderVo, pVo, sVo);
                 break;
 
             case 2:     //退换货申请收货单
+                //设置单据编号
+                storageOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageOrderPrimaryKey(storageOrderVo), "SHD-THHSH"));
                 thhsqshd(storageOrderVo, pVo, sVo);
                 break;
 
             case 3:     //销售订单发货单
+                //设置单据编号
+                storageOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageOrderPrimaryKey(storageOrderVo), "FHD-XSFH"));
                 xsfhd(storageOrderVo, pVo, sVo);
                 break;
 
             case 4:     //退换货申请发货单
+                //设置单据编号
+                storageOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageOrderPrimaryKey(storageOrderVo), "FHD-THHFH"));
                 thhsqfhd(storageOrderVo, pVo, sVo);
                 break;
 
@@ -1290,7 +1287,7 @@ public class StorageService {
 
         //设置红冲红单
         storageOrderVo.setStoreId(storeId);
-        storageOrderVo.setId("HC_" + storageOrderVo.getId());
+        storageOrderVo.setId("HC-" + storageOrderVo.getId());
         storageOrderVo.setCreateTime(new Date());
         storageOrderVo.setOrderStatus((byte) -2);
         storageOrderVo.setQuantity(-storageOrderVo.getQuantity());
@@ -1359,7 +1356,7 @@ public class StorageService {
                         storageResultOrderVo.getTargetId() == null || storageResultOrderVo.getTotalMoney() == null) {
                     return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
-                storageResultOrderVo.setId("QTRKD_" + UUID.randomUUID().toString().replace("-", ""));
+                storageResultOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageResultOrderPrimaryKey(storageResultOrderVo), "QTRKD"));
                 flag = 1;
                 break;
 
@@ -1369,7 +1366,7 @@ public class StorageService {
                         storageResultOrderVo.getTargetId() == null || storageResultOrderVo.getTotalMoney() == null) {
                     return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
-                storageResultOrderVo.setId("QTCKD_" + UUID.randomUUID().toString().replace("-", ""));
+                storageResultOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageResultOrderPrimaryKey(storageResultOrderVo), "QTCKD"));
                 flag = 0;
                 break;
 
@@ -1378,7 +1375,7 @@ public class StorageService {
                 if (storageResultOrderVo.getDetails().size() == 0 || storageResultOrderVo.getTotalMoney() == null) {
                     return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
-                storageResultOrderVo.setId("BYD_" + UUID.randomUUID().toString().replace("-", ""));
+                storageResultOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageResultOrderPrimaryKey(storageResultOrderVo), "BYD"));
                 flag = 1;
                 break;
 
@@ -1387,7 +1384,7 @@ public class StorageService {
                 if (storageResultOrderVo.getDetails().size() == 0 || storageResultOrderVo.getTotalMoney() == null) {
                     return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
-                storageResultOrderVo.setId("BSD_" + UUID.randomUUID().toString().replace("-", ""));
+                storageResultOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageResultOrderPrimaryKey(storageResultOrderVo), "BSD"));
                 flag = 0;
                 break;
 
@@ -1396,7 +1393,7 @@ public class StorageService {
                 if (storageResultOrderVo.getDetails().size() == 0 || storageResultOrderVo.getTotalMoney() == null) {
                     return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
-                storageResultOrderVo.setId("CBTJD_" + UUID.randomUUID().toString().replace("-", ""));
+                storageResultOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageResultOrderPrimaryKey(storageResultOrderVo), "CBTJD"));
                 flag = 2;
                 break;
 
@@ -1407,7 +1404,7 @@ public class StorageService {
                         storageResultOrderVo.getTotalOutQuantity() == null || storageResultOrderVo.getTotalOutMoney() == null) {
                     return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
                 }
-                storageResultOrderVo.setId("KCPDD_" + UUID.randomUUID().toString().replace("-", ""));
+                storageResultOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageResultOrderPrimaryKey(storageResultOrderVo), "KCPDD"));
                 flag = 3;
                 break;
 
@@ -1674,7 +1671,7 @@ public class StorageService {
         //设置红冲红单
         storageResultOrderVo.setStoreId(storeId);
         String oldResultOrderId = storageResultOrderVo.getId();
-        storageResultOrderVo.setId("HC_" + oldResultOrderId);
+        storageResultOrderVo.setId("HC-" + oldResultOrderId);
         storageResultOrderVo.setCreateTime(new Date());
         storageResultOrderVo.setOrderStatus((byte) -2);
         storageResultOrderVo.setUserId(userId);

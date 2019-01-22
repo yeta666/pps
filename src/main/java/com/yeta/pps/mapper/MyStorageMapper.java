@@ -48,6 +48,8 @@ public interface MyStorageMapper {
 
     StorageOrderVo findStorageOrderById(StorageOrderVo storageOrderVo);
 
+    List<String> findStorageOrderPrimaryKey(StorageOrderVo storageOrderVo);
+
     //其他入/出库单、报溢/损单、成本调价单
 
     int addStorageResultOrder(StorageResultOrderVo storageResultOrderVo);
@@ -60,6 +62,8 @@ public interface MyStorageMapper {
                                                               @Param(value = "pageVo") PageVo pageVo);
 
     List<StorageResultOrderVo> findAllStorageResultOrderDetail(StorageResultOrderVo storageResultOrderVo);
+
+    List<String> findStorageResultOrderPrimaryKey(StorageResultOrderVo storageResultOrderVo);
 
     //查库存
 

@@ -492,6 +492,12 @@
           AND c.id = #{clientId};
     </select>
 
+    <select id="findPrimaryKey" resultType="java.lang.String">
+        SELECT id
+        FROM client
+        WHERE level_id > 0;
+    </select>
+
     <!--店铺/客户关系-->
 
     <insert id="addStoreClient" parameterType="com.yeta.pps.po.StoreClient">

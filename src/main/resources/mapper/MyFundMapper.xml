@@ -315,6 +315,13 @@
         </if>
     </select>
 
+    <select id="findFundOrderPrimaryKey" parameterType="com.yeta.pps.vo.FundOrderVo" resultType="java.lang.String">
+        select id
+        from fund_order_${storeId}
+        where date(create_time) = date(now())
+          and type = #{type};
+    </select>
+
     <!--资金对账-->
 
     <insert id="addFundCheckOrder" parameterType="com.yeta.pps.vo.FundCheckOrderVo">
@@ -1034,5 +1041,13 @@
         <if test="incomeExpensesId != null">
             and income_expenses_id = #{incomeExpensesId}
         </if>
+    </select>
+
+    <select id="findFundResultOrderPrimaryKey" parameterType="com.yeta.pps.vo.FundResultOrderVo"
+            resultType="java.lang.String">
+        select id
+        from fund_result_order_${storeId}
+        where date(create_time) = date(now())
+          and type = #{type};
     </select>
 </mapper>

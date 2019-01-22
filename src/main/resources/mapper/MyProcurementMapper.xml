@@ -310,6 +310,14 @@
         </if>
     </select>
 
+    <select id="findApplyOrderPrimaryKey" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo"
+            resultType="java.lang.String">
+        select id
+        from procurement_apply_order_${storeId}
+        where date(create_time) = date(now)
+          and type = #{type};
+    </select>
+
     <!--采购结果订单-->
 
     <insert id="addResultOrder" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo">
@@ -369,7 +377,8 @@
             and s.name like concat('%', #{procurementApplyOrderVo.supplierName}, '%')
         </if>
         <if test="procurementApplyOrderVo.startTime != null and procurementApplyOrderVo.endTime != null">
-            and date(pro.create_time) between #{procurementApplyOrderVo.startTime} and #{procurementApplyOrderVo.endTime}
+            and date(pro.create_time) between #{procurementApplyOrderVo.startTime} and
+            #{procurementApplyOrderVo.endTime}
         </if>
         <if test="flag == 1">
             and pro.order_status = 1
@@ -540,6 +549,14 @@
                      )
                  left join goods_${storeId} as g on gs.goods_id = g.id
         where pro.id = #{id};
+    </select>
+
+    <select id="findResultOrderPrimaryKey" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo"
+            resultType="java.lang.String">
+        select id
+        from procurement_result_order_${storeId}
+        where date(create_time) = date(now)
+          and type = #{type};
     </select>
 
 </mapper>

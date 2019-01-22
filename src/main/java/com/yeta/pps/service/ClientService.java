@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.System;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -39,7 +38,7 @@ public class ClientService {
     private FundUtil fundUtil;
 
     @Autowired
-    private SystemUtil systemUtil;
+    private PrimaryKeyUtil primaryKeyUtil;
 
     /**
      * 客户登陆
@@ -293,7 +292,7 @@ public class ClientService {
     @Transactional
     public CommonResponse add(ClientVo clientVo) {
         //设置初始属性
-        clientVo.setId(UUID.randomUUID().toString().replace("-", ""));
+        clientVo.setId(primaryKeyUtil.getPrimaryKeyMethod(myClientMapper.findPrimaryKey(), "kh"));
         String phone = clientVo.getPhone();
         clientVo.setUsername(phone);
         clientVo.setPassword(phone.substring(phone.length() - 4));
@@ -586,7 +585,7 @@ public class ClientService {
         for (int j = 3; j <= sheet.getLastRowNum(); j++) {
             HSSFRow row = sheet.getRow(j);
             ClientVo clientVo = new ClientVo();
-            clientVo.setId(UUID.randomUUID().toString().replace("-", ""));
+            clientVo.setId(primaryKeyUtil.getPrimaryKeyMethod(myClientMapper.findPrimaryKey(), "kh"));
             clientVo.setCreateTime(new Date());
             clientVo.setDisabled((byte) 0);
 

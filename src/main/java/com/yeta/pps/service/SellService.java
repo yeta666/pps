@@ -58,6 +58,9 @@ public class SellService {
     @Autowired
     private FinancialAffairsUtil financialAffairsUtil;
 
+    @Autowired
+    private PrimaryKeyUtil primaryKeyUtil;
+
     //销售申请订单
 
     /**
@@ -92,7 +95,7 @@ public class SellService {
         String bankAccountId = sSystem.getRetailBankAccountId();
 
         //设置初始属性
-        sellApplyOrderVo.setId("LSD_" + UUID.randomUUID().toString().replace("-", ""));
+        sellApplyOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findApplyOrderPrimaryKey(sellApplyOrderVo), "LSD"));
         sellApplyOrderVo.setCreateTime(new Date());
         sellApplyOrderVo.setOrderStatus((byte) 6);       //已发
         sellApplyOrderVo.setClearStatus((byte) 1);      //已完成
@@ -311,7 +314,7 @@ public class SellService {
         }
 
         //设置初始属性
-        sellApplyOrderVo.setId("XSDD_" + UUID.randomUUID().toString().replace("-", ""));
+        sellApplyOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findApplyOrderPrimaryKey(sellApplyOrderVo), "XSDD"));
         sellApplyOrderVo.setCreateTime(new Date());
         sellApplyOrderVo.setOrderStatus((byte) 4);       //未发
         sellApplyOrderVo.setClearStatus((byte) 0);      //未完成
@@ -355,7 +358,7 @@ public class SellService {
         }
 
         //设置初始属性
-        sellApplyOrderVo.setId("XSTHSQD_" + UUID.randomUUID().toString().replace("-", ""));
+        sellApplyOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findApplyOrderPrimaryKey(sellApplyOrderVo), "XSTHSQD"));
         sellApplyOrderVo.setCreateTime(new Date());
         sellApplyOrderVo.setOrderStatus((byte) 1);       //未收
         sellApplyOrderVo.setClearStatus((byte) 0);      //未完成
@@ -394,7 +397,7 @@ public class SellService {
         }
 
         //设置初始属性
-        sellApplyOrderVo.setId("XSHHSQD_" + UUID.randomUUID().toString().replace("-", ""));
+        sellApplyOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findApplyOrderPrimaryKey(sellApplyOrderVo), "XShHSQD"));
         sellApplyOrderVo.setCreateTime(new Date());
         sellApplyOrderVo.setOrderStatus((byte) 7);       //未收未发
         sellApplyOrderVo.setClearStatus((byte) 1);      //已完成
@@ -824,7 +827,7 @@ public class SellService {
         //设置红冲红单
         sellResultOrderVo.setStoreId(storeId);
         String oldResultOrderId = sellResultOrderVo.getId();
-        sellResultOrderVo.setId("HC_" + oldResultOrderId);
+        sellResultOrderVo.setId("HC-" + oldResultOrderId);
         sellResultOrderVo.setCreateTime(new Date());
         sellResultOrderVo.setOrderStatus((byte) -2);
         sellResultOrderVo.setTotalQuantity(-sellResultOrderVo.getTotalQuantity());

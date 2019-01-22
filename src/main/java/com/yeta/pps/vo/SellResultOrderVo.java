@@ -103,6 +103,11 @@ public class SellResultOrderVo {
         this.id = id;
     }
 
+    public SellResultOrderVo(Integer storeId, Byte type) {
+        this.storeId = storeId;
+        this.type = type;
+    }
+
     public SellResultOrderVo(Integer storeId, String id, String userId, String remark) {
         this.storeId = storeId;
         this.id = id;

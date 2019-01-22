@@ -138,6 +138,8 @@ public interface MyGoodsMapper {
 
     List<Goods> findByTypeId(GoodsVo goodsVo);
 
+    List<String> findPrimaryKey(GoodsVo goodsVo);
+
     //下单查商品
 
     List<GoodsTypeVo> findCanUseByWarehouseId(WarehouseGoodsSkuVo vo);
