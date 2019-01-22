@@ -17,6 +17,16 @@ public class SSystem {
     private Double pushMoneyRate;
 
     /**
+     * 短信签名
+     */
+    private String signature;
+
+    /**
+     * 系统剩余短信条数
+     */
+    private Integer smsQuantity;
+
+    /**
      * 系统开账
      */
     private Byte startBill;
@@ -69,6 +79,22 @@ public class SSystem {
         this.pushMoneyRate = pushMoneyRate;
     }
 
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public Integer getSmsQuantity() {
+        return smsQuantity;
+    }
+
+    public void setSmsQuantity(Integer smsQuantity) {
+        this.smsQuantity = smsQuantity;
+    }
+
     public Byte getStartBill() {
         return startBill;
     }
@@ -106,6 +132,8 @@ public class SSystem {
         return "SSystem{" +
                 "storeId=" + storeId +
                 ", pushMoneyRate=" + pushMoneyRate +
+                ", signature='" + signature + '\'' +
+                ", smsQuantity=" + smsQuantity +
                 ", startBill=" + startBill +
                 ", retailWarehouseId=" + retailWarehouseId +
                 ", retailBankAccountId='" + retailBankAccountId + '\'' +

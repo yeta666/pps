@@ -975,6 +975,45 @@ CREATE TABLE sell_result_order_1 (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS sms_template;
+CREATE TABLE sms_template (
+  id int(11) NOT NULL AUTO_INCREMENT COMMENT '短信模版编号',
+  title varchar(50) NOT NULL COMMENT '标题',
+  content varchar(255) NOT NULL COMMENT '内容',
+  type tinyint(4) NOT NULL COMMENT '类型，1：通知短信，2：营销短信',
+  create_time datetime NOT NULL COMMENT '创建时间',
+  update_time datetime NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+
+
+INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('邀请领券1', '{联系人名称}您好：优惠券大放送！即日起可关注微信公众号领取优惠券线上下单直接优惠，截止日期：X月X日，别错过呦~', 2, now(), now());
+INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('邀请领券2', '{联系人名称}您好：一大波优惠券来袭！关注公众号即可领取！好货等你领回家，快来找我哟', 2, now(), now());
+INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('邀请领券3', '{联系人名称}您好：您已达到优惠券领取条件，诚挚邀请您领取超值限量优惠券，关注微信公众号进入商城首页即可领取。', 2, now(), now());
+INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('邀请领券4', '{联系人名称}您好：您好，您已达到积分兑换条件，关注微信公众号即可兑换超值限量礼品，不要错过哦～', 2, now(), now());
+INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('积分兑换2', '{联系人名称}您好：您的积分即将清零，您可以在ｘｘ年ｘｘ月ｘｘ日前使用您的积分，还可以兑换大量礼品哦～', 1, now(), now());
+INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('生日祝福1', '{联系人名称}您好：今天是您的生日，ＸＸＸ诚挚邀请您领取特享生日礼物，不要错过哦～祝您生日快乐！', 1, now(), now());
+INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('生日祝福2', '{联系人名称}您好：XXXX所有工作人员祝您生日快乐！本周进店专享生日福利，只属于你的秘密优惠，我们还为您准备了精美的生日礼物，期待光临！', 1, now(), now());
+INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('新品上货1', '{联系人名称}您好：优惠券大放送！即日起可关注微信公众号领取优惠券线上下单直接优惠，截止日期：X月X日，别错过呦~', 2, now(), now());
+INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('新品上货2', '比淘宝还便宜！X月X日至X月X日新品X折起，逾期立即恢复原价，实惠疯抢刻不容缓！', 2, now(), now());
+INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('清仓处理1', '折扣再次劲爆来袭！降价到底！线上大促本年度最低折扣等您来选～', 2, now(), now());
+
+
+DROP TABLE IF EXISTS sms_history;
+CREATE TABLE sms_history (
+  id int(11) NOT NULL AUTO_INCREMENT COMMENT '短信历史编号',
+  store_id int(11) NOT NULL COMMENT '店铺编号',
+  client_id varchar(50) NOT NULL COMMENT '客户编号',
+  create_time datetime NOT NULL COMMENT '发送时间',
+  user_id varchar(50) NOT NULL COMMENT '经手人编号',
+  content varchar(255) NOT NULL COMMENT '短信内容',
+  status tinyint(4) NOT NULL COMMENT '发送状态，0：失败，1：成功',
+  remark varchar(255) DEFAULT NULL COMMENT '失败原因',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
 DROP TABLE IF EXISTS storage_check_order_1;
 CREATE TABLE storage_check_order_1 (
   id int(11) NOT NULL AUTO_INCREMENT COMMENT '库存对账记录编号',
@@ -1048,9 +1087,10 @@ CREATE TABLE store (
   name varchar(50) NOT NULL COMMENT '店铺名',
   address varchar(100) NOT NULL COMMENT '地址',
   client_id varchar(50) NOT NULL COMMENT '店长会员编号',
+  sms_quantity int(11) NOT NULL COMMENT '剩余短信条数',
   PRIMARY KEY (id),
   UNIQUE KEY name (client_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 
 DROP TABLE IF EXISTS store_client;
@@ -1104,15 +1144,17 @@ DROP TABLE IF EXISTS system;
 CREATE TABLE system (
   store_id int(11) NOT NULL COMMENT '店铺编号',
   push_money_rate double(10,2) NOT NULL COMMENT '提成比例',
-  start_bill tinyint NOT NULL COMMENT '系统开账，0：否，1：是',
-  retail_warehouse_id int comment '零售默认仓库编号',
-  retail_bank_account_id varchar(20) comment '零售默认银行账户编号',
+  signature varchar(50) DEFAULT NULL COMMENT '短信签名',
+  sms_quantity int(11) NOT NULL COMMENT '系统剩余短信条数',
+  start_bill tinyint(4) NOT NULL COMMENT '系统开账，0：否，1：是',
+  retail_warehouse_id int(11) DEFAULT NULL COMMENT '零售默认仓库编号',
+  retail_bank_account_id varchar(20) DEFAULT NULL COMMENT '零售默认银行账户编号',
   PRIMARY KEY (store_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-INSERT INTO system VALUES (0, 0.5, 6, null, null);
-INSERT INTO system VALUES (1, 6, 0, null, null);
+INSERT INTO system VALUES (0, 0.5, null, 0, 6, null, null);
+INSERT INTO system VALUES (1, 6, null, 0, 0, null, null);
 
 
 DROP TABLE IF EXISTS user_1;

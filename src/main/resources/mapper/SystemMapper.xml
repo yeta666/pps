@@ -3,19 +3,27 @@
 <mapper namespace="com.yeta.pps.mapper.SystemMapper" >
 
     <insert id="addStoreSystem" parameterType="com.yeta.pps.po.SSystem">
-        insert into system(store_id, push_money_rate, start_bill, retail_warehouse_id, retail_bank_account_id) values (#{storeId}, 6, 0, null, null);
+        insert into system(store_id, push_money_rate, signature, sms_quantity, start_bill, retail_warehouse_id, retail_bank_account_id) values (#{storeId}, 6, null, 0, 0, null, null);
     </insert>
 
     <delete id="deleteStoreSystem" parameterType="com.yeta.pps.po.SSystem">
         delete from system where store_id = #{storeId} and store_id &gt; 0;
     </delete>
 
-    <select id="findPushMoneyRate" resultType="com.yeta.pps.po.SSystem">
-        select push_money_rate from system where store_id = 0;
+    <select id="findSystem" resultType="com.yeta.pps.po.SSystem">
+        select push_money_rate, signature, sms_quantity from system where store_id = 0;
     </select>
 
-    <update id="updatePushMoneyRate" parameterType="com.yeta.pps.po.SSystem">
-        update system set push_money_rate = #{pushMoneyRate} where store_id = 0 and #{pushMoneyRate} &gt;= 0;
+    <update id="updateSystem" parameterType="com.yeta.pps.po.SSystem">
+        update system set push_money_rate = #{pushMoneyRate}, signature = #{signature} where store_id = 0 and #{pushMoneyRate} &gt;= 0;
+    </update>
+
+    <update id="updateSMSQuantity" keyProperty="com.yeta.pps.po.SSystem">
+        update system set sms_quantity = #{smsQuantity} where store_id = 0;
+    </update>
+
+    <update id="decreaseSMSQuantity" keyProperty="com.yeta.pps.po.SSystem">
+        update system set sms_quantity = sms_quantity - #{smsQuantity} where store_id = 0 and sms_quantity - #{smsQuantity} &gt;= 0;
     </update>
 
     <select id="findStartBill" parameterType="com.yeta.pps.po.SSystem" resultType="com.yeta.pps.po.SSystem">

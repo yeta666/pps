@@ -22,25 +22,25 @@ public class SystemController {
     private SystemService systemService;
 
     /**
-     * 查询提成比例接口
+     * 查询分店设置接口
      * @return
      */
-    @ApiOperation(value = "查询提成比例")
-    @GetMapping(value = "/system/pushMoneyRate")
-    public CommonResponse<SSystem> findPushMoneyRate() {
-        return systemService.findPushMoneyRate();
+    @ApiOperation(value = "查询分店设置")
+    @GetMapping(value = "/system")
+    public CommonResponse<SSystem> findSystem() {
+        return systemService.findSystem();
     }
 
     /**
-     * 修改提成比例接口
+     * 修改分店设置接口
      * @param sSystem
      * @return
      */
-    @ApiOperation(value = "修改提成比例")
-    @ApiImplicitParam(name = "sSystem", value = "pushMoneyRate必填", required = true, paramType = "body", dataType = "SSystem")
-    @PutMapping(value = "/system/pushMoneyRate")
-    public CommonResponse updatePushMoneyRate(@RequestBody SSystem sSystem) {
-        return systemService.updatePushMoneyRate(sSystem);
+    @ApiOperation(value = "修改分店设置")
+    @ApiImplicitParam(name = "sSystem", value = "pushMoneyRate(提成比例)必填, signature(短信签名)选填", required = true, paramType = "body", dataType = "SSystem")
+    @PutMapping(value = "/system")
+    public CommonResponse updateSystem(@RequestBody SSystem sSystem) {
+        return systemService.updateSystem(sSystem);
     }
 
     /**

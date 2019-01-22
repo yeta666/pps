@@ -1,74 +1,92 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.yeta.pps.mapper.MyMarketingMapper" >
+<mapper namespace="com.yeta.pps.mapper.MyMarketingMapper">
 
     <!--优惠券-->
 
     <insert id="addDiscountCoupon" parameterType="com.yeta.pps.po.DiscountCoupon">
-        insert into
-            discount_coupon_${storeId} (name, type, money, discount_money, start_time, end_time, use_offline, use_online, quantity, given_quantity, used_quantity, status)
-        values
-            (#{name}, #{type}, #{money}, #{discountMoney}, #{startTime}, #{endTime}, #{useOffline}, #{useOnline}, #{quantity}, #{givenQuantity}, #{usedQuantity}, #{status});
+        insert into discount_coupon_${storeId} (name,
+                                                type,
+                                                money,
+                                                discount_money,
+                                                start_time,
+                                                end_time,
+                                                use_offline,
+                                                use_online,
+                                                quantity,
+                                                given_quantity,
+                                                used_quantity,
+                                                status)
+        values (#{name},
+                #{type},
+                #{money},
+                #{discountMoney},
+                #{startTime},
+                #{endTime},
+                #{useOffline},
+                #{useOnline},
+                #{quantity},
+                #{givenQuantity},
+                #{usedQuantity},
+                #{status});
     </insert>
 
     <update id="updateDiscountCoupon" parameterType="com.yeta.pps.po.DiscountCoupon">
         update
-            discount_coupon_${storeId}
-        set
-            name = #{name}, type = #{type}, money = #{money}, discount_money = #{discountMoney}, start_time = #{startTime}, end_time = #{endTime}, use_offline = #{useOffline}, use_online = #{useOnline}, quantity = #{quantity}
-        where
-            id = #{id};
+                discount_coupon_${storeId}
+        set name           = #{name},
+            type           = #{type},
+            money          = #{money},
+            discount_money = #{discountMoney},
+            start_time     = #{startTime},
+            end_time       = #{endTime},
+            use_offline    = #{useOffline},
+            use_online     = #{useOnline},
+            quantity       = #{quantity}
+        where id = #{id};
     </update>
 
     <update id="invalidDiscountCoupon" parameterType="com.yeta.pps.po.DiscountCoupon">
         update
-            discount_coupon_${storeId}
-        set
-            status = 0
-        where
-            id = #{id}
-        and status = 1;
+                discount_coupon_${storeId}
+        set status = 0
+        where id = #{id}
+          and status = 1;
     </update>
 
     <update id="increaseGivenQuantity" parameterType="com.yeta.pps.po.DiscountCoupon">
         update
-            discount_coupon_${storeId}
-        set
-            given_quantity = given_quantity + #{givenQuantity}
-        where
-            id = #{id}
-        and quantity &gt;= given_quantity + #{givenQuantity}
-        and #{givenQuantity} &gt; 0
-        and status = 1;
+                discount_coupon_${storeId}
+        set given_quantity = given_quantity + #{givenQuantity}
+        where id = #{id}
+          and quantity &gt;= given_quantity + #{givenQuantity}
+          and #{givenQuantity} &gt; 0
+          and status = 1;
     </update>
 
     <update id="increaseUsedQuantity" parameterType="com.yeta.pps.po.DiscountCoupon">
         update
-            discount_coupon_${storeId}
-        set
-            used_quantity = used_quantity + 1
-        where
-            id = #{id}
-        and quantity &gt;= used_quantity + 1
-        and status = 1;
+                discount_coupon_${storeId}
+        set used_quantity = used_quantity + 1
+        where id = #{id}
+          and quantity &gt;= used_quantity + 1
+          and status = 1;
     </update>
 
     <update id="decreaseUsedQuantity" parameterType="com.yeta.pps.po.DiscountCoupon">
         update
-            discount_coupon_${storeId}
-        set
-            used_quantity = used_quantity - 1
-        where
-            id = #{id}
-        and quantity &gt;= used_quantity - 1
-        and status = 1;
+                discount_coupon_${storeId}
+        set used_quantity = used_quantity - 1
+        where id = #{id}
+          and quantity &gt;= used_quantity - 1
+          and status = 1;
     </update>
 
     <select id="findCountDiscountCoupon" parameterType="com.yeta.pps.po.DiscountCoupon" resultType="java.lang.Integer">
         select
-            count(0)
+        count(0)
         from
-            discount_coupon_${storeId}
+        discount_coupon_${storeId}
         where 1 = 1
         <if test="name != null">
             and name like concat('%', #{name}, '%')
@@ -80,27 +98,27 @@
 
     <select id="findPagedDiscountCoupon" resultType="com.yeta.pps.vo.DiscountCouponVo">
         select
-            id,
-            name,
-            type,
-            if (type = 1, '现金券', if (type = 2, '折扣券', '满减券')) as type_name,
-            money,
-            discount_money,
-            if (type = 1, '无限制', if (type = 2, '无限制', concat('满', money, '减', discount_money, '元'))) as use_method,
-            if (type = 2, concat(money, '折'), concat(money, '元')) as face_value,
-            start_time,
-            end_time,
-            use_offline,
-            if (use_offline = 1, '允许', '禁止') as use_offline_name,
-            use_online,
-            if (use_online = 1, '允许', '禁止') as use_online_name,
-            quantity,
-            given_quantity,
-            used_quantity,
-            status,
-            if (status = 1, '正常', '已作废') as status_name
+        id,
+        name,
+        type,
+        if (type = 1, '现金券', if (type = 2, '折扣券', '满减券')) as type_name,
+        money,
+        discount_money,
+        if (type = 1, '无限制', if (type = 2, '无限制', concat('满', money, '减', discount_money, '元'))) as use_method,
+        if (type = 2, concat(money, '折'), concat(money, '元')) as face_value,
+        start_time,
+        end_time,
+        use_offline,
+        if (use_offline = 1, '允许', '禁止') as use_offline_name,
+        use_online,
+        if (use_online = 1, '允许', '禁止') as use_online_name,
+        quantity,
+        given_quantity,
+        used_quantity,
+        status,
+        if (status = 1, '正常', '已作废') as status_name
         from
-            discount_coupon_${vo.storeId}
+        discount_coupon_${vo.storeId}
         where 1 = 1
         <if test="vo.name != null">
             and name like concat('%', #{vo.name}, '%')
@@ -111,98 +129,202 @@
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findDiscountCouponById" parameterType="com.yeta.pps.po.DiscountCoupon" resultType="com.yeta.pps.po.DiscountCoupon">
-        select
-            id, name, type, money, discount_money, start_time, end_time, use_offline, use_online, quantity, given_quantity, used_quantity, status
-        from
-            discount_coupon_${storeId}
-        where
-            id = #{id};
+    <select id="findDiscountCouponById" parameterType="com.yeta.pps.po.DiscountCoupon"
+            resultType="com.yeta.pps.po.DiscountCoupon">
+        select id,
+               name,
+               type,
+               money,
+               discount_money,
+               start_time,
+               end_time,
+               use_offline,
+               use_online,
+               quantity,
+               given_quantity,
+               used_quantity,
+               status
+        from discount_coupon_${storeId}
+        where id = #{id};
     </select>
 
-    <select id="findCountDiscountCouponByClientId" parameterType="com.yeta.pps.po.ClientDiscountCoupon" resultType="java.lang.Integer">
-        select
-            count(0)
-        from 
-            (
-                client_discount_coupon as cdc
-                inner join discount_coupon_${storeId} as dc on dc.id = cdc.discount_coupon_id
-            )
-        inner join store as s on s.id = cdc.store_id
-        where
-            cdc.client_id = #{clientId};
+    <select id="findCountDiscountCouponByClientId" parameterType="com.yeta.pps.po.ClientDiscountCoupon"
+            resultType="java.lang.Integer">
+        select count(0)
+        from client_discount_coupon as cdc
+                 inner join discount_coupon_${storeId} as dc on dc.id = cdc.discount_coupon_id
+                 inner join store as s on s.id = cdc.store_id
+        where cdc.client_id = #{clientId};
     </select>
 
     <select id="findPagedDiscountCouponByClientId" resultType="com.yeta.pps.vo.ClientDiscountCouponVo">
-        select
-            s.name as store_name,
-            dc.name,
-            if (dc.type = 1, '现金券', if (dc.type = 2, '折扣券', '满减券')) as type_name,
-            if (dc.type = 1, '无限制', if (dc.type = 2, '无限制', concat('满', dc.money, '减', dc.discount_money, '元'))) as use_method,
-            if (dc.type = 2, concat(dc.money, '折'), concat(dc.money, '元')) as face_value,
-            dc.start_time,
-            dc.end_time,
-            if (dc.use_offline = 1, '允许', '禁止') as use_offline_name,
-            if (dc.use_online = 1,'允许', '禁止') as use_online_name,
-            cdc.quantity,
-            if (dc. STATUS = 1, '正常', '已作废') as status_name
-        from
-            (
-                client_discount_coupon as cdc
-                inner join discount_coupon_${vo.storeId} as dc on dc.id = cdc.discount_coupon_id
-            )
-        inner join store as s on s.id = cdc.store_id
-        where
-            cdc.client_id = #{vo.clientId}
+        select s.name                                                                         as store_name,
+               dc.name,
+               if(dc.type = 1, '现金券', if(dc.type = 2, '折扣券', '满减券'))                          as type_name,
+               if(dc.type = 1, '无限制', if(dc.type = 2, '无限制',
+                                         concat('满', dc.money, '减', dc.discount_money, '元'))) as use_method,
+               if(dc.type = 2, concat(dc.money, '折'), concat(dc.money, '元'))                  as face_value,
+               dc.start_time,
+               dc.end_time,
+               if(dc.use_offline = 1, '允许', '禁止')                                             as use_offline_name,
+               if(dc.use_online = 1, '允许', '禁止')                                              as use_online_name,
+               cdc.quantity,
+               if(dc.STATUS = 1, '正常', '已作废')                                                 as status_name
+        from client_discount_coupon as cdc
+                 inner join discount_coupon_${vo.storeId} as dc on dc.id = cdc.discount_coupon_id
+                 inner join store as s on s.id = cdc.store_id
+        where cdc.client_id = #{vo.clientId}
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findCanUseDiscountCouponByStoreIdAndClientId" parameterType="com.yeta.pps.vo.ClientDiscountCouponVo" resultType="com.yeta.pps.po.DiscountCoupon">
-        select
-            dc.id, dc.name, dc.type, dc.money, dc.discount_money, dc.start_time, dc.end_time, dc.use_offline, dc.use_online, cdc.quantity, dc.status
-        from
-            client_discount_coupon as cdc
-        inner join discount_coupon_${storeId} as dc on dc.id = cdc.discount_coupon_id
-        where
-            cdc.client_id = #{clientId}
-        and cdc.store_id = #{storeId}
-        and date(now()) between date(dc.start_time) and date(dc.end_time)
-        and dc.use_offline = 1
-        and cdc.quantity > 0
-        and dc.status = 1;
+    <select id="findCanUseDiscountCouponByStoreIdAndClientId" parameterType="com.yeta.pps.vo.ClientDiscountCouponVo"
+            resultType="com.yeta.pps.po.DiscountCoupon">
+        select dc.id,
+               dc.name,
+               dc.type,
+               dc.money,
+               dc.discount_money,
+               dc.start_time,
+               dc.end_time,
+               dc.use_offline,
+               dc.use_online,
+               cdc.quantity,
+               dc.status
+        from client_discount_coupon as cdc
+                 inner join discount_coupon_${storeId} as dc on dc.id = cdc.discount_coupon_id
+        where cdc.client_id = #{clientId}
+          and cdc.store_id = #{storeId}
+          and date(now()) between date(dc.start_time) and date(dc.end_time)
+          and dc.use_offline = 1
+          and cdc.quantity > 0
+          and dc.status = 1;
     </select>
 
     <!--客户/优惠券关系-->
 
     <insert id="addClientDiscountCoupon" parameterType="com.yeta.pps.po.ClientDiscountCoupon">
-        insert into
-            client_discount_coupon (store_id, client_id, discount_coupon_id, quantity)
-        values
-            (#{storeId}, #{clientId}, #{discountCouponId}, #{quantity});
+        insert into client_discount_coupon (store_id, client_id, discount_coupon_id, quantity)
+        values (#{storeId}, #{clientId}, #{discountCouponId}, #{quantity});
     </insert>
 
     <update id="increaseClientDiscountCouponQuantity" parameterType="com.yeta.pps.po.ClientDiscountCoupon">
         update
-            client_discount_coupon
-        set
-            quantity = quantity + 1
-        where
-            client_id = #{clientId}
-        and store_id = #{storeId}
-        and discount_coupon_id = #{discountCouponId}
-        and quantity + 1 &gt;= 0;
+                client_discount_coupon
+        set quantity = quantity + 1
+        where client_id = #{clientId}
+          and store_id = #{storeId}
+          and discount_coupon_id = #{discountCouponId}
+          and quantity + 1 &gt;= 0;
     </update>
 
     <update id="decreaseClientDiscountCouponQuantity" parameterType="com.yeta.pps.po.ClientDiscountCoupon">
         update
-            client_discount_coupon
-        set
-            quantity = quantity - 1
-        where
-            client_id = #{clientId}
-        and store_id = #{storeId}
-        and discount_coupon_id = #{discountCouponId}
-        and quantity - 1 &gt;= 0;
+                client_discount_coupon
+        set quantity = quantity - 1
+        where client_id = #{clientId}
+          and store_id = #{storeId}
+          and discount_coupon_id = #{discountCouponId}
+          and quantity - 1 &gt;= 0;
     </update>
+
+    <!--短信模版-->
+
+    <insert id="addSMSTemplate" parameterType="com.yeta.pps.po.SMSTemplate">
+        INSERT INTO sms_template (title, content, type, create_time, update_time)
+        VALUES (#{title}, #{content}, #{type}, now(), now());
+    </insert>
+
+    <delete id="deleteSMSTemplate" parameterType="com.yeta.pps.po.SMSTemplate">
+        DELETE
+        FROM sms_template
+        WHERE id = #{id};
+    </delete>
+
+    <update id="updateSMSTemplate" parameterType="com.yeta.pps.po.SMSTemplate">
+        UPDATE sms_template
+        SET title       = #{title},
+            content     = #{content},
+            type        = #{type},
+            update_time = now()
+        WHERE id = #{id};
+    </update>
+
+    <select id="findCountSMSTemplate" parameterType="com.yeta.pps.po.SMSTemplate" resultType="java.lang.Integer">
+        SELECT COUNT(0)
+        FROM sms_template;
+    </select>
+
+    <select id="findPagedSMSTemplate" resultType="com.yeta.pps.po.SMSTemplate">
+        SELECT id, title, content, type, if(type = 1, '通知类短信', '营销类短信') as type_name, create_time, update_time
+        FROM sms_template
+        ORDER BY update_time DESC
+        LIMIT #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllSMSTemplate" parameterType="com.yeta.pps.po.SMSTemplate"
+            resultType="com.yeta.pps.po.SMSTemplate">
+        SELECT id, title, content, type, if(type = 1, '通知类短信', '营销类短信') as type_name, create_time, update_time
+        FROM sms_template
+        ORDER BY update_time DESC;
+    </select>
+
+    <!--短信历史-->
+
+    <insert id="addSMSHistory" parameterType="com.yeta.pps.po.SMSHistory">
+        INSERT INTO sms_history (store_id, client_id, create_time, user_id, content, status, remark)
+        VALUES (#{storeId}, #{clientId}, now(), #{userId}, #{content}, #{status}, #{remark});
+    </insert>
+
+    <select id="findCountSMSHistory" parameterType="com.yeta.pps.po.SMSHistory" resultType="java.lang.Integer">
+        SELECT COUNT(0)
+        FROM sms_history AS sh
+        LEFT JOIN store AS s ON s.id = sh.store_id
+        LEFT JOIN client AS c ON c.id = sh.client_id
+        <if test="storeId != null">
+            LEFT JOIN user_${storeId} AS u ON u.id = sh.user_id
+        </if>
+        WHERE 1 = 1
+        <if test="storeId != null">
+            AND sh.store_id = #{storeId}
+        </if>
+        <if test="clientId != null">
+            AND sh.client_id = #{clientId}
+        </if>
+        <if test="clientName != null">
+            AND c.name LIKE CONCAT('%', #{clientName}, '%')
+        </if>
+        <if test="clientPhone != null">
+            AND c.phone = #{clientPhone}
+        </if>
+    </select>
+
+    <select id="findPagedSMSHistory" resultType="com.yeta.pps.po.SMSHistory">
+        SELECT sh.id, sh.store_id, sh.client_id, c.name AS client_name, c.phone AS client_phone, sh.create_time
+        <if test="vo.storeId != null">
+            , sh.user_id, u.name AS user_name
+        </if>
+        , sh.content, sh.status, sh.remark
+        FROM sms_history AS sh
+        LEFT JOIN store AS s ON s.id = sh.store_id
+        LEFT JOIN client AS c ON c.id = sh.client_id
+        <if test="vo.storeId != null">
+            LEFT JOIN user_${vo.storeId} AS u ON u.id = sh.user_id
+        </if>
+        WHERE 1 = 1
+        <if test="vo.storeId != null">
+            AND sh.store_id = #{vo.storeId}
+        </if>
+        <if test="vo.clientId != null">
+            AND sh.client_id = #{vo.clientId}
+        </if>
+        <if test="vo.clientName != null">
+            AND c.name LIKE CONCAT('%', #{vo.clientName}, '%')
+        </if>
+        <if test="vo.clientPhone != null">
+            AND c.phone = #{vo.clientPhone}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{pageVo.start}, #{pageVo.pageSize};
+    </select>
 
 </mapper>

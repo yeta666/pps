@@ -31,13 +31,18 @@ public class StoreController {
     /**
      * 新增店铺接口
      * @param storeVo
+     * @param check
      * @return
      */
-    @ApiOperation(value = "新增店铺")
-    @ApiImplicitParam(name = "storeVo", value = "name, address, clientName, clientPhone, clientMembershipNumber必填", required = true, paramType = "body", dataType = "StoreVo")
-    @PostMapping(value = "/stores")
-    public CommonResponse add(@RequestBody @Valid StoreVo storeVo) {
-        return storeService.add(storeVo);
+    @ApiOperation(value = "新增店铺", notes = "特权账号使用")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeVo", value = "name, address, clientName, clientPhone, clientMembershipNumber必填", required = true, paramType = "body", dataType = "StoreVo"),
+            @ApiImplicitParam(name = "check", value = "特权账号编号", required = true, paramType = "path", dataType = "String")
+    })
+    @PostMapping(value = "/stores/{check}")
+    public CommonResponse add(@RequestBody @Valid StoreVo storeVo,
+                              @PathVariable(value = "check") String check) {
+        return storeService.add(storeVo, check);
     }
 
     /**
@@ -55,13 +60,35 @@ public class StoreController {
     /**
      * 修改店铺接口
      * @param store
+     * @param check
      * @return
      */
-    @ApiOperation(value = "修改店铺")
-    @ApiImplicitParam(name = "store", value = "id, name, address必填", required = true, paramType = "body", dataType = "Store")
-    @PutMapping(value = "/stores")
-    public CommonResponse update(@RequestBody @Valid Store store) {
-        return storeService.update(store);
+    @ApiOperation(value = "修改店铺", notes = "特权账号使用")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "store", value = "id, name, address必填", required = true, paramType = "body", dataType = "Store"),
+            @ApiImplicitParam(name = "check", value = "特权账号编号", required = true, paramType = "path", dataType = "String")
+    })
+    @PutMapping(value = "/stores/{check}")
+    public CommonResponse update(@RequestBody @Valid Store store,
+                                 @PathVariable(value = "check") String check) {
+        return storeService.update(store, check);
+    }
+
+    /**
+     * 增加店铺剩余短信条数接口
+     * @param id
+     * @param check
+     * @return
+     */
+    @ApiOperation(value = "增加店铺剩余短信条数", notes = "特权账号使用")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "店铺编号，不填表示增加所有店铺，填了表示增加指定店铺", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "check", value = "特权账号编号", required = true, paramType = "path", dataType = "String")
+    })
+    @PutMapping(value = "/stores/smsQuantity/{check}")
+    public CommonResponse increaseSMSQuantity(@RequestParam(value = "id", required = false) Integer id,
+                                              @PathVariable(value = "check") String check) {
+        return storeService.increaseSMSQuantity(new Store(id), check);
     }
 
     /**

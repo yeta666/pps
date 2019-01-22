@@ -40,6 +40,9 @@ public class ClientService {
     @Autowired
     private PrimaryKeyUtil primaryKeyUtil;
 
+    @Autowired
+    private StoreClientUtil storeClientUtil;
+
     /**
      * 客户登陆
      * @param clientVo
@@ -61,20 +64,7 @@ public class ClientService {
         return CommonResponse.success(clientVo);
     }
 
-    /**
-     * 判断权限的方法
-     * @param check
-     * @return
-     */
-    public boolean checkMethod(String check) {
-        Client checkClient = new Client();
-        checkClient.setId(check);
-        checkClient = myClientMapper.findSpecialClient(checkClient);
-        if (checkClient == null || checkClient.getLevelId() > 0) {
-            return false;
-        }
-        return true;
-    }
+
 
     //会员卡号
 
@@ -85,7 +75,7 @@ public class ClientService {
      */
     public CommonResponse addMembershipNumber(MembershipNumber membershipNumber, String check) {
         //判断权限
-        if (!checkMethod(check)) {
+        if (!storeClientUtil.checkMethod(check)) {
             return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
@@ -106,7 +96,7 @@ public class ClientService {
     @Transactional
     public CommonResponse deleteMembershipNumber(List<MembershipNumber> membershipNumbers, String check) {
         //判断权限
-        if (!checkMethod(check)) {
+        if (!storeClientUtil.checkMethod(check)) {
             return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
@@ -134,7 +124,7 @@ public class ClientService {
      */
     public CommonResponse updateMembershipNumber(MembershipNumber membershipNumber, String check) {
         //判断权限
-        if (!checkMethod(check)) {
+        if (!storeClientUtil.checkMethod(check)) {
             return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
@@ -166,7 +156,7 @@ public class ClientService {
      */
     public CommonResponse findAllMembershipNumber(MembershipNumber membershipNumber, PageVo pageVo, String check) {
         //判断权限
-        if (!checkMethod(check)) {
+        if (!storeClientUtil.checkMethod(check)) {
             return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
@@ -194,7 +184,7 @@ public class ClientService {
      */
     public CommonResponse addClientLevel(ClientLevel clientLevel, String check) {
         //判断权限
-        if (!checkMethod(check)) {
+        if (!storeClientUtil.checkMethod(check)) {
             return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
@@ -213,7 +203,7 @@ public class ClientService {
     @Transactional
     public CommonResponse deleteClientLevel(List<ClientLevel> clientLevels, String check) {
         //判断权限
-        if (!checkMethod(check)) {
+        if (!storeClientUtil.checkMethod(check)) {
             return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
@@ -241,7 +231,7 @@ public class ClientService {
      */
     public CommonResponse updateClientLevel(ClientLevel clientLevel, String check) {
         //判断权限
-        if (!checkMethod(check)) {
+        if (!storeClientUtil.checkMethod(check)) {
             return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
@@ -359,7 +349,7 @@ public class ClientService {
     @Transactional
     public CommonResponse delete(List<ClientVo> clientVos, String check) {
         //判断权限
-        if (!checkMethod(check)) {
+        if (!storeClientUtil.checkMethod(check)) {
             return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 
@@ -398,7 +388,7 @@ public class ClientService {
      */
     public CommonResponse updateDisabledAndRemark(ClientVo clientVo, String check) {
         //判断权限
-        if (!checkMethod(check)) {
+        if (!storeClientUtil.checkMethod(check)) {
             return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
         }
 

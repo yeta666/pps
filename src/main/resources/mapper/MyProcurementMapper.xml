@@ -314,7 +314,7 @@
             resultType="java.lang.String">
         select id
         from procurement_apply_order_${storeId}
-        where date(create_time) = date(now)
+        where date(create_time) = date(now())
           and type = #{type};
     </select>
 
@@ -393,7 +393,7 @@
         <result column="order_status" property="orderStatus"/>
         <result column="total_quantity" property="totalQuantity"/>
         <result column="total_money" property="totalMoney"/>
-        <result column="total_discountMoney" property="totalDiscountMoney"/>
+        <result column="total_discount_money" property="totalDiscountMoney"/>
         <result column="order_money" property="orderMoney"/>
         <result column="user_name" property="userName"/>
         <result column="remark" property="remark"/>
@@ -555,7 +555,7 @@
             resultType="java.lang.String">
         select id
         from procurement_result_order_${storeId}
-        where date(create_time) = date(now)
+        where date(create_time) = date(now())
           and type = #{type};
     </select>
 

@@ -6,10 +6,7 @@ import com.yeta.pps.mapper.StoreMapper;
 import com.yeta.pps.mapper.SystemMapper;
 import com.yeta.pps.mapper.TableMapper;
 import com.yeta.pps.po.*;
-import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.util.CommonResult;
-import com.yeta.pps.util.PrimaryKeyUtil;
-import com.yeta.pps.util.Title;
+import com.yeta.pps.util.*;
 import com.yeta.pps.vo.ClientVo;
 import com.yeta.pps.vo.PageVo;
 import com.yeta.pps.vo.StoreVo;
@@ -45,13 +42,22 @@ public class StoreService {
     @Autowired
     private PrimaryKeyUtil primaryKeyUtil;
 
+    @Autowired
+    private StoreClientUtil storeClientUtil;
+
     /**
      * 新增店铺，插入一套表
      * @param storeVo
+     * @param check
      * @return
      */
     @Transactional      //create语句不支持事务回滚，所有需要手动事务回滚
-    public CommonResponse add(StoreVo storeVo) {
+    public CommonResponse add(StoreVo storeVo, String check) {
+        //判断权限
+        if (!storeClientUtil.checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
+        }
+
         //新增店长级别客户
         ClientVo clientVo = new ClientVo();
         clientVo.setId(primaryKeyUtil.getPrimaryKeyMethod(myClientMapper.findPrimaryKey(), "kh"));
@@ -187,13 +193,43 @@ public class StoreService {
     /**
      * 修改店铺
      * @param store
+     * @param check
      * @return
      */
-    public CommonResponse update(Store store) {
+    public CommonResponse update(Store store, String check) {
+        //判断权限
+        if (!storeClientUtil.checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
+        }
+
         //修改
         if (storeMapper.update(store) != 1) {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
+        return CommonResponse.success();
+    }
+
+    /**
+     * 增加店铺剩余短信条数
+     * @param store
+     * @param check
+     * @return
+     */
+    public CommonResponse increaseSMSQuantity(Store store, String check) {
+        //判断权限
+        if (!storeClientUtil.checkMethod(check)) {
+            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
+        }
+
+        if (store.getId() == null) {
+            //所有店铺
+            storeMapper.increaseSMSQuantity();
+        } else {
+            if (storeMapper.increaseSMSQuantityId(store) != 1) {
+                return CommonResponse.error(CommonResponse.UPDATE_ERROR);
+            }
+        }
+
         return CommonResponse.success();
     }
 
@@ -219,6 +255,7 @@ public class StoreService {
             titles.add(new Title("店长姓名", "clientName"));
             titles.add(new Title("店长电话", "clientPhone"));
             titles.add(new Title("店长会员编号", "clientMembershipNumber"));
+            titles.add(new Title("店铺剩余短信条数", "smsQuantity"));
             CommonResult commonResult = new CommonResult(titles, vos, pageVo);
             return CommonResponse.success(commonResult);
         }

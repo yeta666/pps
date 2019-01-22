@@ -2,6 +2,8 @@ package com.yeta.pps.mapper;
 
 import com.yeta.pps.po.ClientDiscountCoupon;
 import com.yeta.pps.po.DiscountCoupon;
+import com.yeta.pps.po.SMSHistory;
+import com.yeta.pps.po.SMSTemplate;
 import com.yeta.pps.vo.BankAccountVo;
 import com.yeta.pps.vo.ClientDiscountCouponVo;
 import com.yeta.pps.vo.DiscountCouponVo;
@@ -47,4 +49,28 @@ public interface MyMarketingMapper {
     int increaseClientDiscountCouponQuantity(ClientDiscountCoupon clientDiscountCoupon);
 
     int decreaseClientDiscountCouponQuantity(ClientDiscountCoupon clientDiscountCoupon);
+
+    //短信模版
+
+    int addSMSTemplate(SMSTemplate smsTemplate);
+
+    int deleteSMSTemplate(SMSTemplate smsTemplate);
+
+    int updateSMSTemplate(SMSTemplate smsTemplate);
+
+    int findCountSMSTemplate(SMSTemplate smsTemplate);
+
+    List<SMSTemplate> findPagedSMSTemplate(@Param(value = "vo") SMSTemplate smsTemplate,
+                                           @Param(value = "pageVo") PageVo pageVo);
+
+    List<SMSTemplate> findAllSMSTemplate(SMSTemplate smsTemplate);
+
+    //短信历史
+
+    int addSMSHistory(SMSHistory smsHistory);
+
+    int findCountSMSHistory(SMSHistory smsHistory);
+
+    List<SMSHistory> findPagedSMSHistory(@Param(value = "vo") SMSHistory smsHistory,
+                                         @Param(value = "pageVo") PageVo pageVo);
 }

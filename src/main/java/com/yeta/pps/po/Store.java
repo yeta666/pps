@@ -30,11 +30,21 @@ public class Store {
      */
     private String clientId;
 
+    /**
+     * 剩余短信条数
+     */
+    private Integer smsQuantity;
+
     public Store() {
     }
 
     public Store(Integer id) {
         this.id = id;
+    }
+
+    public Store(Integer id, Integer smsQuantity) {
+        this.id = id;
+        this.smsQuantity = smsQuantity;
     }
 
     public Integer getId() {
@@ -69,6 +79,14 @@ public class Store {
         this.clientId = clientId;
     }
 
+    public Integer getSmsQuantity() {
+        return smsQuantity;
+    }
+
+    public void setSmsQuantity(Integer smsQuantity) {
+        this.smsQuantity = smsQuantity;
+    }
+
     @Override
     public String toString() {
         return "Store{" +
@@ -76,6 +94,7 @@ public class Store {
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 ", clientId='" + clientId + '\'' +
+                ", smsQuantity=" + smsQuantity +
                 '}';
     }
 }

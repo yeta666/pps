@@ -2,8 +2,11 @@ package com.yeta.pps.controller;
 
 import com.yeta.pps.po.ClientDiscountCoupon;
 import com.yeta.pps.po.DiscountCoupon;
+import com.yeta.pps.po.SMSHistory;
+import com.yeta.pps.po.SMSTemplate;
 import com.yeta.pps.service.MarketingService;
 import com.yeta.pps.util.CommonResponse;
+import com.yeta.pps.util.CommonResult;
 import com.yeta.pps.vo.ClientDiscountCouponVo;
 import com.yeta.pps.vo.DiscountCouponVo;
 import com.yeta.pps.vo.PageVo;
@@ -11,10 +14,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,10 +30,13 @@ import java.util.List;
  */
 @Api(value = "营销相关接口")
 @RestController
+@RequestMapping(value = "/marketing")
 public class MarketingController {
 
     @Autowired
     private MarketingService marketingService;
+
+    //优惠券
 
     /**
      * 新增优惠券接口
@@ -42,7 +51,7 @@ public class MarketingController {
             paramType = "body",
             dataType = "DiscountCoupon"
     )
-    @PostMapping(value = "/marketing/discountCoupon")
+    @PostMapping(value = "/discountCoupon")
     public CommonResponse addDiscountCoupon(@RequestBody @Valid DiscountCoupon discountCoupon) {
         return marketingService.addDiscountCoupon(discountCoupon);
     }
@@ -60,7 +69,7 @@ public class MarketingController {
             paramType = "body",
             dataType = "DiscountCoupon"
     )
-    @PutMapping(value = "/marketing/discountCoupon")
+    @PutMapping(value = "/discountCoupon")
     public CommonResponse updateDiscountCoupon(@RequestBody @Valid DiscountCoupon discountCoupon) {
         return marketingService.updateDiscountCoupon(discountCoupon);
     }
@@ -78,7 +87,7 @@ public class MarketingController {
             paramType = "body",
             dataType = "DiscountCoupon"
     )
-    @PutMapping(value = "/marketing/discountCoupon/invalid")
+    @PutMapping(value = "/discountCoupon/invalid")
     public CommonResponse invalidDiscountCoupon(@RequestBody DiscountCoupon discountCoupon) {
         return marketingService.invalidDiscountCoupon(discountCoupon);
     }
@@ -100,7 +109,7 @@ public class MarketingController {
             @ApiImplicitParam(name = "page", value = "当前页数，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每次显示条数", required = true, paramType = "query", dataType = "int")
     })
-    @GetMapping(value = "/marketing/discountCoupon")
+    @GetMapping(value = "/discountCoupon")
     public CommonResponse<CommonResponse<List<DiscountCouponVo>>> findPagedDiscountCoupon(@RequestParam(value = "storeId", required = true) Integer storeId,
                                                                                           @RequestParam(value = "name", required = false) String name,
                                                                                           @RequestParam(value = "type", required = false) Byte type,
@@ -120,7 +129,7 @@ public class MarketingController {
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "优惠券编号", required = true, paramType = "path", dataType = "int")
     })
-    @GetMapping(value = "/marketing/discountCoupon/{id}")
+    @GetMapping(value = "/discountCoupon/{id}")
     public CommonResponse<DiscountCoupon> findDiscountCouponById(@RequestParam(value = "storeId", required = true) Integer storeId,
                                                                  @PathVariable(value = "id", required = true) Integer id) {
         return marketingService.findDiscountCouponById(new DiscountCoupon(storeId, id));
@@ -134,7 +143,7 @@ public class MarketingController {
             paramType = "body",
             dataType = "ClientDiscountCoupon"
     )
-    @PutMapping(value = "/marketing/discountCoupon/give")
+    @PutMapping(value = "/discountCoupon/give")
     public CommonResponse giveDiscountCoupon(@RequestBody @Valid ClientDiscountCoupon clientDiscountCoupon) {
         return marketingService.giveDiscountCoupon(clientDiscountCoupon);
     }
@@ -154,7 +163,7 @@ public class MarketingController {
             @ApiImplicitParam(name = "page", value = "当前页数，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每次显示条数", required = true, paramType = "query", dataType = "int")
     })
-    @GetMapping(value = "/marketing/discountCoupon/clientId")
+    @GetMapping(value = "/discountCoupon/clientId")
     public CommonResponse<CommonResponse<List<ClientDiscountCouponVo>>> findPagedDiscountCouponByClientId(@RequestParam(value = "storeId", required = true) Integer storeId,
                                                                                                           @RequestParam(value = "clientId", required = true) String clientId,
                                                                                                           @RequestParam(value = "page", required = true) Integer page,
@@ -173,9 +182,124 @@ public class MarketingController {
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "clientId", value = "客户编号", required = true, paramType = "query", dataType = "String"),
     })
-    @GetMapping(value = "/marketing/discountCoupon/canUse")
+    @GetMapping(value = "/discountCoupon/canUse")
     public CommonResponse<DiscountCoupon> findCanUseDiscountCouponByStoreIdAndClientId(@RequestParam(value = "storeId", required = true) Integer storeId,
                                                                                        @RequestParam(value = "clientId", required = true) String clientId) {
         return marketingService.findCanUseDiscountCouponByStoreIdAndClientId(new ClientDiscountCoupon(storeId, clientId));
+    }
+
+    //短信模版
+
+    /**
+     * 新增短信模版接口
+     * @param smsTemplate
+     * @param check
+     * @return
+     */
+    @ApiOperation(value = "新增短信模版", notes = "特权账号使用")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "smsTemplate", value = "title, content, type必填", required = true, paramType = "body", dataType = "SMSTemplate"),
+            @ApiImplicitParam(name = "check", value = "特权账号编号", required = true, paramType = "path", dataType = "String")
+    })
+    @PostMapping(value = "/sms/template/{check}")
+    public CommonResponse addSMSTemplate(@RequestBody @Valid SMSTemplate smsTemplate,
+                                         @PathVariable(value = "check") String check) {
+        return marketingService.addSMSTemplate(smsTemplate, check);
+    }
+
+    /**
+     * 删除短信模版接口
+     * @param ids
+     * @param check
+     * @return
+     */
+    @ApiOperation(value = "删除短信模版", notes = "特权账号使用")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ids", value = "短信模版编号，多个英文逗号隔开", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "check", value = "特权账号编号", required = true, paramType = "path", dataType = "String")
+    })
+    @DeleteMapping(value = "/sms/template/{check}")
+    public CommonResponse deleteSMSTemplate(@RequestParam String ids,
+                                            @PathVariable(value = "check") String check) {
+        List<SMSTemplate> smsTemplates = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> smsTemplates.add(new SMSTemplate(Integer.valueOf(id))));
+        return marketingService.deleteSMSTemplate(smsTemplates, check);
+    }
+
+    /**
+     * 修改短信模版接口
+     * @param smsTemplate
+     * @param check
+     * @return
+     */
+    @ApiOperation(value = "修改短信模版", notes = "特权账号使用")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "smsTemplate", value = "id, title, content, type必填", required = true, paramType = "body", dataType = "SMSTemplate"),
+            @ApiImplicitParam(name = "check", value = "特权账号编号", required = true, paramType = "path", dataType = "String")
+    })
+    @PutMapping(value = "/sms/template/{check}")
+    public CommonResponse updateSMSTemplate(@RequestBody @Valid SMSTemplate smsTemplate,
+                                            @PathVariable(value = "check") String check) {
+        return marketingService.updateSMSTemplate(smsTemplate, check);
+    }
+
+    /**
+     * 查询短信模版接口
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "查询短信模版")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "当前页数，从1开始", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每次显示条数", required = false, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/sms/template")
+    public CommonResponse<CommonResult<SMSTemplate>> findSMSTemplate(@RequestParam(value = "page", required = false) Integer page,
+                                                                     @RequestParam(value = "pageSize", required = false) Integer pageSize) {
+        return marketingService.findSMSTemplate(new SMSTemplate(), new PageVo(page, pageSize));
+    }
+
+    //短信历史
+
+    /**
+     * 发短信/新增短信历史接口
+     * @param smsHistories
+     * @return
+     */
+    @ApiOperation(value = "发短信/新增短信历史", notes = "以集合形式入参")
+    @ApiImplicitParam(name = "smsHistories", value = "storeId, clientId, userId, content必填", required = true, paramType = "body", dataType = "SMSHistory")
+    @PostMapping(value = "/sms/history")
+    public CommonResponse addSMSHistory(@RequestBody List<SMSHistory> smsHistories) {
+        return marketingService.addSMSHistory(smsHistories);
+    }
+
+    /**
+     * 查询短信历史接口
+     * @param storeId
+     * @param clientId
+     * @param clientName
+     * @param clientPhone
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "查询短信历史")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "clientId", value = "客户编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "clientName", value = "客户名称，模糊查询", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "clientPhone", value = "客户手机号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "page", value = "当前页数，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每次显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/sms/history")
+    public CommonResponse<CommonResult<SMSHistory>> findSMSHistory(@RequestParam(value = "storeId", required = false) Integer storeId,
+                                                                   @RequestParam(value = "clientId", required = false) String clientId,
+                                                                   @RequestParam(value = "clientName", required = false) String clientName,
+                                                                   @RequestParam(value = "clientPhone", required = false) String clientPhone,
+                                                                   @RequestParam(value = "page") Integer page,
+                                                                   @RequestParam(value = "pageSize") Integer pageSize) {
+        return marketingService.findSMSHistory(new SMSHistory(storeId, clientId, clientName, clientPhone), new PageVo(page, pageSize));
     }
 }

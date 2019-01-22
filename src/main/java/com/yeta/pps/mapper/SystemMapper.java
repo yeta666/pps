@@ -8,9 +8,13 @@ public interface SystemMapper {
 
     int deleteStoreSystem(SSystem sSystem);
 
-    SSystem findPushMoneyRate();
+    SSystem findSystem();
 
-    int updatePushMoneyRate(SSystem sSystem);
+    int updateSystem(SSystem sSystem);
+
+    int updateSMSQuantity(SSystem sSystem);
+
+    int decreaseSMSQuantity(SSystem sSystem);
 
     SSystem findStartBill(SSystem sSystem);
 

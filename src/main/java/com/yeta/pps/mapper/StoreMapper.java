@@ -14,6 +14,12 @@ public interface StoreMapper {
 
     int update(Store store);
 
+    int increaseSMSQuantity();
+
+    int increaseSMSQuantityId(Store store);
+
+    int decreaseSMSQuantityById(Store store);
+
     int findCount();
 
     List<StoreVo> findPaged(PageVo pageVo);

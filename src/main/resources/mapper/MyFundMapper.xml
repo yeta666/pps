@@ -124,10 +124,8 @@
         select
         count(0)
         from
-        (
         procurement_apply_order_${storeId} as pao
         left join supplier_${storeId} as s on pao.supplier_id = s.id
-        )
         left join user_${storeId} as u on pao.user_id = u.id
         where pao.clear_status = 0
         <if test="id != null">
@@ -162,10 +160,8 @@
         u.name as user_name,
         pao.remark
         from
-        (
         procurement_apply_order_${vo.storeId} as pao
         left join supplier_${vo.storeId} as s on pao.supplier_id = s.id
-        )
         left join user_${vo.storeId} as u on pao.user_id = u.id
         where pao.clear_status = 0
         <if test="vo.id != null">

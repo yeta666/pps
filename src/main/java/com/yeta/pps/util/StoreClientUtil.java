@@ -3,10 +3,7 @@ package com.yeta.pps.util;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyClientMapper;
 import com.yeta.pps.mapper.SystemMapper;
-import com.yeta.pps.po.GoodsSku;
-import com.yeta.pps.po.StoreClient;
-import com.yeta.pps.po.StoreClientDetail;
-import com.yeta.pps.po.SSystem;
+import com.yeta.pps.po.*;
 import com.yeta.pps.vo.ClientVo;
 import com.yeta.pps.vo.OrderGoodsSkuVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +25,21 @@ public class StoreClientUtil {
 
     @Autowired
     private SystemMapper systemMapper;
+
+    /**
+     * 判断权限的方法
+     * @param check
+     * @return
+     */
+    public boolean checkMethod(String check) {
+        Client checkClient = new Client();
+        checkClient.setId(check);
+        checkClient = myClientMapper.findSpecialClient(checkClient);
+        if (checkClient == null || checkClient.getLevelId() > 0) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * 修改客户积分的方法
@@ -98,7 +110,7 @@ public class StoreClientUtil {
             StoreClient storeClient = new StoreClient(storeId, inviterId);
 
             //查询提成比例
-            SSystem sSystem = systemMapper.findPushMoneyRate();
+            SSystem sSystem = systemMapper.findSystem();
             if (sSystem == null || sSystem.getPushMoneyRate() == null || sSystem.getPushMoneyRate() < 0) {
                 throw new CommonException(CommonResponse.UPDATE_ERROR);
             }

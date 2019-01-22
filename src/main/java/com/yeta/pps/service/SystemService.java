@@ -54,11 +54,11 @@ public class SystemService {
     }
 
     /**
-     * 查询提成比例
+     * 查询分店设置
      * @return
      */
-    public CommonResponse findPushMoneyRate() {
-        SSystem SSystem = systemMapper.findPushMoneyRate();
+    public CommonResponse findSystem() {
+        SSystem SSystem = systemMapper.findSystem();
         if (SSystem == null) {
             return CommonResponse.error(CommonResponse.FIND_ERROR);
         }
@@ -67,17 +67,17 @@ public class SystemService {
     }
 
     /**
-     * 修改提成比例
+     * 修改分店设置
      * @param sSystem
      * @return
      */
-    public CommonResponse updatePushMoneyRate(SSystem sSystem) {
+    public CommonResponse updateSystem(SSystem sSystem) {
         //判断参数
         if (sSystem.getPushMoneyRate() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
-        if (systemMapper.updatePushMoneyRate(sSystem) != 1) {
+        if (systemMapper.updateSystem(sSystem) != 1) {
             return CommonResponse.error(CommonResponse.UPDATE_ERROR);
         }
         
