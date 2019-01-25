@@ -220,9 +220,9 @@ public class SystemService {
      * @return
      */
     @Transactional
-    public synchronized CommonResponse updateRetail(SSystem sSystem) {
+    public CommonResponse updateRetail(SSystem sSystem) {
         //判断参数
-        if (sSystem.getRetailWarehouseId() == null || sSystem.getRetailBankAccountId() == null) {
+        if (sSystem.getStoreId() == null || sSystem.getRetailWarehouseId() == null || sSystem.getRetailBankAccountId() == null) {
             return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
@@ -230,6 +230,22 @@ public class SystemService {
         if (systemMapper.updateRetail(sSystem) != 1) {
             throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
+
+        return CommonResponse.success();
+    }
+
+    /**
+     * 系统重建
+     * @param sSystem
+     * @return
+     */
+    public CommonResponse systemRebuild(SSystem sSystem) {
+        //判断参数
+        if (sSystem.getStoreId() == null) {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
+        systemMapper.systemRebuild(sSystem);
 
         return CommonResponse.success();
     }

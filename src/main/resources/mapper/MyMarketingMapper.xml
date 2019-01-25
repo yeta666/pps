@@ -230,8 +230,8 @@
     <!--短信模版-->
 
     <insert id="addSMSTemplate" parameterType="com.yeta.pps.po.SMSTemplate">
-        INSERT INTO sms_template (title, content, type, create_time, update_time)
-        VALUES (#{title}, #{content}, #{type}, now(), now());
+        INSERT INTO sms_template (id, title, content, type, create_time, update_time)
+        VALUES (#{id}, #{title}, #{content}, #{type}, now(), now());
     </insert>
 
     <delete id="deleteSMSTemplate" parameterType="com.yeta.pps.po.SMSTemplate">
@@ -255,7 +255,7 @@
     </select>
 
     <select id="findPagedSMSTemplate" resultType="com.yeta.pps.po.SMSTemplate">
-        SELECT id, title, content, type, if(type = 1, '通知类短信', '营销类短信') as type_name, create_time, update_time
+        SELECT id, title, content, type, if(type = 1, '验证码', if (type = 2, '短信通知', '推广短信')) as type_name, create_time, update_time
         FROM sms_template
         ORDER BY update_time DESC
         LIMIT #{pageVo.start}, #{pageVo.pageSize};
@@ -263,7 +263,7 @@
 
     <select id="findAllSMSTemplate" parameterType="com.yeta.pps.po.SMSTemplate"
             resultType="com.yeta.pps.po.SMSTemplate">
-        SELECT id, title, content, type, if(type = 1, '通知类短信', '营销类短信') as type_name, create_time, update_time
+        SELECT id, title, content, type, if(type = 1, '验证码', if (type = 2, '短信通知', '推广短信')) as type_name, create_time, update_time
         FROM sms_template
         ORDER BY update_time DESC;
     </select>

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,7 +117,7 @@ public class SellController {
     }
 
     /**
-     * 根据type所有销售申请订单接口
+     * 根据type查询销售申请订单接口
      * @param storeId
      * @param clientName
      * @param phone
@@ -129,7 +130,7 @@ public class SellController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查询所有销售申请订单", notes = "分页、筛选查询，其中clientName, phone, membershipNumber为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiOperation(value = "根据type查询销售申请订单", notes = "分页、筛选查询，其中clientName, phone, membershipNumber为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "clientName", value = "客户名", required = false, paramType = "query", dataType = "String"),
@@ -155,6 +156,43 @@ public class SellController {
                                                                                   @RequestParam(value = "pageSize") Integer pageSize) {
         Client client = new Client(clientName, phone, membershipNumber);
         return sellService.findAllApplyOrder(new SellApplyOrderVo(storeId, startTime, endTime, id, type, client), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据type查询销售申请订单接口
+     * @param storeId
+     * @param clientName
+     * @param phone
+     * @param membershipNumber
+     * @param startTime
+     * @param endTime
+     * @param id
+     * @param type
+     * @return
+     */
+    @ApiOperation(value = "根据type查询销售申请订单", notes = "其中clientName, phone, membershipNumber为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "clientName", value = "客户名称", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "phone", value = "客户电话", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "membershipNumber", value = "会员卡号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "单据类型(1：零售单，2：销售订单，3：销售退货申请单，4：销售换货申请单)", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/apply/export")
+    public void exportApplyOrder(@RequestParam(value = "storeId") Integer storeId,
+                                 @RequestParam(value = "clientName", required = false) String clientName,
+                                 @RequestParam(value = "phone", required = false) String phone,
+                                 @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
+                                 @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                 @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                 @RequestParam(value = "id", required = false) String id,
+                                 @RequestParam(value = "type") Byte type,
+                                 HttpServletResponse response) {
+        Client client = new Client(clientName, phone, membershipNumber);
+        sellService.exportApplyOrder(new SellApplyOrderVo(storeId, startTime, endTime, id, type, client), response);
     }
 
     /**
@@ -200,7 +238,7 @@ public class SellController {
     }
 
     /**
-     * 查询所有销售结果订单接口
+     * 查询销售结果订单接口
      * @param storeId
      * @param clientName
      * @param phone
@@ -214,7 +252,7 @@ public class SellController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查询所有销售结果订单", notes = "分页、筛选查询，其中clientName, phone, membershipNumber为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiOperation(value = "查询销售结果订单", notes = "分页、筛选查询，其中clientName, phone, membershipNumber为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "clientName", value = "客户名", required = false, paramType = "query", dataType = "String"),
@@ -243,6 +281,44 @@ public class SellController {
         Client client = new Client(clientName, phone, membershipNumber);
         SellApplyOrderVo sellApplyOrderVo = new SellApplyOrderVo(startTime, endTime, client);
         return sellService.findAllResultOrder(new SellResultOrderVo(storeId, sellApplyOrderVo, id, type, flag), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 导出销售结果订单接口
+     * @param storeId
+     * @param clientName
+     * @param phone
+     * @param membershipNumber
+     * @param startTime
+     * @param endTime
+     * @param id
+     * @param type
+     * @return
+     */
+    @ApiOperation(value = "导出销售结果订单", notes = "其中clientName为模糊查询, phone, membershipNumber，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "clientName", value = "客户名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "phone", value = "电话", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "membershipNumber", value = "会员卡号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "id", value = "销售结果订单编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "类型", required = false, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/result/export")
+    public void exportResultOrder(@RequestParam(value = "storeId") Integer storeId,
+                                  @RequestParam(value = "clientName", required = false) String clientName,
+                                  @RequestParam(value = "phone", required = false) String phone,
+                                  @RequestParam(value = "membershipNumber", required = false) String membershipNumber,
+                                  @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                  @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                  @RequestParam(value = "id", required = false) String id,
+                                  @RequestParam(value = "type", required = false) Byte type,
+                                  HttpServletResponse response) {
+        Client client = new Client(clientName, phone, membershipNumber);
+        SellApplyOrderVo sellApplyOrderVo = new SellApplyOrderVo(startTime, endTime, client);
+        sellService.exportResultOrder(new SellResultOrderVo(storeId, sellApplyOrderVo, id, type), response);
     }
 
     /**

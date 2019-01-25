@@ -210,30 +210,6 @@ public class StoreService {
     }
 
     /**
-     * 增加店铺剩余短信条数
-     * @param store
-     * @param check
-     * @return
-     */
-    public CommonResponse increaseSMSQuantity(Store store, String check) {
-        //判断权限
-        if (!storeClientUtil.checkMethod(check)) {
-            return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
-        }
-
-        if (store.getId() == null) {
-            //所有店铺
-            storeMapper.increaseSMSQuantity();
-        } else {
-            if (storeMapper.increaseSMSQuantityId(store) != 1) {
-                return CommonResponse.error(CommonResponse.UPDATE_ERROR);
-            }
-        }
-
-        return CommonResponse.success();
-    }
-
-    /**
      * 查询所有店铺
      * @param pageVo
      * @return
@@ -255,7 +231,6 @@ public class StoreService {
             titles.add(new Title("店长姓名", "clientName"));
             titles.add(new Title("店长电话", "clientPhone"));
             titles.add(new Title("店长会员编号", "clientMembershipNumber"));
-            titles.add(new Title("店铺剩余短信条数", "smsQuantity"));
             CommonResult commonResult = new CommonResult(titles, vos, pageVo);
             return CommonResponse.success(commonResult);
         }

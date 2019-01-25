@@ -63,7 +63,6 @@ public class FundOrderVo {
     /**
      * 优惠金额
      */
-    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double discountMoney;
 
     /**
@@ -77,7 +76,6 @@ public class FundOrderVo {
     /**
      * 使用预收/付款
      */
-    @NotNull(message = CommonResponse.PARAMETER_ERROR)
     private Double advanceMoney;
 
     /**

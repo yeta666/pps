@@ -46,11 +46,6 @@ public class StoreVo {
     @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String clientMembershipNumber;
 
-    /**
-     * 剩余短信条数
-     */
-    private Integer smsQuantity;
-
     public StoreVo() {
     }
 
@@ -110,14 +105,6 @@ public class StoreVo {
         this.clientMembershipNumber = clientMembershipNumber;
     }
 
-    public Integer getSmsQuantity() {
-        return smsQuantity;
-    }
-
-    public void setSmsQuantity(Integer smsQuantity) {
-        this.smsQuantity = smsQuantity;
-    }
-
     @Override
     public String toString() {
         return "StoreVo{" +
@@ -128,7 +115,6 @@ public class StoreVo {
                 ", clientName='" + clientName + '\'' +
                 ", clientPhone='" + clientPhone + '\'' +
                 ", clientMembershipNumber='" + clientMembershipNumber + '\'' +
-                ", smsQuantity=" + smsQuantity +
                 '}';
     }
 }

@@ -37,7 +37,7 @@ public class SystemController {
      * @return
      */
     @ApiOperation(value = "修改分店设置")
-    @ApiImplicitParam(name = "sSystem", value = "pushMoneyRate(提成比例)必填, signature(短信签名)选填", required = true, paramType = "body", dataType = "SSystem")
+    @ApiImplicitParam(name = "sSystem", value = "pushMoneyRate(提成比例)必填选填", required = true, paramType = "body", dataType = "SSystem")
     @PutMapping(value = "/system")
     public CommonResponse updateSystem(@RequestBody SSystem sSystem) {
         return systemService.updateSystem(sSystem);
@@ -89,5 +89,17 @@ public class SystemController {
     @PutMapping(value = "/system/retail")
     public CommonResponse updateRetail(@RequestBody SSystem sSystem) {
         return systemService.updateRetail(sSystem);
+    }
+
+    /**
+     * 系统重建接口
+     * @param sSystem
+     * @return
+     */
+    @ApiOperation(value = "系统重建")
+    @ApiImplicitParam(name = "sSystem", value = "storeId必填", required = true, paramType = "body", dataType = "SSystem")
+    @PutMapping(value = "/system/rebuild")
+    public CommonResponse systemRebuild(@RequestBody SSystem sSystem) {
+        return systemService.systemRebuild(sSystem);
     }
 }

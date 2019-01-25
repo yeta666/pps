@@ -4,6 +4,7 @@ import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyOrderGoodsSkuMapper;
 import com.yeta.pps.mapper.MyProcurementMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
+import com.yeta.pps.po.ProcurementApplyOrder;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,6 +51,10 @@ public class ProcurementService {
 
     //采购申请订单
 
+    /**
+     * 采购订单
+     * @param procurementApplyOrderVo
+     */
     @Transactional
     public void cgdd(ProcurementApplyOrderVo procurementApplyOrderVo) {
         //获取参数
@@ -72,6 +79,10 @@ public class ProcurementService {
         inventoryMethod(procurementApplyOrderVo, null);
     }
 
+    /**
+     * 采购退货申请单
+     * @param procurementApplyOrderVo
+     */
     @Transactional
     public void cgthsqd(ProcurementApplyOrderVo procurementApplyOrderVo) {
         //获取参数
@@ -103,6 +114,10 @@ public class ProcurementService {
         inventoryMethod(procurementApplyOrderVo, null);
     }
 
+    /**
+     * 采购换货申请单
+     * @param procurementApplyOrderVo
+     */
     @Transactional
     public void cghhsqd(ProcurementApplyOrderVo procurementApplyOrderVo) {
         //获取参数
@@ -111,8 +126,6 @@ public class ProcurementService {
         //判断参数
         if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null ||
                 procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null ||
-                procurementApplyOrderVo.getInTotalQuantity().intValue() != procurementApplyOrderVo.getOutTotalQuantity() ||
-                procurementApplyOrderVo.getTotalMoney() != 0 || procurementApplyOrderVo.getTotalDiscountMoney() != 0 || procurementApplyOrderVo.getOrderMoney() != 0 ||
                 procurementApplyOrderVo.getResultOrderId() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
@@ -127,7 +140,7 @@ public class ProcurementService {
         procurementApplyOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myProcurementMapper.findApplyOrderPrimaryKey(procurementApplyOrderVo), "CGHHSQD"));
         procurementApplyOrderVo.setCreateTime(new Date());
         procurementApplyOrderVo.setOrderStatus((byte) 7);       //未收未发
-        procurementApplyOrderVo.setClearStatus((byte) 1);       //已完成
+        procurementApplyOrderVo.setClearStatus(procurementApplyOrderVo.getOrderMoney() == 0 ? (byte) 1 : (byte) 0);
         procurementApplyOrderVo.setInReceivedQuantity(0);
         procurementApplyOrderVo.setInNotReceivedQuantity(procurementApplyOrderVo.getInTotalQuantity());
         procurementApplyOrderVo.setOutSentQuantity(0);
@@ -141,13 +154,13 @@ public class ProcurementService {
 
     /**
      * 库存相关操作共用方法
-     * @param procurementApplyOrderVo
+     * @param paoVo
      * @param oldVo
      */
     @Transactional
-    public void inventoryMethod(ProcurementApplyOrderVo procurementApplyOrderVo, ProcurementApplyOrderVo oldVo) {
-        List<OrderGoodsSkuVo> orderGoodsSkuVos = procurementApplyOrderVo.getDetails();
-        Integer storeId = procurementApplyOrderVo.getStoreId();
+    public void inventoryMethod(ProcurementApplyOrderVo paoVo, ProcurementApplyOrderVo oldVo) {
+        List<OrderGoodsSkuVo> orderGoodsSkuVos = paoVo.getDetails();
+        Integer storeId = paoVo.getStoreId();
         orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
 
             Integer quantity = orderGoodsSkuVo.getQuantity();
@@ -155,7 +168,7 @@ public class ProcurementService {
 
             //设置初始属性
             orderGoodsSkuVo.setStoreId(storeId);
-            orderGoodsSkuVo.setOrderId(procurementApplyOrderVo.getId());
+            orderGoodsSkuVo.setOrderId(paoVo.getId());
             orderGoodsSkuVo.setFinishQuantity(0);
             orderGoodsSkuVo.setNotFinishQuantity(quantity);
             orderGoodsSkuVo.setOperatedQuantity(0);
@@ -165,10 +178,10 @@ public class ProcurementService {
             int notSentQuantity = 0;
             int notReceivedQuantity = 0;
             if (orderGoodsSkuVo.getType() == 1) {
-                warehouseId = procurementApplyOrderVo.getInWarehouseId() == null ? oldVo.getInWarehouseId() : procurementApplyOrderVo.getInWarehouseId();
+                warehouseId = paoVo.getInWarehouseId() == null ? oldVo.getInWarehouseId() : paoVo.getInWarehouseId();
                 notReceivedQuantity = quantity;
             } else if (orderGoodsSkuVo.getType() == 0) {
-                warehouseId = procurementApplyOrderVo.getOutWarehouseId() == null ? oldVo.getOutWarehouseId() : procurementApplyOrderVo.getOutWarehouseId();
+                warehouseId = paoVo.getOutWarehouseId() == null ? oldVo.getOutWarehouseId() : paoVo.getOutWarehouseId();
                 notSentQuantity = quantity;
 
                 //减少可用库存
@@ -183,7 +196,7 @@ public class ProcurementService {
             }
 
             //修改采购入库单对应的商品规格已操作数量
-            byte type = procurementApplyOrderVo.getType() == null ? oldVo.getType() : procurementApplyOrderVo.getType();
+            byte type = paoVo.getType() == null ? oldVo.getType() : paoVo.getType();
             if (type == 2 || (type == 3 && orderGoodsSkuVo.getType() == 0)) {
                 if (orderGoodsSkuVo.getId() == null) {
                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
@@ -235,7 +248,8 @@ public class ProcurementService {
         int inTotalQuantity = procurementApplyOrderVo.getInTotalQuantity() == null ? 0 : procurementApplyOrderVo.getInTotalQuantity();
         int outTotalQuantity = procurementApplyOrderVo.getOutTotalQuantity() == null ? 0 : procurementApplyOrderVo.getOutTotalQuantity();
         if (check.getInTotalQuantity() != inTotalQuantity || check.getOutTotalQuantity() != outTotalQuantity ||
-                check.getTotalMoney().doubleValue() != procurementApplyOrderVo.getTotalMoney().doubleValue() || check.getTotalDiscountMoney().doubleValue() != procurementApplyOrderVo.getTotalDiscountMoney().doubleValue() ||
+                check.getTotalMoney().doubleValue() != procurementApplyOrderVo.getTotalMoney().doubleValue() ||
+                check.getTotalDiscountMoney().doubleValue() != procurementApplyOrderVo.getTotalDiscountMoney().doubleValue() ||
                 procurementApplyOrderVo.getOrderMoney() + procurementApplyOrderVo.getTotalDiscountMoney() != procurementApplyOrderVo.getTotalMoney()) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
@@ -399,19 +413,19 @@ public class ProcurementService {
     }
 
     /**
-     * 查询所有采购申请订单
-     * @param procurementApplyOrderVo
+     * 根据type查询采购申请订单
+     * @param paoVo
      * @param pageVo
      * @return
      */
-    public CommonResponse findAllApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo, PageVo pageVo) {
+    public CommonResponse findAllApplyOrder(ProcurementApplyOrderVo paoVo, PageVo pageVo) {
         //查询所有页数
-        pageVo.setTotalPage((int) Math.ceil(myProcurementMapper.findCountApplyOrder(procurementApplyOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setTotalPage((int) Math.ceil(myProcurementMapper.findCountApplyOrder(paoVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        List<ProcurementApplyOrderVo> procurementApplyOrderVos = myProcurementMapper.findAllPagedApplyOrder(procurementApplyOrderVo, pageVo);
+        List<ProcurementApplyOrderVo> procurementApplyOrderVos = myProcurementMapper.findAllPagedApplyOrder(paoVo, pageVo);
 
         //补上仓库名
-        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(procurementApplyOrderVo.getStoreId()));
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(paoVo.getStoreId()));
         procurementApplyOrderVos.stream().forEach(vo -> {
             warehouses.stream().forEach(warehouse -> {
                 if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
@@ -429,16 +443,21 @@ public class ProcurementService {
         titles.add(new Title("单据类型", "type"));
         titles.add(new Title("单据日期", "createTime"));
         titles.add(new Title("单据状态", "orderStatus"));
-        titles.add(new Title("来源订单", "resultOrderId"));
-        titles.add(new Title("供应商", "supplierName"));
-        titles.add(new Title("入库仓库", "inWarehouseName"));
-        titles.add(new Title("总收货数量", "inTotalQuantity"));
-        titles.add(new Title("已收货数量", "inReceivedQuantity"));
-        titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
-        titles.add(new Title("出库仓库", "outWarehouseName"));
-        titles.add(new Title("总发货数量", "outTotalQuantity"));
-        titles.add(new Title("已发货数量", "outSentQuantity"));
-        titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
+        if (paoVo.getType() == 1 || paoVo.getType() == 3) {
+            titles.add(new Title("入库仓库", "inWarehouseName"));
+            titles.add(new Title("总收货数量", "inTotalQuantity"));
+            titles.add(new Title("已收货数量", "inReceivedQuantity"));
+            titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
+        }
+        if (paoVo.getType() == 2 || paoVo.getType() == 3) {
+            titles.add(new Title("来源订单", "resultOrderId"));
+            titles.add(new Title("出库仓库", "outWarehouseName"));
+            titles.add(new Title("总发货数量", "outTotalQuantity"));
+            titles.add(new Title("已发货数量", "outSentQuantity"));
+            titles.add(new Title("未发货数量", "outNotSentQuantity"));
+        }
+        titles.add(new Title("供应商编号", "supplierId"));
+        titles.add(new Title("供应商名称", "supplierName"));
         titles.add(new Title("总商品金额", "totalMoney"));
         titles.add(new Title("总优惠金额", "totalDiscountMoney"));
         titles.add(new Title("本单金额", "orderMoney"));
@@ -446,10 +465,106 @@ public class ProcurementService {
         titles.add(new Title("已结金额", "clearedMoney"));
         titles.add(new Title("未结金额", "notClearedMoney"));
         titles.add(new Title("经手人", "userName"));
-        titles.add(new Title("单据备注", "remark"));
+        titles.add(new Title("备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, procurementApplyOrderVos, pageVo);
 
         return CommonResponse.success(commonResult);
+    }
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    /**
+     * 根据type导出采购申请订单
+     * @param paoVo
+     * @param response
+     * @return
+     */
+    public void exportApplyOrder(ProcurementApplyOrderVo paoVo, HttpServletResponse response) {
+        try {
+            //获取参数
+            Byte type = paoVo.getType();
+
+            //根据条件查询单据
+            List<ProcurementApplyOrderVo> vos = myProcurementMapper.findAllApplyOrder(paoVo);
+
+            //补上仓库名
+            List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(paoVo.getStoreId()));
+            vos.stream().forEach(vo -> {
+                warehouses.stream().forEach(warehouse -> {
+                    if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setInWarehouseName(warehouse.getName());
+                    }
+                    if (vo.getOutWarehouseId() != null && vo.getOutWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setOutWarehouseName(warehouse.getName());
+                    }
+                });
+            });
+
+            //备注
+            String remark = "【筛选条件】" +
+                    "\n单据编号：" + (paoVo.getId() == null ? "无" : paoVo.getId()) +
+                    " 开始时间：" + (paoVo.getStartTime() == null ? "无" : paoVo.getStartTime()) +
+                    " 结束时间：" + (paoVo.getEndTime() == null ? "无" : paoVo.getEndTime()) +
+                    " 供应商名称：" + (paoVo.getSupplierName() == null ? "无" : paoVo.getSupplierName());
+
+            //标题行
+            List<String> titleRowCell1 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "单据状态", "入库仓库", "总收货数量", "已收货数量", "未收货数量", "供应商编号", "供应商名称", "总商品金额", "总优惠金额", "本单金额", "结算状态", "已结金额", "未结金额", "经手人", "备注"
+            });
+
+            List<String> titleRowCell2 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "单据状态", "来源订单", "出库仓库", "总发货数量", "已发货数量", "未发货数量", "供应商编号", "供应商名称", "总商品金额", "总优惠金额", "本单金额", "结算状态", "已结金额", "未结金额", "经手人", "备注"
+            });
+
+            List<String> titleRowCell3 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "单据状态", "来源订单", "入库仓库", "总收货数量", "已收货数量", "未收货数量", "出库仓库", "总发货数量", "已发货数量", "未发货数量", "供应商编号", "供应商名称", "总商品金额", "总优惠金额", "本单金额", "结算状态", "已结金额", "未结金额", "经手人", "备注"
+            });
+
+            //最后一个必填列列数
+            int lastRequiredCol = -1;
+
+            String typeName = type == 1 ? "采购订单" : type == 2 ? "采购退货申请单" : type == 3 ? "采购换货申请单" : null;
+
+            //数据行
+            List<List<String>> dataRowCells = new ArrayList<>();
+            vos.stream().forEach(vo -> {
+                List<String> dataRowCell = new ArrayList<>();
+                dataRowCell.add(vo.getId());
+                dataRowCell.add(typeName);
+                dataRowCell.add(sdf.format(vo.getCreateTime()));
+                dataRowCell.add(vo.getOrderStatus() == 1 ? "未收" : vo.getOrderStatus() == 2 ? "部分收" : vo.getOrderStatus() == 3 ? "已收" : vo.getOrderStatus() == 4 ? "未发" : vo.getOrderStatus() == 5 ? "部分发" : vo.getOrderStatus() == 6 ? "已发" : vo.getOrderStatus() == 7 ? "未收未发" : vo.getOrderStatus() == 8 ? "未收部分发" : vo.getOrderStatus() == 9 ? "未收已发" : vo.getOrderStatus() == 10 ? "部分收未发" : vo.getOrderStatus() == 11 ? "部分收部分发" : vo.getOrderStatus() == 12 ? "部分收已发" : vo.getOrderStatus() == 13 ? "已收未发" : vo.getOrderStatus() == 14 ? "已收部分发" : vo.getOrderStatus() == 15 ? "已收已发" : null);
+                if (type == 1 || type == 3) {
+                    dataRowCell.add(vo.getInWarehouseName());
+                    dataRowCell.add(vo.getInTotalQuantity().toString());
+                    dataRowCell.add(vo.getInReceivedQuantity().toString());
+                    dataRowCell.add(vo.getInNotReceivedQuantity().toString());
+                }
+                if (type == 2 || type == 3) {
+                    dataRowCell.add(vo.getResultOrderId());
+                    dataRowCell.add(vo.getOutWarehouseName());
+                    dataRowCell.add(vo.getOutTotalQuantity().toString());
+                    dataRowCell.add(vo.getOutSentQuantity().toString());
+                    dataRowCell.add(vo.getOutNotSentQuantity().toString());
+                }
+                dataRowCell.add(vo.getSupplierId());
+                dataRowCell.add(vo.getSupplierName());
+                dataRowCell.add(vo.getTotalMoney().toString());
+                dataRowCell.add(vo.getTotalDiscountMoney().toString());
+                dataRowCell.add(vo.getClearedMoney().toString());
+                dataRowCell.add(vo.getClearStatus() == 0 ? "未完成" : vo.getClearStatus() == 1 ? "已完成" : null);
+                dataRowCell.add(vo.getClearedMoney().toString());
+                dataRowCell.add(vo.getNotClearedMoney().toString());
+                dataRowCell.add(vo.getUserName());
+                dataRowCell.add(vo.getRemark());
+                dataRowCells.add(dataRowCell);
+            });
+
+            //输出excel
+            String fileName = "【" + typeName + "导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, type == 1 ? titleRowCell1 : type == 2 ? titleRowCell2 : titleRowCell3, lastRequiredCol, dataRowCells, fileName, response);
+        } catch (Exception e) {
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
+        }
     }
 
     /**
@@ -691,7 +806,7 @@ public class ProcurementService {
     }
 
     /**
-     * 查询所有采购结果订单
+     * 查询采购结果订单
      * @param procurementResultOrderVo
      * @param pageVo
      * @return
@@ -724,18 +839,95 @@ public class ProcurementService {
         titles.add(new Title("单据日期", "createTime"));
         titles.add(new Title("来源订单", "applyOrderId"));
         titles.add(new Title("结算状态", "procurementApplyOrderVo.clearStatus"));
-        titles.add(new Title("供应商", "procurementApplyOrderVo.supplierName"));
+        titles.add(new Title("供应商编号", "procurementApplyOrderVo.supplierId"));
+        titles.add(new Title("供应商名称", "procurementApplyOrderVo.supplierName"));
         titles.add(new Title("入库仓库", "procurementApplyOrderVo.inWarehouseName"));
         titles.add(new Title("出库仓库", "procurementApplyOrderVo.outWarehouseName"));
         titles.add(new Title("总商品数量", "totalQuantity"));
-        titles.add(new Title("总订单金额", "totalMoney"));
+        titles.add(new Title("总商品金额", "totalMoney"));
         titles.add(new Title("总优惠金额", "totalDiscountMoney"));
         titles.add(new Title("本单金额", "orderMoney"));
         titles.add(new Title("经手人", "userName"));
-        titles.add(new Title("单据备注", "remark"));
+        titles.add(new Title("备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, procurementResultOrderVos, pageVo);
         
         return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 导出采购结果订单
+     * @param proVo
+     * @param response
+     * @return
+     */
+    public void exportResultOrder(ProcurementResultOrderVo proVo, HttpServletResponse response) {
+        try {
+            //根据条件查询单据
+            List<ProcurementResultOrderVo> proVos = myProcurementMapper.findAllResultOrder(proVo);
+
+            //补上仓库名
+            List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(proVo.getStoreId()));
+            proVos.stream().forEach(vo -> {
+                warehouses.stream().forEach(warehouse -> {
+                    if (vo.getProcurementApplyOrderVo() != null && vo.getProcurementApplyOrderVo().getInWarehouseId() != null &&
+                            vo.getProcurementApplyOrderVo().getInWarehouseId().intValue() == warehouse.getId()) {
+                        vo.getProcurementApplyOrderVo().setInWarehouseName(warehouse.getName());
+                    }
+                    if (vo.getProcurementApplyOrderVo() != null && vo.getProcurementApplyOrderVo().getOutWarehouseId() != null &&
+                            vo.getProcurementApplyOrderVo().getOutWarehouseId().intValue() == warehouse.getId()) {
+                        vo.getProcurementApplyOrderVo().setOutWarehouseName(warehouse.getName());
+                    }
+                });
+            });
+
+            //备注
+            String remark = "【筛选条件】" +
+                    "\n单据编号：" + (proVo.getId() == null ? "无" : proVo.getId()) +
+                    " 单据类型：" + (proVo.getType() == null ? "无" : proVos.get(0).getType() == 1 ? "采购入库单" : proVos.get(0).getType() == 2 ? "采购退货单" : "采购换货单") +
+                    " 开始时间：" + (proVo.getProcurementApplyOrderVo().getStartTime() == null ? "无" : proVo.getProcurementApplyOrderVo().getStartTime()) +
+                    " 结束时间：" + (proVo.getProcurementApplyOrderVo().getEndTime() == null ? "无" : proVo.getProcurementApplyOrderVo().getEndTime()) +
+                    " 供应商名称：" + (proVo.getProcurementApplyOrderVo().getSupplierName() == null ? "无" : proVo.getProcurementApplyOrderVo().getSupplierName());
+
+            //标题行
+            List<String> titleRowCell = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "来源订单", "结算状态", "供应商编号", "供应商名称", "入库仓库", "出库仓库", "总商品数量", "总商品金额", "总优惠金额", "本单金额", "经手人", "备注"
+            });
+
+            //最后一个必填列列数
+            int lastRequiredCol = -1;
+
+            //数据行
+            List<List<String>> dataRowCells = new ArrayList<>();
+            proVos.stream().forEach(vo -> {
+                List<String> dataRowCell = new ArrayList<>();
+                dataRowCell.add(vo.getId());
+                dataRowCell.add(vo.getType() == 1 ? "采购入库单" : vo.getType() == 2 ? "采购退货单" : "彩果换货单");
+                dataRowCell.add(sdf.format(vo.getCreateTime()));
+                dataRowCell.add(vo.getApplyOrderId());
+                ProcurementApplyOrderVo paoVo = vo.getProcurementApplyOrderVo();
+                dataRowCell.add(paoVo.getClearStatus() == 0 ? "未完成" : paoVo.getClearStatus() == 1 ? "已完成" : null);
+                dataRowCell.add(paoVo.getSupplierId());
+                dataRowCell.add(paoVo.getSupplierName());
+                dataRowCell.add(paoVo.getInWarehouseName());
+                dataRowCell.add(paoVo.getOutWarehouseName());
+                dataRowCell.add(vo.getTotalQuantity().toString());
+                dataRowCell.add(vo.getTotalMoney().toString());
+                dataRowCell.add(vo.getTotalDiscountMoney().toString());
+                dataRowCell.add(vo.getOrderMoney().toString());
+                dataRowCell.add(vo.getUserName());
+                dataRowCell.add(vo.getRemark());
+                if (vo.getOrderStatus() < 1) {
+                    dataRowCell.add(vo.getOrderStatus() == -1 ? "红冲蓝单" : vo.getOrderStatus() == -2 ? "红冲红单" : null);
+                }
+                dataRowCells.add(dataRowCell);
+            });
+
+            //输出excel
+            String fileName = "【采购历史导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
+        } catch (Exception e) {
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
+        }
     }
 
     /**

@@ -75,23 +75,6 @@ public class StoreController {
     }
 
     /**
-     * 增加店铺剩余短信条数接口
-     * @param id
-     * @param check
-     * @return
-     */
-    @ApiOperation(value = "增加店铺剩余短信条数", notes = "特权账号使用")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "店铺编号，不填表示增加所有店铺，填了表示增加指定店铺", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "check", value = "特权账号编号", required = true, paramType = "path", dataType = "String")
-    })
-    @PutMapping(value = "/stores/smsQuantity/{check}")
-    public CommonResponse increaseSMSQuantity(@RequestParam(value = "id", required = false) Integer id,
-                                              @PathVariable(value = "check") String check) {
-        return storeService.increaseSMSQuantity(new Store(id), check);
-    }
-
-    /**
      * 查询店铺接口
      * @param page
      * @param pageSize

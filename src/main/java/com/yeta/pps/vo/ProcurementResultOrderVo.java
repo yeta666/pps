@@ -101,6 +101,13 @@ public class ProcurementResultOrderVo {
         this.remark = remark;
     }
 
+    public ProcurementResultOrderVo(Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id, Byte type) {
+        this.storeId = storeId;
+        this.procurementApplyOrderVo = procurementApplyOrderVo;
+        this.id = id;
+        this.type = type;
+    }
+
     public ProcurementResultOrderVo(Integer storeId, ProcurementApplyOrderVo procurementApplyOrderVo, String id, Byte type, Integer flag) {
         this.storeId = storeId;
         this.procurementApplyOrderVo = procurementApplyOrderVo;

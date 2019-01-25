@@ -98,6 +98,8 @@ public class GoodsWarehouseSkuVo {
      */
     private Integer inventoryLowLimit;
 
+    private String remark;
+
     /**
      * 缺货数量
      */
@@ -327,6 +329,14 @@ public class GoodsWarehouseSkuVo {
 
     public void setInventoryLowLimit(Integer inventoryLowLimit) {
         this.inventoryLowLimit = inventoryLowLimit;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public Integer getNeedQuantity() {

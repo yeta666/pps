@@ -37,6 +37,11 @@ public class SMSHistory {
     private String clientPhone;
 
     /**
+     * 短信模板ID
+     */
+    private String templateCode;
+
+    /**
      * 发送时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -53,7 +58,6 @@ public class SMSHistory {
     /**
      * 内容
      */
-    @NotBlank(message = CommonResponse.PARAMETER_ERROR)
     private String content;
 
     /**
@@ -124,6 +128,14 @@ public class SMSHistory {
         this.clientPhone = clientPhone;
     }
 
+    public String getTemplateCode() {
+        return templateCode;
+    }
+
+    public void setTemplateCode(String templateCode) {
+        this.templateCode = templateCode;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
@@ -181,6 +193,7 @@ public class SMSHistory {
                 ", clientId='" + clientId + '\'' +
                 ", clientName='" + clientName + '\'' +
                 ", clientPhone='" + clientPhone + '\'' +
+                ", templateCode='" + templateCode + '\'' +
                 ", createTime=" + createTime +
                 ", userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +

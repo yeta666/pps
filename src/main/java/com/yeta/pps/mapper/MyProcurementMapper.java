@@ -27,6 +27,8 @@ public interface MyProcurementMapper {
     List<ProcurementApplyOrderVo> findAllPagedApplyOrder(@Param("procurementApplyOrderVo") ProcurementApplyOrderVo procurementApplyOrderVo,
                                                          @Param("pageVo") PageVo pageVo);
 
+    List<ProcurementApplyOrderVo> findAllApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
+
     ProcurementApplyOrder findApplyOrderById(ProcurementApplyOrderVo procurementApplyOrderVo);
 
     List<ProcurementApplyOrderVo> findAllApplyOrderDetail(ProcurementApplyOrderVo procurementApplyOrderVo);
@@ -43,6 +45,8 @@ public interface MyProcurementMapper {
 
     List<ProcurementResultOrderVo> findAllPagedResultOrder(@Param("procurementResultOrderVo") ProcurementResultOrderVo procurementResultOrderVo,
                                                            @Param("pageVo") PageVo pageVo);
+
+    List<ProcurementResultOrderVo> findAllResultOrder(ProcurementResultOrderVo procurementResultOrderVo);
 
     ProcurementResultOrderVo findResultOrderDetailById(ProcurementResultOrderVo procurementResultOrderVo);
 

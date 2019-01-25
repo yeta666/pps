@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -231,16 +232,16 @@ public class InventoryUtil {
         vo.setGoodsId(goodsSku.getGoodsId());
 
         vo.setCheckQuantity(changeQuantity);
-        vo.setCheckMoney(changeMoney);
-        vo.setCheckTotalMoney(changeTotalMoney);
+        vo.setCheckMoney(new BigDecimal(changeMoney).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        vo.setCheckTotalMoney(new BigDecimal(changeTotalMoney).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
         vo.setCheckQuantity1(changeQuantity1);
-        vo.setCheckMoney1(changeMoney1);
-        vo.setCheckTotalMoney1(changeTotalMoney1);
+        vo.setCheckMoney1(new BigDecimal(changeMoney1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        vo.setCheckTotalMoney1(new BigDecimal(changeTotalMoney1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
         vo.setCheckQuantity2(changeQuantity2);
-        vo.setCheckMoney2(changeMoney2);
-        vo.setCheckTotalMoney2(changeTotalMoney2);
+        vo.setCheckMoney2(new BigDecimal(changeMoney2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        vo.setCheckTotalMoney2(new BigDecimal(changeTotalMoney2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
         if (myStorageMapper.addStorageCheckOrder(vo) != 1) {
             throw new CommonException(CommonResponse.INVENTORY_ERROR);

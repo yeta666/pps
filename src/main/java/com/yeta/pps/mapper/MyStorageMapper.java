@@ -46,6 +46,8 @@ public interface MyStorageMapper {
     List<StorageOrderVo> findAllPagedStorageOrder(@Param(value = "vo") StorageOrderVo storageOrderVo,
                                                   @Param(value = "pageVo") PageVo pageVo);
 
+    List<StorageOrderVo> findAllStorageOrder(StorageOrderVo storageOrderVo);
+
     StorageOrderVo findStorageOrderById(StorageOrderVo storageOrderVo);
 
     List<String> findStorageOrderPrimaryKey(StorageOrderVo storageOrderVo);
@@ -60,6 +62,8 @@ public interface MyStorageMapper {
 
     List<StorageResultOrderVo> findAllPagedStorageResultOrder(@Param(value = "vo") StorageResultOrderVo storageResultOrderVo,
                                                               @Param(value = "pageVo") PageVo pageVo);
+
+    List<StorageResultOrderVo> findAllStorageResultOrder(StorageResultOrderVo storageResultOrderVo);
 
     List<StorageResultOrderVo> findAllStorageResultOrderDetail(StorageResultOrderVo storageResultOrderVo);
 

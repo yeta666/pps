@@ -61,9 +61,9 @@
         update
                 procurement_apply_order_${storeId}
         set in_total_quantity        = #{inTotalQuantity},
-            in_not_received_quantity = #{inNotReceivedQuantity},
+            in_not_received_quantity = #{inTotalQuantity},
             out_total_quantity       = #{outTotalQuantity},
-            out_not_sent_quantity    = #{outNotSentQuantity},
+            out_not_sent_quantity    = #{outTotalQuantity},
             total_money              = #{totalMoney},
             total_discount_money     = #{totalDiscountMoney},
             order_money              = #{orderMoney},
@@ -109,10 +109,8 @@
         select
         count(0)
         from
-        (
         procurement_apply_order_${storeId} as pao
         left join supplier_${storeId} as s on pao.supplier_id = s.id
-        )
         left join user_${storeId} as u on pao.user_id = u.id
         where pao.type = #{type}
         <if test="id != null">
@@ -134,7 +132,7 @@
         pao.result_order_id,
         pao.order_status,
         pao.clear_status,
-        s.id as supplier_id,
+        pao.id as supplier_id,
         s.name as supplier_name,
         pao.in_warehouse_id,
         pao.in_total_quantity,
@@ -152,10 +150,8 @@
         u.name as user_name,
         pao.remark
         from
-        (
         procurement_apply_order_${procurementApplyOrderVo.storeId} as pao
         left join supplier_${procurementApplyOrderVo.storeId} as s on pao.supplier_id = s.id
-        )
         left join user_${procurementApplyOrderVo.storeId} as u on pao.user_id = u.id
         where pao.type = #{procurementApplyOrderVo.type}
         <if test="procurementApplyOrderVo.id != null">
@@ -170,6 +166,49 @@
         </if>
         order by pao.create_time desc
         limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo"
+            resultType="com.yeta.pps.vo.ProcurementApplyOrderVo">
+        select
+        pao.id,
+        pao.type,
+        pao.create_time,
+        pao.result_order_id,
+        pao.order_status,
+        pao.clear_status,
+        pao.id as supplier_id,
+        s.name as supplier_name,
+        pao.in_warehouse_id,
+        pao.in_total_quantity,
+        pao.in_received_quantity,
+        pao.in_not_received_quantity,
+        pao.out_warehouse_id,
+        pao.out_total_quantity,
+        pao.out_sent_quantity,
+        pao.out_not_sent_quantity,
+        pao.total_money,
+        pao.total_discount_money,
+        pao.order_money,
+        pao.cleared_money,
+        pao.not_cleared_money,
+        u.name as user_name,
+        pao.remark
+        from
+        procurement_apply_order_${storeId} as pao
+        left join supplier_${storeId} as s on pao.supplier_id = s.id
+        left join user_${storeId} as u on pao.user_id = u.id
+        where pao.type = #{type}
+        <if test="id != null">
+            and pao.id = #{id}
+        </if>
+        <if test="supplierName != null">
+            and s.name like concat('%', #{supplierName}, '%')
+        </if>
+        <if test="startTime != null and endTime != null">
+            and date(pao.create_time) between #{startTime} and #{endTime}
+        </if>
+        order by pao.create_time desc;
     </select>
 
     <select id="findApplyOrderById" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo"
@@ -425,13 +464,9 @@
         pao.in_warehouse_id,
         pao.out_warehouse_id
         from
-        (
-        (
         procurement_result_order_${procurementResultOrderVo.storeId} as pro
         left join procurement_apply_order_${procurementResultOrderVo.storeId} as pao on pro.apply_order_id = pao.id
-        )
         left join supplier_${procurementResultOrderVo.storeId} as s on pao.supplier_id = s.id
-        )
         left join user_${procurementResultOrderVo.storeId} as u on pro.user_id = u.id
         where
         1 = 1
@@ -455,6 +490,49 @@
         pro.create_time desc
         limit
         #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllResultOrder" parameterType="com.yeta.pps.vo.ProcurementResultOrderVo"
+            resultMap="procurementResultOrderVoMap">
+        select
+        pro.id,
+        pro.type,
+        pro.create_time,
+        pro.apply_order_id,
+        pro.order_status,
+        pro.total_quantity,
+        pro.total_money,
+        pro.total_discount_money,
+        pro.order_money,
+        u.name as user_name,
+        pro.remark,
+        pao.clear_status as pao_clear_status,
+        s.id as supplier_id,
+        s.name as supplier_name,
+        pao.in_warehouse_id,
+        pao.out_warehouse_id
+        from
+        procurement_result_order_${storeId} as pro
+        left join procurement_apply_order_${storeId} as pao on pro.apply_order_id = pao.id
+        left join supplier_${storeId} as s on pao.supplier_id = s.id
+        left join user_${storeId} as u on pro.user_id = u.id
+        where
+        1 = 1
+        <if test="id != null">
+            and pro.id = #{id}
+        </if>
+        <if test="type != null">
+            and pro.type = #{type}
+        </if>
+        <if test="procurementApplyOrderVo.supplierName != null">
+            and s.name like concat('%', #{procurementApplyOrderVo.supplierName}, '%')
+        </if>
+        <if test="procurementApplyOrderVo.startTime != null and procurementApplyOrderVo.endTime != null">
+            and date(pro.create_time) between #{procurementApplyOrderVo.startTime} and
+            #{procurementApplyOrderVo.endTime}
+        </if>
+        order by
+        pro.create_time desc;
     </select>
 
     <resultMap id="procurementResultOrderVoMap2" type="com.yeta.pps.vo.ProcurementResultOrderVo">

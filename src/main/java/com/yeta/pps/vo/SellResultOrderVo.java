@@ -115,6 +115,13 @@ public class SellResultOrderVo {
         this.remark = remark;
     }
 
+    public SellResultOrderVo(Integer storeId, SellApplyOrderVo sellApplyOrderVo, String id, Byte type) {
+        this.storeId = storeId;
+        this.sellApplyOrderVo = sellApplyOrderVo;
+        this.id = id;
+        this.type = type;
+    }
+
     public SellResultOrderVo(Integer storeId, SellApplyOrderVo sellApplyOrderVo, String id, Byte type, Integer flag) {
         this.storeId = storeId;
         this.sellApplyOrderVo = sellApplyOrderVo;

@@ -3,8 +3,8 @@
 <mapper namespace="com.yeta.pps.mapper.StoreMapper">
 
     <insert id="add" parameterType="com.yeta.pps.po.Store" useGeneratedKeys="true" keyProperty="id">
-        insert into store (name, address, client_id, sms_quantity)
-        values (#{name}, #{address}, #{clientId}, 0);
+        insert into store (name, address, client_id)
+        values (#{name}, #{address}, #{clientId});
     </insert>
 
     <delete id="delete" parameterType="com.yeta.pps.po.Store">
@@ -20,24 +20,6 @@
         where id = #{id};
     </update>
 
-    <update id="increaseSMSQuantity">
-        update store
-        set sms_quantity = sms_quantity + #{smsQuantity};
-    </update>
-
-    <update id="increaseSMSQuantityById" parameterType="com.yeta.pps.po.Store">
-        update store
-        set sms_quantity = sms_quantity + #{smsQuantity}
-        where id = #{id};
-    </update>
-
-    <update id="decreaseSMSQuantityById" parameterType="com.yeta.pps.po.Store">
-        update store
-        set sms_quantity = sms_quantity - #{smsQuantity}
-        where id = #{id}
-          and sms_quantity - #{smsQuantity} &gt;= 0;
-    </update>
-
     <select id="findCount" resultType="java.lang.Integer">
         select count(0)
         from store as s
@@ -51,15 +33,14 @@
                s.client_id,
                c.name              as client_name,
                c.phone             as client_phone,
-               c.membership_number as client_membership_number,
-               s.sms_quantity
+               c.membership_number as client_membership_number
         from store as s
                  inner join client as c on c.id = s.client_id
         limit #{start}, #{pageSize};
     </select>
 
     <select id="findAll" resultType="com.yeta.pps.po.Store">
-        select id, name, address, client_id, sms_quantity
+        select id, name, address, client_id
         from store;
     </select>
 
@@ -70,8 +51,7 @@
                s.client_id,
                c.name              as client_name,
                c.phone             as client_phone,
-               c.membership_number as client_membership_number,
-               s.sms_quantity
+               c.membership_number as client_membership_number
         from store as s
                  inner join client as c on c.id = s.client_id
         where s.id = #{id};

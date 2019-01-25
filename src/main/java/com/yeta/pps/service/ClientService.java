@@ -60,8 +60,7 @@ public class ClientService {
             return CommonResponse.error(CommonResponse.LOGIN_ERROR, "该用户已禁用");
         }
 
-        clientVo.setId(client.getId());
-        return CommonResponse.success(clientVo);
+        return CommonResponse.success(client);
     }
 
 

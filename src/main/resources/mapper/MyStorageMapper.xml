@@ -547,6 +547,72 @@
         #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
+    <select id="findAllStorageOrder" parameterType="com.yeta.pps.vo.StorageOrderVo"
+            resultType="com.yeta.pps.vo.StorageOrderVo">
+        SELECT
+        so.id,
+        so.type,
+        so.create_time,
+        so.apply_order_id,
+        IF (pao.supplier_id IS NOT NULL, pao.supplier_id, sao.client_id ) AS target_id,
+        IF (s.name IS NOT NULL, s.name, c.name) AS target_name,
+        IF (s.contact_number IS NOT NULL, s.contact_number, c.phone) AS targetPhone,
+        <if test="flag == 1">
+            IF (pao.in_warehouse_id IS NOT NULL, pao.in_warehouse_id, sao.in_warehouse_id) AS warehouse_id,
+        </if>
+        <if test="flag == 0">
+            IF (pao.out_warehouse_id IS NOT NULL, pao.out_warehouse_id, sao.out_warehouse_id) AS warehouse_id,
+        </if>
+        w.name AS warehouse_name,
+        so.quantity,
+        so.logistics_company,
+        so.waybill_number,
+        so.user_id,
+        u.name AS user_name,
+        so.remark
+        FROM
+        storage_order_${storeId} AS so
+        LEFT JOIN procurement_apply_order_${storeId} AS pao ON pao.id = so.apply_order_id
+        LEFT JOIN supplier_${storeId} AS s ON s.id = pao.supplier_id
+        LEFT JOIN sell_apply_order_${storeId} AS sao ON sao.id = so.apply_order_id
+        LEFT JOIN client AS c ON c.id = sao.client_id
+        <if test="flag == 1">
+            LEFT JOIN warehouse_${storeId} AS w ON (
+            w.id = pao.in_warehouse_id
+            OR w.id = sao.in_warehouse_id
+            )
+        </if>
+        <if test="flag == 0">
+            LEFT JOIN warehouse_${storeId} AS w ON (
+            w.id = pao.out_warehouse_id
+            OR w.id = sao.out_warehouse_id
+            )
+        </if>
+        LEFT JOIN user_${storeId} AS u ON u.id = so.user_id
+        WHERE
+        1 = 1
+        <if test="startTime != null and endTime != null">
+            AND DATE(so.create_time) BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="targetName != null">
+            AND s.name LIKE concat('%', #{targetName}, '%') OR c.name LIKE concat('%', #{targetName}, '%')
+        </if>
+        <if test="warehouseId != null and flag == 1">
+            AND pao.in_warehouse_id = #{warehouseId} OR sao.in_warehouse_id = #{warehouseId}
+        </if>
+        <if test="warehouseId != null and flag == 0">
+            AND pao.out_warehouse_id = #{warehouseId} OR sao.out_warehouse_id = #{warehouseId}
+        </if>
+        <if test="flag == 1">
+            AND so.type IN (1, 2)
+        </if>
+        <if test="flag == 0">
+            AND so.type IN (3, 4)
+        </if>
+        ORDER BY
+        so.create_time DESC;
+    </select>
+
     <select id="findStorageOrderById" parameterType="com.yeta.pps.vo.StorageOrderVo"
             resultType="com.yeta.pps.vo.StorageOrderVo">
         select id,
@@ -618,16 +684,10 @@
         select
         count(0)
         from
-        (
-        (
-        (
         storage_result_order_${storeId} as sro
         left join warehouse_${storeId} as w on sro.warehouse_id = w.id
-        )
         left join user_${storeId} as u on sro.user_id = u.id
-        )
         left join supplier_${storeId} as s on sro.target_id = s.id
-        )
         left join client as c on sro.target_id = c.id
         where sro.type = #{type}
         <if test="id != null">
@@ -657,19 +717,13 @@
         sro.total_out_quantity,
         sro.total_out_money,
         sro.user_id,
-        u.name as u_name,
+        u.name as user_name,
         sro.remark
         from
-        (
-        (
-        (
         storage_result_order_${vo.storeId} as sro
         left join warehouse_${vo.storeId} as w on sro.warehouse_id = w.id
-        )
         left join user_${vo.storeId} as u on sro.user_id = u.id
-        )
         left join supplier_${vo.storeId} as s on sro.target_id = s.id
-        )
         left join client as c on sro.target_id = c.id
         where sro.type = #{vo.type}
         <if test="vo.id != null">
@@ -680,6 +734,42 @@
         </if>
         order by sro.create_time desc
         limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo" resultType="com.yeta.pps.vo.StorageResultOrderVo">
+        select
+        sro.id,
+        sro.type,
+        sro.create_time,
+        sro.order_status,
+        sro.target_id,
+        if (c.name is not null, c.name, s.name) as target_name,
+        sro.warehouse_id,
+        w.name as warehouse_name,
+        sro.total_quantity,
+        sro.total_money,
+        sro.total_check_quantity,
+        sro.total_in_quantity,
+        sro.total_in_money,
+        sro.total_out_quantity,
+        sro.total_out_money,
+        sro.user_id,
+        u.name as user_name,
+        sro.remark
+        from
+        storage_result_order_${storeId} as sro
+        left join warehouse_${storeId} as w on sro.warehouse_id = w.id
+        left join user_${storeId} as u on sro.user_id = u.id
+        left join supplier_${storeId} as s on sro.target_id = s.id
+        left join client as c on sro.target_id = c.id
+        where sro.type = #{type}
+        <if test="id != null">
+            and sro.id = #{id}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and date(sro.create_time) between #{startTime} and #{endTime}
+        </if>
+        order by sro.create_time desc;
     </select>
 
     <resultMap id="storageResultOrderVoMap" type="com.yeta.pps.vo.StorageResultOrderVo">
@@ -699,7 +789,7 @@
         <result column="total_out_quantity" property="totalOutQuantity"/>
         <result column="total_out_money" property="totalOutMoney"/>
         <result column="user_id" property="userId"/>
-        <result column="u_name" property="userName"/>
+        <result column="user_name" property="userName"/>
         <result column="remark" property="remark"/>
         <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
             <result column="ogs_id" property="id"/>
@@ -744,7 +834,7 @@
         sro.total_out_quantity,
         sro.total_out_money,
         sro.user_id,
-        u.name as u_name,
+        u.name as user_name,
         sro.remark,
         ogs.id as ogs_id,
         ogs.type as ogs_type,
@@ -1452,8 +1542,8 @@
         wgs.book_inventory,
         wgs.inventory_upper_limit,
         wgs.inventory_low_limit,
-        wgs.inventory_low_limit + wgs.not_sent_quantity - wgs.real_inventory - wgs.not_received_quantity as
-        need_quantity,
+        if (wgs.book_inventory &gt;= wgs.inventory_upper_limit, '库存高于上限', if (wgs.book_inventory &lt;= wgs.inventory_low_limit, '库存低于下限', null)) as remark,
+        wgs.inventory_low_limit + wgs.not_sent_quantity - wgs.real_inventory - wgs.not_received_quantity as need_quantity,
         wgs.opening_quantity,
         wgs.opening_money,
         wgs.opening_total_money

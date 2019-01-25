@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -208,8 +211,9 @@ public class FundService {
         Integer storeId = fundOrderVo.getStoreId();
         String targetId = fundOrderVo.getTargetId();
         double money = fundOrderVo.getMoney();
-        double advanceMoney = fundOrderVo.getAdvanceMoney();
-        double discountMoney = fundOrderVo.getDiscountMoney();
+        double advanceMoney;
+        double discountMoney;
+        double orderMoney;
         byte type = fundOrderVo.getType();
 
         //判断系统是否开账
@@ -252,7 +256,14 @@ public class FundService {
         switch (type) {
             case 1:     //收款单
                 //判断参数
-                if (fundOrderVo.getOrderId() == null) {
+                if (fundOrderVo.getOrderId() == null || fundOrderVo.getAdvanceMoney() == null || fundOrderVo.getDiscountMoney() == null) {
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
+                }
+
+                advanceMoney = fundOrderVo.getAdvanceMoney();
+                discountMoney = fundOrderVo.getDiscountMoney();
+                orderMoney = money + discountMoney + advanceMoney;
+                if (orderMoney == 0) {
                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
@@ -281,15 +292,29 @@ public class FundService {
                 if (advanceMoney != 0 && (lastFTCOVo == null || lastFTCOVo.getAdvanceInMoney() < advanceMoney)) {
                     throw new CommonException(CommonResponse.ADD_ERROR, "使用预收款金额错误");
                 }
-                ftcoVo.setNeedInMoneyDecrease(money + discountMoney + advanceMoney);       //设置应收减少
-                if (lastFTCOVo == null) {
-                    ftcoVo.setNeedInMoney(-ftcoVo.getNeedInMoneyDecrease());       //设置期末应收
-                } else {
-                    ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() - ftcoVo.getNeedInMoneyDecrease());       //设置期末应收
-                }
-                if (advanceMoney != 0) {
-                    ftcoVo.setAdvanceInMoneyDecrease(advanceMoney);     //设置预收减少
-                    ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() - ftcoVo.getAdvanceInMoneyDecrease());      //设置期末预收
+
+                if (orderMoney > 0) {
+                    ftcoVo.setNeedInMoneyDecrease(orderMoney);       //设置应收减少
+                    if (lastFTCOVo == null) {
+                        ftcoVo.setNeedInMoney(-ftcoVo.getNeedInMoneyDecrease());       //设置期末应收
+                    } else {
+                        ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() - ftcoVo.getNeedInMoneyDecrease());       //设置期末应收
+                    }
+                    if (advanceMoney != 0) {
+                        ftcoVo.setAdvanceInMoneyDecrease(advanceMoney);     //设置预收减少
+                        ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() - ftcoVo.getAdvanceInMoneyDecrease());      //设置期末预收
+                    }
+                } else if (orderMoney < 0){
+                    ftcoVo.setNeedInMoneyIncrease(-orderMoney);       //设置应收增加
+                    if (lastFTCOVo == null) {
+                        ftcoVo.setNeedInMoney(ftcoVo.getNeedInMoneyIncrease());       //设置期末应收
+                    } else {
+                        ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());       //设置期末应收
+                    }
+                    if (advanceMoney != 0) {
+                        ftcoVo.setAdvanceInMoneyIncrease(-advanceMoney);     //设置预收增加
+                        ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney() + ftcoVo.getAdvanceInMoneyIncrease());      //设置期末预收
+                    }
                 }
 
                 adVo.setOrderId(fundOrderVo.getId());
@@ -311,13 +336,20 @@ public class FundService {
                 }
                 adVo.setSubjectId("1122");
                 adVo.setDebitMoney(0.0);
-                adVo.setCreditMoney(money + discountMoney + advanceMoney);
+                adVo.setCreditMoney(orderMoney);
                 financialAffairsUtil.addAccountingDocumentMethod(adVo);
                 break;
 
             case 2:     //付款单
                 //判断参数
-                if (fundOrderVo.getOrderId() == null) {
+                if (fundOrderVo.getOrderId() == null || fundOrderVo.getAdvanceMoney() == null || fundOrderVo.getDiscountMoney() == null) {
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
+                }
+
+                advanceMoney = fundOrderVo.getAdvanceMoney();
+                discountMoney = fundOrderVo.getDiscountMoney();
+                orderMoney = money + discountMoney + advanceMoney;
+                if (orderMoney == 0) {
                     throw new CommonException(CommonResponse.PARAMETER_ERROR);
                 }
 
@@ -347,15 +379,28 @@ public class FundService {
                 if (advanceMoney != 0 && (lastFTCOVo == null || lastFTCOVo.getAdvanceOutMoney() < advanceMoney)) {
                     throw new CommonException(CommonResponse.ADD_ERROR, "使用预付款金额错误");
                 }
-                ftcoVo.setNeedOutMoneyDecrease(money + discountMoney + advanceMoney);      //设置应付减少
-                if (lastFTCOVo == null) {
-                    ftcoVo.setNeedOutMoney(-ftcoVo.getNeedOutMoneyDecrease());        //设置期末应付
-                } else {
-                    ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() - ftcoVo.getNeedOutMoneyDecrease());        //设置期末应付
-                }
-                if (advanceMoney != 0) {
-                    ftcoVo.setAdvanceOutMoneyDecrease(advanceMoney);        //设置预付减少
-                    ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() - lastFTCOVo.getAdvanceOutMoneyDecrease());       //设置期末预付
+                if (orderMoney > 0) {
+                    ftcoVo.setNeedOutMoneyDecrease(orderMoney);      //设置应付减少
+                    if (lastFTCOVo == null) {
+                        ftcoVo.setNeedOutMoney(-ftcoVo.getNeedOutMoneyDecrease());        //设置期末应付
+                    } else {
+                        ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() - ftcoVo.getNeedOutMoneyDecrease());        //设置期末应付
+                    }
+                    if (advanceMoney != 0) {
+                        ftcoVo.setAdvanceOutMoneyDecrease(advanceMoney);        //设置预付减少
+                        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() - lastFTCOVo.getAdvanceOutMoneyDecrease());       //设置期末预付
+                    }
+                } else if (orderMoney < 0) {
+                    ftcoVo.setNeedOutMoneyIncrease(-orderMoney);      //设置应付增加
+                    if (lastFTCOVo == null) {
+                        ftcoVo.setNeedOutMoney(ftcoVo.getNeedOutMoneyIncrease());        //设置期末应付
+                    } else {
+                        ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());        //设置期末应付
+                    }
+                    if (advanceMoney != 0) {
+                        ftcoVo.setAdvanceOutMoneyIncrease(-advanceMoney);        //设置预付增加
+                        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() + lastFTCOVo.getAdvanceOutMoneyIncrease());       //设置期末预付
+                    }
                 }
 
                 adVo.setOrderId(fundOrderVo.getId());
@@ -376,7 +421,7 @@ public class FundService {
                     financialAffairsUtil.addAccountingDocumentMethod(adVo);
                 }
                 adVo.setSubjectId("2202");
-                adVo.setDebitMoney(money + discountMoney + advanceMoney);
+                adVo.setDebitMoney(orderMoney);
                 adVo.setCreditMoney(0.0);
                 financialAffairsUtil.addAccountingDocumentMethod(adVo);
                 break;
@@ -561,7 +606,7 @@ public class FundService {
 
 
     /**
-     * 根据type查询所有收/付款单、预收/付款单
+     * 根据type查询收/付款单、预收/付款单
      * @param fundOrderVo
      * @param pageVo
      * @return
@@ -577,7 +622,8 @@ public class FundService {
         titles.add(new Title("单据编号", "id"));
         titles.add(new Title("单据类型", "type"));
         titles.add(new Title("单据日期", "createTime"));
-        titles.add(new Title("往来单位", "targetName"));
+        titles.add(new Title("往来单位编号", "targetId"));
+        titles.add(new Title("往来单位名称", "targetName"));
         byte type = fundOrderVo.getType();
         if (type == 1 || type == 2) {
             titles.add(new Title("结算单据编号", "orderId"));
@@ -585,12 +631,82 @@ public class FundService {
             titles.add(new Title("使用预收/付款", "advanceMoney"));
         }
         titles.add(new Title("金额", "money"));
-        titles.add(new Title("银行账户", "bankAccount"));
+        titles.add(new Title("银行账户编号", "bankAccountId"));
+        titles.add(new Title("银行账户名称", "bankAccount"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, fundOrderVos, pageVo);
 
         return CommonResponse.success(commonResult);
+    }
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    /**
+     * 根据type导出收/付款单、预收/付款单
+     * @param fundOrderVo
+     * @param response
+     */
+    public void exportFundOrder(FundOrderVo fundOrderVo, HttpServletResponse response) {
+        try {
+            //获取参数
+            Byte type = fundOrderVo.getType();
+
+            //根据条件查询单据
+            List<FundOrderVo> vos = myFundMapper.findAllFundOrder(fundOrderVo);
+
+            //备注
+            String remark = "【筛选条件】" +
+                    "\n单据编号：" + (fundOrderVo.getId() == null ? "无" : fundOrderVo.getId()) +
+                    " 开始时间：" + (fundOrderVo.getStartTime() == null ? "无" : fundOrderVo.getStartTime()) +
+                    " 结束时间：" + (fundOrderVo.getEndTime() == null ? "无" : fundOrderVo.getEndTime()) +
+                    " 往来单位名称：" + (fundOrderVo.getTargetName() == null ? "无" : fundOrderVo.getTargetName());
+
+            //标题行
+            List<String> titleRowCell1 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "往来单位编号", "往来单位名称", "被结算单据", "优惠金额", "使用预收/付款", "金额", "银行账户编号", "银行账户名称", "经手人", "备注"
+            });
+
+            List<String> titleRowCell2 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "往来单位编号", "往来单位名称", "金额", "银行账户编号", "银行账户名称", "经手人", "备注"
+            });
+
+            //最后一个必填列列数
+            int lastRequiredCol = -1;
+
+            String typeName = type == 1 ? "收款单" : type == 2 ? "付款单" : type == 3 ? "预收款单" : type == 4 ? "预付款单" : null;
+
+            //数据行
+            List<List<String>> dataRowCells = new ArrayList<>();
+            vos.stream().forEach(vo -> {
+                List<String> dataRowCell = new ArrayList<>();
+                dataRowCell.add(vo.getId());
+                dataRowCell.add(typeName);
+                dataRowCell.add(sdf.format(vo.getCreateTime()));
+                dataRowCell.add(vo.getTargetId());
+                dataRowCell.add(vo.getTargetName());
+                if (type == 1 || type == 2) {
+                    dataRowCell.add(vo.getOrderId());
+                    dataRowCell.add(vo.getDiscountMoney().toString());
+                    dataRowCell.add(vo.getAdvanceMoney().toString());
+                }
+                dataRowCell.add(vo.getMoney().toString());
+                dataRowCell.add(vo.getBankAccountId());
+                dataRowCell.add(vo.getBankAccount());
+                dataRowCell.add(vo.getUserName());
+                dataRowCell.add(vo.getRemark());
+                if (vo.getOrderStatus() < 1) {
+                    dataRowCell.add(vo.getOrderStatus() == -1 ? "红冲蓝单" : vo.getOrderStatus() == -2 ? "红冲红单" : null);
+                }
+                dataRowCells.add(dataRowCell);
+            });
+
+            //输出excel
+            String fileName = "【" + typeName + "导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, type == 1 || type == 2 ? titleRowCell1 : titleRowCell2, lastRequiredCol, dataRowCells, fileName, response);
+        } catch (Exception e) {
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
+        }
     }
 
     //期初设置
@@ -747,22 +863,21 @@ public class FundService {
      * @param pageVo
      * @return
      */
-    public CommonResponse findSumFundCheckOrder(FundCheckOrderVo fundCheckOrderVo, PageVo pageVo) {
+    public CommonResponse findFundCheckOrderBalanceMoney(FundCheckOrderVo fundCheckOrderVo, PageVo pageVo) {
         //查询所有页数
-        BankAccountVo bankAccountVo = new BankAccountVo(fundCheckOrderVo.getStoreId());
-        pageVo.setTotalPage((int) Math.ceil(myBankAccountMapper.findCount(bankAccountVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setTotalPage((int) Math.ceil(myFundMapper.findCountFundCheckOrderBalanceMoney(fundCheckOrderVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        List<BankAccountVo> bankAccountVos = myBankAccountMapper.findAllPaged(bankAccountVo, pageVo);
+        List<BankAccountVo> vos = myFundMapper.findPagedFundCheckOrderBalanceMoney(fundCheckOrderVo, pageVo);
 
-        //补上金额
-        bankAccountVos.forEach(vo -> {
+        vos.stream().forEach(vo -> {
             fundCheckOrderVo.setBankAccountId(vo.getId());
-            FundCheckOrderVo fVo = myFundMapper.findSumFundCheckOrder(fundCheckOrderVo);
-            if (fVo != null) {
-                vo.setInMoney(fVo.getInMoney());
-                vo.setOutMoney(fVo.getOutMoney());
-                vo.setBalanceMoney(fVo.getBalanceMoney());
-            }
+            //期初金额
+            FundCheckOrderVo lastVo = myFundMapper.findFirstBalanceMoney(fundCheckOrderVo);
+            vo.setOpeningMoney(lastVo != null ? lastVo.getBalanceMoney() : 0);
+
+            //期末余额
+            lastVo = myFundMapper.findLastBalanceMoney(fundCheckOrderVo);
+            vo.setBalanceMoney(lastVo != null ? lastVo.getBalanceMoney() : 0);
         });
 
         //封装返回结果
@@ -773,7 +888,7 @@ public class FundService {
         titles.add(new Title("借方发生额", "inMoney"));
         titles.add(new Title("贷方发生额", "outMoney"));
         titles.add(new Title("期末余额", "balanceMoney"));
-        CommonResult commonResult = new CommonResult(titles, bankAccountVos, pageVo);
+        CommonResult commonResult = new CommonResult(titles, vos, pageVo);
         return CommonResponse.success(commonResult);
     }
 
@@ -794,7 +909,8 @@ public class FundService {
         titles.add(new Title("单据编号", "orderId"));
         titles.add(new Title("单据类型", "typeName"));
         titles.add(new Title("创建时间", "createTime"));
-        titles.add(new Title("往来单位", "targetName"));
+        titles.add(new Title("往来单位编号", "targetId"));
+        titles.add(new Title("往来单位名称", "targetName"));
         titles.add(new Title("结算单据", "applyOrderId"));
         titles.add(new Title("账户", "bankAccount"));
         titles.add(new Title("收入", "inMoney"));
@@ -1142,7 +1258,7 @@ public class FundService {
     }
 
     /**
-     * 查询其他收入单/费用单
+     * 根据type查询其他收入单/费用单
      * @param fundResultOrderVo
      * @param pageVo
      * @return
@@ -1156,15 +1272,80 @@ public class FundService {
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("单据编号", "id"));
-        titles.add(new Title("创建时间", "createTime"));
-        titles.add(new Title("往来单位", "targetName"));
-        titles.add(new Title("账户", "bankAccount"));
+        titles.add(new Title("单据日期", "createTime"));
+        titles.add(new Title("往来单位编号", "targetId"));
+        titles.add(new Title("往来单位名称", "targetName"));
+        titles.add(new Title("银行账户编号", "bankAccountId"));
+        titles.add(new Title("银行账户名称", "bankAccount"));
         titles.add(new Title("金额", "money"));
+        titles.add(new Title("收支编号", "incomeExpensesId"));
         titles.add(new Title("收支名称", "incomeExpenses"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, fundCheckOrderVos, pageVo);
 
         return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 根据type导出其他收入单/费用单
+     * @param fundResultOrderVo
+     * @param response
+     */
+    public void exportFundResultOrder(FundResultOrderVo fundResultOrderVo, HttpServletResponse response) {
+        try {
+            //获取参数
+            Byte type = fundResultOrderVo.getType();
+
+            //根据条件查询单据
+            List<FundResultOrderVo> vos = myFundMapper.findAllFundResultOrder(fundResultOrderVo);
+
+            //备注
+            String remark = "【筛选条件】" +
+                    "\n单据编号：" + (fundResultOrderVo.getId() == null ? "无" : fundResultOrderVo.getId()) +
+                    " 开始时间：" + (fundResultOrderVo.getStartTime() == null ? "无" : fundResultOrderVo.getStartTime()) +
+                    " 结束时间：" + (fundResultOrderVo.getEndTime() == null ? "无" : fundResultOrderVo.getEndTime()) +
+                    " 往来单位名称：" + (fundResultOrderVo.getTargetName() == null ? "无" : fundResultOrderVo.getTargetName()) +
+                    " 银行账户名称：" + (fundResultOrderVo.getBankAccountId() == null ? "无" : vos.get(0).getBankAccount()) +
+                    " 收支名称名称" + (fundResultOrderVo.getIncomeExpensesId() == null ? "无" : vos.get(0).getIncomeExpenses());
+
+            //标题行
+            List<String> titleRowCell = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "往来单位编号", "往来单位名称", "银行账户编号", "银行账户名称", "金额", "收支编号", "收支名称", "经手人", "备注"
+            });
+
+            //最后一个必填列列数
+            int lastRequiredCol = -1;
+
+            String typeName = type == 1 ? "其他收入单" : type == 2 ? "费用单" : null;
+
+            //数据行
+            List<List<String>> dataRowCells = new ArrayList<>();
+            vos.stream().forEach(vo -> {
+                List<String> dataRowCell = new ArrayList<>();
+                dataRowCell.add(vo.getId());
+                dataRowCell.add(typeName);
+                dataRowCell.add(sdf.format(vo.getCreateTime()));
+                dataRowCell.add(vo.getTargetId());
+                dataRowCell.add(vo.getTargetName());
+                dataRowCell.add(vo.getBankAccountId());
+                dataRowCell.add(vo.getBankAccount());
+                dataRowCell.add(vo.getMoney().toString());
+                dataRowCell.add(vo.getIncomeExpensesId());
+                dataRowCell.add(vo.getIncomeExpenses());
+                dataRowCell.add(vo.getUserName());
+                dataRowCell.add(vo.getRemark());
+                if (vo.getOrderStatus() < 1) {
+                    dataRowCell.add(vo.getOrderStatus() == -1 ? "红冲蓝单" : vo.getOrderStatus() == -2 ? "红冲红单" : null);
+                }
+                dataRowCells.add(dataRowCell);
+            });
+
+            //输出excel
+            String fileName = "【" + typeName + "导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
+        } catch (Exception e) {
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
+        }
     }
 }

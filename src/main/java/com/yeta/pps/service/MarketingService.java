@@ -1,21 +1,28 @@
 package com.yeta.pps.service;
 
+import com.alibaba.fastjson.JSON;
+import com.aliyuncs.CommonRequest;
+import com.aliyuncs.DefaultAcsClient;
+import com.aliyuncs.IAcsClient;
+import com.aliyuncs.exceptions.ClientException;
+import com.aliyuncs.exceptions.ServerException;
+import com.aliyuncs.http.MethodType;
+import com.aliyuncs.profile.DefaultProfile;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyClientMapper;
 import com.yeta.pps.mapper.MyMarketingMapper;
 import com.yeta.pps.mapper.StoreMapper;
 import com.yeta.pps.mapper.SystemMapper;
 import com.yeta.pps.po.*;
-import com.yeta.pps.util.CommonResponse;
-import com.yeta.pps.util.CommonResult;
-import com.yeta.pps.util.StoreClientUtil;
-import com.yeta.pps.util.Title;
+import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -301,6 +308,7 @@ public class MarketingService {
 
             //封装返回结果
             List<Title> titles = new ArrayList<>();
+            titles.add(new Title("短信模版编号", "id"));
             titles.add(new Title("标题", "title"));
             titles.add(new Title("内容", "content"));
             titles.add(new Title("类型", "typeName"));
@@ -317,66 +325,105 @@ public class MarketingService {
 
     //短信历史
 
+    //云通信产品-短信API服务产品名称（短信产品名固定，无需修改）
+    private static final String product = "Dysmsapi";
+
+    //云通信产品-短信API服务产品域名（接口地址固定，无需修改）
+    private static final String domain = "dysmsapi.aliyuncs.com";
+
+    //此处需要替换成开发者自己的AK信息
+    private static final String accessKeyId = "LTAImTG7N8qiSS6q";
+    private static final String accessKeySecret = "L5PixOObvJzxKPRhMcXSchfTFZ6yXA";
+
+    //短信签名
+    private static final String signName = "长沙应吾源头贸易有限公司";
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+
     /**
      * 发短信/新增短信历史
      * @param smsHistories
      * @return
      */
     @Transactional
-    public CommonResponse addSMSHistory(List<SMSHistory> smsHistories) {
+    public CommonResponse addSMSHistory(List<SMSHistory> smsHistories) throws ClientException {
         //查询所有客户
         List<ClientVo> clientVos = myClientMapper.findAll(new ClientVo());
 
         //判断参数
         smsHistories.stream().forEach(smsHistory -> {
-            if (smsHistory.getStoreId() == null || smsHistory.getClientId() == null || smsHistory.getUserId() == null || smsHistory.getContent() == null) {
+            if (smsHistory.getStoreId() == null || smsHistory.getClientId() == null || smsHistory.getTemplateCode() == null || smsHistory.getUserId() == null) {
                 throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
 
-            //过滤客户手机号
+            //过滤客户姓名、手机号
             Optional<ClientVo> optional = clientVos.stream().filter(clientVo -> clientVo.getId().equals(smsHistory.getClientId())).findFirst();
             if (!optional.isPresent()) {
                 throw new CommonException(CommonResponse.PARAMETER_ERROR, "客户编号错误");
             }
+            smsHistory.setClientName(optional.get().getName());
             smsHistory.setClientPhone(optional.get().getPhone());
         });
 
-        //判断是否能发送短息
-        SSystem sSystem = systemMapper.findSystem();
-        if (sSystem == null || sSystem.getSignature() == null) {
-            return CommonResponse.error(CommonResponse.ADD_ERROR, "短信签名未设置");
-        }
-        Integer smsQuantity = smsHistories.size();
-        if (sSystem.getSmsQuantity() < smsQuantity) {
-            return CommonResponse.error(CommonResponse.ADD_ERROR, "系统剩余短信条数不足");
-        }
-        Integer storeId = smsHistories.get(0).getStoreId();
-        StoreVo storeVo = storeMapper.findById(new Store(storeId));
-        if (storeVo == null || storeVo.getSmsQuantity() < smsQuantity) {
-            return CommonResponse.error(CommonResponse.ADD_ERROR, "店铺剩余短信条数不足");
-        }
+        //初始化ascClient
+        DefaultProfile profile = DefaultProfile.getProfile("default", accessKeyId, accessKeySecret);
+        IAcsClient client = new DefaultAcsClient(profile);
+
+        //组装请求对象
+        CommonRequest request = new CommonRequest();
+        request.setMethod(MethodType.POST);     //使用post提交
+        request.setDomain(domain);
+        request.setVersion("2017-05-25");
+        request.putQueryParameter("TemplateCode", smsHistories.get(0).getTemplateCode());     //短信模板ID
 
         //发短信
+        List<String> phoneNumbers = new ArrayList<>();
+        List<String> signNames = new ArrayList<>();
+        List<TemplateParam> templateParams = new ArrayList<>();
         smsHistories.stream().forEach(smsHistory -> {
-
-            smsHistory.setStatus((byte) 1);
-
-            smsHistory.setStatus((byte) 0);
-            smsHistory.setRemark(null);
-
-            //新增短信历史
-            myMarketingMapper.addSMSHistory(smsHistory);
+            phoneNumbers.add(smsHistory.getClientPhone());
+            signNames.add(signName);
+            templateParams.add(new TemplateParam(smsHistory.getClientName()));
         });
+        request.setAction("SendBatchSms");
+        request.putQueryParameter("PhoneNumberJson", JSON.toJSON(phoneNumbers).toString());       //短信接收号码
+        request.putQueryParameter("SignNameJson", JSON.toJSON(signNames).toString());      //短信签名
+        request.putQueryParameter("TemplateParamJson", JSON.toJSON(templateParams).toString());       //短信模板变量替换
 
-        //减少店铺剩余短信条数
-        if (storeMapper.decreaseSMSQuantityById(new Store(storeId, smsQuantity)) != 1) {
-            throw new CommonException(CommonResponse.ADD_ERROR, "减少店铺剩余短信条数失败");
+        //请求结果
+        com.aliyuncs.CommonResponse response = client.getCommonResponse(request);
+        SMSOut smsOut = JSON.parseObject(response.getData(), SMSOut.class);
+        if (smsOut.getCode() == null || !smsOut.getCode().equals("OK")) {
+            throw new CommonException(smsOut.getMessage());
         }
 
-        //减少系统剩余短信条数
-        if (systemMapper.decreaseSMSQuantity(new SSystem(storeId, smsQuantity)) != 1) {
-            throw new CommonException(CommonResponse.ADD_ERROR, "减少系统剩余短信条数失败");
-        }
+        request.setAction("QuerySendDetails");
+        smsHistories.stream().forEach(smsHistory -> {
+            request.putQueryParameter("PhoneNumber", smsHistory.getClientPhone());
+            request.putQueryParameter("BizId", smsOut.getBizId());
+            request.putQueryParameter("SendDate", sdf.format(new Date()));
+            request.putQueryParameter("PageSize", String.valueOf(10L));
+            request.putQueryParameter("CurrentPage", String.valueOf(1L));
+            try {
+                com.aliyuncs.CommonResponse response1 = client.getCommonResponse(request);
+                SMSOut smsOut1 = JSON.parseObject(response1.getData(), SMSOut.class);
+                if (smsOut1.getCode() != null && smsOut1.getCode().equals("OK")) {
+                    int sendStatus = smsOut1.getSmsSendDetailDTOs().get(0).getSendStatus().intValue();
+                    if (sendStatus == 1) {
+
+                    } else if (sendStatus == 2) {       //发送失败
+                        smsHistory.setStatus((byte) 0);
+                        smsHistory.setRemark(smsOut1.getSmsSendDetailDTOs().get(0).getErrCode());
+                    } else if (sendStatus == 3) {       //发送成功
+                        smsHistory.setStatus((byte) 1);
+                    }
+                    smsHistory.setContent(smsOut1.getSmsSendDetailDTOs().get(0).getContent());
+                    myMarketingMapper.addSMSHistory(smsHistory);
+                }
+            } catch (ClientException e) {
+                e.printStackTrace();
+            }
+        });
 
         return CommonResponse.success();
     }

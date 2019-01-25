@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,7 +115,7 @@ public class ProcurementController {
     }
 
     /**
-     * 根据type所有采购申请订单接口
+     * 根据type查询采购申请订单接口
      * @param storeId
      * @param supplierName
      * @param startTime
@@ -124,7 +125,7 @@ public class ProcurementController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查询所有采购申请订单", notes = "分页、筛选查询，其中supplierName为模糊查询，startTime和endTime要么都传，要么都不传，仓库查未收/发货传type和ordersStatus，资金查未收/付款传type和clearStatus")
+    @ApiOperation(value = "根据type查询采购申请订单", notes = "分页、筛选查询，其中supplierName为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "supplierName", value = "供应商名", required = false, paramType = "query", dataType = "String"),
@@ -145,6 +146,35 @@ public class ProcurementController {
                                                                                          @RequestParam(value = "page") Integer page,
                                                                                          @RequestParam(value = "pageSize") Integer pageSize) {
         return procurementService.findAllApplyOrder(new ProcurementApplyOrderVo(storeId, supplierName, startTime, endTime, id, type), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据type导出采购申请订单接口
+     * @param storeId
+     * @param supplierName
+     * @param startTime
+     * @param endTime
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "根据type导出采购申请订单", notes = "其中supplierName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "supplierName", value = "供应商名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "id", value = "采购申请订单编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "采购申请订单类型(1：采购订单，2：采购退货申请，3,：采购换货申请)", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/apply/export")
+    public void exportApplyOrder(@RequestParam(value = "storeId") Integer storeId,
+                                 @RequestParam(value = "supplierName", required = false) String supplierName,
+                                 @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                 @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                 @RequestParam(value = "id", required = false) String id,
+                                 @RequestParam(value = "type") Byte type,
+                                 HttpServletResponse response) {
+        procurementService.exportApplyOrder(new ProcurementApplyOrderVo(storeId, supplierName, startTime, endTime, id, type), response);
     }
 
     /**
@@ -190,7 +220,7 @@ public class ProcurementController {
     }
 
     /**
-     * 查询所有采购结果订单接口
+     * 查询采购结果订单接口
      * @param storeId
      * @param supplierName
      * @param startTime
@@ -202,7 +232,7 @@ public class ProcurementController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "查询所有采购结果订单", notes = "分页、筛选查询，其中supplierName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiOperation(value = "查询采购结果订单", notes = "分页、筛选查询，其中supplierName为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "supplierName", value = "供应商名", required = false, paramType = "query", dataType = "String"),
@@ -226,6 +256,37 @@ public class ProcurementController {
                                                                                            @RequestParam(value = "pageSize") Integer pageSize) {
         ProcurementApplyOrderVo procurementApplyOrderVo = new ProcurementApplyOrderVo(supplierName, startTime, endTime);
         return procurementService.findAllResultOrder(new ProcurementResultOrderVo(storeId, procurementApplyOrderVo, id, type, flag), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 导出采购结果订单接口
+     * @param storeId
+     * @param supplierName
+     * @param startTime
+     * @param endTime
+     * @param id
+     * @param type
+     * @param response
+     */
+    @ApiOperation(value = "导出采购结果订单", notes = "其中supplierName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "supplierName", value = "供应商名", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "id", value = "采购结果订单编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "类型", required = false, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/result/export")
+    public void exportResultOrder(@RequestParam(value = "storeId") Integer storeId,
+                                  @RequestParam(value = "supplierName", required = false) String supplierName,
+                                  @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                  @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                  @RequestParam(value = "id", required = false) String id,
+                                  @RequestParam(value = "type", required = false) Byte type,
+                                  HttpServletResponse response) {
+        ProcurementApplyOrderVo procurementApplyOrderVo = new ProcurementApplyOrderVo(supplierName, startTime, endTime);
+        procurementService.exportResultOrder(new ProcurementResultOrderVo(storeId, procurementApplyOrderVo, id, type), response);
     }
 
     /**

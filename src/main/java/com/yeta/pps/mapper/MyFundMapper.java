@@ -35,6 +35,8 @@ public interface MyFundMapper {
     List<FundOrderVo> findAllPagedFundOrder(@Param(value = "fundOrderVo") FundOrderVo fundOrderVo,
                                             @Param(value = "pageVo") PageVo pageVo);
 
+    List<FundOrderVo> findAllFundOrder(FundOrderVo fundOrderVo);
+
     List<FundOrderVo> findFundOrder(FundOrderVo fundOrderVo);
 
     List<String> findFundOrderPrimaryKey(FundOrderVo fundOrderVo);
@@ -45,7 +47,10 @@ public interface MyFundMapper {
 
     int redDashedFundCheckOrder(FundCheckOrderVo fundCheckOrderVo);
 
-    FundCheckOrderVo findSumFundCheckOrder(FundCheckOrderVo fundCheckOrderVo);
+    int findCountFundCheckOrderBalanceMoney(FundCheckOrderVo fundCheckOrderVo);
+
+    List<BankAccountVo> findPagedFundCheckOrderBalanceMoney(@Param(value = "vo") FundCheckOrderVo fundCheckOrderVo,
+                                                            @Param(value = "pageVo") PageVo pageVo);
 
     int findCountFundCheckOrder(FundCheckOrderVo fundCheckOrderVo);
 
@@ -55,6 +60,8 @@ public interface MyFundMapper {
     List<FundCheckOrderVo> findFundCheckOrderByOrderId(FundCheckOrderVo fundCheckOrderVo);
 
     FundCheckOrderVo findLastBalanceMoney(FundCheckOrderVo fundCheckOrderVo);
+
+    FundCheckOrderVo findFirstBalanceMoney(FundCheckOrderVo fundCheckOrderVo);
 
     List<FundCheckOrderVo> findAllFundCheckOrder(FundCheckOrderVo fundCheckOrderVo);
 
@@ -109,7 +116,11 @@ public interface MyFundMapper {
     List<FundCheckOrderVo> findAllPagedFundResultOrder(@Param(value = "vo") FundResultOrderVo fundResultOrderVo,
                                                        @Param(value = "pageVo") PageVo pageVo);
 
+    List<FundResultOrderVo> findAllFundResultOrder(FundResultOrderVo fundResultOrderVo);
+
     List<FundResultOrderVo> findFundResultOrder(FundResultOrderVo fundResultOrderVo);
 
     List<String> findFundResultOrderPrimaryKey(FundResultOrderVo fundResultOrderVo);
+
+
 }

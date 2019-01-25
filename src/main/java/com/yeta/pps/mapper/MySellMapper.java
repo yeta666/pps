@@ -26,6 +26,8 @@ public interface MySellMapper {
     List<SellApplyOrderVo> findAllPagedApplyOrder(@Param("sellApplyOrderVo") SellApplyOrderVo sellApplyOrderVo,
                                                   @Param("pageVo") PageVo pageVo);
 
+    List<SellApplyOrderVo> findAllApplyOrder(SellApplyOrderVo saoVo);
+
     SellApplyOrderVo findApplyOrderById(SellApplyOrderVo sellApplyOrderVo);
 
     List<SellApplyOrderVo> findAllApplyOrderDetail(SellApplyOrderVo sellApplyOrderVo);
@@ -42,6 +44,8 @@ public interface MySellMapper {
 
     List<SellResultOrderVo> findAllPagedResultOrder(@Param("sellResultOrderVo") SellResultOrderVo sellResultOrderVo,
                                                     @Param("pageVo") PageVo pageVo);
+
+    List<SellResultOrderVo> findAllResultOrder(SellResultOrderVo sellResultOrderVo);
 
     SellResultOrderVo findResultOrderDetailById(SellResultOrderVo sellResultOrderVo);
 

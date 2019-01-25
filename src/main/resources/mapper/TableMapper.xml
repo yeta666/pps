@@ -13,7 +13,7 @@
             order_id varchar(50) DEFAULT NULL COMMENT '来源单据编号',
             subject_id varchar(20) NOT NULL COMMENT '科目编号',
             type tinyint(4) NOT NULL COMMENT '单据类型，1：系统凭证，2：自制凭证',
-            target_id varchar(50) NOT NULL COMMENT '核算单位编号',
+            target_id varchar(50) DEFAULT NULL COMMENT '核算单位编号',
             debit_money double(10,2) NOT NULL COMMENT '借方金额',
             credit_money double(10,2) NOT NULL COMMENT '贷方金额',
             user_id varchar(50) NOT NULL COMMENT '经手人',

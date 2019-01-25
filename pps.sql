@@ -8,7 +8,7 @@ CREATE TABLE accounting_document_1 (
   order_id varchar(50) DEFAULT NULL COMMENT '来源单据编号',
   subject_id varchar(20) NOT NULL COMMENT '科目编号',
   type tinyint(4) NOT NULL COMMENT '单据类型，1：系统凭证，2：自制凭证',
-  target_id varchar(50) NOT NULL COMMENT '核算单位编号',
+  target_id varchar(50) DEFAULT NULL COMMENT '核算单位编号',
   debit_money double(10,2) NOT NULL COMMENT '借方金额',
   credit_money double(10,2) NOT NULL COMMENT '贷方金额',
   user_id varchar(50) NOT NULL COMMENT '经手人',
@@ -977,26 +977,22 @@ CREATE TABLE sell_result_order_1 (
 
 DROP TABLE IF EXISTS sms_template;
 CREATE TABLE sms_template (
-  id int(11) NOT NULL AUTO_INCREMENT COMMENT '短信模版编号',
+  id varchar(50) NOT NULL COMMENT '短信模版编号',
   title varchar(50) NOT NULL COMMENT '标题',
   content varchar(255) NOT NULL COMMENT '内容',
-  type tinyint(4) NOT NULL COMMENT '类型，1：通知短信，2：营销短信',
+  type tinyint(4) NOT NULL COMMENT '类型，1：验证码，2：短信通知，3：推广短信',
   create_time datetime NOT NULL COMMENT '创建时间',
   update_time datetime NOT NULL COMMENT '修改时间',
   PRIMARY KEY (id)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('邀请领券1', '{联系人名称}您好：优惠券大放送！即日起可关注微信公众号领取优惠券线上下单直接优惠，截止日期：X月X日，别错过呦~', 2, now(), now());
-INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('邀请领券2', '{联系人名称}您好：一大波优惠券来袭！关注公众号即可领取！好货等你领回家，快来找我哟', 2, now(), now());
-INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('邀请领券3', '{联系人名称}您好：您已达到优惠券领取条件，诚挚邀请您领取超值限量优惠券，关注微信公众号进入商城首页即可领取。', 2, now(), now());
-INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('邀请领券4', '{联系人名称}您好：您好，您已达到积分兑换条件，关注微信公众号即可兑换超值限量礼品，不要错过哦～', 2, now(), now());
-INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('积分兑换2', '{联系人名称}您好：您的积分即将清零，您可以在ｘｘ年ｘｘ月ｘｘ日前使用您的积分，还可以兑换大量礼品哦～', 1, now(), now());
-INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('生日祝福1', '{联系人名称}您好：今天是您的生日，ＸＸＸ诚挚邀请您领取特享生日礼物，不要错过哦～祝您生日快乐！', 1, now(), now());
-INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('生日祝福2', '{联系人名称}您好：XXXX所有工作人员祝您生日快乐！本周进店专享生日福利，只属于你的秘密优惠，我们还为您准备了精美的生日礼物，期待光临！', 1, now(), now());
-INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('新品上货1', '{联系人名称}您好：优惠券大放送！即日起可关注微信公众号领取优惠券线上下单直接优惠，截止日期：X月X日，别错过呦~', 2, now(), now());
-INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('新品上货2', '比淘宝还便宜！X月X日至X月X日新品X折起，逾期立即恢复原价，实惠疯抢刻不容缓！', 2, now(), now());
-INSERT INTO sms_template(title, content, type, create_time, update_time) VALUES ('清仓处理1', '折扣再次劲爆来袭！降价到底！线上大促本年度最低折扣等您来选～', 2, now(), now());
+INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157115002', '信息变更验证码', '验证码${code}，您正在尝试变更重要信息，请妥善保管账户信息。', 1, now(), now());
+INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157115003', '修改密码验证码', '验证码${code}，您正在尝试修改登录密码，请妥善保管账户信息。', 1, now(), now());
+INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157115004', '用户注册验证码', '验证码${code}，您正在注册成为新用户，感谢您的支持！', 1, now(), now());
+INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157115005', '登录异常验证码', '验证码${code}，您正尝试异地登录，若非本人操作，请勿泄露。', 1, now(), now());
+INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157115006', '登录确认验证码', '验证码${code}，您正在登录，若非本人操作，请勿泄露。', 1, now(), now());
+INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157115007', '身份验证验证码', '验证码${code}，您正在进行身份验证，打死不要告诉别人哦！', 1, now(), now());
 
 
 DROP TABLE IF EXISTS sms_history;
@@ -1087,10 +1083,9 @@ CREATE TABLE store (
   name varchar(50) NOT NULL COMMENT '店铺名',
   address varchar(100) NOT NULL COMMENT '地址',
   client_id varchar(50) NOT NULL COMMENT '店长会员编号',
-  sms_quantity int(11) NOT NULL COMMENT '剩余短信条数',
   PRIMARY KEY (id),
   UNIQUE KEY name (client_id)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 DROP TABLE IF EXISTS store_client;
@@ -1144,8 +1139,6 @@ DROP TABLE IF EXISTS system;
 CREATE TABLE system (
   store_id int(11) NOT NULL COMMENT '店铺编号',
   push_money_rate double(10,2) NOT NULL COMMENT '提成比例',
-  signature varchar(50) DEFAULT NULL COMMENT '短信签名',
-  sms_quantity int(11) NOT NULL COMMENT '系统剩余短信条数',
   start_bill tinyint(4) NOT NULL COMMENT '系统开账，0：否，1：是',
   retail_warehouse_id int(11) DEFAULT NULL COMMENT '零售默认仓库编号',
   retail_bank_account_id varchar(20) DEFAULT NULL COMMENT '零售默认银行账户编号',
@@ -1153,8 +1146,8 @@ CREATE TABLE system (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-INSERT INTO system VALUES (0, 0.5, null, 0, 6, null, null);
-INSERT INTO system VALUES (1, 6, null, 0, 0, null, null);
+INSERT INTO system VALUES (0, 0.5, 6, null, null);
+INSERT INTO system VALUES (1, 6, 0, null, null);
 
 
 DROP TABLE IF EXISTS user_1;

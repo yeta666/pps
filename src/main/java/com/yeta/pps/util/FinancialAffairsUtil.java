@@ -28,7 +28,7 @@ public class FinancialAffairsUtil {
     @Transactional
     public void addAccountingDocumentMethod(AccountingDocumentVo vo) {
         //判断参数
-        if (vo.getStoreId() == null || vo.getOrderId() == null || vo.getSubjectId() == null || vo.getTargetId() == null || (vo.getDebitMoney() == null && vo.getCreditMoney() == null) || vo.getUserId() == null) {
+        if (vo.getStoreId() == null || vo.getOrderId() == null || vo.getSubjectId() == null || (vo.getDebitMoney() == null && vo.getCreditMoney() == null) || vo.getUserId() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR, "新增会计凭证参数错误");
         }
 

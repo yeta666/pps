@@ -78,9 +78,9 @@
         update
                 sell_apply_order_${storeId}
         set in_total_quantity        = #{inTotalQuantity},
-            in_not_received_quantity = #{inNotReceivedQuantity},
+            in_not_received_quantity = #{inTotalQuantity},
             out_total_quantity       = #{outTotalQuantity},
-            out_not_sent_quantity    = #{outNotSentQuantity},
+            out_not_sent_quantity    = #{outTotalQuantity},
             total_money              = #{totalMoney},
             discount_money           = #{discountMoney},
             discount_coupon_id       = #{discountCouponId},
@@ -250,6 +250,65 @@
         </if>
         order by sao.create_time desc
         limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllApplyOrder" parameterType="com.yeta.pps.vo.SellApplyOrderVo" resultMap="sellApplyOrderVoMap1">
+        select
+        sao.id,
+        sao.type,
+        sao.create_time,
+        sao.result_order_id,
+        sao.prodcing_way,
+        sao.order_status,
+        sao.clear_status,
+        c.id as client_id,
+        c.name as client_name,
+        c.phone as client_phone,
+        c.membership_number as client_membership_number,
+        sao.in_warehouse_id,
+        sao.in_total_quantity,
+        sao.in_received_quantity,
+        sao.in_not_received_quantity,
+        sao.out_warehouse_id,
+        sao.out_total_quantity,
+        sao.out_sent_quantity,
+        sao.out_not_sent_quantity,
+        sao.total_money,
+        sao.discount_money,
+        sao.discount_coupon_id,
+        sao.total_discount_money,
+        sao.order_money,
+        sao.cleared_money,
+        sao.not_cleared_money,
+        sao.user_id as user_id,
+        u.name as user_name,
+        sao.remark,
+        sao.cash_money,
+        sao.alipay_money,
+        sao.wechat_money,
+        sao.bankCard_money,
+        sao.advance_money
+        from
+        sell_apply_order_${storeId} as sao
+        left join client as c on sao.client_id = c.id
+        left join user_${storeId} as u on sao.user_id = u.id
+        where sao.type = #{type}
+        <if test="id != null">
+            and sao.id = #{id}
+        </if>
+        <if test="client.name != null">
+            and c.name like concat('%', #{client.name}, '%')
+        </if>
+        <if test="client.phone != null">
+            and c.phone like concat('%', #{client.phone}, '%')
+        </if>
+        <if test="client.membershipNumber != null">
+            and c.membership_number like concat('%', #{client.membershipNumber}, '%')
+        </if>
+        <if test="startTime != null and endTime != null">
+            and date(sao.create_time) between #{startTime} and #{endTime}
+        </if>
+        order by sao.create_time desc;
     </select>
 
     <select id="findApplyOrderById" parameterType="com.yeta.pps.vo.SellApplyOrderVo"
@@ -486,10 +545,10 @@
             and c.name like concat('%', #{sellApplyOrderVo.client.name}, '%')
         </if>
         <if test="sellApplyOrderVo.client.phone != null">
-            and c.phone like concat('%', #{sellApplyOrderVo.client.phone}, '%')
+            and c.phone = #{sellApplyOrderVo.client.phone}
         </if>
         <if test="sellApplyOrderVo.client.membershipNumber != null">
-            and c.membershipNumber like concat('%', #{sellApplyOrderVo.client.membershipNumber}, '%')
+            and c.membershipNumber = #{sellApplyOrderVo.client.membershipNumber}
         </if>
         <if test="sellApplyOrderVo.startTime != null and sellApplyOrderVo.endTime != null">
             and date(sro.create_time) between #{sellApplyOrderVo.startTime} and #{sellApplyOrderVo.endTime}
@@ -569,10 +628,10 @@
             and c.name like concat('%', #{sellResultOrderVo.sellApplyOrderVo.client.name}, '%')
         </if>
         <if test="sellResultOrderVo.sellApplyOrderVo.client.phone != null">
-            and c.phone like concat('%', #{sellResultOrderVo.sellApplyOrderVo.client.phone}, '%')
+            and c.phone = #{sellResultOrderVo.sellApplyOrderVo.client.phone}
         </if>
         <if test="sellResultOrderVo.sellApplyOrderVo.client.membershipNumber != null">
-            and c.membershipNumber like concat('%', #{sellResultOrderVo.sellApplyOrderVo.client.membershipNumber}, '%')
+            and c.membershipNumber = #{sellResultOrderVo.sellApplyOrderVo.client.membershipNumber}
         </if>
         <if test="sellResultOrderVo.sellApplyOrderVo.startTime != null and sellResultOrderVo.sellApplyOrderVo.endTime != null">
             and date(sro.create_time) between #{sellResultOrderVo.sellApplyOrderVo.startTime} and
@@ -585,6 +644,58 @@
         sro.create_time desc
         limit
         #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllResultOrder" parameterType="com.yeta.pps.vo.SellResultOrderVo" resultMap="sellResultOrderVoMap">
+        select
+        sro.id,
+        sro.type,
+        sro.create_time,
+        sro.apply_order_id,
+        sro.order_status,
+        sro.total_quantity,
+        sro.total_money,
+        sro.total_discount_money,
+        sro.order_money,
+        sro.cost_money,
+        sro.gross_margin_money,
+        u.name as user_name,
+        sro.remark,
+        sao.clear_status as sao_clear_status,
+        sao.in_warehouse_id,
+        sao.out_warehouse_id,
+        c.id as client_id,
+        c.name as client_name,
+        c.phone as client_phone,
+        c.membership_number as client_membership_number
+        from
+        sell_result_order_${storeId} as sro
+        left join sell_apply_order_${storeId} as sao on sro.apply_order_id = sao.id
+        left join client as c on sao.client_id = c.id
+        left join user_${storeId} as u on sro.user_id = u.id
+        where
+        1 = 1
+        <if test="id != null">
+            and sro.id = #{id}
+        </if>
+        <if test="type != null">
+            and sro.type = #{type}
+        </if>
+        <if test="sellApplyOrderVo.client.name != null">
+            and c.name like concat('%', #{sellApplyOrderVo.client.name}, '%')
+        </if>
+        <if test="sellApplyOrderVo.client.phone != null">
+            and c.phone = #{sellApplyOrderVo.client.phone}
+        </if>
+        <if test="sellApplyOrderVo.client.membershipNumber != null">
+            and c.membershipNumber = #{sellApplyOrderVo.client.membershipNumber}
+        </if>
+        <if test="sellApplyOrderVo.startTime != null and sellApplyOrderVo.endTime != null">
+            and date(sro.create_time) between #{sellApplyOrderVo.startTime} and
+            #{sellApplyOrderVo.endTime}
+        </if>
+        order by
+        sro.create_time desc;
     </select>
 
     <resultMap id="sellResultOrderVoMap2" type="com.yeta.pps.vo.SellResultOrderVo">

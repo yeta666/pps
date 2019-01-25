@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
@@ -166,7 +167,7 @@ public class FundController {
     }
 
     /**
-     * 根据type查询所有收/付款单、预收/付款单接口
+     * 根据type查询收/付款单、预收/付款单接口
      * @param storeId
      * @param id
      * @param type
@@ -177,7 +178,7 @@ public class FundController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "根据type查询所有收/付款单、预收/付款单", notes = "分页、筛选查询，其中type必填，targetName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiOperation(value = "根据type查询收/付款单、预收/付款单", notes = "分页、筛选查询，其中type必填，targetName为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "type", value = "单据类型(1：收款单，2：付款单，3：预收款单，4：预付款单)", required = true, paramType = "path", dataType = "int"),
@@ -198,6 +199,36 @@ public class FundController {
                                                                             @RequestParam(value = "page") Integer page,
                                                                             @RequestParam(value = "pageSize") Integer pageSize) {
         return fundService.findAllFundOrder(new FundOrderVo(storeId, id, type, startTime, endTime, targetName), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据type导出收/付款单、预收/付款单接口
+     * @param storeId
+     * @param id
+     * @param type
+     * @param startTime
+     * @param endTime
+     * @param targetName
+     * @return
+     */
+    @ApiOperation(value = "根据type导出收/付款单、预收/付款单", notes = "type必填，targetName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "type", value = "单据类型(1：收款单，2：付款单，3：预收款单，4：预付款单)", required = true, paramType = "path", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "收/付款单编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "targetName", value = "往来单位", required = false, paramType = "query", dataType = "String")
+    })
+    @GetMapping(value = "/fund/export/{type}")
+    public void exportFundOrder(@RequestParam(value = "storeId") Integer storeId,
+                                @RequestParam(value = "id", required = false) String id,
+                                @PathVariable(value = "type") Byte type,
+                                @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                @RequestParam(value = "targetName", required = false) String targetName,
+                                HttpServletResponse response) {
+        fundService.exportFundOrder(new FundOrderVo(storeId, id, type, startTime, endTime, targetName), response);
     }
 
     //期初设置
@@ -332,7 +363,7 @@ public class FundController {
                                                                                    @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
                                                                                    @RequestParam(value = "page") Integer page,
                                                                                    @RequestParam(value = "pageSize") Integer pageSize) {
-        return fundService.findSumFundCheckOrder(new FundCheckOrderVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+        return fundService.findFundCheckOrderBalanceMoney(new FundCheckOrderVo(storeId, startTime, endTime), new PageVo(page, pageSize));
     }
 
     /**
@@ -581,7 +612,7 @@ public class FundController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "type", value = "单据类型(1：其他收入单，2：费用单)", required = true, paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "id", value = "收/付款单编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "targetName", value = "往来单位", required = false, paramType = "query", dataType = "String"),
@@ -602,5 +633,39 @@ public class FundController {
                                                                                   @RequestParam(value = "page") Integer page,
                                                                                   @RequestParam(value = "pageSize") Integer pageSize) {
         return fundService.findAllFundResultOrder(new FundResultOrderVo(storeId, id, type, startTime, endTime, targetName, bankAccountId, incomeExpensesId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据type查询其他收入单/费用单接口
+     * @param storeId
+     * @param id
+     * @param type
+     * @param startTime
+     * @param endTime
+     * @param targetName
+     * @return
+     */
+    @ApiOperation(value = "根据type查询其他收入单/费用单", notes = "type必填，targetName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "type", value = "单据类型(1：其他收入单，2：费用单)", required = true, paramType = "path", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "targetName", value = "往来单位", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "bankAccountId", value = "银行账户编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "incomeExpensesId", value = "收支费用编号", required = false, paramType = "query", dataType = "String")
+    })
+    @GetMapping(value = "/fund/result/export/{type}")
+    public void exportFundResultOrder(@RequestParam(value = "storeId") Integer storeId,
+                                      @RequestParam(value = "id", required = false) String id,
+                                      @PathVariable(value = "type") Byte type,
+                                      @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                      @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                      @RequestParam(value = "targetName", required = false) String targetName,
+                                      @RequestParam(value = "bankAccountId", required = false) String bankAccountId,
+                                      @RequestParam(value = "incomeExpensesId", required = false) String incomeExpensesId,
+                                      HttpServletResponse response) {
+        fundService.exportFundResultOrder(new FundResultOrderVo(storeId, id, type, startTime, endTime, targetName, bankAccountId, incomeExpensesId), response);
     }
 }

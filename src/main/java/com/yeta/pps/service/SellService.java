@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -384,8 +386,6 @@ public class SellService {
         //判断参数
         if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getInWarehouseId() == null || sellApplyOrderVo.getInTotalQuantity() == null ||
                 sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null ||
-                sellApplyOrderVo.getInTotalQuantity().intValue() != sellApplyOrderVo.getOutTotalQuantity() ||
-                sellApplyOrderVo.getTotalMoney() != 0 || sellApplyOrderVo.getTotalDiscountMoney() != 0 || sellApplyOrderVo.getOrderMoney() != 0 ||
                 sellApplyOrderVo.getResultOrderId() == null || sellApplyOrderVo.getClientId() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
@@ -397,10 +397,10 @@ public class SellService {
         }
 
         //设置初始属性
-        sellApplyOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findApplyOrderPrimaryKey(sellApplyOrderVo), "XShHSQD"));
+        sellApplyOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findApplyOrderPrimaryKey(sellApplyOrderVo), "XSHHSQD"));
         sellApplyOrderVo.setCreateTime(new Date());
         sellApplyOrderVo.setOrderStatus((byte) 7);       //未收未发
-        sellApplyOrderVo.setClearStatus((byte) 1);      //已完成
+        sellApplyOrderVo.setClearStatus(sellApplyOrderVo.getOrderMoney() == 0 ? (byte) 1 : (byte) 0);
         sellApplyOrderVo.setInReceivedQuantity(0);
         sellApplyOrderVo.setInNotReceivedQuantity(sellApplyOrderVo.getInTotalQuantity());
         sellApplyOrderVo.setOutSentQuantity(0);
@@ -704,19 +704,19 @@ public class SellService {
     }
 
     /**
-     * 查询所有销售申请订单
-     * @param sellApplyOrderVo
+     * 根据type查询销售申请订单
+     * @param saoVo
      * @param pageVo
      * @return
      */
-    public CommonResponse findAllApplyOrder(SellApplyOrderVo sellApplyOrderVo, PageVo pageVo) {
+    public CommonResponse findAllApplyOrder(SellApplyOrderVo saoVo, PageVo pageVo) {
         //查询所有页数
-        pageVo.setTotalPage((int) Math.ceil(mySellMapper.findCountApplyOrder(sellApplyOrderVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setTotalPage((int) Math.ceil(mySellMapper.findCountApplyOrder(saoVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
-        List<SellApplyOrderVo> sellApplyOrderVos = mySellMapper.findAllPagedApplyOrder(sellApplyOrderVo, pageVo);
+        List<SellApplyOrderVo> sellApplyOrderVos = mySellMapper.findAllPagedApplyOrder(saoVo, pageVo);
         
         //补上仓库名
-        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sellApplyOrderVo.getStoreId()));
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(saoVo.getStoreId()));
         sellApplyOrderVos.stream().forEach(vo -> {
             warehouses.stream().forEach(warehouse -> {
                 if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
@@ -731,45 +731,161 @@ public class SellService {
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("单据编号", "id"));
+        titles.add(new Title("单据类型", "type"));
         titles.add(new Title("单据日期", "createTime"));
         titles.add(new Title("产生方式", "prodcingWay"));
         titles.add(new Title("单据状态", "orderStatus"));
-        titles.add(new Title("来源订单", "resultOrderId"));
-        titles.add(new Title("客户", "client.name"));
-        titles.add(new Title("电话", "client.phone"));
-        titles.add(new Title("会员卡号", "client.membershipNumber"));
-        if (sellApplyOrderVo.getType() == 3 || sellApplyOrderVo.getType() == 4) {
+        if (saoVo.getType() == 3 || saoVo.getType() == 4) {
+            titles.add(new Title("来源订单", "resultOrderId"));
             titles.add(new Title("入库仓库", "inWarehouseName"));
             titles.add(new Title("总收货数量", "inTotalQuantity"));
             titles.add(new Title("已收货数量", "inReceivedQuantity"));
             titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
         }
-        if (sellApplyOrderVo.getType() == 1 || sellApplyOrderVo.getType() == 2 || sellApplyOrderVo.getType() == 4) {
+        if (saoVo.getType() == 1 || saoVo.getType() == 2 || saoVo.getType() == 4) {
             titles.add(new Title("出库仓库", "outWarehouseName"));
             titles.add(new Title("总发货数量", "outTotalQuantity"));
             titles.add(new Title("已发货数量", "outSentQuantity"));
             titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
         }
+        titles.add(new Title("客户编号", "client.id"));
+        titles.add(new Title("客户名称", "client.name"));
+        titles.add(new Title("客户电话", "client.phone"));
+        titles.add(new Title("会员卡号", "client.membershipNumber"));
         titles.add(new Title("总商品金额", "totalMoney"));
         titles.add(new Title("直接优惠金额", "discountMoney"));
         titles.add(new Title("优惠券编号", "discountCouponId"));
         titles.add(new Title("总优惠金额", "totalDiscountMoney"));
         titles.add(new Title("本单金额", "orderMoney"));
-        if (sellApplyOrderVo.getType() == 1) {
+        titles.add(new Title("结算状态", "clearStatus"));
+        titles.add(new Title("已结金额", "clearedMoney"));
+        titles.add(new Title("未结金额", "notClearedMoney"));
+        if (saoVo.getType() == 1) {
             titles.add(new Title("现金金额", "cashMoney"));
             titles.add(new Title("支付宝金额", "alipayMoney"));
             titles.add(new Title("微信金额", "wechatMoney"));
             titles.add(new Title("银行卡金额", "bankCardMoney"));
             titles.add(new Title("使用预收款金额", "advanceMoney"));
         }
-        titles.add(new Title("结算状态", "clearStatus"));
-        titles.add(new Title("已结金额", "clearedMoney"));
-        titles.add(new Title("未结金额", "notClearedMoney"));
         titles.add(new Title("经手人", "userName"));
-        titles.add(new Title("单据备注", "remark"));
+        titles.add(new Title("备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, sellApplyOrderVos, pageVo);
         
         return CommonResponse.success(commonResult);
+    }
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    /**
+     * 根据type导出销售申请订单
+     * @param saoVo
+     * @param response
+     * @return
+     */
+    public void exportApplyOrder(SellApplyOrderVo saoVo, HttpServletResponse response) {
+        try {
+            //获取参数
+            Byte type = saoVo.getType();
+
+            //根据条件查询单据
+            List<SellApplyOrderVo> vos = mySellMapper.findAllApplyOrder(saoVo);
+
+            //补上仓库名
+            List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(saoVo.getStoreId()));
+            vos.stream().forEach(vo -> {
+                warehouses.stream().forEach(warehouse -> {
+                    if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setInWarehouseName(warehouse.getName());
+                    }
+                    if (vo.getOutWarehouseId() != null && vo.getOutWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setOutWarehouseName(warehouse.getName());
+                    }
+                });
+            });
+
+            //备注
+            String remark = "【筛选条件】" +
+                    "\n单据编号：" + (saoVo.getId() == null ? "无" : saoVo.getId()) +
+                    " 开始时间：" + (saoVo.getStartTime() == null ? "无" : saoVo.getStartTime()) +
+                    " 结束时间：" + (saoVo.getEndTime() == null ? "无" : saoVo.getEndTime()) +
+                    " 客户名称：" + (saoVo.getClient().getName() == null ? "无" : saoVo.getClient().getName()) +
+                    " 客户电话：" + (saoVo.getClient().getPhone() == null ? "无" : saoVo.getClient().getPhone()) +
+                    " 会员卡号：" + (saoVo.getClient().getMembershipNumber() == null ? "无" : saoVo.getClient().getMembershipNumber());
+
+            //标题行
+            List<String> titleRowCell1 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "产生方式", "单据状态", "出库仓库", "总发货数量", "已发货数量", "未发货数量", "客户编号", "客户名称", "客户电话", "会员卡号", "总商品金额", "直接优惠金额", "优惠券编号", "总优惠金额", "本单金额", "结算状态", "已结金额", "未结金额", "现金金额", "支付宝金额", "微信金额", "银行卡金额", "使用预收款金额", "经手人", "备注"
+            });
+
+            List<String> titleRowCell2 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "产生方式", "单据状态", "出库仓库", "总发货数量", "已发货数量", "未发货数量", "客户编号", "客户名称", "客户电话", "会员卡号", "总商品金额", "直接优惠金额", "优惠券编号", "总优惠金额", "本单金额", "结算状态", "已结金额", "未结金额", "经手人", "备注"
+            });
+
+            List<String> titleRowCell3 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "产生方式", "单据状态", "来源订单", "入库仓库", "总收货数量", "已收货数量", "未收货数量", "客户编号", "客户名称", "客户电话", "会员卡号", "总商品金额", "直接优惠金额", "优惠券编号", "总优惠金额", "本单金额", "结算状态", "已结金额", "未结金额", "经手人", "备注"
+            });
+
+            List<String> titleRowCell4 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "产生方式", "单据状态", "来源订单", "入库仓库", "总收货数量", "已收货数量", "未收货数量", "出库仓库", "总发货数量", "已发货数量", "未发货数量", "客户编号", "客户名称", "客户电话", "会员卡号", "总商品金额", "直接优惠金额", "优惠券编号", "总优惠金额", "本单金额", "结算状态", "已结金额", "未结金额", "经手人", "备注"
+            });
+
+            //最后一个必填列列数
+            int lastRequiredCol = -1;
+
+            String typeName = type == 1 ? "零售单" : type == 2 ? "销售订单" : type == 3 ? "销售退货申请单" : "销售换货申请单";
+
+            //数据行
+            List<List<String>> dataRowCells = new ArrayList<>();
+            vos.stream().forEach(vo -> {
+                List<String> dataRowCell = new ArrayList<>();
+                dataRowCell.add(vo.getId());
+                dataRowCell.add(typeName);
+                dataRowCell.add(sdf.format(vo.getCreateTime()));
+                dataRowCell.add(vo.getProdcingWay() == 1 ? "线下录单" : "线上下单");
+                dataRowCell.add(vo.getOrderStatus() == 1 ? "未收" : vo.getOrderStatus() == 2 ? "部分收" : vo.getOrderStatus() == 3 ? "已收" : vo.getOrderStatus() == 4 ? "未发" : vo.getOrderStatus() == 5 ? "部分发" : vo.getOrderStatus() == 6 ? "已发" : vo.getOrderStatus() == 7 ? "未收未发" : vo.getOrderStatus() == 8 ? "未收部分发" : vo.getOrderStatus() == 9 ? "未收已发" : vo.getOrderStatus() == 10 ? "部分收未发" : vo.getOrderStatus() == 11 ? "部分收部分发" : vo.getOrderStatus() == 12 ? "部分收已发" : vo.getOrderStatus() == 13 ? "已收未发" : vo.getOrderStatus() == 14 ? "已收部分发" : vo.getOrderStatus() == 15 ? "已收已发" : null);
+                if (type == 3 || type == 4) {
+                    dataRowCell.add(vo.getResultOrderId());
+                    dataRowCell.add(vo.getInWarehouseName());
+                    dataRowCell.add(vo.getInTotalQuantity().toString());
+                    dataRowCell.add(vo.getInReceivedQuantity().toString());
+                    dataRowCell.add(vo.getInNotReceivedQuantity().toString());
+                }
+                if (type == 1 || type == 2 || type == 4) {
+                    dataRowCell.add(vo.getOutWarehouseName());
+                    dataRowCell.add(vo.getOutTotalQuantity().toString());
+                    dataRowCell.add(vo.getOutSentQuantity().toString());
+                    dataRowCell.add(vo.getOutNotSentQuantity().toString());
+                }
+                dataRowCell.add(vo.getClient() != null ? vo.getClient().getId() : null);
+                dataRowCell.add(vo.getClient() != null ? vo.getClient().getName() : null);
+                dataRowCell.add(vo.getClient() != null ? vo.getClient().getPhone() : null);
+                dataRowCell.add(vo.getClient() != null ? vo.getClient().getMembershipNumber() : null);
+                dataRowCell.add(vo.getTotalMoney().toString());
+                dataRowCell.add(vo.getDiscountMoney().toString());
+                dataRowCell.add(vo.getDiscountCouponId() != null ? vo.getDiscountCouponId().toString() : null);
+                dataRowCell.add(vo.getTotalDiscountMoney().toString());
+                dataRowCell.add(vo.getClearedMoney().toString());
+                dataRowCell.add(vo.getClearStatus() == 0 ? "未完成" : vo.getClearStatus() == 1 ? "已完成" : null);
+                dataRowCell.add(vo.getClearedMoney().toString());
+                dataRowCell.add(vo.getNotClearedMoney().toString());
+                if (type == 1) {
+                    dataRowCell.add(vo.getCashMoney().toString());
+                    dataRowCell.add(vo.getAlipayMoney().toString());
+                    dataRowCell.add(vo.getWechatMoney().toString());
+                    dataRowCell.add(vo.getBankCardMoney().toString());
+                    dataRowCell.add(vo.getAdvanceMoney().toString());
+                }
+                dataRowCell.add(vo.getUserName());
+                dataRowCell.add(vo.getRemark());
+                dataRowCells.add(dataRowCell);
+            });
+
+            //输出excel
+            String fileName = "【" + typeName + "导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, type == 1 ? titleRowCell1 : type == 2 ? titleRowCell2 : type == 3 ? titleRowCell3 : titleRowCell4, lastRequiredCol, dataRowCells, fileName, response);
+        } catch (Exception e) {
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
+        }
     }
 
     /**
@@ -1045,7 +1161,7 @@ public class SellService {
     }
 
     /**
-     * 查询所有销售结果订单
+     * 查询销售结果订单
      * @param sellResultOrderVo
      * @param pageVo
      * @return
@@ -1078,22 +1194,105 @@ public class SellService {
         titles.add(new Title("单据日期", "createTime"));
         titles.add(new Title("来源订单", "applyOrderId"));
         titles.add(new Title("结算状态", "sellApplyOrderVo.clearStatus"));
+        titles.add(new Title("客户编号", "sellApplyOrderVo.client.id"));
+        titles.add(new Title("客户名称", "sellApplyOrderVo.client.name"));
+        titles.add(new Title("客户电话", "sellApplyOrderVo.client.phone"));
+        titles.add(new Title("会员卡号", "sellApplyOrderVo.client.membershipNumber"));
         titles.add(new Title("入库仓库", "sellApplyOrderVo.inWarehouseName"));
         titles.add(new Title("出库仓库", "sellApplyOrderVo.outWarehouseName"));
-        titles.add(new Title("客户", "sellApplyOrderVo.client.name"));
-        titles.add(new Title("电话", "sellApplyOrderVo.client.phone"));
-        titles.add(new Title("会员卡号", "sellApplyOrderVo.client.membershipNumber"));
         titles.add(new Title("总商品数量", "totalQuantity"));
-        titles.add(new Title("总订单金额", "totalMoney"));
+        titles.add(new Title("总商品金额", "totalMoney"));
         titles.add(new Title("总优惠金额", "totalDiscountMoney"));
         titles.add(new Title("本单金额", "orderMoney"));
         titles.add(new Title("成本", "costMoney"));
         titles.add(new Title("毛利", "grossMarginMoney"));
         titles.add(new Title("经手人", "userName"));
-        titles.add(new Title("单据备注", "remark"));
+        titles.add(new Title("备注", "remark"));
         CommonResult commonResult = new CommonResult(titles, sellResultOrderVos, pageVo);
         
         return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 导出销售结果订单
+     * @param sroVo
+     * @param response
+     * @return
+     */
+    public void exportResultOrder(SellResultOrderVo sroVo, HttpServletResponse response) {
+        try {
+            //根据条件查询单据
+            List<SellResultOrderVo> sroVos = mySellMapper.findAllResultOrder(sroVo);
+
+            //补上仓库名
+            List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sroVo.getStoreId()));
+            sroVos.stream().forEach(vo -> {
+                warehouses.stream().forEach(warehouse -> {
+                    if (vo.getSellApplyOrderVo() != null && vo.getSellApplyOrderVo().getInWarehouseId() != null &&
+                            vo.getSellApplyOrderVo().getInWarehouseId().intValue() == warehouse.getId()) {
+                        vo.getSellApplyOrderVo().setInWarehouseName(warehouse.getName());
+                    }
+                    if (vo.getSellApplyOrderVo() != null && vo.getSellApplyOrderVo().getOutWarehouseId() != null &&
+                            vo.getSellApplyOrderVo().getOutWarehouseId().intValue() == warehouse.getId()) {
+                        vo.getSellApplyOrderVo().setOutWarehouseName(warehouse.getName());
+                    }
+                });
+            });
+
+            //备注
+            String remark = "【筛选条件】" +
+                    "\n单据编号：" + (sroVo.getId() == null ? "无" : sroVo.getId()) +
+                    " 单据类型：" + (sroVo.getType() == null ? "无" : sroVos.get(0).getType() == 1 ? "零售单" : sroVos.get(0).getType() == 2 ? "销售订单" : sroVos.get(0).getType() == 3 ? "销售退货单" : "销售换货单") +
+                    " 开始时间：" + (sroVo.getSellApplyOrderVo().getStartTime() == null ? "无" : sroVo.getSellApplyOrderVo().getStartTime()) +
+                    " 结束时间：" + (sroVo.getSellApplyOrderVo().getEndTime() == null ? "无" : sroVo.getSellApplyOrderVo().getEndTime()) +
+                    " 客户名称：" + (sroVo.getSellApplyOrderVo().getClient().getName() == null ? "无" : sroVo.getSellApplyOrderVo().getClient().getName()) +
+                    " 客户电话：" + (sroVo.getSellApplyOrderVo().getClient().getPhone() == null ? "无" : sroVo.getSellApplyOrderVo().getClient().getPhone()) +
+                    " 会员卡号：" + (sroVo.getSellApplyOrderVo().getClient().getMembershipNumber() == null ? "无" : sroVo.getSellApplyOrderVo().getClient().getMembershipNumber());
+
+            //标题行
+            List<String> titleRowCell = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "来源订单", "结算状态", "客户编号", "客户名称", "客户电话", "会员卡号", "入库仓库", "出库仓库", "总商品数量", "总商品金额", "总优惠金额", "本单金额", "成本", "毛利", "经手人", "备注"
+            });
+
+            //最后一个必填列列数
+            int lastRequiredCol = -1;
+
+            //数据行
+            List<List<String>> dataRowCells = new ArrayList<>();
+            sroVos.stream().forEach(vo -> {
+                List<String> dataRowCell = new ArrayList<>();
+                dataRowCell.add(vo.getId());
+                dataRowCell.add(vo.getType() == 1 ? "零售单" : vo.getType() == 2 ? "销售订单" : vo.getType() == 3 ? "销售退货单" : "销售换货单");
+                dataRowCell.add(sdf.format(vo.getCreateTime()));
+                dataRowCell.add(vo.getApplyOrderId());
+                SellApplyOrderVo saoVo = vo.getSellApplyOrderVo();
+                dataRowCell.add(saoVo.getClearStatus() == 0 ? "未完成" : saoVo.getClearStatus() == 1 ? "已完成" : null);
+                dataRowCell.add(saoVo.getClient() != null ? saoVo.getClient().getId() : null);
+                dataRowCell.add(saoVo.getClient() != null ? saoVo.getClient().getName() : null);
+                dataRowCell.add(saoVo.getClient() != null ? saoVo.getClient().getPhone() : null);
+                dataRowCell.add(saoVo.getClient() != null ? saoVo.getClient().getMembershipNumber() : null);
+                dataRowCell.add(saoVo.getInWarehouseName());
+                dataRowCell.add(saoVo.getOutWarehouseName());
+                dataRowCell.add(vo.getTotalQuantity().toString());
+                dataRowCell.add(vo.getTotalMoney().toString());
+                dataRowCell.add(vo.getTotalDiscountMoney().toString());
+                dataRowCell.add(vo.getOrderMoney().toString());
+                dataRowCell.add(vo.getCostMoney().toString());
+                dataRowCell.add(vo.getGrossMarginMoney().toString());
+                dataRowCell.add(vo.getUserName());
+                dataRowCell.add(vo.getRemark());
+                if (vo.getOrderStatus() < 1) {
+                    dataRowCell.add(vo.getOrderStatus() == -1 ? "红冲蓝单" : vo.getOrderStatus() == -2 ? "红冲红单" : null);
+                }
+                dataRowCells.add(dataRowCell);
+            });
+
+            //输出excel
+            String fileName = "【销售历史导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
+        } catch (Exception e) {
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
+        }
     }
 
     /**

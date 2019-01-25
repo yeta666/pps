@@ -319,28 +319,37 @@ public class CommonUtil {
         sheet.addMergedRegion(region);
         remarkRow.setHeightInPoints(100);
 
+        //设置单元格样式
+        HSSFFont boldFont = workbook.createFont();
+        boldFont.setBold(true);
+        HSSFCellStyle boldStyle = workbook.createCellStyle();
+        boldStyle.setFont(boldFont);
+
+        HSSFFont boldRedFont = workbook.createFont();
+        boldRedFont.setBold(true);
+        boldRedFont.setColor(HSSFColor.RED.index);
+        HSSFCellStyle boldRedStyle = workbook.createCellStyle();
+        boldRedStyle.setFont(boldRedFont);
+
+        HSSFFont redFont = workbook.createFont();
+        redFont.setColor(HSSFColor.RED.index);
+        HSSFCellStyle redStyle = workbook.createCellStyle();
+        redStyle.setFont(redFont);
+
+        HSSFFont blueFont = workbook.createFont();
+        blueFont.setColor(HSSFColor.BLUE.index);
+        HSSFCellStyle blueStyle = workbook.createCellStyle();
+        blueStyle.setFont(blueFont);
+
         //创建标题行
         HSSFRow titleRow = sheet.createRow(2);
         for (int i = 0; i < titleRowCell.size(); i++) {
             titleRow.createCell(i).setCellValue(titleRowCell.get(i));
             sheet.setColumnWidth(i, (short) 4000);
-        }
-
-        //设置标题行单元格样式
-        HSSFCellStyle titleCellStyle1 = workbook.createCellStyle();
-        HSSFFont font1 = workbook.createFont();
-        font1.setBold(true);
-        titleCellStyle1.setFont(font1);
-        HSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
-        HSSFFont font2 = workbook.createFont();
-        font2.setBold(true);
-        font2.setColor(HSSFColor.RED.index);
-        titleCellStyle2.setFont(font2);
-        for (int i = 0; i < titleRowCell.size(); i++) {
             if (i <= lastRequiredCol) {
-                titleRow.getCell(i).setCellStyle(titleCellStyle2);
+                titleRow.getCell(i).setCellStyle(boldRedStyle);
             } else {
-                titleRow.getCell(i).setCellStyle(titleCellStyle1);
+                titleRow.getCell(i).setCellStyle(boldStyle);
             }
         }
 
@@ -349,9 +358,20 @@ public class CommonUtil {
             List<String> dataRowCell = dataRowCells.get(i - 3);
             HSSFRow row = sheet.createRow(i);
             row.setHeightInPoints((2 * sheet.getDefaultRowHeightInPoints()));
-            for (int j = 0; j < dataRowCell.size(); j++) {
+            int size;
+            if (dataRowCell.get(dataRowCell.size() - 1) != null && dataRowCell.get(dataRowCell.size() - 1).contains("红冲")) {
+                size = dataRowCell.size() - 2;
+            } else {
+                size = dataRowCell.size() - 1;
+            }
+            for (int j = 0; j < size; j++) {
                 HSSFCell cell = row.createCell(j);
                 cell.setCellValue(dataRowCell.get(j));
+                if (dataRowCell.get(dataRowCell.size() - 1) != null && dataRowCell.get(dataRowCell.size() - 1).equals("红冲蓝单")) {
+                    cell.setCellStyle(blueStyle);
+                } else if (dataRowCell.get(dataRowCell.size() - 1) != null && dataRowCell.get(dataRowCell.size() - 1).equals("红冲红单")) {
+                    cell.setCellStyle(redStyle);
+                }
             }
         }
 

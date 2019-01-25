@@ -1,5 +1,6 @@
 package com.yeta.pps.controller;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.yeta.pps.po.ClientDiscountCoupon;
 import com.yeta.pps.po.DiscountCoupon;
 import com.yeta.pps.po.SMSHistory;
@@ -222,7 +223,7 @@ public class MarketingController {
     public CommonResponse deleteSMSTemplate(@RequestParam String ids,
                                             @PathVariable(value = "check") String check) {
         List<SMSTemplate> smsTemplates = new ArrayList<>();
-        Arrays.asList(ids.split(",")).stream().forEach(id -> smsTemplates.add(new SMSTemplate(Integer.valueOf(id))));
+        Arrays.asList(ids.split(",")).stream().forEach(id -> smsTemplates.add(new SMSTemplate(id)));
         return marketingService.deleteSMSTemplate(smsTemplates, check);
     }
 
@@ -268,9 +269,9 @@ public class MarketingController {
      * @return
      */
     @ApiOperation(value = "发短信/新增短信历史", notes = "以集合形式入参")
-    @ApiImplicitParam(name = "smsHistories", value = "storeId, clientId, userId, content必填", required = true, paramType = "body", dataType = "SMSHistory")
+    @ApiImplicitParam(name = "smsHistories", value = "storeId, clientId, templateCode, userId必填", required = true, paramType = "body", dataType = "SMSHistory")
     @PostMapping(value = "/sms/history")
-    public CommonResponse addSMSHistory(@RequestBody List<SMSHistory> smsHistories) {
+    public CommonResponse addSMSHistory(@RequestBody List<SMSHistory> smsHistories) throws ClientException {
         return marketingService.addSMSHistory(smsHistories);
     }
 

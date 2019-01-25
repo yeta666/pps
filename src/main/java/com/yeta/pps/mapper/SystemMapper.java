@@ -12,10 +12,6 @@ public interface SystemMapper {
 
     int updateSystem(SSystem sSystem);
 
-    int updateSMSQuantity(SSystem sSystem);
-
-    int decreaseSMSQuantity(SSystem sSystem);
-
     SSystem findStartBill(SSystem sSystem);
 
     int updateStartBill(SSystem sSystem);
@@ -23,4 +19,6 @@ public interface SystemMapper {
     SSystem findRetail(SSystem sSystem);
 
     int updateRetail(SSystem sSystem);
+
+    int systemRebuild(SSystem sSystem);
 }

@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -601,7 +603,7 @@ public class StorageService {
         ftcoVo.setNeedOutMoneyIncrease(orderMoney);
         FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
         if (lastFTCOVo == null) {
-            ftcoVo.setNeedOutMoney( ftcoVo.getNeedOutMoneyIncrease());
+            ftcoVo.setNeedOutMoney(ftcoVo.getNeedOutMoneyIncrease());
             ftcoVo.setAdvanceOutMoney(0.0);
         } else {
             ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
@@ -647,7 +649,7 @@ public class StorageService {
         if (pVo != null && sVo == null) {       //采购换货收货
             //采购换货收货前必须完成发货
             if (pVo.getOrderStatus() != 9 && pVo.getOrderStatus() != 12) {
-                throw new CommonException("采购换货申请单收货前必须完成发货");
+                throw new CommonException("采购换货收货前必须完成发货");
             }
 
             targetId = pVo.getSupplierId();
@@ -693,17 +695,29 @@ public class StorageService {
                 ftcoVo.setCreateTime(new Date());
                 ftcoVo.setOrderStatus((byte) 1);
                 ftcoVo.setTargetId(targetId);
-                ftcoVo.setNeedOutMoneyIncrease(orderMoney);
-                FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
-                if (lastFTCOVo == null) {
-                    ftcoVo.setNeedOutMoney(ftcoVo.getNeedOutMoneyIncrease());
-                    ftcoVo.setAdvanceOutMoney(0.0);
-                } else {
-                    ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
-                    ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
-                }
                 ftcoVo.setUserId(userId);
-                if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
+                FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
+                if (orderMoney < 0) {
+                    ftcoVo.setNeedOutMoneyDecrease(-orderMoney);
+                    if (lastFTCOVo == null) {
+                        ftcoVo.setNeedOutMoney(-ftcoVo.getNeedOutMoneyDecrease());
+                        ftcoVo.setAdvanceOutMoney(0.0);
+                    } else {
+                        ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() - ftcoVo.getNeedOutMoneyDecrease());
+                        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
+                    }
+                } else if (orderMoney > 0) {
+                    ftcoVo.setNeedOutMoneyIncrease(orderMoney);
+                    if (lastFTCOVo == null) {
+                        ftcoVo.setNeedOutMoney(ftcoVo.getNeedOutMoneyIncrease());
+                        ftcoVo.setAdvanceOutMoney(0.0);
+                    } else {
+                        ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
+                        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
+                    }
+                }
+
+                if (orderMoney != 0 && myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
                     throw new CommonException(CommonResponse.ADD_ERROR);
                 }
 
@@ -795,13 +809,13 @@ public class StorageService {
                 ftcoVo.setCreateTime(new Date());
                 ftcoVo.setOrderStatus((byte) 1);
                 ftcoVo.setTargetId(targetId);
-                ftcoVo.setNeedInMoneyIncrease(orderMoney);
+                ftcoVo.setNeedInMoneyDecrease(-orderMoney);
                 FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
                 if (lastFTCOVo == null) {
-                    ftcoVo.setNeedInMoney(ftcoVo.getNeedInMoneyIncrease());
+                    ftcoVo.setNeedInMoney(-ftcoVo.getNeedInMoneyDecrease());
                     ftcoVo.setAdvanceInMoney(0.0);
                 } else {
-                    ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
+                    ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() - ftcoVo.getNeedInMoneyDecrease());
                     ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
                 }
                 ftcoVo.setUserId(userId);
@@ -1030,13 +1044,13 @@ public class StorageService {
                 ftcoVo.setCreateTime(new Date());
                 ftcoVo.setOrderStatus((byte) 1);
                 ftcoVo.setTargetId(targetId);
-                ftcoVo.setNeedOutMoneyIncrease(orderMoney);
+                ftcoVo.setNeedOutMoneyDecrease(-orderMoney);
                 FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
                 if (lastFTCOVo == null) {
-                    ftcoVo.setNeedOutMoney(ftcoVo.getNeedOutMoneyIncrease());
+                    ftcoVo.setNeedOutMoney(-ftcoVo.getNeedOutMoneyDecrease());
                     ftcoVo.setAdvanceOutMoney(0.0);
                 } else {
-                    ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() + ftcoVo.getNeedOutMoneyIncrease());
+                    ftcoVo.setNeedOutMoney(lastFTCOVo.getNeedOutMoney() - ftcoVo.getNeedOutMoneyDecrease());
                     ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney());
                 }
                 ftcoVo.setUserId(userId);
@@ -1122,17 +1136,29 @@ public class StorageService {
                 ftcoVo.setCreateTime(new Date());
                 ftcoVo.setOrderStatus((byte) 1);
                 ftcoVo.setTargetId(targetId);
-                ftcoVo.setNeedInMoneyIncrease(orderMoney);
-                FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
-                if (lastFTCOVo == null) {
-                    ftcoVo.setNeedInMoney(ftcoVo.getNeedInMoneyIncrease());
-                    ftcoVo.setAdvanceInMoney(0.0);
-                } else {
-                    ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
-                    ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
-                }
                 ftcoVo.setUserId(userId);
-                if (myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
+                FundTargetCheckOrderVo lastFTCOVo = myFundMapper.findLastFundTargetCheckOrder(ftcoVo);
+                if (orderMoney < 0) {
+                    ftcoVo.setNeedInMoneyDecrease(-orderMoney);
+                    if (lastFTCOVo == null) {
+                        ftcoVo.setNeedInMoney(-ftcoVo.getNeedInMoneyDecrease());
+                        ftcoVo.setAdvanceInMoney(0.0);
+                    } else {
+                        ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() - ftcoVo.getNeedInMoneyDecrease());
+                        ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
+                    }
+                } else if (orderMoney > 0) {
+                    ftcoVo.setNeedInMoneyIncrease(orderMoney);
+                    if (lastFTCOVo == null) {
+                        ftcoVo.setNeedInMoney(ftcoVo.getNeedInMoneyIncrease());
+                        ftcoVo.setAdvanceInMoney(0.0);
+                    } else {
+                        ftcoVo.setNeedInMoney(lastFTCOVo.getNeedInMoney() + ftcoVo.getNeedInMoneyIncrease());
+                        ftcoVo.setAdvanceInMoney(lastFTCOVo.getAdvanceInMoney());
+                    }
+                }
+
+                if (orderMoney != 0 && myFundMapper.addFundTargetCheckOrder(ftcoVo) != 1) {
                     throw new CommonException(CommonResponse.ADD_ERROR);
                 }
 
@@ -1163,10 +1189,10 @@ public class StorageService {
                 }
                 adVo.setSubjectId("1122");
                 adVo.setDebitMoney(orderMoney);
-                adVo.setCreditMoney(orderMoney);
+                adVo.setCreditMoney(0.0);
                 financialAffairsUtil.addAccountingDocumentMethod(adVo);
                 adVo.setSubjectId("6001");
-                adVo.setDebitMoney(orderMoney);
+                adVo.setDebitMoney(0.0);
                 adVo.setCreditMoney(orderMoney);
                 financialAffairsUtil.addAccountingDocumentMethod(adVo);
             }
@@ -1302,7 +1328,7 @@ public class StorageService {
     }
 
     /**
-     * 根据type查询所有收/发单
+     * 根据type查询收/发货单
      * @param storageOrderVo
      * @param pageVo
      * @return
@@ -1330,6 +1356,71 @@ public class StorageService {
         CommonResult commonResult = new CommonResult(titles, storageOrderVos, pageVo);
         
         return CommonResponse.success(commonResult);
+    }
+
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    /**
+     * 根据type导出收/发货单
+     * @param soVo
+     * @param response
+     * @return
+     */
+    public void exportStorageOrder(StorageOrderVo soVo, HttpServletResponse response) {
+        try {
+            //获取参数
+            Integer type = soVo.getFlag();
+
+            //根据条件查询单据
+            List<StorageOrderVo> soVos = myStorageMapper.findAllStorageOrder(soVo);
+
+            //备注
+            String remark = "【筛选条件】" +
+                    "\n单据编号：" + (soVo.getId() == null ? "无" : soVo.getId()) +
+                    " 开始时间：" + (soVo.getStartTime() == null ? "无" : soVo.getStartTime()) +
+                    " 结束时间：" + (soVo.getEndTime() == null ? "无" : soVo.getEndTime()) +
+                    " 往来单位：" + (soVo.getTargetName() == null ? "无" : soVo.getTargetName()) +
+                    " 仓库：" + (soVo.getWarehouseId() == null ? "无" : soVos.get(0).getWarehouseName());
+
+            //标题行
+            List<String> titleRowCell = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "来源订单", "往来单位编号", "往来单位名称", "往来单位电话", "仓库", "本单数量", "物流公司", "运单号", "经手人", "备注"
+            });
+
+            //最后一个必填列列数
+            int lastRequiredCol = -1;
+
+            String typeName = type == 0 ? "发货单" : "收货单";
+
+            //数据行
+            List<List<String>> dataRowCells = new ArrayList<>();
+            soVos.stream().forEach(vo -> {
+                List<String> dataRowCell = new ArrayList<>();
+                dataRowCell.add(vo.getId());
+                dataRowCell.add(typeName);
+                dataRowCell.add(sdf.format(vo.getCreateTime()));
+                dataRowCell.add(vo.getApplyOrderId());
+                dataRowCell.add(vo.getTargetId());
+                dataRowCell.add(vo.getTargetName());
+                dataRowCell.add(vo.getTargetPhone());
+                dataRowCell.add(vo.getWarehouseName());
+                dataRowCell.add(vo.getQuantity().toString());
+                dataRowCell.add(vo.getLogisticsCompany());
+                dataRowCell.add(vo.getWaybillNumber());
+                dataRowCell.add(vo.getUserName());
+                dataRowCell.add(vo.getRemark());
+                if (vo.getOrderStatus() < 1) {
+                    dataRowCell.add(vo.getOrderStatus() == -1 ? "红冲蓝单" : vo.getOrderStatus() == -2 ? "红冲红单" : null);
+                }
+                dataRowCells.add(dataRowCell);
+            });
+
+            //输出excel
+            String fileName = "【" + typeName + "导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
+        } catch (Exception e) {
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
+        }
     }
 
     //其他入/出库单、报溢/损单、成本调价单、库存盘点单
@@ -1735,7 +1826,7 @@ public class StorageService {
     }
 
     /**
-     * 根据条件查询其他入/出库单、报溢/损单、成本调价单、库存盘点单
+     * 根据type查询其他入/出库单、报溢/损单、成本调价单、库存盘点单
      * @param storageResultOrderVo
      * @param pageVo
      * @return
@@ -1754,11 +1845,14 @@ public class StorageService {
         titles.add(new Title("仓库", "warehouseName"));
         byte type = storageResultOrderVo.getType();
         if (type == 1 || type == 2) {
-            titles.add(new Title("往来单位", "targetName"));
-        } else if (type == 1 || type == 2 || type == 3 || type == 4 || type == 5) {
+            titles.add(new Title("往来单位编号", "targetId"));
+            titles.add(new Title("往来单位名称", "targetName"));
+        }
+        if (type == 1 || type == 2 || type == 3 || type == 4 || type == 5) {
             titles.add(new Title("总数量", "totalQuantity"));
             titles.add(new Title("总金额", "totalMoney"));
-        } else if (type == 6) {
+        }
+        if (type == 6) {
             titles.add(new Title("总库存数量", "totalCheckQuantity"));
             titles.add(new Title("总盘点数量", "totalQuantity"));
             titles.add(new Title("总报溢数量", "totalInQuantity"));
@@ -1771,6 +1865,85 @@ public class StorageService {
         CommonResult commonResult = new CommonResult(titles, storageResultOrderVos, pageVo);
         
         return CommonResponse.success(commonResult);
+    }
+
+    /**
+     * 根据type导出其他入/出库单、报溢/损单、成本调价单、库存盘点单
+     * @param sroVo
+     * @param response
+     * @return
+     */
+    public void exportStorageResultOrder(StorageResultOrderVo sroVo, HttpServletResponse response) {
+        try {
+            //获取参数
+            Byte type = sroVo.getType();
+
+            //根据条件查询单据
+            List<StorageResultOrderVo> vos = myStorageMapper.findAllStorageResultOrder(sroVo);
+
+            //备注
+            String remark = "【筛选条件】" +
+                    "\n单据编号：" + (sroVo.getId() == null ? "无" : sroVo.getId()) +
+                    " 开始时间：" + (sroVo.getStartTime() == null ? "无" : sroVo.getStartTime()) +
+                    " 结束时间：" + (sroVo.getEndTime() == null ? "无" : sroVo.getEndTime()) +
+                    " 往来单位名称：" + (sroVo.getTargetName() == null ? "无" : sroVo.getTargetName());
+
+            //标题行
+            List<String> titleRowCell1 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "仓库", "往来单位编号", "往来单位名称", "总数量", "总金额", "经手人", "备注"
+            });
+
+            List<String> titleRowCell2 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "仓库", "总数量", "总金额", "经手人", "备注"
+            });
+
+            List<String> titleRowCell3 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "仓库", "总库存数量", "总盘点数量", "总报溢数量", "总报溢金额", "总报损数量", "总报损金额", "经手人", "备注"
+            });
+
+            //最后一个必填列列数
+            int lastRequiredCol = -1;
+
+            String typeName = type == 1 ? "其他入库单" : type == 2 ? "其他出库单" : type == 3 ? "报溢单" : type == 4 ? "报损单" : type == 5 ? "成本调价单" : "库存盘点单";
+
+            //数据行
+            List<List<String>> dataRowCells = new ArrayList<>();
+            vos.stream().forEach(vo -> {
+                List<String> dataRowCell = new ArrayList<>();
+                dataRowCell.add(vo.getId());
+                dataRowCell.add(typeName);
+                dataRowCell.add(sdf.format(vo.getCreateTime()));
+                dataRowCell.add(vo.getWarehouseName());
+                if (type == 1 || type == 2) {
+                    dataRowCell.add(vo.getTargetId());
+                    dataRowCell.add(vo.getTargetName());
+                }
+                if (type == 1 || type == 2 || type == 3 || type == 4 || type == 5) {
+                    dataRowCell.add(vo.getTotalQuantity().toString());
+                    dataRowCell.add(vo.getTotalMoney().toString());
+                }
+                if (type == 6) {
+                    dataRowCell.add(vo.getTotalCheckQuantity().toString());
+                    dataRowCell.add(vo.getTotalQuantity().toString());
+                    dataRowCell.add(vo.getTotalInQuantity().toString());
+                    dataRowCell.add(vo.getTotalInMoney().toString());
+                    dataRowCell.add(vo.getTotalOutQuantity().toString());
+                    dataRowCell.add(vo.getTotalOutMoney().toString());
+                }
+                dataRowCell.add(vo.getUserName());
+                dataRowCell.add(vo.getRemark());
+                if (vo.getOrderStatus() < 1) {
+                    dataRowCell.add(vo.getOrderStatus() == -1 ? "红冲蓝单" : vo.getOrderStatus() == -2 ? "红冲红单" : null);
+                }
+                dataRowCells.add(dataRowCell);
+            });
+
+            //输出excel
+            String fileName = "【" + typeName + "导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, type == 1 || type == 2 ? titleRowCell1 : type == 3 || type == 4 || type == 5 ? titleRowCell2 : titleRowCell3, lastRequiredCol, dataRowCells, fileName, response);
+        } catch (Exception e) {
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
+        }
     }
 
     /**
@@ -2133,6 +2306,7 @@ public class StorageService {
                 titles.add(new Title("库存上限", "inventoryUpperLimit"));
                 titles.add(new Title("库存下限", "inventoryLowLimit"));
                 titles.add(new Title("账面库存", "bookInventory"));
+                titles.add(new Title("说明", "remark"));
                 break;
             case 3:     //缺货查询
                 titles.add(new Title("缺货数量", "needQuantity"));
