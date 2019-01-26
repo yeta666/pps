@@ -49,7 +49,7 @@ public class ProcurementService {
     @Autowired
     private PrimaryKeyUtil primaryKeyUtil;
 
-    //采购申请订单
+    //采购申请单
 
     /**
      * 采购订单
@@ -209,7 +209,7 @@ public class ProcurementService {
     }
 
     /**
-     * 新增采购申请订单
+     * 新增采购申请单
      * @param procurementApplyOrderVo
      * @return
      */
@@ -281,7 +281,7 @@ public class ProcurementService {
     }
 
     /**
-     * 删除采购申请订单
+     * 删除采购申请单
      * @param procurementApplyOrderVos
      * @return
      */
@@ -291,7 +291,7 @@ public class ProcurementService {
             //重置库存
             backMethod(procurementApplyOrderVo);
 
-            //删除采购申请订单
+            //删除采购申请单
             if (myProcurementMapper.deleteApplyOrder(procurementApplyOrderVo) != 1) {
                 throw new CommonException(CommonResponse.DELETE_ERROR);
             }
@@ -307,7 +307,7 @@ public class ProcurementService {
     public ProcurementApplyOrderVo backMethod(ProcurementApplyOrderVo procurementApplyOrderVo) {
         Integer storeId = procurementApplyOrderVo.getStoreId();
 
-        //获取采购申请订单
+        //获取采购申请单
         List<ProcurementApplyOrderVo> oldVos =  myProcurementMapper.findAllApplyOrderDetail(procurementApplyOrderVo);
         if (oldVos.size() == 0 || oldVos.get(0).getDetails().size() == 0) {
             throw new CommonException(CommonResponse.DELETE_ERROR);
@@ -364,14 +364,14 @@ public class ProcurementService {
             inventoryUtil.updateNotQuantityMethod(0, new WarehouseGoodsSkuVo(storeId, warehouseId, orderGoodsSkuVo.getGoodsSkuId(), notSentQuantity, notReceivedQuantity));
         });
 
-        //删除采购申请订单/商品规格关系
+        //删除采购申请单/商品规格关系
         myOrderGoodsSkuMapper.deleteOrderGoodsSku(new OrderGoodsSkuVo(storeId, oldVo.getId()));
 
         return oldVo;
     }
 
     /**
-     * 修改采购申请订单
+     * 修改采购申请单
      * @param procurementApplyOrderVo
      * @return
      */
@@ -388,7 +388,7 @@ public class ProcurementService {
         //重置库存
         ProcurementApplyOrderVo oldVo = backMethod(procurementApplyOrderVo);
 
-        //修改采购申请订单
+        //修改采购申请单
         if (myProcurementMapper.updateApplyOrder(procurementApplyOrderVo) != 1) {
             throw new CommonException(CommonResponse.UPDATE_ERROR);
         }
@@ -400,7 +400,7 @@ public class ProcurementService {
     }
 
     /**
-     * 修改采购申请订单备注
+     * 修改采购申请单备注
      * @param procurementApplyOrderVo
      * @return
      */
@@ -413,7 +413,7 @@ public class ProcurementService {
     }
 
     /**
-     * 根据type查询采购申请订单
+     * 根据type查询采购申请单
      * @param paoVo
      * @param pageVo
      * @return
@@ -474,7 +474,7 @@ public class ProcurementService {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
-     * 根据type导出采购申请订单
+     * 根据type导出采购申请单
      * @param paoVo
      * @param response
      * @return
@@ -503,8 +503,8 @@ public class ProcurementService {
             //备注
             String remark = "【筛选条件】" +
                     "\n单据编号：" + (paoVo.getId() == null ? "无" : paoVo.getId()) +
-                    " 开始时间：" + (paoVo.getStartTime() == null ? "无" : paoVo.getStartTime()) +
-                    " 结束时间：" + (paoVo.getEndTime() == null ? "无" : paoVo.getEndTime()) +
+                    " 开始时间：" + (paoVo.getStartTime() == null ? "无" : sdf.format(paoVo.getStartTime())) +
+                    " 结束时间：" + (paoVo.getEndTime() == null ? "无" : sdf.format(paoVo.getEndTime())) +
                     " 供应商名称：" + (paoVo.getSupplierName() == null ? "无" : paoVo.getSupplierName());
 
             //标题行
@@ -568,7 +568,7 @@ public class ProcurementService {
     }
 
     /**
-     * 根据单据编号查询申请订单详情
+     * 根据单据编号查询申请单详情
      * @param procurementApplyOrderVo
      * @return
      */
@@ -732,15 +732,15 @@ public class ProcurementService {
             applyOrderVo.setOutNotSentQuantity(applyOrderVo.getOutNotSentQuantity() + quantity);
         }
 
-        //修改申请订单的单据状态和完成数量
+        //修改申请单的单据状态和完成数量
         Byte orderStatus = null;
         switch (applyOrderVo.getType()) {
             case 1:     //采购订单
-                if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity() == applyOrderVo.getInTotalQuantity()) {        //未收
+                if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity().intValue() == applyOrderVo.getInTotalQuantity()) {        //未收
                     orderStatus = 1;
                 } else if (applyOrderVo.getInReceivedQuantity() > 0 && applyOrderVo.getInNotReceivedQuantity() < applyOrderVo.getInTotalQuantity()) {        //部分收
                     orderStatus = 2;
-                } else if (applyOrderVo.getInReceivedQuantity() == applyOrderVo.getInTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {        //已收
+                } else if (applyOrderVo.getInReceivedQuantity().intValue() == applyOrderVo.getInTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {        //已收
                     orderStatus = 3;
                 }
                 if (myProcurementMapper.updateApplyOrderOrderStatusAndQuantity(new StorageOrderVo(storeId, (byte) 1, applyOrderVo.getId(), orderStatus, applyOrderVo.getInReceivedQuantity() - applyOrderVo.getInTotalQuantity())) != 1) {
@@ -748,11 +748,11 @@ public class ProcurementService {
                 }
                 break;
             case 2:     //采购退货申请单
-                if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //未发
+                if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity().intValue() == applyOrderVo.getOutNotSentQuantity()) {        //未发
                     orderStatus = 4;
                 } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //部分发
                     orderStatus = 5;
-                } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //已发
+                } else if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //已发
                     orderStatus = 6;
                 }
                 if (myProcurementMapper.updateApplyOrderOrderStatusAndQuantity(new StorageOrderVo(storeId, (byte) 4, applyOrderVo.getId(), orderStatus, applyOrderVo.getOutSentQuantity() - applyOrderVo.getOutTotalQuantity())) != 1) {
@@ -760,28 +760,28 @@ public class ProcurementService {
                 }
                 break;
             case 3:     //采购换货申请单
-                if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity() == applyOrderVo.getInTotalQuantity()) {        //未收
-                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //未收未发
+                if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity().intValue() == applyOrderVo.getInTotalQuantity()) {        //未收
+                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity().intValue() == applyOrderVo.getOutNotSentQuantity()) {        //未收未发
                         orderStatus = 7;
                     } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //未收部分发
                         orderStatus = 8;
-                    } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //未收已发
+                    } else if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //未收已发
                         orderStatus = 9;
                     }
                 } else if (applyOrderVo.getInReceivedQuantity() > 0 && applyOrderVo.getInNotReceivedQuantity() < applyOrderVo.getInTotalQuantity()) {        //部分收
-                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //部分收未发
+                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity().intValue() == applyOrderVo.getOutNotSentQuantity()) {        //部分收未发
                         orderStatus = 10;
                     } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //部分收部分发
                         orderStatus = 11;
-                    } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //部分收已发
+                    } else if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //部分收已发
                         orderStatus = 12;
                     }
-                } else if (applyOrderVo.getInReceivedQuantity() == applyOrderVo.getInTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {        //已收
-                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //已收未发
+                } else if (applyOrderVo.getInReceivedQuantity().intValue() == applyOrderVo.getInTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {        //已收
+                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity().intValue() == applyOrderVo.getOutNotSentQuantity()) {        //已收未发
                         orderStatus = 13;
                     } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //已收部分发
                         orderStatus = 14;
-                    } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //已收已发
+                    } else if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //已收已发
                         orderStatus = 15;
                     }
                 }
@@ -884,8 +884,8 @@ public class ProcurementService {
             String remark = "【筛选条件】" +
                     "\n单据编号：" + (proVo.getId() == null ? "无" : proVo.getId()) +
                     " 单据类型：" + (proVo.getType() == null ? "无" : proVos.get(0).getType() == 1 ? "采购入库单" : proVos.get(0).getType() == 2 ? "采购退货单" : "采购换货单") +
-                    " 开始时间：" + (proVo.getProcurementApplyOrderVo().getStartTime() == null ? "无" : proVo.getProcurementApplyOrderVo().getStartTime()) +
-                    " 结束时间：" + (proVo.getProcurementApplyOrderVo().getEndTime() == null ? "无" : proVo.getProcurementApplyOrderVo().getEndTime()) +
+                    " 开始时间：" + (proVo.getProcurementApplyOrderVo().getStartTime() == null ? "无" : sdf.format(proVo.getProcurementApplyOrderVo().getStartTime())) +
+                    " 结束时间：" + (proVo.getProcurementApplyOrderVo().getEndTime() == null ? "无" : sdf.format(proVo.getProcurementApplyOrderVo().getEndTime())) +
                     " 供应商名称：" + (proVo.getProcurementApplyOrderVo().getSupplierName() == null ? "无" : proVo.getProcurementApplyOrderVo().getSupplierName());
 
             //标题行

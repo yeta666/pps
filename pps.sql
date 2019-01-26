@@ -1009,6 +1009,25 @@ CREATE TABLE sms_history (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS storage_apply_order_1;
+CREATE TABLE storage_apply_order_1 (
+  id varchar(50) NOT NULL COMMENT '单据编号',
+  type tinyint(4) NOT NULL COMMENT '单据类型，1：调拨申请单',
+  create_time datetime NOT NULL COMMENT '单据日期',
+  order_status tinyint(4) NOT NULL COMMENT '单据状态：1：未发未收，2：部分发未收，3：已发未收，4：已发部分收，5：已发已收',
+  total_quantity int(11) DEFAULT NULL COMMENT '总调拨数量',
+  in_warehouse_id int(11) DEFAULT NULL COMMENT '入库仓库编号，对应收货',
+  in_received_quantity int(11) DEFAULT NULL COMMENT '已收货数量',
+  in_not_received_quantity int(11) DEFAULT NULL COMMENT '未收货数量',
+  out_warehouse_id int(11) DEFAULT NULL COMMENT '出库仓库编号，对应发货',
+  out_sent_quantity int(11) DEFAULT NULL COMMENT '已发货数量',
+  out_not_sent_quantity int(11) DEFAULT NULL COMMENT '未发货数量',
+  total_money double(10,2) NOT NULL COMMENT '总调拨金额',
+  user_id varchar(50) NOT NULL COMMENT '经手人',
+  remark varchar(255) DEFAULT NULL COMMENT '单据备注',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 DROP TABLE IF EXISTS storage_check_order_1;
 CREATE TABLE storage_check_order_1 (
@@ -1059,13 +1078,15 @@ CREATE TABLE storage_order_1 (
 DROP TABLE IF EXISTS storage_result_order_1;
 CREATE TABLE storage_result_order_1 (
   id varchar(50) NOT NULL COMMENT '单据编号',
-  type tinyint(4) NOT NULL COMMENT '单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单，6：库存盘点单',
+  type tinyint(4) NOT NULL COMMENT '单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单，6：库存盘点单，7：调拨单',
   create_time datetime NOT NULL COMMENT '单据日期',
+  apply_order_id varchar(50) DEFAULT NULL COMMENT '来源订单',
   order_status tinyint(4) NOT NULL COMMENT '单据状态：-2：红冲红单，-1：红冲蓝单，1：未红冲',
   target_id varchar(50) DEFAULT NULL COMMENT '往来单位编号，类型1、2会用到',
   warehouse_id int(11) NOT NULL COMMENT '仓库编号',
-  total_quantity int(11) NOT NULL COMMENT '总数量，类型1-6都会用到',
-  total_money double(10,2) DEFAULT NULL COMMENT '总金额，类型1-5会用到',
+  out_warehouse_id int(11) DEFAULT NULL COMMENT '出库仓库编号，类型7会用到',
+  total_quantity int(11) NOT NULL COMMENT '总数量，类型1-7都会用到',
+  total_money double(10,2) DEFAULT NULL COMMENT '总金额，类型1-5、7会用到',
   total_check_quantity int(11) DEFAULT NULL COMMENT '总库存数量，类型6会用到',
   total_in_quantity int(11) DEFAULT NULL COMMENT '总报溢数量，类型6会用到',
   total_in_money double(10,2) DEFAULT NULL COMMENT '总报溢金额，类型6会用到',

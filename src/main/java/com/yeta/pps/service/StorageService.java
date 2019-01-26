@@ -68,7 +68,8 @@ public class StorageService {
      * @return
      */
     public CommonResponse findNotFinishedApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo, PageVo pageVo, Integer flag) {
-        List<ProcurementApplyOrderVo> procurementApplyOrderVos;
+        List<ProcurementApplyOrderVo> procurementApplyOrderVos = null;
+        List<StorageApplyOrderVo> storageApplyOrderVos = null;
 
         switch (flag) {
             case 1:     //采购订单待收货
@@ -99,13 +100,264 @@ public class StorageService {
                 procurementApplyOrderVos = myStorageMapper.findPagedOutTHHApplyOrder(procurementApplyOrderVo, pageVo);
                 break;
 
+            case 5:     //调拨待收货
+                //查询所有页数
+                pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountInDBApplyOrder(procurementApplyOrderVo) * 1.0 / pageVo.getPageSize()));
+                pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+                storageApplyOrderVos = myStorageMapper.findPagedInDBApplyOrder(procurementApplyOrderVo, pageVo);
+                break;
+
+            case 6:     //调拨待发货
+                //查询所有页数
+                pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountOutDBApplyOrder(procurementApplyOrderVo) * 1.0 / pageVo.getPageSize()));
+                pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+                storageApplyOrderVos = myStorageMapper.findPagedOutDBApplyOrder(procurementApplyOrderVo, pageVo);
+                break;
+
             default:
                 return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
         //补上仓库名
         List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(procurementApplyOrderVo.getStoreId()));
-        procurementApplyOrderVos.stream().forEach(vo -> {
+        if (flag == 1 || flag == 2 || flag == 3 || flag == 4) {
+            procurementApplyOrderVos.stream().forEach(vo -> {
+                warehouses.stream().forEach(warehouse -> {
+                    if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setInWarehouseName(warehouse.getName());
+                    }
+                    if (vo.getOutWarehouseId() != null && vo.getOutWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setOutWarehouseName(warehouse.getName());
+                    }
+                });
+            });
+        }
+        if (flag == 5 || flag == 6) {
+            storageApplyOrderVos.stream().forEach(vo -> {
+                warehouses.stream().forEach(warehouse -> {
+                    if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setInWarehouseName(warehouse.getName());
+                    }
+                    if (vo.getOutWarehouseId() != null && vo.getOutWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setOutWarehouseName(warehouse.getName());
+                    }
+                });
+            });
+        }
+
+        //封装返回结果
+        List<Title> titles = new ArrayList<>();
+        titles.add(new Title("单据编号", "id"));
+        titles.add(new Title("单据类型", "typeName"));
+        titles.add(new Title("单据日期", "createTime"));
+        titles.add(new Title("单据状态", "orderStatus"));
+        if (flag == 2 || flag == 4) {
+            titles.add(new Title("来源订单", "resultOrderId"));
+        }
+        if (flag == 1 || flag == 2 || flag == 3 || flag == 4) {
+            titles.add(new Title("往来单位编号", "supplierId"));
+            titles.add(new Title("往来单位名称", "supplierName"));
+        }
+        if (flag == 5 || flag == 6) {
+            titles.add(new Title("总调拨数量", "totalQuantity"));
+        }
+        if (flag == 1 || flag == 2 || flag == 5) {
+            titles.add(new Title( "入库仓库", "inWarehouseName"));
+            if (flag != 5) {
+                titles.add(new Title("总收货数量", "inTotalQuantity"));
+            }
+            titles.add(new Title("已收货数量", "inReceivedQuantity"));
+            titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
+        }
+        if (flag == 3 || flag == 4 || flag == 6) {
+            titles.add(new Title("出库仓库", "outWarehouseName"));
+            if (flag != 6) {
+                titles.add(new Title("总发货数量", "outTotalQuantity"));
+            }
+            titles.add(new Title("已发货数量", "outSentQuantity"));
+            titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
+        }
+        titles.add(new Title("经手人", "userName"));
+        titles.add(new Title("单据备注", "remark"));
+        CommonResult commonResult = new CommonResult(titles, flag == 1 || flag == 2 || flag == 3 || flag == 4 ? procurementApplyOrderVos : storageApplyOrderVos, pageVo);
+
+        return CommonResponse.success(commonResult);
+    }
+
+    //申请单
+
+    /**
+     * 新增申请单
+     * @param saoVo
+     * @return
+     */
+    @Transactional
+    public CommonResponse addStorageApplyOrder(StorageApplyOrderVo saoVo) {
+        //获取参数
+        Integer storeId = saoVo.getStoreId();
+        List<OrderGoodsSkuVo> ogsVos = saoVo.getDetails();
+        Byte type = saoVo.getType();
+
+        //判断系统是否开账
+        if (!systemUtil.judgeStartBillMethod(storeId)) {
+            throw new CommonException(CommonResponse.INVENTORY_ERROR, "系统未开账");
+        }
+
+        //判断参数、总调拨数量、总调拨金额
+        StorageApplyOrderVo checkIn = new StorageApplyOrderVo(0, 0.0);
+        StorageApplyOrderVo checkOut = new StorageApplyOrderVo(0, 0.0);
+        ogsVos.stream().forEach(ogsVo -> {
+            //判断参数
+            if (ogsVo.getType() == null || ogsVo.getGoodsSkuId() == null || ogsVo.getQuantity() == null || ogsVo.getMoney() == null) {
+                throw new CommonException(CommonResponse.PARAMETER_ERROR);
+            }
+
+            //统计总商品数量、总商品金额、总优惠金额
+            if (ogsVo.getType() == 0) {
+                checkOut.setTotalQuantity(checkOut.getTotalQuantity() + ogsVo.getQuantity());
+                checkOut.setTotalMoney(checkOut.getTotalMoney() + ogsVo.getMoney());
+            } else if (ogsVo.getType() == 1) {
+                checkIn.setTotalQuantity(checkIn.getTotalQuantity() + ogsVo.getQuantity());
+                checkIn.setTotalMoney(checkIn.getTotalMoney() + ogsVo.getMoney());
+            } else {
+                throw new CommonException(CommonResponse.PARAMETER_ERROR);
+            }
+        });
+        if (checkIn.getTotalQuantity().intValue() != checkOut.getTotalQuantity() ||
+                checkIn.getTotalQuantity().intValue() != saoVo.getTotalQuantity() ||
+                checkIn.getTotalMoney().doubleValue() != checkOut.getTotalMoney() ||
+                checkIn.getTotalMoney().doubleValue() != saoVo.getTotalMoney()) {
+            throw new CommonException(CommonResponse.PARAMETER_ERROR, "商品规格入库数量、金额应等于出库数量、金额，也等于订单的数量、金额");
+        }
+
+        //判断新增类型
+        switch (type) {
+            case 1:     //调拨申请单
+                //判断参数
+                if (saoVo.getInWarehouseId().intValue() == saoVo.getOutWarehouseId() || ogsVos.size() == 0) {
+                    throw new CommonException(CommonResponse.PARAMETER_ERROR, "入库仓库应该不同于出库仓库");
+                }
+
+                //设置初始属性
+                saoVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageApplyOrderPrimaryKey(saoVo), "DBSQD"));
+                saoVo.setOrderStatus((byte) 1);       //未发未收
+                saoVo.setInReceivedQuantity(0);
+                saoVo.setInNotReceivedQuantity(saoVo.getTotalQuantity());
+                saoVo.setOutSentQuantity(0);
+                saoVo.setOutNotSentQuantity(saoVo.getTotalQuantity());
+
+                //库存相关操作
+                ogsVos.stream().forEach(ogsVo -> {
+
+                    Integer quantity = ogsVo.getQuantity();
+                    Integer goodsSkuId = ogsVo.getGoodsSkuId();
+
+                    //设置初始属性
+                    ogsVo.setStoreId(storeId);
+                    ogsVo.setOrderId(saoVo.getId());
+                    ogsVo.setFinishQuantity(0);
+                    ogsVo.setNotFinishQuantity(quantity);
+                    ogsVo.setOperatedQuantity(0);
+
+                    //修改库存相关
+                    Integer warehouseId = null;
+                    int notSentQuantity = 0;
+                    int notReceivedQuantity = 0;
+                    if (ogsVo.getType() == 1) {
+                        warehouseId = saoVo.getInWarehouseId();
+                        notReceivedQuantity = quantity;
+                    } else if (ogsVo.getType() == 0) {
+                        warehouseId = saoVo.getOutWarehouseId();
+                        notSentQuantity = quantity;
+
+                        //减少可用库存
+                        inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storeId, warehouseId, goodsSkuId, 0, notSentQuantity, 0));
+                    }
+                    //增加待发货数量、待收货数量
+                    inventoryUtil.updateNotQuantityMethod(1, new WarehouseGoodsSkuVo(storeId, warehouseId, goodsSkuId, notSentQuantity, notReceivedQuantity));
+
+                    //新增申请单/商品规格关系
+                    if (myOrderGoodsSkuMapper.addOrderGoodsSku(ogsVo) != 1) {
+                        throw new CommonException(CommonResponse.ADD_ERROR);
+                    }
+                });
+                break;
+
+            default:
+                return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
+        }
+
+        //新增申请单
+        if (myStorageMapper.addStorageApplyOrder(saoVo) != 1) {
+            return CommonResponse.error(CommonResponse.ADD_ERROR);
+        }
+        return CommonResponse.success();
+    }
+
+    /**
+     * 删除申请单
+     * @param saoVos
+     * @return
+     */
+    @Transactional
+    public CommonResponse deleteStorageApplyOrder(List<StorageApplyOrderVo> saoVos) {
+        saoVos.stream().forEach(saoVo -> {
+            //获取参数
+            Integer storeId = saoVo.getStoreId();
+
+            //查询申请单详情
+            List<StorageApplyOrderVo> oldVos =  myStorageMapper.findStorageApplyOrderDetail(saoVo);
+            if (oldVos.size() == 0 || oldVos.get(0).getDetails().size() == 0) {
+                throw new CommonException(CommonResponse.DELETE_ERROR);
+            }
+            StorageApplyOrderVo oldVo = oldVos.get(0);
+
+            //重置库存
+            oldVo.getDetails().stream().forEach(ogsVo -> {
+                Integer warehouseId = null;
+                int notSentQuantity = 0;
+                int notReceivedQuantity = 0;
+                if (ogsVo.getType() == 1) {
+                    warehouseId = oldVo.getInWarehouseId();
+                    notReceivedQuantity = ogsVo.getQuantity();
+                } else if (ogsVo.getType() == 0) {
+                    warehouseId = oldVo.getOutWarehouseId();
+                    notSentQuantity = ogsVo.getQuantity();
+
+                    //增加可用库存
+                    inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storeId, warehouseId, ogsVo.getGoodsSkuId(), 0, notSentQuantity, 0));
+                }
+                //减少待发货数量、待收货数量
+                inventoryUtil.updateNotQuantityMethod(0, new WarehouseGoodsSkuVo(storeId, warehouseId, ogsVo.getGoodsSkuId(), notSentQuantity, notReceivedQuantity));
+            });
+
+            //删除
+            if (myStorageMapper.deleteStorageApplyOrder(saoVo) != 1) {
+                throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.STATUS_ERROR);
+            }
+
+            //删除采购申请单/商品规格关系
+            myOrderGoodsSkuMapper.deleteOrderGoodsSku(new OrderGoodsSkuVo(storeId, oldVo.getId()));
+        });
+
+        return CommonResponse.success();
+    }
+
+    /**
+     * 根据type查询申请单
+     * @param saoVo
+     * @param pageVo
+     * @return
+     */
+    public CommonResponse findPagedStorageApplyOrder(StorageApplyOrderVo saoVo, PageVo pageVo) {
+        //查询所有页数
+        pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountStorageApplyOrder(saoVo) * 1.0 / pageVo.getPageSize()));
+        pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
+        List<StorageApplyOrderVo> saoVos = myStorageMapper.findPagedStorageApplyOrder(saoVo, pageVo);
+
+        //补上仓库名
+        List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(saoVo.getStoreId()));
+        saoVos.stream().forEach(vo -> {
             warehouses.stream().forEach(warehouse -> {
                 if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
                     vo.setInWarehouseName(warehouse.getName());
@@ -121,26 +373,112 @@ public class StorageService {
         titles.add(new Title("单据编号", "id"));
         titles.add(new Title("单据类型", "typeName"));
         titles.add(new Title("单据日期", "createTime"));
-        titles.add(new Title("单据状态", "orderStatus"));
-        titles.add(new Title("来源订单", "resultOrderId"));
-        titles.add(new Title("往来单位", "supplierName"));
+        titles.add(new Title("单据状态", "oderStatusName"));
+        titles.add(new Title("总调拨数量", "totalQuantity"));
         titles.add(new Title("入库仓库", "inWarehouseName"));
-        titles.add(new Title("总收货数量", "inTotalQuantity"));
         titles.add(new Title("已收货数量", "inReceivedQuantity"));
         titles.add(new Title("未收货数量", "inNotReceivedQuantity"));
         titles.add(new Title("出库仓库", "outWarehouseName"));
-        titles.add(new Title("总发货数量", "outTotalQuantity"));
         titles.add(new Title("已发货数量", "outSentQuantity"));
-        titles.add(new Title("未发货数量数量", "outNotSentQuantity"));
+        titles.add(new Title("未发货数量", "outNotSentQuantity"));
+        titles.add(new Title("总调拨金额", "totalMoney"));
         titles.add(new Title("经手人", "userName"));
         titles.add(new Title("单据备注", "remark"));
-        CommonResult commonResult = new CommonResult(titles, procurementApplyOrderVos, pageVo);
+        CommonResult commonResult = new CommonResult(titles, saoVos, pageVo);
 
         return CommonResponse.success(commonResult);
     }
 
     /**
-     * 获取申请订单应该改为哪种单据状态的方法
+     * 根据type导出申请单
+     * @param saoVo
+     * @param response
+     * @return
+     */
+    public void exportStorageApplyOrder(StorageApplyOrderVo saoVo, HttpServletResponse response) {
+        try {
+            //获取参数
+            Byte type = saoVo.getType();
+
+            //根据条件查询单据
+            List<StorageApplyOrderVo> saoVos = myStorageMapper.findAllStorageApplyOrder(saoVo);
+
+            //补上仓库名
+            List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(saoVo.getStoreId()));
+            saoVos.stream().forEach(vo -> {
+                warehouses.stream().forEach(warehouse -> {
+                    if (vo.getInWarehouseId() != null && vo.getInWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setInWarehouseName(warehouse.getName());
+                    }
+                    if (vo.getOutWarehouseId() != null && vo.getOutWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setOutWarehouseName(warehouse.getName());
+                    }
+                });
+            });
+
+            //备注
+            String remark = "【筛选条件】" +
+                    "\n单据编号：" + (saoVo.getId() == null ? "无" : saoVo.getId()) +
+                    " 开始时间：" + (saoVo.getStartTime() == null ? "无" : sdf.format(saoVo.getStartTime())) +
+                    " 结束时间：" + (saoVo.getEndTime() == null ? "无" : sdf.format(saoVo.getEndTime())) +
+                    " 入库仓库：" + (saoVo.getInWarehouseId() == null ? "无" : saoVos.get(0).getInWarehouseName()) +
+                    " 出库仓库：" + (saoVo.getOutWarehouseId() == null ? "无" : saoVos.get(0).getOutWarehouseName());
+
+            //标题行
+            List<String> titleRowCell = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "单据状态", "总调拨数量", "入库仓库", "已收货数量", "未收货数量", "出库仓库", "已发货数量", "未发货数量", "总调拨金额", "经手人", "备注"
+            });
+
+            //最后一个必填列列数
+            int lastRequiredCol = -1;
+
+            //数据行
+            List<List<String>> dataRowCells = new ArrayList<>();
+            saoVos.stream().forEach(vo -> {
+                List<String> dataRowCell = new ArrayList<>();
+                dataRowCell.add(vo.getId());
+                dataRowCell.add(vo.getTypeName());
+                dataRowCell.add(sdf.format(vo.getCreateTime()));
+                dataRowCell.add(vo.getOrderStatusName());
+                dataRowCell.add(vo.getTotalQuantity().toString());
+                dataRowCell.add(vo.getInWarehouseName());
+                dataRowCell.add(vo.getInReceivedQuantity().toString());
+                dataRowCell.add(vo.getInNotReceivedQuantity().toString());
+                dataRowCell.add(vo.getOutWarehouseName());
+                dataRowCell.add(vo.getOutSentQuantity().toString());
+                dataRowCell.add(vo.getOutNotSentQuantity().toString());
+                dataRowCell.add(vo.getTotalMoney().toString());
+                dataRowCell.add(vo.getUserName());
+                dataRowCell.add(vo.getRemark());
+                dataRowCells.add(dataRowCell);
+            });
+
+            //输出excel
+            String fileName = "【" + saoVos.get(0).getTypeName() + "导出】_" + System.currentTimeMillis() + ".xls";
+            CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
+        } catch (Exception e) {
+            throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * 查询申请单详情
+     * @param saoVo
+     * @return
+     */
+    public CommonResponse findStorageApplyOrderDetail(StorageApplyOrderVo saoVo) {
+        List<StorageApplyOrderVo> saoVos = myStorageMapper.findStorageApplyOrderDetail(saoVo);
+        if (saoVos.size() == 0) {
+            return CommonResponse.error(CommonResponse.FIND_ERROR);
+        }
+
+        return CommonResponse.success(saoVos.get(0));
+    }
+
+    //收/发货单
+
+    /**
+     * 获取申请单应该改为哪种单据状态的方法
      * @param type
      * @param change
      * @param total
@@ -259,8 +597,8 @@ public class StorageService {
     }
 
     /**
-     * 修改申请订单单据状态和完成数量的方法
-     * @param flag 1：采购，2：销售
+     * 修改申请单单据状态和完成数量的方法
+     * @param flag 1：采购，2：销售，3：调拨
      * @param applyOrderStatus
      * @param storageOrderVo
      */
@@ -276,6 +614,12 @@ public class StorageService {
 
             case 2:
                 if (mySellMapper.updateApplyOrderOrderStatusAndQuantity(storageOrderVo) != 1) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                break;
+
+            case 3:
+                if (myStorageMapper.updateStorageApplyOrderOrderStatusAndQuantity(storageOrderVo) != 1) {
                     throw new CommonException(CommonResponse.UPDATE_ERROR);
                 }
                 break;
@@ -436,7 +780,7 @@ public class StorageService {
     }
 
     /**
-     * 新增结果订单的方法
+     * 新增结果单的方法
      * @param storageOrderVo
      * @param pVo
      * @param sVo
@@ -517,7 +861,7 @@ public class StorageService {
     }
 
     /**
-     * 新增结果订单/商品规格关系的方法
+     * 新增结果单/商品规格关系的方法
      * @param storeId
      * @param resultOrderId
      * @param orderGoodsSkuVos
@@ -527,6 +871,8 @@ public class StorageService {
         orderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
             orderGoodsSkuVo.setStoreId(storeId);
             orderGoodsSkuVo.setOrderId(resultOrderId);
+            orderGoodsSkuVo.setFinishQuantity(orderGoodsSkuVo.getQuantity());
+            orderGoodsSkuVo.setNotFinishQuantity(0);
             orderGoodsSkuVo.setOperatedQuantity(0);
             myOrderGoodsSkuMapper.addOrderGoodsSku(orderGoodsSkuVo);
         });
@@ -548,21 +894,21 @@ public class StorageService {
         String targetId = pVo.getSupplierId();
         String userId = storageOrderVo.getUserId();
 
-        //获取申请订单应该改为哪种单据状态
+        //获取申请单应该改为哪种单据状态
         byte applyOrderStatus = getApplyOrderStatusMethod(type, quantity, pVo.getInTotalQuantity(), pVo.getInReceivedQuantity(), pVo.getInNotReceivedQuantity(), pVo.getOrderStatus());
 
-        //修改申请订单
+        //修改申请单
         updateApplyOrderMethod(1, applyOrderStatus, storageOrderVo);
 
         //修改商品规格完成情况
         updateOrderGoodsSkuMethod(storeId, quantity, orderGoodsSkuVos);
 
-        //新增结果订单
+        //新增结果单
         Map<String, Object> map = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
         String resultOrderId = map.get("resultOrderId").toString();
         double orderMoney = (double) map.get("orderMoney");
 
-        //新增结果订单/商品规格关系
+        //新增结果单/商品规格关系
         addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
 
         //修改库存相关
@@ -657,10 +1003,10 @@ public class StorageService {
             //获取商品规格
             List<OrderGoodsSkuVo> orderGoodsSkuVos = storageOrderVo.getProcurementApplyOrderVo().getDetails();
 
-            //获取申请订单应该改为哪种单据状态
+            //获取申请单应该改为哪种单据状态
             byte applyOrderStatus = getApplyOrderStatusMethod(type, quantity, pVo.getInTotalQuantity(), pVo.getInReceivedQuantity(), pVo.getInNotReceivedQuantity(), pVo.getOrderStatus());
 
-            //修改申请订单
+            //修改申请单
             updateApplyOrderMethod(1, applyOrderStatus, storageOrderVo);
 
             //修改商品规格完成情况
@@ -677,12 +1023,12 @@ public class StorageService {
 
             //如果换货完成
             if (applyOrderStatus == 15) {
-                //新增结果订单
+                //新增结果单
                 Map<String, Object> map = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
                 String resultOrderId = map.get("resultOrderId").toString();
                 double orderMoney = (double) map.get("orderMoney");
 
-                //新增结果订单/商品规格关系
+                //新增结果单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, pVo.getDetails());
 
                 //修改商品规格账面库存
@@ -749,10 +1095,10 @@ public class StorageService {
             //获取商品规格
             List<OrderGoodsSkuVo> orderGoodsSkuVos = storageOrderVo.getSellApplyOrderVo().getDetails();
 
-            //获取申请订单应该改为哪种单据状态
+            //获取申请单应该改为哪种单据状态
             byte applyOrderStatus = getApplyOrderStatusMethod(type, quantity, sVo.getInTotalQuantity(), sVo.getInReceivedQuantity(), sVo.getInNotReceivedQuantity(), sVo.getOrderStatus());
 
-            //修改申请订单
+            //修改申请单
             updateApplyOrderMethod(2, applyOrderStatus, storageOrderVo);
 
             //修改商品规格完成情况
@@ -760,7 +1106,7 @@ public class StorageService {
 
             //判断销售类型
             if (sVo.getType() == 3) {       //销售退货收货
-                //销售结果订单单据编号
+                //销售结果单单据编号
                 String resultOrderId = primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findResultOrderPrimaryKey(new SellResultOrderVo(storeId, (byte) 3)), "XSTHD");
 
                 //统计成本
@@ -788,10 +1134,10 @@ public class StorageService {
                     costMoney += inventoryUtil.addStorageCheckOrderMethod(2, storageCheckOrderVo, null) * vo.getChangeQuantity();
                 }
 
-                //新增结果订单
+                //新增结果单
                 double orderMoney = (double) addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, -costMoney).get("orderMoney");
 
-                //新增结果订单/商品规格关系
+                //新增结果单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
 
                 if (applyOrderStatus == 3) {        //收货完成
@@ -875,16 +1221,16 @@ public class StorageService {
         String userId = storageOrderVo.getUserId();
         String clientId = sVo.getClient().getId();
 
-        //获取申请订单应该改为哪种单据状态
+        //获取申请单应该改为哪种单据状态
         byte applyOrderStatus = getApplyOrderStatusMethod(type, quantity, sVo.getOutTotalQuantity(), sVo.getOutSentQuantity(), sVo.getOutNotSentQuantity(), sVo.getOrderStatus());
 
-        //修改申请订单
+        //修改申请单
         updateApplyOrderMethod(2, applyOrderStatus, storageOrderVo);
 
         //修改商品规格完成情况
         updateOrderGoodsSkuMethod(storeId, quantity, orderGoodsSkuVos);
 
-        //销售结果订单单据编号
+        //销售结果单单据编号
         String resultOrderId = primaryKeyUtil.getOrderPrimaryKeyMethod(mySellMapper.findResultOrderPrimaryKey(new SellResultOrderVo(storeId, (byte) 2)), "XSCKD");
 
         //统计成本
@@ -912,10 +1258,10 @@ public class StorageService {
             costMoney += inventoryUtil.addStorageCheckOrderMethod(0, storageCheckOrderVo, null) * vo.getChangeQuantity();
         }
 
-        //新增结果订单
+        //新增结果单
         double orderMoney = (double) addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, costMoney).get("orderMoney");
 
-        //新增结果订单/商品规格关系
+        //新增结果单/商品规格关系
         addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
 
         if (applyOrderStatus == 6) {        //发货完成
@@ -993,10 +1339,10 @@ public class StorageService {
             //获取商品规格
             List<OrderGoodsSkuVo> orderGoodsSkuVos = storageOrderVo.getProcurementApplyOrderVo().getDetails();
 
-            //获取申请订单应该改为哪种单据状态
+            //获取申请单应该改为哪种单据状态
             byte applyOrderStatus = getApplyOrderStatusMethod(type, quantity, pVo.getOutTotalQuantity(), pVo.getOutSentQuantity(), pVo.getOutNotSentQuantity(), pVo.getOrderStatus());
 
-            //修改申请订单
+            //修改申请单
             updateApplyOrderMethod(1, applyOrderStatus, storageOrderVo);
 
             //修改商品规格完成情况
@@ -1004,12 +1350,12 @@ public class StorageService {
 
             //判断采购类型
             if (pVo.getType() == 2) {       //采购退货发货
-                //新增结果订单
+                //新增结果单
                 Map<String, Object> map = addResultOrderMethod(storageOrderVo, pVo, sVo, null, 0);
                 String resultOrderId = map.get("resultOrderId").toString();
                 double orderMoney = (double) map.get("orderMoney");
 
-                //新增结果订单/商品规格关系
+                //新增结果单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, orderGoodsSkuVos);
 
                 //统计成本
@@ -1100,10 +1446,10 @@ public class StorageService {
             //获取商品规格
             List<OrderGoodsSkuVo> orderGoodsSkuVos = storageOrderVo.getSellApplyOrderVo().getDetails();
 
-            //获取申请订单应该改为哪种单据状态
+            //获取申请单应该改为哪种单据状态
             byte applyOrderStatus = getApplyOrderStatusMethod(type, quantity, sVo.getOutTotalQuantity(), sVo.getOutSentQuantity(), sVo.getOutNotSentQuantity(), sVo.getOrderStatus());
 
-            //修改申请订单
+            //修改申请单
             updateApplyOrderMethod(2, applyOrderStatus, storageOrderVo);
 
             //修改商品规格完成情况
@@ -1123,10 +1469,10 @@ public class StorageService {
                 //修改商品规格账面库存
                 double costMoney = updateBookInventoryMethod(storageOrderVo, pVo, sVo, resultOrderId);
 
-                //新增结果订单
+                //新增结果单
                 double orderMoney = (double) addResultOrderMethod(storageOrderVo, pVo, sVo, resultOrderId, costMoney).get("orderMoney");
 
-                //新增结果订单/商品规格关系
+                //新增结果单/商品规格关系
                 addOrderGoodsSkuMethod(storeId, resultOrderId, sVo.getDetails());
 
                 //往来记账
@@ -1200,6 +1546,163 @@ public class StorageService {
     }
 
     /**
+     * 新增调拨申请发货单
+     * @param storageOrderVo
+     * @param saoVo
+     */
+    @Transactional
+    public void dbsqfhd(StorageOrderVo storageOrderVo, StorageApplyOrderVo saoVo) {
+        //获取参数
+        int storeId = storageOrderVo.getStoreId();
+        List<OrderGoodsSkuVo> orderGoodsSkuVos = storageOrderVo.getStorageApplyOrderVo().getDetails();
+        int quantity = storageOrderVo.getQuantity();
+
+        //获取申请单应该改为哪种单据状态
+        if (quantity <= 0 || quantity > saoVo.getOutNotSentQuantity() || quantity + saoVo.getOutSentQuantity() > saoVo.getTotalQuantity()) {
+            throw new CommonException(CommonResponse.PARAMETER_ERROR, "发货数量错误");
+        }
+        if (saoVo.getOrderStatus() != 1 && saoVo.getOrderStatus() != 2) {
+            throw new CommonException(CommonResponse.PARAMETER_ERROR, CommonResponse.STATUS_ERROR);
+        }
+        byte applyOrderStatus = quantity < saoVo.getOutNotSentQuantity() ? (byte) 2 : quantity == saoVo.getOutNotSentQuantity() ? (byte) 3 : null;
+
+        //修改申请单
+        updateApplyOrderMethod(3, applyOrderStatus, storageOrderVo);
+
+        //修改商品规格完成情况
+        updateOrderGoodsSkuMethod(storeId, quantity, orderGoodsSkuVos);
+
+        //修改库存相关
+        for (OrderGoodsSkuVo vo : orderGoodsSkuVos) {
+            //减少实物库存
+            inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storeId, saoVo.getOutWarehouseId(), vo.getGoodsSkuId(), vo.getChangeQuantity(), 0, 0));
+
+            //减少待发货数量
+            inventoryUtil.updateNotQuantityMethod(0, new WarehouseGoodsSkuVo(storeId, saoVo.getOutWarehouseId(), vo.getGoodsSkuId(), vo.getChangeQuantity(), 0));
+        }
+    }
+
+    /**
+     * 新增调拨申请收货单
+     * @param storageOrderVo
+     * @param saoVo
+     */
+    @Transactional
+    public void dbsqshd(StorageOrderVo storageOrderVo, StorageApplyOrderVo saoVo) {
+        //获取参数
+        int storeId = storageOrderVo.getStoreId();
+        List<OrderGoodsSkuVo> orderGoodsSkuVos = storageOrderVo.getStorageApplyOrderVo().getDetails();
+        int quantity = storageOrderVo.getQuantity();
+        String userId = storageOrderVo.getUserId();
+        Integer inWarehouseId = saoVo.getInWarehouseId();
+        Integer outWarehouseId = saoVo.getOutWarehouseId();
+
+        //获取申请单应该改为哪种单据状态
+        if (quantity <= 0 || quantity > saoVo.getInNotReceivedQuantity() || quantity + saoVo.getInReceivedQuantity() > saoVo.getTotalQuantity()) {
+            throw new CommonException(CommonResponse.PARAMETER_ERROR, "收货数量错误");
+        }
+        if (saoVo.getOrderStatus() != 3 && saoVo.getOrderStatus() != 4) {
+            throw new CommonException(CommonResponse.PARAMETER_ERROR, CommonResponse.STATUS_ERROR);
+        }
+        byte applyOrderStatus = quantity < saoVo.getInNotReceivedQuantity() ? (byte) 4 : quantity == saoVo.getInNotReceivedQuantity() ? (byte) 5 : null;
+
+        //修改申请单
+        updateApplyOrderMethod(3, applyOrderStatus, storageOrderVo);
+
+        //修改商品规格完成情况
+        updateOrderGoodsSkuMethod(storeId, quantity, orderGoodsSkuVos);
+
+        //修改库存相关
+        for (OrderGoodsSkuVo vo : orderGoodsSkuVos) {
+            //增加实物库存、可用库存
+            inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storeId, inWarehouseId, vo.getGoodsSkuId(), vo.getChangeQuantity(), vo.getChangeQuantity(), 0));
+
+            //减少待收货数量
+            inventoryUtil.updateNotQuantityMethod(0, new WarehouseGoodsSkuVo(storeId, inWarehouseId, vo.getGoodsSkuId(), 0, vo.getChangeQuantity()));
+        }
+
+        //如果调拨完成
+        if (applyOrderStatus == 5) {
+            //结果单单据编号
+            String resultOrderId = primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageResultOrderPrimaryKey(new StorageResultOrderVo(storeId, (byte) 7)), "DBD");
+
+            //设置初始属性
+            StorageResultOrderVo sroVo = new StorageResultOrderVo(
+                    storeId,
+                    resultOrderId,
+                    (byte) 7,
+                    new Date(),
+                    saoVo.getId(),
+                    (byte) 1,
+                    inWarehouseId,
+                    outWarehouseId,
+                    0,
+                    0.0,
+                    userId,
+                    storageOrderVo.getRemark()
+            );
+
+            //先出库再入库
+            List<OrderGoodsSkuVo> outSaoVos = saoVo.getDetails().stream().filter(ogsVo -> ogsVo.getType() == 0).collect(Collectors.toList());
+            List<OrderGoodsSkuVo> inSaoVos = saoVo.getDetails().stream().filter(ogsVo -> ogsVo.getType() == 1).collect(Collectors.toList());
+            outSaoVos.stream().forEach(ogsVo -> {
+                int goodsSkuId = ogsVo.getGoodsSkuId();
+                int ogsQuantity = ogsVo.getQuantity();
+
+                //减少账面库存
+                inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storeId, outWarehouseId, goodsSkuId, 0, 0, ogsQuantity));
+
+                //库存记账
+                StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
+                storageCheckOrderVo.setStoreId(storeId);
+                storageCheckOrderVo.setOrderId(resultOrderId);
+                storageCheckOrderVo.setCreateTime(new Date());
+                storageCheckOrderVo.setOrderStatus((byte) 1);
+                storageCheckOrderVo.setGoodsSkuId(goodsSkuId);
+                storageCheckOrderVo.setWarehouseId(outWarehouseId);
+                storageCheckOrderVo.setOutQuantity(ogsQuantity);
+                storageCheckOrderVo.setUserId(userId);
+                inventoryUtil.addStorageCheckOrderMethod(0, storageCheckOrderVo, null);
+
+                //统计总调拨数量、总调拨金额
+                sroVo.setTotalQuantity(sroVo.getTotalQuantity() + ogsVo.getQuantity());
+                sroVo.setTotalMoney(sroVo.getTotalMoney() + ogsVo.getMoney());
+
+            });
+            inSaoVos.stream().forEach(ogsVo -> {
+                int goodsSkuId = ogsVo.getGoodsSkuId();
+                int ogsQuantity = ogsVo.getQuantity();
+                double ogsMoney = ogsVo.getMoney();
+
+                //增加账面库存
+                inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storeId, inWarehouseId, goodsSkuId, 0, 0, ogsQuantity));
+
+                //库存记账
+                StorageCheckOrderVo storageCheckOrderVo = new StorageCheckOrderVo();
+                storageCheckOrderVo.setStoreId(storeId);
+                storageCheckOrderVo.setOrderId(resultOrderId);
+                storageCheckOrderVo.setCreateTime(new Date());
+                storageCheckOrderVo.setOrderStatus((byte) 1);
+                storageCheckOrderVo.setGoodsSkuId(goodsSkuId);
+                storageCheckOrderVo.setWarehouseId(inWarehouseId);
+                storageCheckOrderVo.setInQuantity(ogsQuantity);
+                storageCheckOrderVo.setUserId(userId);
+                storageCheckOrderVo.setInMoney(inventoryUtil.getNumberMethod(ogsMoney / ogsQuantity));
+                storageCheckOrderVo.setInTotalMoney(ogsMoney);
+                inventoryUtil.addStorageCheckOrderMethod(1, storageCheckOrderVo, null);
+            });
+
+            //新增结果单
+            if (myStorageMapper.addStorageResultOrder(sroVo) != 1) {
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
+            }
+
+            //新增结果单/商品规格关系
+            addOrderGoodsSkuMethod(storeId, resultOrderId, saoVo.getDetails());
+        }
+    }
+
+    /**
      * 新增收/发货单
      * @param storageOrderVo
      * @return
@@ -1215,16 +1718,17 @@ public class StorageService {
             throw new CommonException(CommonResponse.ADD_ERROR, "系统未开账");
         }
 
-        //判断参数、查询申请订单
+        //判断参数、查询申请单
         ProcurementApplyOrderVo pVo = null;
         SellApplyOrderVo sVo = null;
+        StorageApplyOrderVo saoVo = null;
         if (storageOrderVo.getProcurementApplyOrderVo() != null && storageOrderVo.getSellApplyOrderVo() == null) {      //采购相关
             //判断参数
             if (storageOrderVo.getProcurementApplyOrderVo().getDetails() == null || storageOrderVo.getProcurementApplyOrderVo().getDetails().size() == 0) {
                 throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
 
-            //查询申请订单
+            //查询申请单
             List<ProcurementApplyOrderVo> pVos = myProcurementMapper.findAllApplyOrderDetail(new ProcurementApplyOrderVo(storeId, applyOrderId));
             if (pVos.size() == 0 || pVos.get(0).getDetails() == null || pVos.get(0).getDetails().size() == 0) {
                 throw new CommonException(CommonResponse.PARAMETER_ERROR);
@@ -1237,13 +1741,25 @@ public class StorageService {
                 throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
 
-            //查询申请订单
+            //查询申请单
             List<SellApplyOrderVo> sVos = mySellMapper.findAllApplyOrderDetail(new SellApplyOrderVo(storeId, applyOrderId));
             if (sVos.size() == 0 || sVos.get(0).getDetails() == null || sVos.get(0).getDetails().size() == 0) {
                 throw new CommonException(CommonResponse.PARAMETER_ERROR);
             }
             sVo = sVos.get(0);
 
+        } else if (storageOrderVo.getStorageApplyOrderVo() != null) {
+            //判断参数
+            if (storageOrderVo.getStorageApplyOrderVo().getDetails() == null || storageOrderVo.getStorageApplyOrderVo().getDetails().size() == 0) {
+                throw new CommonException(CommonResponse.PARAMETER_ERROR);
+            }
+
+            //查询申请单
+            List<StorageApplyOrderVo> saoVos = myStorageMapper.findStorageApplyOrderDetail(new StorageApplyOrderVo(storeId, applyOrderId));
+            if (saoVos.size() == 0 || saoVos.get(0).getDetails() == null || saoVos.get(0).getDetails().size() == 0) {
+                throw new CommonException(CommonResponse.PARAMETER_ERROR);
+            }
+            saoVo = saoVos.get(0);
         } else {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
@@ -1253,7 +1769,7 @@ public class StorageService {
         switch (type) {
             case 1:     //采购订单收货单
                 //设置单据编号
-                storageOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageOrderPrimaryKey(storageOrderVo), "SHD-CGSH"));
+                storageOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageOrderPrimaryKey(storageOrderVo), "SHD-CGDD"));
                 cgshd(storageOrderVo, pVo, sVo);
                 break;
 
@@ -1273,6 +1789,18 @@ public class StorageService {
                 //设置单据编号
                 storageOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageOrderPrimaryKey(storageOrderVo), "FHD-THHFH"));
                 thhsqfhd(storageOrderVo, pVo, sVo);
+                break;
+
+            case 5:     //调拨申请收货单
+                //设置单据编号
+                storageOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageOrderPrimaryKey(storageOrderVo), "SHD-DBSH"));
+                dbsqshd(storageOrderVo, saoVo);
+                break;
+
+            case 6:     //调拨申请发货单
+                //设置单据编号
+                storageOrderVo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(myStorageMapper.findStorageOrderPrimaryKey(storageOrderVo), "FHD-DBSH"));
+                dbsqfhd(storageOrderVo, saoVo);
                 break;
 
             default:
@@ -1377,8 +1905,8 @@ public class StorageService {
             //备注
             String remark = "【筛选条件】" +
                     "\n单据编号：" + (soVo.getId() == null ? "无" : soVo.getId()) +
-                    " 开始时间：" + (soVo.getStartTime() == null ? "无" : soVo.getStartTime()) +
-                    " 结束时间：" + (soVo.getEndTime() == null ? "无" : soVo.getEndTime()) +
+                    " 开始时间：" + (soVo.getStartTime() == null ? "无" : sdf.format(soVo.getStartTime())) +
+                    " 结束时间：" + (soVo.getEndTime() == null ? "无" : sdf.format(soVo.getEndTime())) +
                     " 往来单位：" + (soVo.getTargetName() == null ? "无" : soVo.getTargetName()) +
                     " 仓库：" + (soVo.getWarehouseId() == null ? "无" : soVos.get(0).getWarehouseName());
 
@@ -1423,10 +1951,10 @@ public class StorageService {
         }
     }
 
-    //其他入/出库单、报溢/损单、成本调价单、库存盘点单
+    //结果单
 
     /**
-     * 新增其他入/出库单、报溢/损单、成本调价单、库存盘点单
+     * 新增结果单
      * @param storageResultOrderVo
      * @return
      */
@@ -1732,7 +2260,7 @@ public class StorageService {
     }
 
     /**
-     * 红冲其他入/出库单、报溢/损单、成本调价单、库存盘点单
+     * 红冲结果单
      * @param storageResultOrderVo
      * @return
      */
@@ -1754,7 +2282,7 @@ public class StorageService {
         }
 
         //查询红冲蓝单
-        storageResultOrderVo = myStorageMapper.findAllStorageResultOrderDetail(storageResultOrderVo).get(0);
+        storageResultOrderVo = myStorageMapper.findStorageResultOrderDetail(storageResultOrderVo).get(0);
         List<OrderGoodsSkuVo> vos = storageResultOrderVo.getDetails();
         Integer warehouseId = storageResultOrderVo.getWarehouseId();
         byte type  = storageResultOrderVo.getType();
@@ -1765,14 +2293,13 @@ public class StorageService {
         storageResultOrderVo.setId("HC-" + oldResultOrderId);
         storageResultOrderVo.setCreateTime(new Date());
         storageResultOrderVo.setOrderStatus((byte) -2);
+        storageResultOrderVo.setTotalQuantity(-storageResultOrderVo.getTotalQuantity());
+        storageResultOrderVo.setTotalMoney(-storageResultOrderVo.getTotalMoney());
         storageResultOrderVo.setUserId(userId);
         storageResultOrderVo.setRemark(remark);
 
         //判断红冲类型
         if (type == 1 || type == 2 || type == 3 || type == 4) {     //其他入/出库单、报溢/损单
-            storageResultOrderVo.setTotalQuantity(-storageResultOrderVo.getTotalQuantity());
-            storageResultOrderVo.setTotalMoney(-storageResultOrderVo.getTotalMoney());
-
             //修改库存相关
             WarehouseGoodsSkuVo warehouseGoodsSkuVo = new WarehouseGoodsSkuVo(storeId, warehouseId);
             vos.stream().forEach(vo -> {
@@ -1799,9 +2326,6 @@ public class StorageService {
             });
 
         } else if (type == 5) {     //成本调价单
-            storageResultOrderVo.setTotalQuantity(-storageResultOrderVo.getTotalQuantity());
-            storageResultOrderVo.setTotalMoney(-storageResultOrderVo.getTotalMoney());
-
             vos.stream().forEach(vo -> {
                 if (vo.getChangeCheckTotalMoney() > 0) {        //原来是入库
                     //红冲库存记账记录
@@ -1815,6 +2339,101 @@ public class StorageService {
             });
         } else if (type == 6) {     //库存盘点单
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
+        } else if (type == 7) {     //调拨单
+            //查询该结果单对应的申请单
+            StorageApplyOrderVo applyOrderVo = myStorageMapper.findStorageApplyOrderDetail(new StorageApplyOrderVo(storeId, storageResultOrderVo.getApplyOrderId())).get(0);
+            List<OrderGoodsSkuVo> applyOrderDetails = applyOrderVo.getDetails();
+
+            //先入库后出库
+            List<OrderGoodsSkuVo> orderGoodsSkuVos = storageResultOrderVo.getDetails();
+            List<OrderGoodsSkuVo> inVos = orderGoodsSkuVos.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType() == 1).collect(Collectors.toList());
+            List<OrderGoodsSkuVo> applyOrderInVos = applyOrderDetails.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("1")).collect(Collectors.toList());
+            Integer inWarehouseId = storageResultOrderVo.getWarehouseId();
+            for (OrderGoodsSkuVo inVo : inVos) {
+                Integer goodsSkuId = inVo.getGoodsSkuId();
+                Integer quantity = inVo.getQuantity();
+
+                //减少实物库存、可用库存、账面库存
+                inventoryUtil.updateInventoryMethod(0, new WarehouseGoodsSkuVo(storeId, inWarehouseId, goodsSkuId, quantity, quantity, quantity));
+
+                //增加待收货数量
+                inventoryUtil.updateNotQuantityMethod(1, new WarehouseGoodsSkuVo(storeId, inWarehouseId, goodsSkuId, 0, quantity));
+
+                //红冲库存记账记录
+                inventoryUtil.redDashedStorageCheckOrderMethod(1, new StorageCheckOrderVo(storeId, oldResultOrderId, goodsSkuId, inWarehouseId, userId));
+
+                //减少完成数量
+                Optional<OrderGoodsSkuVo> optional = applyOrderInVos.stream().filter(applyOrderInVo -> applyOrderInVo.getGoodsSkuId().toString().equals(goodsSkuId.toString())).findFirst();
+                if (!optional.isPresent()) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                OrderGoodsSkuVo applyOrderInVo = optional.get();
+                applyOrderInVo.setStoreId(storeId);
+                applyOrderInVo.setChangeQuantity(-quantity);
+                if (myOrderGoodsSkuMapper.updateOrderGoodsSku(applyOrderInVo) != 1) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                applyOrderVo.setInReceivedQuantity(applyOrderVo.getInReceivedQuantity() - quantity);
+                applyOrderVo.setInNotReceivedQuantity(applyOrderVo.getInNotReceivedQuantity() + quantity);
+            }
+
+            List<OrderGoodsSkuVo> outVos = orderGoodsSkuVos.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType() == 0).collect(Collectors.toList());
+            List<OrderGoodsSkuVo> applyOrderOutVos = applyOrderDetails.stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType() == 0).collect(Collectors.toList());
+            Integer outWarehouseId = storageResultOrderVo.getOutWarehouseId();
+            for (OrderGoodsSkuVo outVo : outVos) {
+                Integer goodsSkuId = outVo.getGoodsSkuId();
+                Integer quantity = outVo.getQuantity();
+
+                //增加实物库存、账面库存
+                inventoryUtil.updateInventoryMethod(1, new WarehouseGoodsSkuVo(storeId, outWarehouseId, goodsSkuId, quantity, 0, quantity));
+
+                //增加待发货数量
+                inventoryUtil.updateNotQuantityMethod(1, new WarehouseGoodsSkuVo(storeId, outWarehouseId, goodsSkuId, quantity, 0));
+
+                //红冲库存记账记录
+                inventoryUtil.redDashedStorageCheckOrderMethod(0, new StorageCheckOrderVo(storeId, oldResultOrderId, goodsSkuId, outWarehouseId, userId));
+
+                //减少完成数量
+                Optional<OrderGoodsSkuVo> optional = applyOrderOutVos.stream().filter(applyOrderInVo -> applyOrderInVo.getGoodsSkuId().toString().equals(goodsSkuId.toString())).findFirst();
+                if (!optional.isPresent()) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                OrderGoodsSkuVo applyOrderInVo = optional.get();
+                applyOrderInVo.setStoreId(storeId);
+                applyOrderInVo.setChangeQuantity(-quantity);
+                if (myOrderGoodsSkuMapper.updateOrderGoodsSku(applyOrderInVo) != 1) {
+                    throw new CommonException(CommonResponse.UPDATE_ERROR);
+                }
+                applyOrderVo.setOutSentQuantity(applyOrderVo.getOutSentQuantity() - quantity);
+                applyOrderVo.setOutNotSentQuantity(applyOrderVo.getOutNotSentQuantity() + quantity);
+            }
+
+            //修改申请单的单据状态和完成数量
+            Byte orderStatus = null;
+            //未发未收、部分发未收、已发未收、已发部分收、已发已收
+            if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity().intValue() == applyOrderVo.getTotalQuantity()) {       //未收
+                if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutNotSentQuantity().intValue() == applyOrderVo.getTotalQuantity()) {        //未发未收
+                    orderStatus = 1;
+                } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getTotalQuantity()) {      //部分发未收
+                    orderStatus = 2;
+                } else if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {      //已发未收
+                    orderStatus = 3;
+                }
+            } else if (applyOrderVo.getInReceivedQuantity() > 0 && applyOrderVo.getInNotReceivedQuantity() < applyOrderVo.getTotalQuantity()) {      //部分收
+                if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {     //已发部分收
+                    orderStatus = 4;
+                }
+            } else if (applyOrderVo.getInReceivedQuantity().intValue() == applyOrderVo.getTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {      //已收
+                if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {     //已发已收
+                    orderStatus = 5;
+                }
+            }
+            if (myStorageMapper.updateStorageApplyOrderOrderStatusAndQuantity(new StorageOrderVo(storeId, (byte) 5, applyOrderVo.getId(), orderStatus, applyOrderVo.getInReceivedQuantity() - applyOrderVo.getTotalQuantity())) != 1) {
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
+            }
+            if (myStorageMapper.updateStorageApplyOrderOrderStatusAndQuantity(new StorageOrderVo(storeId, (byte) 6, applyOrderVo.getId(), orderStatus, applyOrderVo.getOutSentQuantity() - applyOrderVo.getTotalQuantity())) != 1) {
+                throw new CommonException(CommonResponse.UPDATE_ERROR);
+            }
         }
 
         //新增红冲红单
@@ -1826,7 +2445,7 @@ public class StorageService {
     }
 
     /**
-     * 根据type查询其他入/出库单、报溢/损单、成本调价单、库存盘点单
+     * 根据type查询结果单
      * @param storageResultOrderVo
      * @param pageVo
      * @return
@@ -1836,19 +2455,36 @@ public class StorageService {
         pageVo.setTotalPage((int) Math.ceil(myStorageMapper.findCountStorageResultOrder(storageResultOrderVo) * 1.0 / pageVo.getPageSize()));
         pageVo.setStart(pageVo.getPageSize() * (pageVo.getPage() - 1));
         List<StorageResultOrderVo> storageResultOrderVos = myStorageMapper.findAllPagedStorageResultOrder(storageResultOrderVo, pageVo);
-        
+
+        byte type = storageResultOrderVo.getType();
+        if (type == 7) {
+            List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(storageResultOrderVo.getStoreId()));
+            storageResultOrderVos.stream().forEach(vo -> {
+                warehouses.stream().forEach(warehouse -> {
+                    if (vo.getOutWarehouseId() != null && vo.getOutWarehouseId().intValue() == warehouse.getId()) {
+                        vo.setOutWarehouseName(warehouse.getName());
+                    }
+                });
+            });
+        }
+
         //封装返回结果
         List<Title> titles = new ArrayList<>();
         titles.add(new Title("单据编号", "id"));
         titles.add(new Title("单据类型", "type"));
         titles.add(new Title("单据日期", "createTime"));
-        titles.add(new Title("仓库", "warehouseName"));
-        byte type = storageResultOrderVo.getType();
+        if (type != 7) {
+            titles.add(new Title("仓库", "warehouseName"));
+        } else {
+            titles.add(new Title("来源订单", "applyOrderId"));
+            titles.add(new Title("入库仓库", "warehouseName"));
+            titles.add(new Title("出库仓库", "outWarehouseName"));
+        }
         if (type == 1 || type == 2) {
             titles.add(new Title("往来单位编号", "targetId"));
             titles.add(new Title("往来单位名称", "targetName"));
         }
-        if (type == 1 || type == 2 || type == 3 || type == 4 || type == 5) {
+        if (type == 1 || type == 2 || type == 3 || type == 4 || type == 5 || type == 7) {
             titles.add(new Title("总数量", "totalQuantity"));
             titles.add(new Title("总金额", "totalMoney"));
         }
@@ -1868,7 +2504,7 @@ public class StorageService {
     }
 
     /**
-     * 根据type导出其他入/出库单、报溢/损单、成本调价单、库存盘点单
+     * 根据type导出结果单
      * @param sroVo
      * @param response
      * @return
@@ -1881,11 +2517,22 @@ public class StorageService {
             //根据条件查询单据
             List<StorageResultOrderVo> vos = myStorageMapper.findAllStorageResultOrder(sroVo);
 
+            if (type == 7) {
+                List<Warehouse> warehouses = myWarehouseMapper.findAll(new WarehouseVo(sroVo.getStoreId()));
+                vos.stream().forEach(vo -> {
+                    warehouses.stream().forEach(warehouse -> {
+                        if (vo.getOutWarehouseId() != null && vo.getOutWarehouseId().intValue() == warehouse.getId()) {
+                            vo.setOutWarehouseName(warehouse.getName());
+                        }
+                    });
+                });
+            }
+
             //备注
             String remark = "【筛选条件】" +
                     "\n单据编号：" + (sroVo.getId() == null ? "无" : sroVo.getId()) +
-                    " 开始时间：" + (sroVo.getStartTime() == null ? "无" : sroVo.getStartTime()) +
-                    " 结束时间：" + (sroVo.getEndTime() == null ? "无" : sroVo.getEndTime()) +
+                    " 开始时间：" + (sroVo.getStartTime() == null ? "无" : sdf.format(sroVo.getStartTime())) +
+                    " 结束时间：" + (sroVo.getEndTime() == null ? "无" : sdf.format(sroVo.getEndTime())) +
                     " 往来单位名称：" + (sroVo.getTargetName() == null ? "无" : sroVo.getTargetName());
 
             //标题行
@@ -1901,10 +2548,14 @@ public class StorageService {
                     "单据编号", "单据类型", "单据日期", "仓库", "总库存数量", "总盘点数量", "总报溢数量", "总报溢金额", "总报损数量", "总报损金额", "经手人", "备注"
             });
 
+            List<String> titleRowCell4 = Arrays.asList(new String[]{
+                    "单据编号", "单据类型", "单据日期", "来源订单", "入库仓库", "出库仓库", "总数量", "总金额", "经手人", "备注"
+            });
+
             //最后一个必填列列数
             int lastRequiredCol = -1;
 
-            String typeName = type == 1 ? "其他入库单" : type == 2 ? "其他出库单" : type == 3 ? "报溢单" : type == 4 ? "报损单" : type == 5 ? "成本调价单" : "库存盘点单";
+            String typeName = type == 1 ? "其他入库单" : type == 2 ? "其他出库单" : type == 3 ? "报溢单" : type == 4 ? "报损单" : type == 5 ? "成本调价单" : type == 6 ? "库存盘点单" : "调拨单";
 
             //数据行
             List<List<String>> dataRowCells = new ArrayList<>();
@@ -1913,12 +2564,18 @@ public class StorageService {
                 dataRowCell.add(vo.getId());
                 dataRowCell.add(typeName);
                 dataRowCell.add(sdf.format(vo.getCreateTime()));
-                dataRowCell.add(vo.getWarehouseName());
+                if (type != 7) {
+                    dataRowCell.add(vo.getWarehouseName());
+                } else {
+                    dataRowCell.add(vo.getApplyOrderId());
+                    dataRowCell.add(vo.getWarehouseName());
+                    dataRowCell.add(vo.getOutWarehouseName());
+                }
                 if (type == 1 || type == 2) {
                     dataRowCell.add(vo.getTargetId());
                     dataRowCell.add(vo.getTargetName());
                 }
-                if (type == 1 || type == 2 || type == 3 || type == 4 || type == 5) {
+                if (type == 1 || type == 2 || type == 3 || type == 4 || type == 5 || type == 7) {
                     dataRowCell.add(vo.getTotalQuantity().toString());
                     dataRowCell.add(vo.getTotalMoney().toString());
                 }
@@ -1940,19 +2597,19 @@ public class StorageService {
 
             //输出excel
             String fileName = "【" + typeName + "导出】_" + System.currentTimeMillis() + ".xls";
-            CommonUtil.outputExcelMethod(remark, type == 1 || type == 2 ? titleRowCell1 : type == 3 || type == 4 || type == 5 ? titleRowCell2 : titleRowCell3, lastRequiredCol, dataRowCells, fileName, response);
+            CommonUtil.outputExcelMethod(remark, type == 1 || type == 2 ? titleRowCell1 : type == 3 || type == 4 || type == 5 ? titleRowCell2 : type == 6 ? titleRowCell3 : titleRowCell4, lastRequiredCol, dataRowCells, fileName, response);
         } catch (Exception e) {
             throw new CommonException(CommonResponse.EXPORT_ERROR, e.getMessage());
         }
     }
 
     /**
-     * 根据单据编号查询其他入/出库单、报溢/损单、成本调价单、库存盘点单
+     * 根据单据编号查询结果单
      * @param storageResultOrderVo
      * @return
      */
     public CommonResponse findStorageResultOrderDetailById(StorageResultOrderVo storageResultOrderVo) {
-        storageResultOrderVo = myStorageMapper.findAllStorageResultOrderDetail(storageResultOrderVo).get(0);
+        storageResultOrderVo = myStorageMapper.findStorageResultOrderDetail(storageResultOrderVo).get(0);
         return CommonResponse.success(storageResultOrderVo);
     }
 

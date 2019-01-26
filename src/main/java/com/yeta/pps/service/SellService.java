@@ -806,8 +806,8 @@ public class SellService {
             //备注
             String remark = "【筛选条件】" +
                     "\n单据编号：" + (saoVo.getId() == null ? "无" : saoVo.getId()) +
-                    " 开始时间：" + (saoVo.getStartTime() == null ? "无" : saoVo.getStartTime()) +
-                    " 结束时间：" + (saoVo.getEndTime() == null ? "无" : saoVo.getEndTime()) +
+                    " 开始时间：" + (saoVo.getStartTime() == null ? "无" : sdf.format(saoVo.getStartTime())) +
+                    " 结束时间：" + (saoVo.getEndTime() == null ? "无" : sdf.format(saoVo.getEndTime())) +
                     " 客户名称：" + (saoVo.getClient().getName() == null ? "无" : saoVo.getClient().getName()) +
                     " 客户电话：" + (saoVo.getClient().getPhone() == null ? "无" : saoVo.getClient().getPhone()) +
                     " 会员卡号：" + (saoVo.getClient().getMembershipNumber() == null ? "无" : saoVo.getClient().getMembershipNumber());
@@ -1114,28 +1114,28 @@ public class SellService {
 
             case 4:     //销售换货申请单
                 //修改申请订单的单据状态和完成数量
-                if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity() == applyOrderVo.getInTotalQuantity()) {        //未收
-                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //未收未发
+                if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity().intValue() == applyOrderVo.getInTotalQuantity()) {        //未收
+                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity().intValue() == applyOrderVo.getOutNotSentQuantity()) {        //未收未发
                         orderStatus = 7;
                     } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //未收部分发
                         orderStatus = 8;
-                    } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //未收已发
+                    } else if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //未收已发
                         orderStatus = 9;
                     }
                 } else if (applyOrderVo.getInReceivedQuantity() > 0 && applyOrderVo.getInNotReceivedQuantity() < applyOrderVo.getInTotalQuantity()) {        //部分收
-                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //部分收未发
+                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity().intValue() == applyOrderVo.getOutNotSentQuantity()) {        //部分收未发
                         orderStatus = 10;
                     } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //部分收部分发
                         orderStatus = 11;
-                    } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //部分收已发
+                    } else if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //部分收已发
                         orderStatus = 12;
                     }
-                } else if (applyOrderVo.getInReceivedQuantity() == applyOrderVo.getInTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {        //已收
-                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //已收未发
+                } else if (applyOrderVo.getInReceivedQuantity().intValue() == applyOrderVo.getInTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {        //已收
+                    if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity().intValue() == applyOrderVo.getOutNotSentQuantity()) {        //已收未发
                         orderStatus = 13;
                     } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //已收部分发
                         orderStatus = 14;
-                    } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //已收已发
+                    } else if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //已收已发
                         orderStatus = 15;
                     }
                 }
@@ -1243,8 +1243,8 @@ public class SellService {
             String remark = "【筛选条件】" +
                     "\n单据编号：" + (sroVo.getId() == null ? "无" : sroVo.getId()) +
                     " 单据类型：" + (sroVo.getType() == null ? "无" : sroVos.get(0).getType() == 1 ? "零售单" : sroVos.get(0).getType() == 2 ? "销售订单" : sroVos.get(0).getType() == 3 ? "销售退货单" : "销售换货单") +
-                    " 开始时间：" + (sroVo.getSellApplyOrderVo().getStartTime() == null ? "无" : sroVo.getSellApplyOrderVo().getStartTime()) +
-                    " 结束时间：" + (sroVo.getSellApplyOrderVo().getEndTime() == null ? "无" : sroVo.getSellApplyOrderVo().getEndTime()) +
+                    " 开始时间：" + (sroVo.getSellApplyOrderVo().getStartTime() == null ? "无" : sdf.format(sroVo.getSellApplyOrderVo().getStartTime())) +
+                    " 结束时间：" + (sroVo.getSellApplyOrderVo().getEndTime() == null ? "无" : sdf.format(sroVo.getSellApplyOrderVo().getEndTime())) +
                     " 客户名称：" + (sroVo.getSellApplyOrderVo().getClient().getName() == null ? "无" : sroVo.getSellApplyOrderVo().getClient().getName()) +
                     " 客户电话：" + (sroVo.getSellApplyOrderVo().getClient().getPhone() == null ? "无" : sroVo.getSellApplyOrderVo().getClient().getPhone()) +
                     " 会员卡号：" + (sroVo.getSellApplyOrderVo().getClient().getMembershipNumber() == null ? "无" : sroVo.getSellApplyOrderVo().getClient().getMembershipNumber());

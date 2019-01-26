@@ -658,8 +658,8 @@ public class FundService {
             //备注
             String remark = "【筛选条件】" +
                     "\n单据编号：" + (fundOrderVo.getId() == null ? "无" : fundOrderVo.getId()) +
-                    " 开始时间：" + (fundOrderVo.getStartTime() == null ? "无" : fundOrderVo.getStartTime()) +
-                    " 结束时间：" + (fundOrderVo.getEndTime() == null ? "无" : fundOrderVo.getEndTime()) +
+                    " 开始时间：" + (fundOrderVo.getStartTime() == null ? "无" : sdf.format(fundOrderVo.getStartTime())) +
+                    " 结束时间：" + (fundOrderVo.getEndTime() == null ? "无" : sdf.format(fundOrderVo.getEndTime())) +
                     " 往来单位名称：" + (fundOrderVo.getTargetName() == null ? "无" : fundOrderVo.getTargetName());
 
             //标题行
@@ -1303,8 +1303,8 @@ public class FundService {
             //备注
             String remark = "【筛选条件】" +
                     "\n单据编号：" + (fundResultOrderVo.getId() == null ? "无" : fundResultOrderVo.getId()) +
-                    " 开始时间：" + (fundResultOrderVo.getStartTime() == null ? "无" : fundResultOrderVo.getStartTime()) +
-                    " 结束时间：" + (fundResultOrderVo.getEndTime() == null ? "无" : fundResultOrderVo.getEndTime()) +
+                    " 开始时间：" + (fundResultOrderVo.getStartTime() == null ? "无" : sdf.format(fundResultOrderVo.getStartTime())) +
+                    " 结束时间：" + (fundResultOrderVo.getEndTime() == null ? "无" : sdf.format(fundResultOrderVo.getEndTime())) +
                     " 往来单位名称：" + (fundResultOrderVo.getTargetName() == null ? "无" : fundResultOrderVo.getTargetName()) +
                     " 银行账户名称：" + (fundResultOrderVo.getBankAccountId() == null ? "无" : vos.get(0).getBankAccount()) +
                     " 收支名称名称" + (fundResultOrderVo.getIncomeExpensesId() == null ? "无" : vos.get(0).getIncomeExpenses());

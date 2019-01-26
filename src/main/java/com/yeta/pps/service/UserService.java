@@ -214,7 +214,7 @@ public class UserService {
             StorageResultOrderVo sroVo = new StorageResultOrderVo();
             sroVo.setStoreId(storeId);
             sroVo.setUserId(id);
-            if (myStorageMapper.findAllStorageResultOrderDetail(sroVo).size() > 0) {
+            if (myStorageMapper.findStorageResultOrderDetail(sroVo).size() > 0) {
                 throw new CommonException(CommonResponse.DELETE_ERROR, CommonResponse.USED_ERROR);
             }
             //5. fund_check_order

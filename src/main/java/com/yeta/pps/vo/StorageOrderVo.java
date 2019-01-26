@@ -49,6 +49,8 @@ public class StorageOrderVo {
 
     private SellApplyOrderVo sellApplyOrderVo;
 
+    private StorageApplyOrderVo storageApplyOrderVo;
+
     /**
      * 单据状态
      */
@@ -194,6 +196,14 @@ public class StorageOrderVo {
 
     public void setSellApplyOrderVo(SellApplyOrderVo sellApplyOrderVo) {
         this.sellApplyOrderVo = sellApplyOrderVo;
+    }
+
+    public StorageApplyOrderVo getStorageApplyOrderVo() {
+        return storageApplyOrderVo;
+    }
+
+    public void setStorageApplyOrderVo(StorageApplyOrderVo storageApplyOrderVo) {
+        this.storageApplyOrderVo = storageApplyOrderVo;
     }
 
     public Byte getOrderStatus() {

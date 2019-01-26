@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -48,7 +50,7 @@ public class StorageController {
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "flag", value = "1：采购订单待收货，2：退换货申请待收货，3：销售订单待发货，4：退换货申请待发货", required = true, paramType = "path", dataType = "int"),
+            @ApiImplicitParam(name = "flag", value = "1：采购订单待收货，2：退换货申请待收货，3：销售订单待发货，4：退换货申请待发货，5：调拨待收货，6：调拨待发货", required = true, paramType = "path", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
@@ -74,6 +76,127 @@ public class StorageController {
     @PostMapping(value = "/storage")
     public CommonResponse addStorageOrder(@RequestBody @Valid StorageOrderVo storageOrderVo) {
         return storageService.addStorageOrder(storageOrderVo);
+    }
+
+    //申请单
+
+    /**
+     * 新增申请单接口
+     * @param storageApplyOrderVo
+     * @return
+     */
+    @ApiOperation(value = "新增申请单", notes = "details中，type, goodsSkuId, quantity, money必填, remark选填；注意：入库的商品规格与出库的商品规格一一对应，调拨数量、调拨金额只是出库的数量、价格")
+    @ApiImplicitParam(name = "storageApplyOrderVo", value = "storeId, details, type, totalQuantity, inWarehouseId, outWarehouseId, totalMoney, userId必填，remark选填", required = true, paramType = "body", dataType = "StorageApplyOrderVo")
+    @PostMapping(value = "/storage/apply")
+    public CommonResponse addStorageApplyOrder(@RequestBody @Valid StorageApplyOrderVo storageApplyOrderVo) {
+        return storageService.addStorageApplyOrder(storageApplyOrderVo);
+    }
+
+    /**
+     * 删除申请单接口
+     * @param storeId
+     * @param ids
+     * @return
+     */
+    @ApiOperation(value = "删除申请单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "ids", value = "单据编号，多个英文逗号隔开", required = true, paramType = "query", dataType = "String")
+    })
+    @DeleteMapping(value = "/storage/apply")
+    public CommonResponse deleteStorageApplyOrder(@RequestParam(value = "storeId") Integer storeId,
+                                                  @RequestParam(value = "ids") String ids) {
+        List<StorageApplyOrderVo> saoVos = new ArrayList<>();
+        Arrays.asList(ids.split(",")).stream().forEach(id -> saoVos.add(new StorageApplyOrderVo(storeId, id)));
+        return storageService.deleteStorageApplyOrder(saoVos);
+    }
+
+    /**
+     * 根据type查询申请单接口
+     * @param storeId
+     * @param id
+     * @param type
+     * @param startTime
+     * @param endTime
+     * @param inWarehouseId
+     * @param outWarehouseId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "根据type查询申请单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "单据类型，1：调拨单", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "inWarehouseId", value = "入库仓库编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "outWarehouseId", value = "出库仓库编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/storage/apply")
+    public CommonResponse<CommonResult<StorageApplyOrderVo>> findPagedStorageApplyOrder(@RequestParam(value = "storeId") Integer storeId,
+                                                                                        @RequestParam(value = "id", required = false) String id,
+                                                                                        @RequestParam(value = "type") Byte type,
+                                                                                        @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                                                                        @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                        @RequestParam(value = "inWarehouseId", required = false) Integer inWarehouseId,
+                                                                                        @RequestParam(value = "outWarehouseId", required = false) Integer outWarehouseId,
+                                                                                        @RequestParam(value = "page") Integer page,
+                                                                                        @RequestParam(value = "pageSize") Integer pageSize) {
+        return storageService.findPagedStorageApplyOrder(new StorageApplyOrderVo(storeId, id, type, startTime, endTime, inWarehouseId, outWarehouseId), new PageVo(page, pageSize));
+    }
+
+    /**
+     * 根据type导出申请单接口
+     * @param storeId
+     * @param id
+     * @param type
+     * @param startTime
+     * @param endTime
+     * @param inWarehouseId
+     * @param outWarehouseId
+     * @return
+     */
+    @ApiOperation(value = "根据type导出申请单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "单据类型，1：调拨单", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "inWarehouseId", value = "入库仓库编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "outWarehouseId", value = "出库仓库编号", required = false, paramType = "query", dataType = "int")
+    })
+    @GetMapping(value = "/storage/apply/export")
+    public void exportStorageApplyOrder(@RequestParam(value = "storeId") Integer storeId,
+                                        @RequestParam(value = "id", required = false) String id,
+                                        @RequestParam(value = "type") Byte type,
+                                        @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
+                                        @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                        @RequestParam(value = "inWarehouseId", required = false) Integer inWarehouseId,
+                                        @RequestParam(value = "outWarehouseId", required = false) Integer outWarehouseId,
+                                        HttpServletResponse response) {
+        storageService.exportStorageApplyOrder(new StorageApplyOrderVo(storeId, id, type, startTime, endTime, inWarehouseId, outWarehouseId), response);
+    }
+
+    /**
+     * 查询申请单详情接口
+     * @param storeId
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "查询申请单详情")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "id", value = "单据编号", required = true, paramType = "path", dataType = "String")
+    })
+    @GetMapping(value = "/storage/apply/{id}")
+    public CommonResponse<StorageApplyOrderVo> findStorageApplyOrderDetail(@RequestParam(value = "storeId") Integer storeId,
+                                                                           @PathVariable(value = "id") String id) {
+        return storageService.findStorageApplyOrderDetail(new StorageApplyOrderVo(storeId, id));
     }
 
     /**
@@ -170,14 +293,14 @@ public class StorageController {
         storageService.exportStorageOrder(new StorageOrderVo(storeId, id, startTime, endTime, targetName, warehouseId, flag), response);
     }
 
-    //其他入/出库单、报溢/损单、成本调价单、库存盘点单
+    //结果单
 
     /**
-     * 新增其他入/出库单、报溢/损单、成本调价单、库存盘点单接口
+     * 新增结果单接口
      * @param storageResultOrderVo
      * @return
      */
-    @ApiOperation(value = "新增其他入/出库单、报溢/损单、成本调价单、库存盘点单")
+    @ApiOperation(value = "新增结果单")
     @ApiImplicitParam(name = "storageResultOrderVo", value = "参数格式看【仓库存储流程.txt】", required = true, paramType = "body", dataType = "StorageResultOrderVo"
     )
     @PostMapping(value = "/storage/result")
@@ -186,14 +309,14 @@ public class StorageController {
     }
 
     /**
-     * 红冲其他入/出库单、报溢/损单、成本调价单接口
+     * 红冲结果单接口
      * @param storeId
      * @param id
      * @param userId
      * @param remark
      * @return
      */
-    @ApiOperation(value = "红冲其他入/出库单、报溢/损单、成本调价单")
+    @ApiOperation(value = "红冲结果单")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "单据编号", required = true, paramType = "query", dataType = "String"),
@@ -209,7 +332,7 @@ public class StorageController {
     }
 
     /**
-     * 根据type查询其他入/出库单、报溢/损单、成本调价单、库存盘点单接口
+     * 根据type查询结果单接口
      * @param storeId
      * @param id
      * @param type
@@ -220,11 +343,11 @@ public class StorageController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "根据type查询其他入/出库单、报溢/损单、成本调价单、库存盘点单", notes = "分页、筛选查询，其中targetName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiOperation(value = "根据type查询结果单", notes = "分页、筛选查询，其中targetName为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单，6：库存盘点单", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "type", value = "单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单，6：库存盘点单，7：调拨单", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "targetName", value = "往来单位", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date"),
@@ -244,7 +367,7 @@ public class StorageController {
     }
 
     /**
-     * 根据type导出其他入/出库单、报溢/损单、成本调价单、库存盘点单接口
+     * 根据type导出结果单接口
      * @param storeId
      * @param id
      * @param type
@@ -253,11 +376,11 @@ public class StorageController {
      * @param endTime
      * @return
      */
-    @ApiOperation(value = "根据type导出其他入/出库单、报溢/损单、成本调价单、库存盘点单", notes = "其中targetName为模糊查询，startTime和endTime要么都传，要么都不传")
+    @ApiOperation(value = "根据type导出结果单", notes = "其中targetName为模糊查询，startTime和endTime要么都传，要么都不传")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "单据编号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单，6：库存盘点单", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "type", value = "单据类型，1：其他入库单，2：其他出库单，3：报溢单，4：报损单，5：成本调价单，6：库存盘点单，7：调拨单", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "targetName", value = "往来单位", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = false, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = false, paramType = "query", dataType = "Date")
@@ -274,12 +397,12 @@ public class StorageController {
     }
 
     /**
-     * 根据单据编号查询其他入/出库单、报溢/损单、成本调价单、库存盘点单详情接口
+     * 根据单据编号查询结果单详情接口
      * @param storeId
      * @param id
      * @return
      */
-    @ApiOperation(value = "根据单据编号查询其他入/出库单、报溢/损单、成本调价单、库存盘点单详情", notes = "主要是查关联的商品和商品规格信息，用于点击其他入/出库单时")
+    @ApiOperation(value = "根据单据编号查询结果单详情", notes = "主要是查关联的商品和商品规格信息，用于点击其他入/出库单时")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "id", value = "单据编号", required = true, paramType = "path", dataType = "String")

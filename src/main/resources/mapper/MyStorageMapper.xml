@@ -201,6 +201,64 @@
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
+    <select id="findCountInDBApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo"
+            resultType="java.lang.Integer">
+        select
+        count(0)
+        from
+        storage_apply_order_${storeId} as sao
+        left join user_${storeId} as u on sao.user_id = u.id
+        where sao.type = 1
+        and sao.order_status in (3, 4)
+        <if test="id != null">
+            and sao.id = #{id}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and date(sao.create_time) between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <select id="findPagedInDBApplyOrder" resultType="com.yeta.pps.vo.StorageApplyOrderVo">
+        select sao.id,
+        sao.type,
+        if(sao.type = 1, '调拨申请单', null) as type_name,
+        sao.create_time,
+        sao.order_status,
+        if(sao.order_status = 1,
+        '未发未收',
+        if(sao.order_status = 2,
+        '部分发未收',
+        if(sao.order_status = 3,
+        '已发未收',
+        if(sao.order_status = 4,
+        '已发部分收',
+        '已发已收')))) as order_status_name,
+        sao.total_quantity,
+        sao.in_warehouse_id,
+        sao.in_received_quantity,
+        sao.in_not_received_quantity,
+        sao.out_warehouse_id,
+        sao.out_sent_quantity,
+        sao.out_not_sent_quantity,
+        sao.total_money,
+        sao.user_id,
+        u.name as user_name,
+        sao.remark
+        from
+        storage_apply_order_${vo.storeId} as sao
+        left join user_${vo.storeId} as u on sao.user_id = u.id
+        where sao.type = 1
+        and sao.order_status in (3, 4)
+        <if test="vo.id != null">
+            and sao.id = #{vo.id}
+        </if>
+        <if test="vo.startTime != null and vo.endTime != null">
+            and date(sao.create_time) between #{vo.startTime} and #{vo.endTime}
+        </if>
+        order by sao.create_time desc
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
     <!--待发货-->
 
     <select id="findCountOutCGApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo"
@@ -401,6 +459,64 @@
         </if>
         order by sao.create_time desc
         )
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findCountOutDBApplyOrder" parameterType="com.yeta.pps.vo.ProcurementApplyOrderVo"
+            resultType="java.lang.Integer">
+        select
+        count(0)
+        from
+        storage_apply_order_${storeId} as sao
+        left join user_${storeId} as u on sao.user_id = u.id
+        where sao.type = 1
+        and sao.order_status in (1, 2)
+        <if test="id != null">
+            and sao.id = #{id}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and date(sao.create_time) between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <select id="findPagedOutDBApplyOrder" resultType="com.yeta.pps.vo.StorageApplyOrderVo">
+        select sao.id,
+        sao.type,
+        if(sao.type = 1, '调拨申请单', null) as type_name,
+        sao.create_time,
+        sao.order_status,
+        if(sao.order_status = 1,
+        '未发未收',
+        if(sao.order_status = 2,
+        '部分发未收',
+        if(sao.order_status = 3,
+        '已发未收',
+        if(sao.order_status = 4,
+        '已发部分收',
+        '已发已收')))) as order_status_name,
+        sao.total_quantity,
+        sao.in_warehouse_id,
+        sao.in_received_quantity,
+        sao.in_not_received_quantity,
+        sao.out_warehouse_id,
+        sao.out_sent_quantity,
+        sao.out_not_sent_quantity,
+        sao.total_money,
+        sao.user_id,
+        u.name as user_name,
+        sao.remark
+        from
+        storage_apply_order_${vo.storeId} as sao
+        left join user_${vo.storeId} as u on sao.user_id = u.id
+        where sao.type = 1
+        and sao.order_status in (1, 2)
+        <if test="vo.id != null">
+            and sao.id = #{vo.id}
+        </if>
+        <if test="vo.startTime != null and vo.endTime != null">
+            and date(sao.create_time) between #{vo.startTime} and #{vo.endTime}
+        </if>
+        order by sao.create_time desc
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
@@ -637,15 +753,264 @@
           and type = #{type};
     </select>
 
-    <!--其他入/出库单、报溢/损单、成本调价单、库存盘点单-->
+    <!--申请单-->
+
+    <insert id="addStorageApplyOrder" parameterType="com.yeta.pps.vo.StorageApplyOrderVo">
+        insert into storage_apply_order_${storeId} (id,
+                                                    type,
+                                                    create_time,
+                                                    order_status,
+                                                    total_quantity,
+                                                    in_warehouse_id,
+                                                    in_received_quantity,
+                                                    in_not_received_quantity,
+                                                    out_warehouse_id,
+                                                    out_sent_quantity,
+                                                    out_not_sent_quantity,
+                                                    total_money,
+                                                    user_id,
+                                                    remark)
+        values (#{id},
+                #{type},
+                now(),
+                #{orderStatus},
+                #{totalQuantity},
+                #{inWarehouseId},
+                #{inReceivedQuantity},
+                #{inNotReceivedQuantity},
+                #{outWarehouseId},
+                #{outSentQuantity},
+                #{outNotSentQuantity},
+                #{totalMoney},
+                #{userId},
+                #{remark});
+    </insert>
+
+    <update id="updateStorageApplyOrderOrderStatusAndQuantity" parameterType="com.yeta.pps.vo.StorageOrderVo">
+        update
+        storage_apply_order_${storeId}
+        set
+        order_status = #{orderStatus}
+        <if test="type == 5">
+            , in_received_quantity = in_received_quantity + #{quantity}, in_not_received_quantity =
+            in_not_received_quantity - #{quantity}
+        </if>
+        <if test="type == 6">
+            , out_sent_quantity = out_sent_quantity + #{quantity}, out_not_sent_quantity = out_not_sent_quantity -
+            #{quantity}
+        </if>
+        where
+        id = #{applyOrderId}
+    </update>
+
+    <insert id="deleteStorageApplyOrder" parameterType="com.yeta.pps.vo.StorageApplyOrderVo">
+        delete
+        from storage_apply_order_${storeId}
+        where id = #{id}
+          and order_status = 1;
+    </insert>
+
+    <select id="findCountStorageApplyOrder" parameterType="com.yeta.pps.vo.StorageApplyOrderVo"
+            resultType="java.lang.Integer">
+        select count(0)
+        from storage_apply_order_${storeId} as sao
+        left join user_${storeId} as u on u.id = sao.user_id
+        where type = #{type}
+        <if test="id != null">
+            and sao.id = #{id}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and date(sao.id) between #{startTime} and #{endTime}
+        </if>
+        <if test="inWarehouseId != null">
+            and sao.in_warehouse_id = #{inWarehouseId}
+        </if>
+        <if test="outWarehouseId != null">
+            and sao.out_warehouse_id = #{outWarehouseId}
+        </if>
+    </select>
+
+    <select id="findPagedStorageApplyOrder"
+            resultType="com.yeta.pps.vo.StorageApplyOrderVo">
+        select sao.id,
+        sao.type,
+        if(sao.type = 1, '调拨申请单', null) as type_name,
+        sao.create_time,
+        sao.order_status,
+        if(sao.order_status = 1,
+        '未发未收',
+        if(sao.order_status = 2,
+        '部分发未收',
+        if(sao.order_status = 3,
+        '已发未收',
+        if(sao.order_status = 4,
+        '已发部分收',
+        '已发已收')))) as order_status_name,
+        sao.total_quantity,
+        sao.in_warehouse_id,
+        sao.in_received_quantity,
+        sao.in_not_received_quantity,
+        sao.out_warehouse_id,
+        sao.out_sent_quantity,
+        sao.out_not_sent_quantity,
+        sao.total_money,
+        sao.user_id,
+        u.name as user_name,
+        sao.remark
+        from storage_apply_order_${vo.storeId} as sao
+        left join user_${vo.storeId} as u on u.id = sao.user_id
+        where type = #{vo.type}
+        <if test="vo.id != null">
+            and sao.id = #{id}
+        </if>
+        <if test="vo.startTime != null and vo.endTime != null">
+            and date(sao.id) between #{vo.startTime} and #{vo.endTime}
+        </if>
+        <if test="vo.inWarehouseId != null">
+            and sao.in_warehouse_id = #{vo.inWarehouseId}
+        </if>
+        <if test="vo.outWarehouseId != null">
+            and sao.out_warehouse_id = #{vo.outWarehouseId}
+        </if>
+        order by create_time desc
+        limit #{pageVo.start}, #{pageVo.pageSize};
+    </select>
+
+    <select id="findAllStorageApplyOrder" parameterType="com.yeta.pps.vo.StorageApplyOrderVo"
+            resultType="com.yeta.pps.vo.StorageApplyOrderVo">
+        select sao.id,
+        sao.type,
+        if(sao.type = 1, '调拨申请单', null) as type_name,
+        sao.create_time,
+        sao.order_status,
+        if(sao.order_status = 1,
+        '未发未收',
+        if(sao.order_status = 2,
+        '部分发未收',
+        if(sao.order_status = 3,
+        '已发未收',
+        if(sao.order_status = 4,
+        '已发部分收',
+        '已发已收')))) as order_status_name,
+        sao.total_quantity,
+        sao.in_warehouse_id,
+        sao.in_received_quantity,
+        sao.in_not_received_quantity,
+        sao.out_warehouse_id,
+        sao.out_sent_quantity,
+        sao.out_not_sent_quantity,
+        sao.total_money,
+        sao.user_id,
+        u.name as user_name,
+        sao.remark
+        from storage_apply_order_${storeId} as sao
+        left join user_${storeId} as u on u.id = sao.user_id
+        where type = #{type}
+        <if test="id != null">
+            and sao.id = #{id}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and date(sao.id) between #{startTime} and #{endTime}
+        </if>
+        <if test="inWarehouseId != null">
+            and sao.in_warehouse_id = #{inWarehouseId}
+        </if>
+        <if test="outWarehouseId != null">
+            and sao.out_warehouse_id = #{outWarehouseId}
+        </if>
+        order by create_time desc;
+    </select>
+
+    <resultMap id="storageApplyOrderDetailMap" type="com.yeta.pps.vo.StorageApplyOrderVo">
+        <id column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="type_name" property="typeName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="order_status_name" property="orderStatusName"/>
+        <result column="total_quantity" property="totalQuantity"/>
+        <result column="in_warehouse_id" property="inWarehouseId"/>
+        <result column="in_received_quantity" property="inReceivedQuantity"/>
+        <result column="in_not_received_quantity" property="inNotReceivedQuantity"/>
+        <result column="out_warehouse_id" property="outWarehouseId"/>
+        <result column="out_sent_quantity" property="outSentQuantity"/>
+        <result column="out_not_sent_quantity" property="outNotSentQuantity"/>
+        <result column="total_money" property="totalMoney"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="remark" property="remark"/>
+        <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
+            <id column="ogs_id" property="id"/>
+            <result column="ogs_type" property="type"/>
+            <result column="ogs_goods_sku_id" property="goodsSkuId"/>
+            <result column="ogs_quantity" property="quantity"/>
+            <result column="ogs_finish_quantity" property="finishQuantity"/>
+            <result column="ogs_not_finish_quantity" property="notFinishQuantity"/>
+            <result column="ogs_money" property="money"/>
+            <result column="ogs_remark" property="remark"/>
+        </collection>
+    </resultMap>
+
+    <select id="findStorageApplyOrderDetail" parameterType="com.yeta.pps.vo.StorageApplyOrderVo"
+            resultMap="storageApplyOrderDetailMap">
+        select sao.id,
+               sao.type,
+               if(sao.type = 1, '调拨申请单', null) as type_name,
+               sao.create_time,
+               sao.order_status,
+               if(sao.order_status = 1,
+                  '未发未收',
+                  if(sao.order_status = 2,
+                     '部分发未收',
+                     if(sao.order_status = 3,
+                        '已发未收',
+                        if(sao.order_status = 4,
+                           '已发部分收',
+                           '已发已收'))))          as order_status_name,
+               sao.total_quantity,
+               sao.in_warehouse_id,
+               sao.in_received_quantity,
+               sao.in_not_received_quantity,
+               sao.out_warehouse_id,
+               sao.out_sent_quantity,
+               sao.out_not_sent_quantity,
+               sao.total_money,
+               sao.user_id,
+               u.name                          as user_name,
+               sao.remark,
+               ogs.id                          as ogs_id,
+               ogs.type                        as ogs_type,
+               ogs.goods_sku_id                as ogs_goods_sku_id,
+               ogs.quantity                    as ogs_quantity,
+               ogs.finish_quantity             as ogs_finish_quantity,
+               ogs.not_finish_quantity         as ogs_not_finish_quantity,
+               ogs.money                       as ogs_money,
+               ogs.remark                      as ogs_remark
+        from storage_apply_order_${storeId} as sao
+                 left join order_goods_sku_${storeId} as ogs on ogs.order_id = sao.id
+                 left join user_${storeId} as u on u.id = sao.user_id
+        where sao.id = #{id};
+    </select>
+
+    <select id="findStorageApplyOrderPrimaryKey" parameterType="com.yeta.pps.vo.StorageApplyOrderVo"
+            resultType="java.lang.String">
+        select id
+        from storage_apply_order_${storeId}
+        where date(create_time) = date(now())
+          and type = #{type};
+    </select>
+
+    <!--结果单-->
 
     <insert id="addStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo">
         insert into storage_result_order_${storeId} (id,
                                                      type,
                                                      create_time,
+                                                     apply_order_id,
                                                      order_status,
                                                      target_id,
                                                      warehouse_id,
+                                                     out_warehouse_id,
                                                      total_quantity,
                                                      total_money,
                                                      total_check_quantity,
@@ -658,9 +1023,11 @@
         values (#{id},
                 #{type},
                 #{createTime},
+                #{applyOrderId},
                 #{orderStatus},
                 #{targetId},
                 #{warehouseId},
+                #{outWarehouseId},
                 #{totalQuantity},
                 #{totalMoney},
                 #{totalCheckQuantity},
@@ -704,11 +1071,13 @@
         sro.id,
         sro.type,
         sro.create_time,
+        sro.apply_order_id,
         sro.order_status,
         sro.target_id,
         if (c.name is not null, c.name, s.name) as target_name,
         sro.warehouse_id,
         w.name as warehouse_name,
+        sro.out_warehouse_id,
         sro.total_quantity,
         sro.total_money,
         sro.total_check_quantity,
@@ -736,16 +1105,19 @@
         limit #{pageVo.start}, #{pageVo.pageSize};
     </select>
 
-    <select id="findAllStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo" resultType="com.yeta.pps.vo.StorageResultOrderVo">
+    <select id="findAllStorageResultOrder" parameterType="com.yeta.pps.vo.StorageResultOrderVo"
+            resultType="com.yeta.pps.vo.StorageResultOrderVo">
         select
         sro.id,
         sro.type,
         sro.create_time,
+        sro.apply_order_id,
         sro.order_status,
         sro.target_id,
         if (c.name is not null, c.name, s.name) as target_name,
         sro.warehouse_id,
         w.name as warehouse_name,
+        sro.out_warehouse_id,
         sro.total_quantity,
         sro.total_money,
         sro.total_check_quantity,
@@ -776,11 +1148,13 @@
         <id column="id" property="id"/>
         <result column="type" property="type"/>
         <result column="create_time" property="createTime"/>
+        <result column="apply_order_id" property="applyOrderId"/>
+        <result column="order_status" property="orderStatus"/>
         <result column="target_id" property="targetId"/>
         <result column="target_name" property="targetName"/>
-        <result column="order_status" property="orderStatus"/>
         <result column="warehouse_id" property="warehouseId"/>
         <result column="warehouse_name" property="warehouseName"/>
+        <result column="out_warehouse_id" property="outWarehouseId"/>
         <result column="total_quantity" property="totalQuantity"/>
         <result column="total_money" property="totalMoney"/>
         <result column="total_check_quantity" property="totalCheckQuantity"/>
@@ -815,17 +1189,19 @@
         </collection>
     </resultMap>
 
-    <select id="findAllStorageResultOrderDetail" parameterType="com.yeta.pps.vo.StorageResultOrderVo"
+    <select id="findStorageResultOrderDetail" parameterType="com.yeta.pps.vo.StorageResultOrderVo"
             resultMap="storageResultOrderVoMap">
         select
         sro.id,
         sro.type,
         sro.create_time,
+        sro.apply_order_id,
         sro.order_status,
         sro.target_id,
         if (c.name is not null, c.name, s.name) as target_name,
         sro.warehouse_id,
         w.name as warehouse_name,
+        sro.out_warehouse_id,
         sro.total_quantity,
         sro.total_money,
         sro.total_check_quantity,
@@ -1542,8 +1918,10 @@
         wgs.book_inventory,
         wgs.inventory_upper_limit,
         wgs.inventory_low_limit,
-        if (wgs.book_inventory &gt;= wgs.inventory_upper_limit, '库存高于上限', if (wgs.book_inventory &lt;= wgs.inventory_low_limit, '库存低于下限', null)) as remark,
-        wgs.inventory_low_limit + wgs.not_sent_quantity - wgs.real_inventory - wgs.not_received_quantity as need_quantity,
+        if (wgs.book_inventory &gt;= wgs.inventory_upper_limit, '库存高于上限', if (wgs.book_inventory &lt;=
+        wgs.inventory_low_limit, '库存低于下限', null)) as remark,
+        wgs.inventory_low_limit + wgs.not_sent_quantity - wgs.real_inventory - wgs.not_received_quantity as
+        need_quantity,
         wgs.opening_quantity,
         wgs.opening_money,
         wgs.opening_total_money

@@ -1,6 +1,7 @@
 package com.yeta.pps.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
@@ -30,12 +31,19 @@ public class StorageResultOrderVo {
     /**
      * 单据日期
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
 
+    @JsonIgnore
     private Date startTime;
 
+    @JsonIgnore
     private Date endTime;
+
+    /**
+     * 来源订单
+     */
+    private String applyOrderId;
 
     /**
      * 单据状态
@@ -56,6 +64,13 @@ public class StorageResultOrderVo {
     private Integer warehouseId;
 
     private String warehouseName;
+
+    /**
+     * 出库仓库编号
+     */
+    private Integer outWarehouseId;
+
+    private String outWarehouseName;
 
     /**
      * 总数量
@@ -109,25 +124,45 @@ public class StorageResultOrderVo {
     public StorageResultOrderVo() {
     }
 
-    public StorageResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id) {
+    public StorageResultOrderVo(Integer storeId, String id) {
         this.storeId = storeId;
         this.id = id;
     }
 
-    public StorageResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, @NotBlank(message = CommonResponse.PARAMETER_ERROR) String userId, String remark) {
+    public StorageResultOrderVo(Integer storeId, Byte type) {
+        this.storeId = storeId;
+        this.type = type;
+    }
+
+    public StorageResultOrderVo(Integer storeId, String id, String userId, String remark) {
         this.storeId = storeId;
         this.id = id;
         this.userId = userId;
         this.remark = remark;
     }
 
-    public StorageResultOrderVo(@NotNull(message = CommonResponse.PARAMETER_ERROR) Integer storeId, String id, Byte type, Date startTime, Date endTime, String targetName) {
+    public StorageResultOrderVo(Integer storeId, String id, Byte type, Date startTime, Date endTime, String targetName) {
         this.storeId = storeId;
         this.id = id;
         this.type = type;
         this.startTime = startTime;
         this.endTime = endTime;
         this.targetName = targetName;
+    }
+
+    public StorageResultOrderVo(Integer storeId, String id, Byte type, Date createTime, String applyOrderId, Byte orderStatus, Integer warehouseId, Integer outWarehouseId, Integer totalQuantity, Double totalMoney, String userId, String remark) {
+        this.storeId = storeId;
+        this.id = id;
+        this.type = type;
+        this.createTime = createTime;
+        this.applyOrderId = applyOrderId;
+        this.orderStatus = orderStatus;
+        this.warehouseId = warehouseId;
+        this.outWarehouseId = outWarehouseId;
+        this.totalQuantity = totalQuantity;
+        this.totalMoney = totalMoney;
+        this.userId = userId;
+        this.remark = remark;
     }
 
     public Integer getStoreId() {
@@ -186,6 +221,14 @@ public class StorageResultOrderVo {
         this.endTime = endTime;
     }
 
+    public String getApplyOrderId() {
+        return applyOrderId;
+    }
+
+    public void setApplyOrderId(String applyOrderId) {
+        this.applyOrderId = applyOrderId;
+    }
+
     public Byte getOrderStatus() {
         return orderStatus;
     }
@@ -224,6 +267,22 @@ public class StorageResultOrderVo {
 
     public void setWarehouseName(String warehouseName) {
         this.warehouseName = warehouseName;
+    }
+
+    public Integer getOutWarehouseId() {
+        return outWarehouseId;
+    }
+
+    public void setOutWarehouseId(Integer outWarehouseId) {
+        this.outWarehouseId = outWarehouseId;
+    }
+
+    public String getOutWarehouseName() {
+        return outWarehouseName;
+    }
+
+    public void setOutWarehouseName(String outWarehouseName) {
+        this.outWarehouseName = outWarehouseName;
     }
 
     public Integer getTotalQuantity() {
@@ -316,11 +375,14 @@ public class StorageResultOrderVo {
                 ", createTime=" + createTime +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
+                ", applyOrderId='" + applyOrderId + '\'' +
                 ", orderStatus=" + orderStatus +
                 ", targetId='" + targetId + '\'' +
                 ", targetName='" + targetName + '\'' +
                 ", warehouseId=" + warehouseId +
                 ", warehouseName='" + warehouseName + '\'' +
+                ", outWarehouseId=" + outWarehouseId +
+                ", outWarehouseName='" + outWarehouseName + '\'' +
                 ", totalQuantity=" + totalQuantity +
                 ", totalMoney=" + totalMoney +
                 ", totalCheckQuantity=" + totalCheckQuantity +

@@ -16,24 +16,34 @@ public interface MyStorageMapper {
     int findCountInCGApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
 
     List<ProcurementApplyOrderVo> findPagedInCGApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
-                                                          @Param(value = "pageVo")PageVo pageVo);
+                                                          @Param(value = "pageVo") PageVo pageVo);
 
     int findCountInTHHApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
 
     List<ProcurementApplyOrderVo> findPagedInTHHApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
-                                                           @Param(value = "pageVo")PageVo pageVo);
+                                                           @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountInDBApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
+
+    List<StorageApplyOrderVo> findPagedInDBApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
+                                                      @Param(value = "pageVo") PageVo pageVo);
 
     //待发货
 
     int findCountOutCGApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
 
     List<ProcurementApplyOrderVo> findPagedOutCGApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
-                                                           @Param(value = "pageVo")PageVo pageVo);
+                                                           @Param(value = "pageVo") PageVo pageVo);
 
     int findCountOutTHHApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
 
     List<ProcurementApplyOrderVo> findPagedOutTHHApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
-                                                            @Param(value = "pageVo")PageVo pageVo);
+                                                            @Param(value = "pageVo") PageVo pageVo);
+
+    int findCountOutDBApplyOrder(ProcurementApplyOrderVo procurementApplyOrderVo);
+
+    List<StorageApplyOrderVo> findPagedOutDBApplyOrder(@Param(value = "vo") ProcurementApplyOrderVo procurementApplyOrderVo,
+                                                       @Param(value = "pageVo") PageVo pageVo);
 
     //收/发货单
 
@@ -52,7 +62,26 @@ public interface MyStorageMapper {
 
     List<String> findStorageOrderPrimaryKey(StorageOrderVo storageOrderVo);
 
-    //其他入/出库单、报溢/损单、成本调价单
+    //申请单
+
+    int addStorageApplyOrder(StorageApplyOrderVo storageApplyOrderVo);
+
+    int deleteStorageApplyOrder(StorageApplyOrderVo storageApplyOrderVo);
+
+    int updateStorageApplyOrderOrderStatusAndQuantity(StorageOrderVo storageOrderVo);
+
+    int findCountStorageApplyOrder(StorageApplyOrderVo storageApplyOrderVo);
+
+    List<StorageApplyOrderVo> findPagedStorageApplyOrder(@Param(value = "vo") StorageApplyOrderVo storageApplyOrderVo,
+                                                         @Param(value = "pageVo") PageVo pageVo);
+
+    List<StorageApplyOrderVo> findAllStorageApplyOrder(StorageApplyOrderVo storageApplyOrderVo);
+
+    List<StorageApplyOrderVo> findStorageApplyOrderDetail(StorageApplyOrderVo storageApplyOrderVo);
+
+    List<String> findStorageApplyOrderPrimaryKey(StorageApplyOrderVo storageApplyOrderVo);
+
+    //结果单
 
     int addStorageResultOrder(StorageResultOrderVo storageResultOrderVo);
 
@@ -65,7 +94,7 @@ public interface MyStorageMapper {
 
     List<StorageResultOrderVo> findAllStorageResultOrder(StorageResultOrderVo storageResultOrderVo);
 
-    List<StorageResultOrderVo> findAllStorageResultOrderDetail(StorageResultOrderVo storageResultOrderVo);
+    List<StorageResultOrderVo> findStorageResultOrderDetail(StorageResultOrderVo storageResultOrderVo);
 
     List<String> findStorageResultOrderPrimaryKey(StorageResultOrderVo storageResultOrderVo);
 
