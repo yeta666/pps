@@ -4,7 +4,7 @@
 
     <!--客户登陆-->
 
-    <select id="findByUsernameAndPassword" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.po.Client">
+    <select id="findByUsername" parameterType="com.yeta.pps.vo.ClientVo" resultType="com.yeta.pps.po.Client">
         select id,
                name,
                username,
@@ -21,8 +21,7 @@
                disabled,
                remark
         from client
-        where username = #{username}
-          and password = #{password};
+        where username = #{username};
     </select>
 
     <!--会员卡号-->

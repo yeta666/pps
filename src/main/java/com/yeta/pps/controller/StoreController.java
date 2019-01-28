@@ -1,5 +1,6 @@
 package com.yeta.pps.controller;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.yeta.pps.po.Store;
 import com.yeta.pps.service.StoreService;
 import com.yeta.pps.util.CommonResponse;
@@ -41,7 +42,7 @@ public class StoreController {
     })
     @PostMapping(value = "/stores/{check}")
     public CommonResponse add(@RequestBody @Valid StoreVo storeVo,
-                              @PathVariable(value = "check") String check) {
+                              @PathVariable(value = "check") String check) throws ClientException {
         return storeService.add(storeVo, check);
     }
 

@@ -1,5 +1,6 @@
 package com.yeta.pps.controller;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.yeta.pps.po.Client;
 import com.yeta.pps.po.ClientLevel;
 import com.yeta.pps.po.MembershipNumber;
@@ -40,23 +41,31 @@ public class ClientController {
     //客户登陆注销
 
     /**
+     * 获取手机验证码接口
+     * @param phone
+     * @param request
+     * @return
+     * @throws ClientException
+     */
+    @ApiOperation(value = "获取手机验证码")
+    @ApiImplicitParam(name = "phone", value = "手机号码", required = true, paramType = "path", dataType = "String")
+    @GetMapping(value = "/clients/code/{phone}")
+    public CommonResponse getCode(@PathVariable(value = "phone") String phone,
+                                  HttpServletRequest request) throws ClientException {
+        return clientService.getCode(phone, request);
+    }
+
+    /**
      * 客户登陆接口
-     * @param username
-     * @param password
+     * @param clientVo
+     * @param request
      * @return
      */
     @ApiOperation(value = "登陆")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "用户名", required = true, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "password", value = "密码", required = true, paramType = "query", dataType = "String"),
-    })
+    @ApiImplicitParam(name = "clientVo", value = "用户名username必填，密码password或手机验证码code二选一", required = true, paramType = "body", dataType = "ClientVo")
     @PostMapping(value = "/clients/login")
-    public CommonResponse login(@RequestParam(value = "username") String username,
-                                @RequestParam(value = "password") String password) {
-        ClientVo clientVo = new ClientVo();
-        clientVo.setUsername(username);
-        clientVo.setPassword(password);
-        return clientService.login(clientVo);
+    public CommonResponse login(@RequestBody ClientVo clientVo, HttpServletRequest request) {
+        return clientService.login(clientVo, request);
     }
 
     //会员卡号
@@ -226,7 +235,7 @@ public class ClientController {
     @ApiOperation(value = "新增客户", notes = "用户名后台默认电话号码，密码后台默认电话号码后4位")
     @ApiImplicitParam(name = "clientVo", value = "name, phone, levelId, membershipNumber必填, inviterId, inviterPhone(二选一填), birthday, address, postcode选填, 其他不填", required = true, paramType = "body", dataType = "ClientVo")
     @PostMapping(value = "/clients")
-    public CommonResponse add(@RequestBody ClientVo clientVo) {
+    public CommonResponse add(@RequestBody ClientVo clientVo) throws ClientException {
         return clientService.add(clientVo);
     }
 
@@ -388,7 +397,7 @@ public class ClientController {
     @ApiOperation(value = "导入客户")
     @ApiImplicitParam(name = "file", value = "文件", required = true, paramType = "form", dataType = "File")
     @PostMapping(value = "/clients/import")
-    public CommonResponse importClient(@RequestParam(value = "file") MultipartFile file) throws IOException, ParseException {
+    public CommonResponse importClient(@RequestParam(value = "file") MultipartFile file) throws IOException, ParseException, ClientException {
         return clientService.importClient(file);
     }
 

@@ -1,6 +1,7 @@
 package com.yeta.pps.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.po.ClientLevel;
 import com.yeta.pps.util.CommonResponse;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -31,6 +32,12 @@ public class ClientVo {
      * 密码
      */
     private String password;
+
+    /**
+     * 手机验证码
+     */
+    //@JsonIgnore
+    private String code;
 
     /**
      * 电话
@@ -159,6 +166,14 @@ public class ClientVo {
         this.password = password;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public String getPhone() {
         return phone;
     }
@@ -278,6 +293,7 @@ public class ClientVo {
                 ", name='" + name + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", code='" + code + '\'' +
                 ", phone='" + phone + '\'' +
                 ", levelId=" + levelId +
                 ", clientLevel=" + clientLevel +

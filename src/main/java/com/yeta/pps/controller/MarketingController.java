@@ -199,7 +199,7 @@ public class MarketingController {
      */
     @ApiOperation(value = "新增短信模版", notes = "特权账号使用")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "smsTemplate", value = "title, content, type必填", required = true, paramType = "body", dataType = "SMSTemplate"),
+            @ApiImplicitParam(name = "smsTemplate", value = "id, title, content, type必填", required = true, paramType = "body", dataType = "SMSTemplate"),
             @ApiImplicitParam(name = "check", value = "特权账号编号", required = true, paramType = "path", dataType = "String")
     })
     @PostMapping(value = "/sms/template/{check}")

@@ -237,7 +237,8 @@
     <delete id="deleteSMSTemplate" parameterType="com.yeta.pps.po.SMSTemplate">
         DELETE
         FROM sms_template
-        WHERE id = #{id};
+        WHERE id = #{id}
+        AND id NOT IN ('SMS_157115006', 'SMS_157278144');
     </delete>
 
     <update id="updateSMSTemplate" parameterType="com.yeta.pps.po.SMSTemplate">
@@ -299,7 +300,7 @@
     </select>
 
     <select id="findPagedSMSHistory" resultType="com.yeta.pps.po.SMSHistory">
-        SELECT sh.id, sh.store_id, sh.client_id, c.name AS client_name, c.phone AS client_phone, sh.create_time
+        SELECT sh.id, sh.store_id, s.name as store_name, sh.client_id, c.name AS client_name, c.phone AS client_phone, sh.create_time
         <if test="vo.storeId != null">
             , sh.user_id, u.name AS user_name
         </if>

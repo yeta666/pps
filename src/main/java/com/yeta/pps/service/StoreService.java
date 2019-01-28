@@ -1,5 +1,6 @@
 package com.yeta.pps.service;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyClientMapper;
 import com.yeta.pps.mapper.StoreMapper;
@@ -17,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 店铺相关逻辑处理
@@ -45,6 +45,9 @@ public class StoreService {
     @Autowired
     private StoreClientUtil storeClientUtil;
 
+    @Autowired
+    private SMSUtil smsUtil;
+
     /**
      * 新增店铺，插入一套表
      * @param storeVo
@@ -52,7 +55,7 @@ public class StoreService {
      * @return
      */
     @Transactional      //create语句不支持事务回滚，所有需要手动事务回滚
-    public CommonResponse add(StoreVo storeVo, String check) {
+    public CommonResponse add(StoreVo storeVo, String check) throws ClientException {
         //判断权限
         if (!storeClientUtil.checkMethod(check)) {
             return CommonResponse.error(CommonResponse.PERMISSION_ERROR);
@@ -62,9 +65,10 @@ public class StoreService {
         ClientVo clientVo = new ClientVo();
         clientVo.setId(primaryKeyUtil.getPrimaryKeyMethod(myClientMapper.findPrimaryKey(), "kh"));
         clientVo.setName(storeVo.getClientName());
-        clientVo.setUsername(storeVo.getClientPhone());
-        clientVo.setPassword(storeVo.getClientPhone().substring(storeVo.getClientPhone().length() - 4));
-        clientVo.setPhone(storeVo.getClientPhone());
+        String phone = storeVo.getClientPhone();
+        clientVo.setUsername(phone);
+        clientVo.setPassword(phone.substring(phone.length() - 4));
+        clientVo.setPhone(phone);
 
         //判断客户级别是否存在
         if (myClientMapper.findClientLevelById(new ClientLevel(1)) == null) {
@@ -105,6 +109,16 @@ public class StoreService {
                 throw new CommonException(CommonResponse.ADD_ERROR);
             }
         });
+
+        //发送短信
+        List<SMSHistory> smsHistories = new ArrayList<>();
+        SMSHistory smsHistory = new SMSHistory();
+        smsHistory.setClientId(storeVo.getClientId());
+        smsHistory.setClientName(storeVo.getClientName());
+        smsHistory.setClientPhone(phone);
+        smsHistory.setTemplateCode("SMS_157278144");
+        smsHistories.add(smsHistory);
+        smsUtil.sendSMSMethod(smsHistories);
 
         //新增店铺
         Store store = new Store();

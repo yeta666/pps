@@ -993,15 +993,17 @@ INSERT INTO sms_template(id, title, content, type, create_time, update_time) VAL
 INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157115005', '登录异常验证码', '验证码${code}，您正尝试异地登录，若非本人操作，请勿泄露。', 1, now(), now());
 INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157115006', '登录确认验证码', '验证码${code}，您正在登录，若非本人操作，请勿泄露。', 1, now(), now());
 INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157115007', '身份验证验证码', '验证码${code}，您正在进行身份验证，打死不要告诉别人哦！', 1, now(), now());
+INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157278144', '成为会员提醒', '尊敬的${name}, 您已成功注册会员，请使用手机号码登陆，默认密码手机号码后4位，请及时修改密码。', 1, now(), now());
+INSERT INTO sms_template(id, title, content, type, create_time, update_time) VALUES ('SMS_157283140', '生日提醒', '尊敬的${name}, 衷心祝福您生日快乐，为您送上一份生日优惠礼物，请登陆后查看。', 1, now(), now());
 
 
 DROP TABLE IF EXISTS sms_history;
 CREATE TABLE sms_history (
   id int(11) NOT NULL AUTO_INCREMENT COMMENT '短信历史编号',
-  store_id int(11) NOT NULL COMMENT '店铺编号',
+  store_id int(11) DEFAULT NULL COMMENT '店铺编号',
   client_id varchar(50) NOT NULL COMMENT '客户编号',
   create_time datetime NOT NULL COMMENT '发送时间',
-  user_id varchar(50) NOT NULL COMMENT '经手人编号',
+  user_id varchar(50) DEFAULT NULL COMMENT '经手人编号',
   content varchar(255) NOT NULL COMMENT '短信内容',
   status tinyint(4) NOT NULL COMMENT '发送状态，0：失败，1：成功',
   remark varchar(255) DEFAULT NULL COMMENT '失败原因',

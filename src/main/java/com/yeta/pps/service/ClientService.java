@@ -1,5 +1,6 @@
 package com.yeta.pps.service;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyClientMapper;
 import com.yeta.pps.mapper.StoreMapper;
@@ -14,7 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,16 +47,92 @@ public class ClientService {
     @Autowired
     private StoreClientUtil storeClientUtil;
 
+    @Autowired
+    private SMSUtil smsUtil;
+
+    /**
+     * 获取手机验证码
+     * @param phone
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    public CommonResponse getCode(String phone, HttpServletRequest request) throws ClientException {
+        //定义验证码图片大小
+        int size = 5;
+
+        //获取验证码
+        String code = CommonUtil.generateVerifyCode(size, "0123456789").toUpperCase();
+
+        //将验证码存入session
+        HttpSession session = request.getSession();
+        if (session.getAttribute("phone") != null) {
+            return CommonResponse.error("获取验证码过于频繁，请稍后再试！");
+        }
+        session.setAttribute("phone", phone);
+        session.setAttribute("code", code);
+
+        //获取验证码缓冲1分钟
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000 * 60);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            session.removeAttribute("phone");
+        }).start();
+
+        //验证码有效期5分钟
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000 * 60 * 5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            session.removeAttribute("code");
+        }).start();
+
+        //发送短信
+        List<SMSHistory> smsHistories = new ArrayList<>();
+        SMSHistory smsHistory = new SMSHistory();
+        smsHistory.setClientId(phone);
+        smsHistory.setCode(Integer.valueOf(code));
+        smsHistory.setClientPhone(phone);
+        smsHistory.setTemplateCode("SMS_157115006");
+        smsHistories.add(smsHistory);
+        smsUtil.sendSMSMethod(smsHistories);
+
+        return CommonResponse.success();
+    }
+
     /**
      * 客户登陆
      * @param clientVo
+     * @param request
      * @return
      */
-    public CommonResponse login(ClientVo clientVo) {
-        //判断用户名、密码
-        Client client = myClientMapper.findByUsernameAndPassword(clientVo);
+    public CommonResponse login(ClientVo clientVo, HttpServletRequest request) {
+        //判断用户名
+        Client client = myClientMapper.findByUsername(clientVo);
         if (client == null) {
-            return CommonResponse.error(CommonResponse.LOGIN_ERROR, "用户名或密码错误");
+            return CommonResponse.error(CommonResponse.LOGIN_ERROR, "用户名不存在");
+        }
+
+        HttpSession session = request.getSession();
+
+        //判断登陆类型
+        if (clientVo.getPassword() != null && clientVo.getCode() == null) {
+            //判断密码
+            if (!client.getPassword().equals(clientVo.getPassword())) {
+                return CommonResponse.error(CommonResponse.LOGIN_ERROR, "密码错误");
+            }
+        } else if (clientVo.getPassword() == null && clientVo.getCode() != null) {
+            //判断手机验证码
+            if (session.getAttribute("code") == null || !session.getAttribute("code").equals(clientVo.getCode())) {
+                return CommonResponse.error(CommonResponse.LOGIN_ERROR, "验证码错误");
+            }
+        } else {
+            return CommonResponse.error(CommonResponse.PARAMETER_ERROR);
         }
 
         //判断客户是否已禁用
@@ -60,10 +140,10 @@ public class ClientService {
             return CommonResponse.error(CommonResponse.LOGIN_ERROR, "该用户已禁用");
         }
 
+        session.removeAttribute("code");
+
         return CommonResponse.success(client);
     }
-
-
 
     //会员卡号
 
@@ -279,7 +359,7 @@ public class ClientService {
      * @return
      */
     @Transactional
-    public CommonResponse add(ClientVo clientVo) {
+    public CommonResponse add(ClientVo clientVo) throws ClientException {
         //设置初始属性
         clientVo.setId(primaryKeyUtil.getPrimaryKeyMethod(myClientMapper.findPrimaryKey(), "kh"));
         String phone = clientVo.getPhone();
@@ -335,6 +415,16 @@ public class ClientService {
                 throw new CommonException(CommonResponse.ADD_ERROR);
             }
         });
+
+        //发送短信
+        List<SMSHistory> smsHistories = new ArrayList<>();
+        SMSHistory smsHistory = new SMSHistory();
+        smsHistory.setClientId(clientVo.getId());
+        smsHistory.setClientName(clientVo.getName());
+        smsHistory.setClientPhone(phone);
+        smsHistory.setTemplateCode("SMS_157278144");
+        smsHistories.add(smsHistory);
+        smsUtil.sendSMSMethod(smsHistories);
 
         return CommonResponse.success();
     }
@@ -559,7 +649,7 @@ public class ClientService {
      * @throws ParseException
      */
     @Transactional
-    public CommonResponse importClient(MultipartFile multipartFile) throws IOException, ParseException {
+    public CommonResponse importClient(MultipartFile multipartFile) throws IOException, ParseException, ClientException {
         HSSFWorkbook workbook = new HSSFWorkbook(multipartFile.getInputStream());
         HSSFSheet sheet = workbook.getSheetAt(0);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -649,6 +739,16 @@ public class ClientService {
                     throw new CommonException(CommonResponse.ADD_ERROR);
                 }
             });
+
+            //发送短信
+            List<SMSHistory> smsHistories = new ArrayList<>();
+            SMSHistory smsHistory = new SMSHistory();
+            smsHistory.setClientId(clientVo.getId());
+            smsHistory.setClientName(name);
+            smsHistory.setClientPhone(phone);
+            smsHistory.setTemplateCode("SMS_157278144");
+            smsHistories.add(smsHistory);
+            smsUtil.sendSMSMethod(smsHistories);
         }
         return CommonResponse.success();
     }

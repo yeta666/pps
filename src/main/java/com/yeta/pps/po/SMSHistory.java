@@ -1,6 +1,7 @@
 package com.yeta.pps.po;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeta.pps.util.CommonResponse;
 
 import javax.validation.constraints.NotBlank;
@@ -33,6 +34,9 @@ public class SMSHistory {
     private String clientId;
 
     private String clientName;
+
+    @JsonIgnore
+    private Integer code;
 
     private String clientPhone;
 
@@ -118,6 +122,14 @@ public class SMSHistory {
 
     public void setClientName(String clientName) {
         this.clientName = clientName;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
     }
 
     public String getClientPhone() {

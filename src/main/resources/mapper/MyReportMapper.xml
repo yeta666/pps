@@ -378,7 +378,11 @@
         if (
         sro1.type = 5,
         '成本调价单',
+        if (
+        sro1.type = 7,
+        '调拨单',
         null
+        )
         )))))))))))) as type_name,
         sco.create_time,
         if (

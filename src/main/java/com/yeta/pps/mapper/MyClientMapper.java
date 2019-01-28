@@ -9,7 +9,7 @@ import java.util.List;
 public interface MyClientMapper {
 
     //客户登陆
-    Client findByUsernameAndPassword(ClientVo clientVo);
+    Client findByUsername(ClientVo clientVo);
 
     //会员卡号
 
