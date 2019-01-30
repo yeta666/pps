@@ -113,7 +113,7 @@ public class StoreService {
         //发送短信
         List<SMSHistory> smsHistories = new ArrayList<>();
         SMSHistory smsHistory = new SMSHistory();
-        smsHistory.setClientId(storeVo.getClientId());
+        smsHistory.setClientId(clientVo.getId());
         smsHistory.setClientName(storeVo.getClientName());
         smsHistory.setClientPhone(phone);
         smsHistory.setTemplateCode("SMS_157278144");
