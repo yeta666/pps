@@ -1065,10 +1065,12 @@ public class SellService {
                 fundUtil.redDashedFundCheckOrderMethod(new FundCheckOrderVo(storeId, sellResultOrderVo.getApplyOrderId(), userId));
 
                 //减少客户积分
-                storeClientUtil.updateIntegralMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos, userId);
+                if (applyOrderVo.getClient() != null && applyOrderVo.getClient().getId() != null) {
+                    storeClientUtil.updateIntegralMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), goodsSkus, orderGoodsSkuVos, userId);
 
-                //减少该客户邀请人提成
-                storeClientUtil.updatePushMoneyMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), userId, sellResultOrderVo.getOrderMoney());
+                    //减少该客户邀请人提成
+                    storeClientUtil.updatePushMoneyMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), userId, sellResultOrderVo.getOrderMoney());
+                }
 
                 break;
 
@@ -1080,11 +1082,11 @@ public class SellService {
                 storeClientUtil.updatePushMoneyMethod(0, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), userId, sellResultOrderVo.getOrderMoney());
 
                 //修改申请订单的单据状态和完成数量
-                if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity() == applyOrderVo.getOutNotSentQuantity()) {        //未发
+                if (applyOrderVo.getOutSentQuantity() == 0 && applyOrderVo.getOutTotalQuantity().intValue() == applyOrderVo.getOutNotSentQuantity()) {        //未发
                     orderStatus = 4;
                 } else if (applyOrderVo.getOutSentQuantity() > 0 && applyOrderVo.getOutNotSentQuantity() < applyOrderVo.getOutTotalQuantity()) {        //部分发
                     orderStatus = 5;
-                } else if (applyOrderVo.getOutSentQuantity() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //已发
+                } else if (applyOrderVo.getOutSentQuantity().intValue() == applyOrderVo.getOutTotalQuantity() && applyOrderVo.getOutNotSentQuantity() == 0) {        //已发
                     orderStatus = 6;
                 }
                 if (mySellMapper.updateApplyOrderOrderStatusAndQuantity(new StorageOrderVo(storeId, (byte) 3, applyOrderVo.getId(), orderStatus, applyOrderVo.getOutSentQuantity() - applyOrderVo.getOutTotalQuantity())) != 1) {
@@ -1100,11 +1102,11 @@ public class SellService {
                 storeClientUtil.updatePushMoneyMethod(1, storeId, applyOrderVo.getClient().getId(), sellResultOrderVo.getId(), userId, sellResultOrderVo.getOrderMoney());
 
                 //修改申请订单的单据状态和完成数量
-                if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity() == applyOrderVo.getInTotalQuantity()) {        //未收
+                if (applyOrderVo.getInReceivedQuantity() == 0 && applyOrderVo.getInNotReceivedQuantity().intValue() == applyOrderVo.getInTotalQuantity()) {        //未收
                     orderStatus = 1;
                 } else if (applyOrderVo.getInReceivedQuantity() > 0 && applyOrderVo.getInNotReceivedQuantity() < applyOrderVo.getInTotalQuantity()) {        //部分收
                     orderStatus = 2;
-                } else if (applyOrderVo.getInReceivedQuantity() == applyOrderVo.getInTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {        //已收
+                } else if (applyOrderVo.getInReceivedQuantity().intValue() == applyOrderVo.getInTotalQuantity() && applyOrderVo.getInNotReceivedQuantity() == 0) {        //已收
                     orderStatus = 3;
                 }
                 if (mySellMapper.updateApplyOrderOrderStatusAndQuantity(new StorageOrderVo(storeId, (byte) 2, applyOrderVo.getId(), orderStatus, applyOrderVo.getInReceivedQuantity() - applyOrderVo.getInTotalQuantity())) != 1) {

@@ -21,6 +21,9 @@ public class FinancialAffairsUtil {
     @Autowired
     private FinancialAffairsMapper financialAffairsMapper;
 
+    @Autowired
+    private PrimaryKeyUtil primaryKeyUtil;
+
     /**
      * 新增会计凭证的方法
      * @param vo
@@ -33,7 +36,7 @@ public class FinancialAffairsUtil {
         }
 
         //设置初始属性
-        vo.setId("KJPZ_" + UUID.randomUUID().toString().replace("-", ""));
+        vo.setId(primaryKeyUtil.getOrderPrimaryKeyMethod(financialAffairsMapper.findAccountingDocumentPrimaryKey(vo), "KJPZ"));
         vo.setOrderStatus((byte) 1);
         vo.setType((byte) 1);
 
@@ -71,6 +74,7 @@ public class FinancialAffairsUtil {
         vos.stream().forEach(accountingDocumentVo -> {
             //设置红冲红单
             accountingDocumentVo.setStoreId(storeId);
+            accountingDocumentVo.setId("HC-" + accountingDocumentVo.getId());
             accountingDocumentVo.setOrderStatus((byte) -2);
             accountingDocumentVo.setDebitMoney(-accountingDocumentVo.getDebitMoney());
             accountingDocumentVo.setCreditMoney(-accountingDocumentVo.getCreditMoney());

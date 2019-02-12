@@ -402,6 +402,9 @@ public class FundController {
      * @param storeId
      * @param startTime
      * @param endTime
+     * @param targetId
+     * @param targetName
+     * @param targetPhone
      * @param page
      * @param pageSize
      * @return
@@ -411,6 +414,9 @@ public class FundController {
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "targetId", value = "往来单位编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "targetName", value = "往来单位名称", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "targetPhone", value = "往来单位电话", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
@@ -418,9 +424,12 @@ public class FundController {
     public CommonResponse<CommonResult<List<FundTargetCheckOrderVo>>> findFundTargetCheckOrderNeedInByClient(@RequestParam(value = "storeId") Integer storeId,
                                                                                                              @RequestParam(value = "startTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
                                                                                                              @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                             @RequestParam(value = "targetId", required = false) String targetId,
+                                                                                                             @RequestParam(value = "targetName", required = false) String targetName,
+                                                                                                             @RequestParam(value = "targetPhone", required = false) String targetPhone,
                                                                                                              @RequestParam(value = "page") Integer page,
                                                                                                              @RequestParam(value = "pageSize") Integer pageSize) {
-        return fundService.findFundTargetCheckOrderNeedInByClient(new FundTargetCheckOrderVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+        return fundService.findFundTargetCheckOrderNeedInByClient(new FundTargetCheckOrderVo(storeId, startTime, endTime, targetId, targetName, targetPhone), new PageVo(page, pageSize));
     }
 
     /**
@@ -457,6 +466,9 @@ public class FundController {
      * @param storeId
      * @param startTime
      * @param endTime
+     * @param targetId
+     * @param targetName
+     * @param targetPhone
      * @param page
      * @param pageSize
      * @return
@@ -466,6 +478,9 @@ public class FundController {
             @ApiImplicitParam(name = "storeId", value = "店铺编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "startTime", value = "开始时间", required = true, paramType = "query", dataType = "Date"),
             @ApiImplicitParam(name = "endTime", value = "结束时间", required = true, paramType = "query", dataType = "Date"),
+            @ApiImplicitParam(name = "targetId", value = "往来单位编号", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "targetName", value = "往来单位名称", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "targetPhone", value = "往来单位电话", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "page", value = "当前页码，从1开始", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示条数", required = true, paramType = "query", dataType = "int")
     })
@@ -473,9 +488,12 @@ public class FundController {
     public CommonResponse<CommonResult<List<FundTargetCheckOrderVo>>> findFundTargetCheckOrderNeedOutByClient(@RequestParam(value = "storeId") Integer storeId,
                                                                                                               @RequestParam(value = "startTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startTime,
                                                                                                               @RequestParam(value = "endTime") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endTime,
+                                                                                                              @RequestParam(value = "targetId", required = false) String targetId,
+                                                                                                              @RequestParam(value = "targetName", required = false) String targetName,
+                                                                                                              @RequestParam(value = "targetPhone", required = false) String targetPhone,
                                                                                                               @RequestParam(value = "page") Integer page,
                                                                                                               @RequestParam(value = "pageSize") Integer pageSize) {
-        return fundService.findFundTargetCheckOrderNeedOutByClient(new FundTargetCheckOrderVo(storeId, startTime, endTime), new PageVo(page, pageSize));
+        return fundService.findFundTargetCheckOrderNeedOutByClient(new FundTargetCheckOrderVo(storeId, startTime, endTime, targetId, targetName, targetPhone), new PageVo(page, pageSize));
     }
 
     /**

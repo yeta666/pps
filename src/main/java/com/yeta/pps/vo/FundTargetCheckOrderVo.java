@@ -165,6 +165,15 @@ public class FundTargetCheckOrderVo {
         this.endTime = endTime;
     }
 
+    public FundTargetCheckOrderVo(Integer storeId, Date startTime, Date endTime, String targetId, String targetName, String targetPhone) {
+        this.storeId = storeId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.targetId = targetId;
+        this.targetName = targetName;
+        this.targetPhone = targetPhone;
+    }
+
     public FundTargetCheckOrderVo(Integer storeId, Date startTime, Date endTime, String targetId) {
         this.storeId = storeId;
         this.startTime = startTime;

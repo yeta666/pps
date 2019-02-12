@@ -420,6 +420,7 @@ public class InventoryUtil {
 
         //设置红冲红单
         vo.setStoreId(storeId);
+        vo.setOrderId("HC-" + vo.getOrderId());
         vo.setCreateTime(new Date());
         vo.setOrderStatus((byte) -2);
         vo.setUserId(userId);

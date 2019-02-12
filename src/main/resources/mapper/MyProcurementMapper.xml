@@ -272,12 +272,15 @@
             <result column="ogs_not_finish_quantity" property="notFinishQuantity"/>
             <result column="ogs_money" property="money"/>
             <result column="ogs_discount_money" property="discountMoney"/>
+            <result column="ogs_operated_quantity" property="operatedQuantity"/>
             <result column="ogs_remark" property="remark"/>
             <result column="g_name" property="goodsName"/>
             <result column="g_id" property="goodsId"/>
             <result column="g_bar_code" property="goodsBarCode"/>
             <result column="gs_sku" property="goodsSkuSku"/>
-            <result column="gs_purchase_price" property="goodsSkuPurchasePrice"/>
+            <result column="gs_retail_price" property="goodsSkuRetailPrice"/>
+            <result column="gs_vip_price" property="goodsSkuVipPrice"/>
+            <result column="gs_boss_price" property="goodsSkuBossPrice"/>
         </collection>
     </resultMap>
 
@@ -315,12 +318,15 @@
         ogs.not_finish_quantity as ogs_not_finish_quantity,
         ogs.money as ogs_money,
         ogs.discount_money as ogs_discount_money,
+        ogs.operated_quantity as ogs_operated_quantity,
         ogs.remark as ogs_remark,
         g.name as g_name,
         g.id as g_id,
         g.bar_code as g_bar_code,
         gs.sku as gs_sku,
-        gs.purchase_price as gs_purchase_price
+        gs.retail_price as gs_retail_price,
+        gs.vip_price as gs_vip_price,
+        gs.boss_price as gs_boss_price
         from
         (
         (
@@ -570,7 +576,9 @@
             <result column="g_id" property="goodsId"/>
             <result column="g_bar_code" property="goodsBarCode"/>
             <result column="gs_sku" property="goodsSkuSku"/>
-            <result column="gs_purchase_price" property="goodsSkuPurchasePrice"/>
+            <result column="gs_retail_price" property="goodsSkuRetailPrice"/>
+            <result column="gs_vip_price" property="goodsSkuVipPrice"/>
+            <result column="gs_boss_price" property="goodsSkuBossPrice"/>
         </collection>
     </resultMap>
 
@@ -607,7 +615,9 @@
                g.id                    as g_id,
                g.bar_code              as g_bar_code,
                gs.sku                  as gs_sku,
-               gs.purchase_price       as gs_purchase_price
+               gs.retail_price         as gs_retail_price,
+               gs.vip_price            as gs_vip_price,
+               gs.boss_price           as gs_boss_price
         from (
                      (
                              (

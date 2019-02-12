@@ -32,6 +32,8 @@ public class OrderGoodsSkuVo {
 
     private Double goodsSkuVipPrice;
 
+    private Double goodsSkuBossPrice;
+
     private Integer integral;
 
     private String goodsId;
@@ -237,6 +239,14 @@ public class OrderGoodsSkuVo {
         this.goodsSkuVipPrice = goodsSkuVipPrice;
     }
 
+    public Double getGoodsSkuBossPrice() {
+        return goodsSkuBossPrice;
+    }
+
+    public void setGoodsSkuBossPrice(Double goodsSkuBossPrice) {
+        this.goodsSkuBossPrice = goodsSkuBossPrice;
+    }
+
     public Integer getIntegral() {
         return integral;
     }
@@ -417,6 +427,7 @@ public class OrderGoodsSkuVo {
                 ", goodsSkuPurchasePrice=" + goodsSkuPurchasePrice +
                 ", goodsSkuRetailPrice=" + goodsSkuRetailPrice +
                 ", goodsSkuVipPrice=" + goodsSkuVipPrice +
+                ", goodsSkuBossPrice=" + goodsSkuBossPrice +
                 ", integral=" + integral +
                 ", goodsId='" + goodsId + '\'' +
                 ", goodsName='" + goodsName + '\'' +

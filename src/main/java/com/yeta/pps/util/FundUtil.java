@@ -132,6 +132,7 @@ public class FundUtil {
             }
 
             //设置红冲红单
+            vo1.setOrderId("HC-" + vo1.getOrderId());
             vo1.setCreateTime(new Date());
             vo1.setOrderStatus((byte) -2);
             if (vo1.getInMoney() != 0 && vo1.getOutMoney() == 0) {     //原来是收款
@@ -181,6 +182,7 @@ public class FundUtil {
             }
 
             //设置红冲红单
+            vo1.setOrderId("HC-" + vo1.getOrderId());
             vo1.setCreateTime(new Date());
             vo1.setOrderStatus((byte) -2);
             if (vo1.getNeedInMoneyIncrease() != 0 && vo1.getNeedInMoneyDecrease() == 0) {     //原来是增加

@@ -653,42 +653,60 @@
     <select id="findCountFundTargetCheckOrderNeedInByClient" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo"
             resultType="java.lang.Integer">
         SELECT COUNT(0)
-        FROM (SELECT c.id      AS targetId, c.name AS targetName, c.phone AS targetPhone, sum(
-                                                                                              ftco.need_in_money_increase
-                )              AS needInMoneyIncrease, sum(
-                                                           ftco.need_in_money_decrease
-                             ) AS needInMoneyDecrease, sum(
-                                                           ftco.advance_in_money_increase
-                             ) AS advanceInMoneyIncrease, sum(
-                                                              ftco.advance_in_money_decrease
-                             ) AS advanceInMoneyDecrease
-              FROM fund_target_check_order_${storeId} AS ftco
-                       INNER JOIN client AS c ON c.id = ftco.target_id
-              WHERE DATE(ftco.create_time) BETWEEN #{startTime}
-                            AND #{endTime}
-              GROUP BY ftco.target_id) AS temp;
+        FROM (SELECT c.id AS targetId, c.name AS targetName, c.phone AS targetPhone, sum(
+        ftco.need_in_money_increase
+        ) AS needInMoneyIncrease, sum(
+        ftco.need_in_money_decrease
+        ) AS needInMoneyDecrease, sum(
+        ftco.advance_in_money_increase
+        ) AS advanceInMoneyIncrease, sum(
+        ftco.advance_in_money_decrease
+        ) AS advanceInMoneyDecrease
+        FROM fund_target_check_order_${storeId} AS ftco
+        INNER JOIN client AS c ON c.id = ftco.target_id
+        WHERE DATE(ftco.create_time) BETWEEN #{startTime}
+        AND #{endTime}
+        <if test="targetId != null">
+            AND c.id = #{targetId}
+        </if>
+        <if test="targetName != null">
+            AND c.name LIKE CONCAT('%', #{targetName}, '%')
+        </if>
+        <if test="targetPhone != null">
+            AND c.phone = #{targetPhone}
+        </if>
+        GROUP BY ftco.target_id) AS temp;
     </select>
 
     <select id="findPagedFundTargetCheckOrderNeedInByClient" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        SELECT c.id      AS targetId,
-               c.name    AS targetName,
-               c.phone   AS targetPhone,
-               sum(
-                   ftco.need_in_money_increase
-                       ) AS needInMoneyIncrease,
-               sum(
-                   ftco.need_in_money_decrease
-                       ) AS needInMoneyDecrease,
-               sum(
-                   ftco.advance_in_money_increase
-                       ) AS advanceInMoneyIncrease,
-               sum(
-                   ftco.advance_in_money_decrease
-                       ) AS advanceInMoneyDecrease
+        SELECT c.id AS targetId,
+        c.name AS targetName,
+        c.phone AS targetPhone,
+        sum(
+        ftco.need_in_money_increase
+        ) AS needInMoneyIncrease,
+        sum(
+        ftco.need_in_money_decrease
+        ) AS needInMoneyDecrease,
+        sum(
+        ftco.advance_in_money_increase
+        ) AS advanceInMoneyIncrease,
+        sum(
+        ftco.advance_in_money_decrease
+        ) AS advanceInMoneyDecrease
         FROM fund_target_check_order_${vo.storeId} AS ftco
-                 INNER JOIN client AS c ON c.id = ftco.target_id
+        INNER JOIN client AS c ON c.id = ftco.target_id
         WHERE DATE(ftco.create_time) BETWEEN #{vo.startTime}
-                      AND #{vo.endTime}
+        AND #{vo.endTime}
+        <if test="vo.targetId != null">
+            AND c.id = #{vo.targetId}
+        </if>
+        <if test="vo.targetName != null">
+            AND c.name LIKE CONCAT('%', #{vo.targetName}, '%')
+        </if>
+        <if test="vo.targetPhone != null">
+            AND c.phone = #{vo.targetPhone}
+        </if>
         GROUP BY ftco.target_id
         LIMIT #{pageVo.start}, #{pageVo.pageSize};
     </select>
@@ -749,42 +767,62 @@
     <select id="findCountFundTargetCheckOrderNeedOutByClient" parameterType="com.yeta.pps.vo.FundTargetCheckOrderVo"
             resultType="java.lang.Integer">
         SELECT COUNT(0)
-        FROM (SELECT s.id      AS targetId, s.name AS targetName, s.contact_number AS targetPhone, sum(
-                                                                                                       ftco.need_out_money_increase
-                )              AS needOutMoneyIncrease, sum(
-                                                            ftco.need_out_money_decrease
-                             ) AS needOutMoneyDecrease, sum(
-                                                            ftco.advance_out_money_increase
-                             ) AS advanceOutMoneyIncrease, sum(
-                                                               ftco.advance_out_money_decrease
-                             ) AS advanceOutMoneyDecrease
-              FROM fund_target_check_order_${storeId} AS ftco
-                       INNER JOIN supplier_${storeId} AS s ON s.id = ftco.target_id
-              WHERE DATE(ftco.create_time) BETWEEN #{startTime}
-                            AND #{endTime}
-              GROUP BY ftco.target_id) AS temp;
+        FROM (SELECT s.id AS targetId,
+        s.name AS targetName, s.contact_number AS targetPhone,
+        sum(
+        ftco.need_out_money_increase
+        ) AS needOutMoneyIncrease, sum(
+        ftco.need_out_money_decrease
+        ) AS needOutMoneyDecrease, sum(
+        ftco.advance_out_money_increase
+        ) AS advanceOutMoneyIncrease, sum(
+        ftco.advance_out_money_decrease
+        ) AS advanceOutMoneyDecrease
+        FROM fund_target_check_order_${storeId} AS ftco
+        INNER JOIN supplier_${storeId} AS s ON s.id = ftco.target_id
+        WHERE DATE(ftco.create_time) BETWEEN #{startTime}
+        AND #{endTime}
+        <if test="targetId != null">
+            AND s.id = #{targetId}
+        </if>
+        <if test="targetName != null">
+            AND s.name LIKE CONCAT('%', #{targetName}, '%')
+        </if>
+        <if test="targetPhone != null">
+            AND s.contact_number = #{targetPhone}
+        </if>
+        GROUP BY ftco.target_id) AS temp;
     </select>
 
     <select id="findPagedFundTargetCheckOrderNeedOutByClient" resultType="com.yeta.pps.vo.FundTargetCheckOrderVo">
-        SELECT s.id             AS targetId,
-               s.name           AS targetName,
-               s.contact_number AS targetPhone,
-               sum(
-                   ftco.need_out_money_increase
-                       )        AS needOutMoneyIncrease,
-               sum(
-                   ftco.need_out_money_decrease
-                       )        AS needOutMoneyDecrease,
-               sum(
-                   ftco.advance_out_money_increase
-                       )        AS advanceOutMoneyIncrease,
-               sum(
-                   ftco.advance_out_money_decrease
-                       )        AS advanceOutMoneyDecrease
+        SELECT s.id AS targetId,
+        s.name AS targetName,
+        s.contact_number AS targetPhone,
+        sum(
+        ftco.need_out_money_increase
+        ) AS needOutMoneyIncrease,
+        sum(
+        ftco.need_out_money_decrease
+        ) AS needOutMoneyDecrease,
+        sum(
+        ftco.advance_out_money_increase
+        ) AS advanceOutMoneyIncrease,
+        sum(
+        ftco.advance_out_money_decrease
+        ) AS advanceOutMoneyDecrease
         FROM fund_target_check_order_${vo.storeId} AS ftco
-                 INNER JOIN supplier_${vo.storeId} AS s ON s.id = ftco.target_id
+        INNER JOIN supplier_${vo.storeId} AS s ON s.id = ftco.target_id
         WHERE DATE(ftco.create_time) BETWEEN #{vo.startTime}
-                      AND #{vo.endTime}
+        AND #{vo.endTime}
+        <if test="vo.targetId != null">
+            AND s.id = #{vo.targetId}
+        </if>
+        <if test="vo.targetName != null">
+            AND s.name LIKE CONCAT('%', #{vo.targetName}, '%')
+        </if>
+        <if test="vo.targetPhone != null">
+            AND s.contact_number = #{vo.targetPhone}
+        </if>
         GROUP BY ftco.target_id
         LIMIT #{pageVo.start}, #{pageVo.pageSize};
     </select>

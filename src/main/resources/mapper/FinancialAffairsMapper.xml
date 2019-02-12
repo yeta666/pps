@@ -164,17 +164,17 @@
 
     <select id="findAllAccountingDocument" parameterType="com.yeta.pps.vo.AccountingDocumentVo"
             resultType="com.yeta.pps.vo.AccountingDocumentVo">
-        SELECT ad.id,
-        ad.create_time,
-        ad.order_status,
-        ad.order_id,
-        ad.subject_id,
-        ad.type,
-        ad.target_id,
-        ad.debit_money,
-        ad.credit_money,
-        ad.user_id
-        FROM accounting_document_${vo.storeId}
+        SELECT id,
+        create_time,
+        order_status,
+        order_id,
+        subject_id,
+        type,
+        target_id,
+        debit_money,
+        credit_money,
+        user_id
+        FROM accounting_document_${storeId}
         WHERE
         1 = 1
         <if test="id != null">
@@ -183,5 +183,12 @@
         <if test="orderId != null">
             AND order_id = #{orderId}
         </if>
+    </select>
+
+    <select id="findAccountingDocumentPrimaryKey" parameterType="com.yeta.pps.vo.SellResultOrderVo"
+            resultType="java.lang.String">
+        select id
+        from accounting_document_${storeId}
+        where date(create_time) = date(now());
     </select>
 </mapper>

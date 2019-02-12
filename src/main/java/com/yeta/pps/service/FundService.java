@@ -388,7 +388,7 @@ public class FundService {
                     }
                     if (advanceMoney != 0) {
                         ftcoVo.setAdvanceOutMoneyDecrease(advanceMoney);        //设置预付减少
-                        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() - lastFTCOVo.getAdvanceOutMoneyDecrease());       //设置期末预付
+                        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() - ftcoVo.getAdvanceOutMoneyDecrease());       //设置期末预付
                     }
                 } else if (orderMoney < 0) {
                     ftcoVo.setNeedOutMoneyIncrease(-orderMoney);      //设置应付增加
@@ -399,7 +399,7 @@ public class FundService {
                     }
                     if (advanceMoney != 0) {
                         ftcoVo.setAdvanceOutMoneyIncrease(-advanceMoney);        //设置预付增加
-                        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() + lastFTCOVo.getAdvanceOutMoneyIncrease());       //设置期末预付
+                        ftcoVo.setAdvanceOutMoney(lastFTCOVo.getAdvanceOutMoney() + ftcoVo.getAdvanceOutMoneyIncrease());       //设置期末预付
                     }
                 }
 

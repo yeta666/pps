@@ -65,7 +65,7 @@ public class PrimaryKeyUtil {
         String date = sdf.format(new Date());
         int max = 0;
         for (String id : ids) {
-            if (!id.contains("-")) {
+            if (!id.contains("-20")) {
                 continue;
             }
             Integer temp = Integer.valueOf(id.substring(id.lastIndexOf("-") + 1));

@@ -940,14 +940,23 @@
         <result column="user_name" property="userName"/>
         <result column="remark" property="remark"/>
         <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
-            <id column="ogs_id" property="id"/>
+            <result column="ogs_id" property="id"/>
             <result column="ogs_type" property="type"/>
             <result column="ogs_goods_sku_id" property="goodsSkuId"/>
             <result column="ogs_quantity" property="quantity"/>
             <result column="ogs_finish_quantity" property="finishQuantity"/>
             <result column="ogs_not_finish_quantity" property="notFinishQuantity"/>
             <result column="ogs_money" property="money"/>
+            <result column="ogs_discount_money" property="discountMoney"/>
+            <result column="ogs_operated_quantity" property="operatedQuantity"/>
             <result column="ogs_remark" property="remark"/>
+            <result column="g_name" property="goodsName"/>
+            <result column="g_id" property="goodsId"/>
+            <result column="g_bar_code" property="goodsBarCode"/>
+            <result column="gs_sku" property="goodsSkuSku"/>
+            <result column="gs_retail_price" property="goodsSkuRetailPrice"/>
+            <result column="gs_vip_price" property="goodsSkuVipPrice"/>
+            <result column="gs_boss_price" property="goodsSkuBossPrice"/>
         </collection>
     </resultMap>
 
@@ -985,9 +994,20 @@
                ogs.finish_quantity             as ogs_finish_quantity,
                ogs.not_finish_quantity         as ogs_not_finish_quantity,
                ogs.money                       as ogs_money,
-               ogs.remark                      as ogs_remark
+               ogs.discount_money              as ogs_discount_money,
+               ogs.operated_quantity           as ogs_operated_quantity,
+               ogs.remark                      as ogs_remark,
+               g.name                          as g_name,
+               g.id                            as g_id,
+               g.bar_code                      as g_bar_code,
+               gs.sku                          as gs_sku,
+               gs.retail_price                 as gs_retail_price,
+               gs.vip_price                    as gs_vip_price,
+               gs.boss_price                   as gs_boss_price
         from storage_apply_order_${storeId} as sao
                  left join order_goods_sku_${storeId} as ogs on ogs.order_id = sao.id
+                 left join goods_sku_${storeId} as gs on ogs.goods_sku_id = gs.id
+                 left join goods_${storeId} as g on gs.goods_id = g.id
                  left join user_${storeId} as u on u.id = sao.user_id
         where sao.id = #{id};
     </select>
@@ -1168,14 +1188,13 @@
         <collection property="details" ofType="com.yeta.pps.vo.OrderGoodsSkuVo">
             <result column="ogs_id" property="id"/>
             <result column="ogs_type" property="type"/>
-            <result column="ogs_order_id" property="orderId"/>
             <result column="ogs_goods_sku_id" property="goodsSkuId"/>
-            <result column="gs_sku" property="goodsSkuSku"/>
-            <result column="g_id" property="goodsId"/>
-            <result column="g_name" property="goodsName"/>
-            <result column="g_bar_code" property="goodsBarCode"/>
             <result column="ogs_quantity" property="quantity"/>
+            <result column="ogs_finish_quantity" property="finishQuantity"/>
+            <result column="ogs_not_finish_quantity" property="notFinishQuantity"/>
             <result column="ogs_money" property="money"/>
+            <result column="ogs_discount_money" property="discountMoney"/>
+            <result column="ogs_operated_quantity" property="operatedQuantity"/>
             <result column="ogs_check_quantity" property="checkQuantity"/>
             <result column="ogs_check_money" property="checkMoney"/>
             <result column="ogs_check_total_money" property="checkTotalMoney"/>
@@ -1186,6 +1205,13 @@
             <result column="ogs_out_quantity" property="outQuantity"/>
             <result column="ogs_out_money" property="outMoney"/>
             <result column="ogs_remark" property="remark"/>
+            <result column="g_name" property="goodsName"/>
+            <result column="g_id" property="goodsId"/>
+            <result column="g_bar_code" property="goodsBarCode"/>
+            <result column="gs_sku" property="goodsSkuSku"/>
+            <result column="gs_retail_price" property="goodsSkuRetailPrice"/>
+            <result column="gs_vip_price" property="goodsSkuVipPrice"/>
+            <result column="gs_boss_price" property="goodsSkuBossPrice"/>
         </collection>
     </resultMap>
 
@@ -1214,14 +1240,13 @@
         sro.remark,
         ogs.id as ogs_id,
         ogs.type as ogs_type,
-        ogs.order_id as ogs_order_id,
         ogs.goods_sku_id as ogs_goods_sku_id,
-        gs.sku as gs_sku,
-        g.id as g_id,
-        g.name as g_name,
-        g.bar_code as g_bar_code,
         ogs.quantity as ogs_quantity,
+        ogs.finish_quantity as ogs_finish_quantity,
+        ogs.not_finish_quantity as ogs_not_finish_quantity,
         ogs.money as ogs_money,
+        ogs.discount_money as ogs_discount_money,
+        ogs.operated_quantity as ogs_operated_quantity,
         ogs.check_quantity as ogs_check_quantity,
         ogs.check_money as ogs_check_money,
         ogs.check_total_money as ogs_check_total_money,
@@ -1231,7 +1256,14 @@
         ogs.in_money as ogs_in_money,
         ogs.out_quantity as ogs_out_quantity,
         ogs.out_money as ogs_out_money,
-        ogs.remark as ogs_remark
+        ogs.remark as ogs_remark,
+        g.name as g_name,
+        g.id as g_id,
+        g.bar_code as g_bar_code,
+        gs.sku as gs_sku,
+        gs.retail_price as gs_retail_price,
+        gs.vip_price as gs_vip_price,
+        gs.boss_price as gs_boss_price
         from
         (
         (

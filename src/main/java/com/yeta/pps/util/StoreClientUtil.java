@@ -102,7 +102,7 @@ public class StoreClientUtil {
         //查询该客户的邀请人编号
         ClientVo clientVo = myClientMapper.findClientInviter(new ClientVo(clientId));
         if (clientVo == null) {
-            throw new CommonException(CommonResponse.UPDATE_ERROR);
+            return;
         }
 
         if (clientVo.getInviterId() != null) {      //店长级别客户没有邀请人

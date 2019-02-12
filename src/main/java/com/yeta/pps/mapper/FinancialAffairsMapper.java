@@ -50,4 +50,6 @@ public interface FinancialAffairsMapper {
                                                            @Param(value = "pageVo")PageVo pageVo);
 
     List<AccountingDocumentVo> findAllAccountingDocument(AccountingDocumentVo accountingDocumentVo);
+
+    List<String> findAccountingDocumentPrimaryKey(AccountingDocumentVo accountingDocumentVo);
 }
