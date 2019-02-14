@@ -296,10 +296,10 @@
         select gt.id,
                gt.name,
                gpk.id              as gpk_id,
-               gpk.`name`          as gpk_name,
+               gpk.name            as gpk_name,
                gpk.type_id         as gpk_type_id,
                gpv.id              as gpv_id,
-               gpv.`name`          as gpv_name,
+               gpv.name            as gpv_name,
                gpv.property_key_id as gpv_property_key_id
         from (
                      goods_type_${storeId} as gt left join

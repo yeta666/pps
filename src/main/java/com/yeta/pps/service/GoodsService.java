@@ -785,18 +785,7 @@ public class GoodsService {
      * @throws IOException
      */
     public void getImportGoodsTemplate(Integer storeId, HttpServletResponse response) throws IOException {
-        //获取所有商品分类
-        List<GoodsType> goodsTypes = myGoodsMapper.findAllType(new GoodsTypeVo(storeId));
-        String types = "";
-        for (int i = 0; i < goodsTypes.size(); i++) {
-            if (i != 0) {
-                types = types + ", " + goodsTypes.get(i).getId() + ":" + goodsTypes.get(i).getName();
-            } else {
-                types = goodsTypes.get(i).getId() + ":" + goodsTypes.get(i).getName();
-            }
-        }
-
-        //获取所有商品标签
+        //查询所有商品标签
         List<GoodsLabel> goodsLabels = myGoodsMapper.findAllLabel(new GoodsLabelVo(storeId));
         String labels = "";
         for (int i = 0; i < goodsLabels.size(); i++) {
@@ -809,22 +798,65 @@ public class GoodsService {
 
         //备注
         String remark = "【导入备注】" +
-                "\n必填列已标红，其中“分类”、“标签”填写对应编号，分类只能填写一个，标签多个用英文逗号隔开" +
-                "\n分类 ==> " + types +
+                "\n必填列已标红，分类只能填写一个，标签多个用英文逗号隔开，规格参考示例" +
                 "\n标签 ==> " + labels +
-                "\n上架状态 ==> 0：不上架, 1：上架";
+                "\n上架状态 ==> 0：不上架, 1：上架" +
+                "\n分类编号:分类名称{商品属性名编号:商品属性名名称[商品属性值编号:商品属性值名称]} ==> ";
+
+        //查询所有商品分类、商品属性名、商品属性值
+        List<GoodsTypeVo> goodsTypeVos = myGoodsMapper.findAllProperties(new GoodsTypeVo(storeId));
+        for (int i = 0; i < goodsTypeVos.size(); i++) {
+            GoodsTypeVo goodsTypeVo = goodsTypeVos.get(i);
+            String keys = "";
+            for (int j = 0; j < goodsTypeVo.getGoodsPropertyKeyVos().size(); j++) {
+                GoodsPropertyKeyVo goodsPropertyKeyVo = goodsTypeVo.getGoodsPropertyKeyVos().get(j);
+                String values = "";
+                for (int k = 0; k < goodsPropertyKeyVo.getGoodsPropertyValues().size(); k++) {
+                    GoodsPropertyValue goodsPropertyValue = goodsPropertyKeyVo.getGoodsPropertyValues().get(k);
+                    if (k != 0) {
+                        values = values + ", " + goodsPropertyValue.getId() + ":" + goodsPropertyValue.getName();
+                    } else {
+                        values = goodsPropertyValue.getId() + ":" + goodsPropertyValue.getName();
+                    }
+                }
+                if (j != 0) {
+                    keys = keys + "," + goodsPropertyKeyVo.getId() + ":" + goodsPropertyKeyVo.getName() + "[" + values + "]";
+                } else {
+                    keys = goodsPropertyKeyVo.getId() + ":" + goodsPropertyKeyVo.getName() + "[" + values + "]";
+                }
+            }
+            remark = remark + "\n" + goodsTypeVo.getId() + ":" + goodsTypeVo.getName() + "{" + keys + "}";
+        }
 
         //标题行
         List<String> titleRowCell = Arrays.asList(new String[]{
-                "商品名", "条码", "分类", "上架状态", "产地", "备注", "标签"
+                "商品名", "条码", "分类", "上架状态", "规格", "进价", "零售价", "vip售价", "店长售价", "积分", "产地", "备注", "标签"
         });
 
+        //数据行
+        List<List<String>> dataRowCells = new ArrayList<>();
+        List<String> dataRowCell = new ArrayList<>();
+        dataRowCell.add("示例");
+        dataRowCell.add("xxx");
+        dataRowCell.add("酒类");
+        dataRowCell.add("1");
+        dataRowCell.add("品牌:舍得,单位:个");
+        dataRowCell.add("10");
+        dataRowCell.add("30");
+        dataRowCell.add("20");
+        dataRowCell.add("18");
+        dataRowCell.add("66");
+        dataRowCell.add("xxx");
+        dataRowCell.add("xxx");
+        dataRowCell.add("标签1,标签2");
+        dataRowCells.add(dataRowCell);
+
         //最后一个必填列列数
-        int lastRequiredCol = 3;
+        int lastRequiredCol = 9;
 
         //输出excel
         String fileName = "【商品导入模版】_" + System.currentTimeMillis() + ".xls";
-        CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, new ArrayList<>(), fileName, response);
+        CommonUtil.outputExcelMethod(remark, titleRowCell, lastRequiredCol, dataRowCells, fileName, response);
     }
 
     /**
@@ -839,16 +871,20 @@ public class GoodsService {
         HSSFWorkbook workbook = new HSSFWorkbook(multipartFile.getInputStream());
         HSSFSheet sheet = workbook.getSheetAt(0);
 
-        //获取所有商品分类
-        List<GoodsType> goodsTypes = myGoodsMapper.findAllType(new GoodsTypeVo(storeId));
+        //查询所有商品标签
+        List<GoodsLabel> goodsLabels = myGoodsMapper.findAllLabel(new GoodsLabelVo(storeId));
+
+        //查询所有商品分类、商品属性名、商品属性值
+        List<GoodsTypeVo> goodsTypeVos = myGoodsMapper.findAllProperties(new GoodsTypeVo(storeId));
 
         //获取数据
+        GoodsVo goodsVo = new GoodsVo();
+        List<GoodsSkuVo> goodsSkuVos = new ArrayList<>();
         for (int j = 3; j <= sheet.getLastRowNum(); j++) {
             HSSFRow row = sheet.getRow(j);
-            GoodsVo goodsVo = new GoodsVo();
+
+            //商品
             goodsVo.setStoreId(storeId);
-            goodsVo.setId(primaryKeyUtil.getPrimaryKeyMethod(myGoodsMapper.findPrimaryKey(goodsVo), "sp"));
-            goodsVo.setCreateTime(new Date());
 
             String name = CommonUtil.getCellValue(row.getCell(0));
             if ("".equals(name)) {
@@ -863,11 +899,11 @@ public class GoodsService {
             goodsVo.setBarCode(barCode);
 
             String type = CommonUtil.getCellValue(row.getCell(2));
-            Optional<GoodsType> typeOptional = goodsTypes.stream().filter(goodsType -> goodsType.getId().toString().equals(type)).findFirst();
+            Optional<GoodsTypeVo> typeOptional = goodsTypeVos.stream().filter(goodsTypeVo -> goodsTypeVo.getName().equals(type)).findFirst();
             if (!typeOptional.isPresent()) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "分类错误");
             }
-            goodsVo.setTypeId(Integer.valueOf(type));
+            goodsVo.setTypeId(typeOptional.get().getId());
 
             String putaway = CommonUtil.getCellValue(row.getCell(3));
             if ("".equals(putaway) || (putaway.equals("0") && putaway.equals("1"))) {
@@ -875,28 +911,104 @@ public class GoodsService {
             }
             goodsVo.setPutaway(Byte.valueOf(putaway));
 
-            goodsVo.setOrigin(CommonUtil.getCellValue(row.getCell(4)));
+            goodsVo.setOrigin(CommonUtil.getCellValue(row.getCell(10)));
 
-            goodsVo.setRemark(CommonUtil.getCellValue(row.getCell(5)));
+            goodsVo.setRemark(CommonUtil.getCellValue(row.getCell(11)));
 
             //判断商品标签是否存在
-            String label = CommonUtil.getCellValue(row.getCell(6));
+            String label = CommonUtil.getCellValue(row.getCell(12));
+            List<GoodsLabel> goodsLabelList = new ArrayList<>();
             if (!label.equals("")) {
                 String[] labels = label.split(",");
                 for (int i = 0; i < labels.length; i++) {
-                    if (myGoodsMapper.findLabel( new GoodsLabelVo(storeId, Integer.valueOf(labels[i]))) == null) {
+                    GoodsLabel goodsLabel = myGoodsMapper.findLabel(new GoodsLabelVo(storeId, labels[i]));
+                    if (goodsLabel == null) {
                         throw new CommonException(CommonResponse.IMPORT_ERROR, "标签错误");
                     }
-                    GoodsGoodsLabelVo goodsGoodsLabelVo = new GoodsGoodsLabelVo(storeId, goodsVo.getId(), Integer.valueOf(labels[i]));
-                    if (myGoodsMapper.addGoodsLabel(goodsGoodsLabelVo) != 1) {
-                        throw new CommonException(CommonResponse.IMPORT_ERROR);
-                    }
+                    goodsLabelList.add(goodsLabel);
                 }
             }
+            goodsVo.setGoodsLabels(goodsLabelList);
 
-            //保存商品
-            if (myGoodsMapper.add(goodsVo) != 1) {
-                throw new CommonException(CommonResponse.IMPORT_ERROR);
+            //商品规格
+            GoodsSkuVo goodsSkuVo = new GoodsSkuVo();
+            String sku = CommonUtil.getCellValue(row.getCell(4));
+            if ("".equals(sku)) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "规格错误");
+            }
+            List<Sku> skuList = new ArrayList<>();
+            String[] skuArr = sku.split(",");
+            for (String skuA : skuArr) {
+                String[] skuArr1 = skuA.split(":");
+                Optional<GoodsPropertyKeyVo> keyOptional = typeOptional.get().getGoodsPropertyKeyVos().stream().filter(goodsPropertyKeyVo -> goodsPropertyKeyVo.getName().equals(skuArr1[0])).findFirst();
+                if (!keyOptional.isPresent()) {
+                    throw new CommonException(CommonResponse.IMPORT_ERROR, "商品属性名错误");
+                }
+                Optional<GoodsPropertyValue> valueOptional = keyOptional.get().getGoodsPropertyValues().stream().filter(goodsPropertyValue -> goodsPropertyValue.getName().equals(skuArr1[1])).findFirst();
+                if (!valueOptional.isPresent()) {
+                    throw new CommonException(CommonResponse.IMPORT_ERROR, "商品属性值错误");
+                }
+                skuList.add(new Sku(skuArr1[0], skuArr1[1]));
+            }
+            goodsSkuVo.setSku(JSON.toJSONString(skuList));
+
+            String purchasePrice = CommonUtil.getCellValue(row.getCell(5));
+            if ("".equals(purchasePrice)) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "进价错误");
+            }
+            goodsSkuVo.setPurchasePrice(Double.valueOf(purchasePrice));
+
+            String retailPrice = CommonUtil.getCellValue(row.getCell(6));
+            if ("".equals(retailPrice)) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "零售价错误");
+            }
+            goodsSkuVo.setRetailPrice(Double.valueOf(retailPrice));
+
+            String vipPrice = CommonUtil.getCellValue(row.getCell(7));
+            if ("".equals(vipPrice)) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "vip售价错误");
+            }
+            goodsSkuVo.setVipPrice(Double.valueOf(vipPrice));
+
+            String bossPrice = CommonUtil.getCellValue(row.getCell(8));
+            if ("".equals(bossPrice)) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "店长售价错误");
+            }
+            goodsSkuVo.setBossPrice(Double.valueOf(bossPrice));
+
+            String integral = CommonUtil.getCellValue(row.getCell(9));
+            if ("".equals(integral)) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "积分错误");
+            }
+            goodsSkuVo.setIntegral(Integer.valueOf(integral));
+
+            goodsSkuVos.add(goodsSkuVo);
+
+            //判断是否另一个商品
+            if ((j < sheet.getLastRowNum() && !name.equals(CommonUtil.getCellValue(sheet.getRow(j + 1).getCell(0)))) || j == sheet.getLastRowNum()) {
+                goodsVo.setGoodsSkuVos(goodsSkuVos);
+                List<Skus> skusList = new ArrayList<>();
+                for (GoodsSkuVo goodsSkuVo1 : goodsSkuVos) {
+                    List<Sku> skuList1 = JSON.parseArray(goodsSkuVo1.getSku(), Sku.class);
+                    for (Sku sku1 : skuList1) {
+                        int flag = 0;
+                        for (Skus skus : skusList) {
+                            if (skus.getKey().equals(sku1.getKey())) {
+
+                                skus.getValue().add(sku1.getValue());
+                                flag++;
+                            }
+                        }
+                        if (flag == 0) {
+                            Set<String> values = new HashSet<>();
+                            values.add(sku1.getValue());
+                            skusList.add(new Skus(sku1.getKey(), values));
+                        }
+                    }
+                }
+                goodsVo.setSkus(JSON.toJSONString(skusList));
+                add(goodsVo);
+                goodsSkuVos = new ArrayList<>();
             }
         }
         return CommonResponse.success();

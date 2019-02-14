@@ -364,7 +364,7 @@ public class CommonUtil {
             } else {
                 size = dataRowCell.size() - 1;
             }
-            for (int j = 0; j < size; j++) {
+            for (int j = 0; j <= size; j++) {
                 HSSFCell cell = row.createCell(j);
                 cell.setCellValue(dataRowCell.get(j));
                 if (dataRowCell.get(dataRowCell.size() - 1) != null && dataRowCell.get(dataRowCell.size() - 1).equals("红冲蓝单")) {
