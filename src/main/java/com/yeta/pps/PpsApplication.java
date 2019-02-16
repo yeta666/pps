@@ -2,6 +2,7 @@ package com.yeta.pps;
 
 import com.yeta.pps.interceptor.CommonInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
@@ -25,6 +26,12 @@ import tk.mybatis.spring.annotation.MapperScan;
 @Configuration      //注册Bean
 @EnableSwagger2     //开启Swagger支持
 public class PpsApplication {
+
+    @Value("${dir.upload}")
+    private String upload;
+
+    @Value("${dir.download}")
+    private String download;
 
     public static void main(String[] args) {
         SpringApplication.run(PpsApplication.class, args);
@@ -55,10 +62,8 @@ public class PpsApplication {
 
         @Override
         public void addResourceHandlers(ResourceHandlerRegistry registry) {
-            registry.addResourceHandler("/upload/**").addResourceLocations("classpath:upload/");
-            registry.addResourceHandler("/download/**").addResourceLocations("classpath:download/");
-            //registry.addResourceHandler("/upload/**").addResourceLocations("file:upload/");
-            //registry.addResourceHandler("/download/**").addResourceLocations("file:download/");
+            registry.addResourceHandler("/upload/**").addResourceLocations(upload);
+            registry.addResourceHandler("/download/**").addResourceLocations(download);
             super.addResourceHandlers(registry);
         }
     }
