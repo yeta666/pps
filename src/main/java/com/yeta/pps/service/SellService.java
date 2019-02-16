@@ -349,14 +349,16 @@ public class SellService {
 
         //判断参数
         if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getInWarehouseId() == null || sellApplyOrderVo.getInTotalQuantity() == null ||
-                sellApplyOrderVo.getResultOrderId() == null || sellApplyOrderVo.getClientId() == null) {
+                sellApplyOrderVo.getClientId() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
 
         //已红冲的销售出库单不能退换货
-        SellResultOrderVo srVo = mySellMapper.findResultOrderDetailById(new SellResultOrderVo(storeId, sellApplyOrderVo.getResultOrderId()));
-        if (srVo == null || srVo.getOrderStatus() < 0) {
-            throw new CommonException(CommonResponse.ADD_ERROR, CommonResponse.STATUS_ERROR);
+        if (sellApplyOrderVo.getResultOrderId() != null) {
+            SellResultOrderVo srVo = mySellMapper.findResultOrderDetailById(new SellResultOrderVo(storeId, sellApplyOrderVo.getResultOrderId()));
+            if (srVo == null || srVo.getOrderStatus() < 0) {
+                throw new CommonException(CommonResponse.ADD_ERROR, CommonResponse.STATUS_ERROR);
+            }
         }
 
         //设置初始属性
@@ -386,14 +388,16 @@ public class SellService {
         //判断参数
         if (orderGoodsSkuVos.size() == 0 || sellApplyOrderVo.getInWarehouseId() == null || sellApplyOrderVo.getInTotalQuantity() == null ||
                 sellApplyOrderVo.getOutWarehouseId() == null || sellApplyOrderVo.getOutTotalQuantity() == null ||
-                sellApplyOrderVo.getResultOrderId() == null || sellApplyOrderVo.getClientId() == null) {
+                sellApplyOrderVo.getClientId() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
 
         //已红冲的销售出库单不能退换货
-        SellResultOrderVo srVo = mySellMapper.findResultOrderDetailById(new SellResultOrderVo(storeId, sellApplyOrderVo.getResultOrderId()));
-        if (srVo == null || srVo.getOrderStatus() < 0) {
-            throw new CommonException(CommonResponse.ADD_ERROR, CommonResponse.STATUS_ERROR);
+        if (sellApplyOrderVo.getResultOrderId() != null) {
+            SellResultOrderVo srVo = mySellMapper.findResultOrderDetailById(new SellResultOrderVo(storeId, sellApplyOrderVo.getResultOrderId()));
+            if (srVo == null || srVo.getOrderStatus() < 0) {
+                throw new CommonException(CommonResponse.ADD_ERROR, CommonResponse.STATUS_ERROR);
+            }
         }
 
         //设置初始属性
@@ -405,8 +409,8 @@ public class SellService {
         sellApplyOrderVo.setInNotReceivedQuantity(sellApplyOrderVo.getInTotalQuantity());
         sellApplyOrderVo.setOutSentQuantity(0);
         sellApplyOrderVo.setOutNotSentQuantity(sellApplyOrderVo.getOutTotalQuantity());
-        sellApplyOrderVo.setClearedMoney(sellApplyOrderVo.getOrderMoney());
-        sellApplyOrderVo.setNotClearedMoney(0.0);
+        sellApplyOrderVo.setClearedMoney(0.0);
+        sellApplyOrderVo.setNotClearedMoney(sellApplyOrderVo.getOrderMoney());
 
         //商品规格相关操作
         inventoryMethod(sellApplyOrderVo, null);
@@ -450,13 +454,15 @@ public class SellService {
             }
 
             //修改销售出库单对应的商品规格已操作数量
-            byte type = sellApplyOrderVo.getType() == null ? oldVo.getType() : sellApplyOrderVo.getType();
-            if (type == 3 || (type == 4 && orderGoodsSkuVo.getType() == 1)) {
-                if (orderGoodsSkuVo.getId() == null) {
-                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
-                }
-                if (myOrderGoodsSkuMapper.updateOperatedQuantity(new OrderGoodsSkuVo(sellApplyOrderVo.getStoreId(), orderGoodsSkuVo.getId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity())) != 1) {
-                    throw new CommonException(CommonResponse.ADD_ERROR);
+            if (sellApplyOrderVo.getResultOrderId() != null) {
+                byte type = sellApplyOrderVo.getType() == null ? oldVo.getType() : sellApplyOrderVo.getType();
+                if (type == 3 || (type == 4 && orderGoodsSkuVo.getType() == 1)) {
+                    if (orderGoodsSkuVo.getId() == null) {
+                        throw new CommonException(CommonResponse.PARAMETER_ERROR);
+                    }
+                    if (myOrderGoodsSkuMapper.updateOperatedQuantity(new OrderGoodsSkuVo(sellApplyOrderVo.getStoreId(), orderGoodsSkuVo.getId(), orderGoodsSkuVo.getGoodsSkuId(), orderGoodsSkuVo.getQuantity())) != 1) {
+                        throw new CommonException(CommonResponse.ADD_ERROR);
+                    }
                 }
             }
         });
@@ -606,21 +612,23 @@ public class SellService {
         }
 
         //修改商品规格可操作数量
-        if (oldVo.getType() == 3 || oldVo.getType() == 4) {
-            List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = oldVo.getDetails().stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("1")).collect(Collectors.toList());        //采购退换申请单或采购换货申请单中入库的的商品规格
-            SellResultOrderVo resultOrderVo = mySellMapper.findResultOrderDetailById(new SellResultOrderVo(sellApplyOrderVo.getStoreId(), oldVo.getResultOrderId()));
-            List<OrderGoodsSkuVo> resultOrderGoodsSkuVos = resultOrderVo.getDetails();
-            resultOrderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
-                Optional<OrderGoodsSkuVo> optional = applyOrderGoodsSkuVos.stream().filter(vo -> vo.getGoodsSkuId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst();
-                if (optional.isPresent()) {
-                    int changeQuantity = optional.get().getQuantity();
-                    orderGoodsSkuVo.setStoreId(sellApplyOrderVo.getStoreId());
-                    orderGoodsSkuVo.setOperatedQuantity(-changeQuantity);
-                    if (myOrderGoodsSkuMapper.updateOperatedQuantity(orderGoodsSkuVo) != 1) {
-                        throw new CommonException(CommonResponse.UPDATE_ERROR);
+        if (oldVo.getResultOrderId() != null) {
+            if (oldVo.getType() == 3 || oldVo.getType() == 4) {
+                List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = oldVo.getDetails().stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("1")).collect(Collectors.toList());        //采购退换申请单或采购换货申请单中入库的的商品规格
+                SellResultOrderVo resultOrderVo = mySellMapper.findResultOrderDetailById(new SellResultOrderVo(sellApplyOrderVo.getStoreId(), oldVo.getResultOrderId()));
+                List<OrderGoodsSkuVo> resultOrderGoodsSkuVos = resultOrderVo.getDetails();
+                resultOrderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
+                    Optional<OrderGoodsSkuVo> optional = applyOrderGoodsSkuVos.stream().filter(vo -> vo.getGoodsSkuId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst();
+                    if (optional.isPresent()) {
+                        int changeQuantity = optional.get().getQuantity();
+                        orderGoodsSkuVo.setStoreId(sellApplyOrderVo.getStoreId());
+                        orderGoodsSkuVo.setOperatedQuantity(-changeQuantity);
+                        if (myOrderGoodsSkuMapper.updateOperatedQuantity(orderGoodsSkuVo) != 1) {
+                            throw new CommonException(CommonResponse.UPDATE_ERROR);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         //重置库存
@@ -663,8 +671,7 @@ public class SellService {
         //判断参数
         if (sellApplyOrderVo.getStoreId() == null || sellApplyOrderVo.getId() == null ||
                 sellApplyOrderVo.getDetails() == null || sellApplyOrderVo.getDetails().size() == 0 ||
-                sellApplyOrderVo.getTotalMoney() == null || sellApplyOrderVo.getDiscountMoney() == null || sellApplyOrderVo.getTotalDiscountMoney() == null || sellApplyOrderVo.getOrderMoney() == null ||
-                sellApplyOrderVo.getOutTotalQuantity() == null) {
+                sellApplyOrderVo.getTotalMoney() == null || sellApplyOrderVo.getDiscountMoney() == null || sellApplyOrderVo.getTotalDiscountMoney() == null || sellApplyOrderVo.getOrderMoney() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
 

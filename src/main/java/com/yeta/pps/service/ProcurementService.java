@@ -4,7 +4,6 @@ import com.yeta.pps.exception.CommonException;
 import com.yeta.pps.mapper.MyOrderGoodsSkuMapper;
 import com.yeta.pps.mapper.MyProcurementMapper;
 import com.yeta.pps.mapper.MyWarehouseMapper;
-import com.yeta.pps.po.ProcurementApplyOrder;
 import com.yeta.pps.po.Warehouse;
 import com.yeta.pps.util.*;
 import com.yeta.pps.vo.*;
@@ -89,15 +88,16 @@ public class ProcurementService {
         List<OrderGoodsSkuVo> orderGoodsSkuVos = procurementApplyOrderVo.getDetails();
 
         //判断参数
-        if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null ||
-                procurementApplyOrderVo.getResultOrderId() == null) {
+        if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
 
         //已红冲的采购入库单不能退换货
-        ProcurementResultOrderVo prVo = myProcurementMapper.findResultOrderDetailById(new ProcurementResultOrderVo(procurementApplyOrderVo.getStoreId(), procurementApplyOrderVo.getResultOrderId()));
-        if (prVo == null || prVo.getOrderStatus() < 0) {
-            throw new CommonException(CommonResponse.ADD_ERROR, CommonResponse.STATUS_ERROR);
+        if (procurementApplyOrderVo.getResultOrderId() != null) {
+            ProcurementResultOrderVo prVo = myProcurementMapper.findResultOrderDetailById(new ProcurementResultOrderVo(procurementApplyOrderVo.getStoreId(), procurementApplyOrderVo.getResultOrderId()));
+            if (prVo == null || prVo.getOrderStatus() < 0) {
+                throw new CommonException(CommonResponse.ADD_ERROR, CommonResponse.STATUS_ERROR);
+            }
         }
 
         //设置初始属性
@@ -125,15 +125,16 @@ public class ProcurementService {
 
         //判断参数
         if (orderGoodsSkuVos.size() == 0 || procurementApplyOrderVo.getInWarehouseId() == null || procurementApplyOrderVo.getInTotalQuantity() == null ||
-                procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null ||
-                procurementApplyOrderVo.getResultOrderId() == null) {
+                procurementApplyOrderVo.getOutWarehouseId() == null || procurementApplyOrderVo.getOutTotalQuantity() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
 
         //已红冲的采购入库单不能退换货
-        ProcurementResultOrderVo prVo = myProcurementMapper.findResultOrderDetailById(new ProcurementResultOrderVo(procurementApplyOrderVo.getStoreId(), procurementApplyOrderVo.getResultOrderId()));
-        if (prVo == null || prVo.getOrderStatus() < 0) {
-            throw new CommonException(CommonResponse.ADD_ERROR, CommonResponse.STATUS_ERROR);
+        if (procurementApplyOrderVo.getResultOrderId() != null) {
+            ProcurementResultOrderVo prVo = myProcurementMapper.findResultOrderDetailById(new ProcurementResultOrderVo(procurementApplyOrderVo.getStoreId(), procurementApplyOrderVo.getResultOrderId()));
+            if (prVo == null || prVo.getOrderStatus() < 0) {
+                throw new CommonException(CommonResponse.ADD_ERROR, CommonResponse.STATUS_ERROR);
+            }
         }
 
         //设置初始属性
@@ -145,8 +146,8 @@ public class ProcurementService {
         procurementApplyOrderVo.setInNotReceivedQuantity(procurementApplyOrderVo.getInTotalQuantity());
         procurementApplyOrderVo.setOutSentQuantity(0);
         procurementApplyOrderVo.setOutNotSentQuantity(procurementApplyOrderVo.getOutTotalQuantity());
-        procurementApplyOrderVo.setClearedMoney(procurementApplyOrderVo.getOrderMoney());
-        procurementApplyOrderVo.setNotClearedMoney(0.0);
+        procurementApplyOrderVo.setClearedMoney(0.0);
+        procurementApplyOrderVo.setNotClearedMoney(procurementApplyOrderVo.getOrderMoney());
 
         //商品规格相关操作
         inventoryMethod(procurementApplyOrderVo, null);
@@ -196,13 +197,15 @@ public class ProcurementService {
             }
 
             //修改采购入库单对应的商品规格已操作数量
-            byte type = paoVo.getType() == null ? oldVo.getType() : paoVo.getType();
-            if (type == 2 || (type == 3 && orderGoodsSkuVo.getType() == 0)) {
-                if (orderGoodsSkuVo.getId() == null) {
-                    throw new CommonException(CommonResponse.PARAMETER_ERROR);
-                }
-                if (myOrderGoodsSkuMapper.updateOperatedQuantity(new OrderGoodsSkuVo(storeId, orderGoodsSkuVo.getId(), goodsSkuId, quantity)) != 1) {
-                    throw new CommonException(CommonResponse.ADD_ERROR);
+            if (paoVo.getResultOrderId() != null) {
+                byte type = paoVo.getType() == null ? oldVo.getType() : paoVo.getType();
+                if (type == 2 || (type == 3 && orderGoodsSkuVo.getType() == 0)) {
+                    if (orderGoodsSkuVo.getId() == null) {
+                        throw new CommonException(CommonResponse.PARAMETER_ERROR);
+                    }
+                    if (myOrderGoodsSkuMapper.updateOperatedQuantity(new OrderGoodsSkuVo(storeId, orderGoodsSkuVo.getId(), goodsSkuId, quantity)) != 1) {
+                        throw new CommonException(CommonResponse.ADD_ERROR);
+                    }
                 }
             }
         });
@@ -328,21 +331,23 @@ public class ProcurementService {
         }
 
         //修改商品规格可操作数量
-        if (oldVo.getType() == 2 || oldVo.getType() == 3) {
-            List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = oldVo.getDetails().stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("0")).collect(Collectors.toList());        //采购退换申请单或采购换货申请单中出库的的商品规格
-            ProcurementResultOrderVo resultOrderVo = myProcurementMapper.findResultOrderDetailById(new ProcurementResultOrderVo(storeId, oldVo.getResultOrderId()));
-            List<OrderGoodsSkuVo> resultOrderGoodsSkuVos = resultOrderVo.getDetails();      //采购入库单的商品规格
-            resultOrderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
-                Optional<OrderGoodsSkuVo> optional = applyOrderGoodsSkuVos.stream().filter(vo -> vo.getGoodsSkuId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst();
-                if (optional.isPresent()) {
-                    int changeQuantity = optional.get().getQuantity();
-                    orderGoodsSkuVo.setStoreId(storeId);
-                    orderGoodsSkuVo.setOperatedQuantity(-changeQuantity);
-                    if (myOrderGoodsSkuMapper.updateOperatedQuantity(orderGoodsSkuVo) != 1) {
-                        throw new CommonException(CommonResponse.DELETE_ERROR);
+        if (oldVo.getResultOrderId() != null) {
+            if (oldVo.getType() == 2 || oldVo.getType() == 3) {
+                List<OrderGoodsSkuVo> applyOrderGoodsSkuVos = oldVo.getDetails().stream().filter(orderGoodsSkuVo -> orderGoodsSkuVo.getType().toString().equals("0")).collect(Collectors.toList());        //采购退换申请单或采购换货申请单中出库的的商品规格
+                ProcurementResultOrderVo resultOrderVo = myProcurementMapper.findResultOrderDetailById(new ProcurementResultOrderVo(storeId, oldVo.getResultOrderId()));
+                List<OrderGoodsSkuVo> resultOrderGoodsSkuVos = resultOrderVo.getDetails();      //采购入库单的商品规格
+                resultOrderGoodsSkuVos.stream().forEach(orderGoodsSkuVo -> {
+                    Optional<OrderGoodsSkuVo> optional = applyOrderGoodsSkuVos.stream().filter(vo -> vo.getGoodsSkuId().equals(orderGoodsSkuVo.getGoodsSkuId())).findFirst();
+                    if (optional.isPresent()) {
+                        int changeQuantity = optional.get().getQuantity();
+                        orderGoodsSkuVo.setStoreId(storeId);
+                        orderGoodsSkuVo.setOperatedQuantity(-changeQuantity);
+                        if (myOrderGoodsSkuMapper.updateOperatedQuantity(orderGoodsSkuVo) != 1) {
+                            throw new CommonException(CommonResponse.DELETE_ERROR);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         //重置库存
@@ -380,8 +385,7 @@ public class ProcurementService {
         //判断参数
         if (procurementApplyOrderVo.getStoreId() == null || procurementApplyOrderVo.getId() == null ||
                 procurementApplyOrderVo.getDetails() == null || procurementApplyOrderVo.getDetails().size() == 0 ||
-                procurementApplyOrderVo.getTotalMoney() == null || procurementApplyOrderVo.getTotalDiscountMoney() == null || procurementApplyOrderVo.getOrderMoney() == null ||
-                procurementApplyOrderVo.getInTotalQuantity() == null) {
+                procurementApplyOrderVo.getTotalMoney() == null || procurementApplyOrderVo.getTotalDiscountMoney() == null || procurementApplyOrderVo.getOrderMoney() == null) {
             throw new CommonException(CommonResponse.PARAMETER_ERROR);
         }
 

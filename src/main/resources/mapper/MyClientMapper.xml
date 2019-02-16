@@ -525,8 +525,7 @@
         update store_client
         set integral = integral + #{integral}
         where store_id = #{storeId}
-          and client_id = #{clientId}
-          and integral + #{integral} &gt;= 0;
+          and client_id = #{clientId};
     </update>
 
     <update id="updateStoreClientOpening" parameterType="com.yeta.pps.po.StoreClient">
@@ -541,8 +540,7 @@
         update store_client
         set push_money = push_money + #{pushMoney}
         where store_id = #{storeId}
-          and client_id = #{clientId}
-          and push_money + #{pushMoney} &gt;= 0;
+          and client_id = #{clientId};
     </update>
 
     <select id="findCountStoreClient" parameterType="com.yeta.pps.vo.StoreClientVo" resultType="java.lang.Integer">
