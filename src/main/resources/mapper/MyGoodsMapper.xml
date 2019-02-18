@@ -456,12 +456,23 @@
     <!--商品-->
 
     <insert id="add" parameterType="com.yeta.pps.vo.GoodsVo">
-        insert into goods_${storeId} (id, name, bar_code, type_id, putaway, skus, origin, image, remark, create_time)
+        insert into goods_${storeId} (id,
+                                      name,
+                                      bar_code,
+                                      type_id,
+                                      putaway,
+                                      push_money_status,
+                                      skus,
+                                      origin,
+                                      image,
+                                      remark,
+                                      create_time)
         VALUES (#{id},
                 #{name},
                 #{barCode},
                 #{typeId},
                 #{putaway},
+                #{pushMoneyStatus},
                 #{skus},
                 #{origin},
                 #{image},
@@ -478,13 +489,14 @@
     <update id="update" parameterType="com.yeta.pps.vo.GoodsVo">
         update
                 goods_${storeId}
-        set name     = #{name},
-            bar_code = #{barCode},
-            putaway  = #{putaway},
-            skus     = #{skus},
-            origin   = #{origin},
-            image    = #{image},
-            remark   = #{remark}
+        set name              = #{name},
+            bar_code          = #{barCode},
+            putaway           = #{putaway},
+            push_money_status = #{pushMoneyStatus},
+            skus              = #{skus},
+            origin            = #{origin},
+            image             = #{image},
+            remark            = #{remark}
         where id = #{id};
     </update>
 
@@ -525,6 +537,7 @@
         <result column="bar_code" property="barCode"/>
         <result column="type_id" property="typeId"/>
         <result column="putaway" property="putaway"/>
+        <result column="push_money_status" property="pushMoneyStatus"/>
         <result column="skus" property="skus"/>
         <result column="origin" property="origin"/>
         <result column="image" property="image"/>
@@ -554,6 +567,7 @@
         g.bar_code,
         g.type_id,
         g.putaway,
+        g.push_money_status,
         g.skus,
         g.origin,
         g.image,
@@ -610,6 +624,7 @@
         g.bar_code,
         g.type_id,
         g.putaway,
+        g.push_money_status,
         g.skus,
         g.origin,
         g.image,
@@ -663,6 +678,7 @@
                bar_code,
                type_id,
                putaway,
+               push_money_status,
                skus,
                origin,
                image,
@@ -688,6 +704,7 @@
             <result column="g_bar_code" property="barCode"/>
             <result column="g_type_id" property="typeId"/>
             <result column="g_putaway" property="putaway"/>
+            <result column="g_push_money_status" property="push_money_status"/>
             <result column="g_skus" property="skus"/>
             <result column="g_origin" property="origin"/>
             <result column="g_image" property="image"/>
@@ -717,6 +734,7 @@
                g.bar_code            as g_bar_code,
                g.type_id             as g_type_id,
                g.putaway             as g_putaway,
+               g.push_money_status   as g_push_money_status,
                g.skus                as g_skus,
                g.origin              as g_origin,
                g.image               as g_image,
@@ -733,13 +751,9 @@
                wgs.real_inventory    as wgs_real_inventory,
                wgs.can_use_inventory as wgs_can_use_inventory,
                wgs.book_inventory    as wgs_book_inventory
-        from (
-                     (
-                             goods_type_${storeId} as gt
-                                     inner join goods_${storeId} as g on g.type_id = gt.id
-                             )
-                             inner join goods_sku_${storeId} as gs on gs.goods_id = g.id
-                     )
+        from goods_type_${storeId} as gt
+                 inner join goods_${storeId} as g on g.type_id = gt.id
+                 inner join goods_sku_${storeId} as gs on gs.goods_id = g.id
                  inner join warehouse_goods_sku_${storeId} as wgs on wgs.goods_sku_id = gs.id
         where wgs.warehouse_id = #{warehouseId}
           and g.putaway = 1;

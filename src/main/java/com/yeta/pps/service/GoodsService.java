@@ -636,6 +636,7 @@ public class GoodsService {
         titles.add(new Title("条码", "barCode"));
         titles.add(new Title("分类", "typeName"));
         titles.add(new Title("上架状态", "putaway"));
+        titles.add(new Title("是否提成", "pushMoneyStatus"));
         titles.add(new Title("产地", "origin"));
         titles.add(new Title("图片", "image"));
         titles.add(new Title("备注", "remark"));
@@ -664,11 +665,12 @@ public class GoodsService {
                     "类型：" + (goodsVo.getTypeId() == null ? "无" : vo.getTypeName()) +
                     "上架状态：" + (goodsVo.getPutaway() == null ? "无" : vo.getPutaway().toString()) +
                     "\n【导出备注】" +
-                    "\n上架状态 ==> 0：不上架, 1：上架";
+                    "\n上架状态 ==> 0：不上架, 1：上架" +
+                    "\n是否提成 ==> 0：否, 1：是";
 
             //标题行
             List<String> titleRowCell = Arrays.asList(new String[]{
-                    "商品货号", "商品名", "条码", "分类", "上架状态", "产地", "图片", "备注", "创建时间", "标签"
+                    "商品货号", "商品名", "条码", "分类", "上架状态", "是否提成", "产地", "图片", "备注", "创建时间", "标签"
             });
 
             //最后一个必填列列数
@@ -686,8 +688,6 @@ public class GoodsService {
         }
     }
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
     public List<String> commonMethod(GoodsVo goodsVo) {
         List<String> dataRowCell = new ArrayList<>();
         dataRowCell.add(goodsVo.getId());
@@ -695,9 +695,11 @@ public class GoodsService {
         dataRowCell.add(goodsVo.getBarCode());
         dataRowCell.add(goodsVo.getTypeName());
         dataRowCell.add(goodsVo.getPutaway().toString());
+        dataRowCell.add(goodsVo.getPushMoneyStatus().toString());
         dataRowCell.add(goodsVo.getOrigin());
         dataRowCell.add(goodsVo.getImage());
         dataRowCell.add(goodsVo.getRemark());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         dataRowCell.add(sdf.format(goodsVo.getCreateTime()));
         String label = "";
         for (int i = 0; i < goodsVo.getGoodsLabels().size(); i++) {
@@ -730,11 +732,12 @@ public class GoodsService {
                     "类型：" + (goodsVo.getTypeId() == null ? "无" : vo.getTypeName()) +
                     "上架状态：" + (goodsVo.getPutaway() == null ? "无" : vo.getPutaway().toString()) +
                     "\n【导出备注】" +
-                    "\n上架状态 ==> 0：不上架, 1：上架";
+                    "\n上架状态 ==> 0：不上架, 1：上架" +
+                    "\n是否提成 ==> 0：否, 1：是";
 
             //标题行
             List<String> titleRowCell = new ArrayList<>(Arrays.asList(new String[]{
-                    "商品货号", "商品名", "条码", "分类", "上架状态", "产地", "图片", "备注", "创建时间", "标签", "规格", "进价", "零售价", "vip售价", "店长售价", "积分"
+                    "商品货号", "商品名", "条码", "分类", "上架状态", "是否提成", "产地", "图片", "备注", "创建时间", "标签", "规格", "进价", "零售价", "vip售价", "店长售价", "积分"
             }));
 
             //最后一个必填列列数
@@ -801,6 +804,7 @@ public class GoodsService {
                 "\n必填列已标红，分类只能填写一个，标签多个用英文逗号隔开，规格参考示例" +
                 "\n标签 ==> " + labels +
                 "\n上架状态 ==> 0：不上架, 1：上架" +
+                "\n是否提成 ==> 0：否, 1：是" +
                 "\n分类编号:分类名称{商品属性名编号:商品属性名名称[商品属性值编号:商品属性值名称]} ==> ";
 
         //查询所有商品分类、商品属性名、商品属性值
@@ -830,7 +834,7 @@ public class GoodsService {
 
         //标题行
         List<String> titleRowCell = Arrays.asList(new String[]{
-                "商品名", "条码", "分类", "上架状态", "规格", "进价", "零售价", "vip售价", "店长售价", "积分", "产地", "备注", "标签"
+                "商品名", "条码", "分类", "上架状态", "是否提成", "规格", "进价", "零售价", "vip售价", "店长售价", "积分", "产地", "备注", "标签"
         });
 
         //数据行
@@ -839,6 +843,7 @@ public class GoodsService {
         dataRowCell.add("示例");
         dataRowCell.add("xxx");
         dataRowCell.add("酒类");
+        dataRowCell.add("1");
         dataRowCell.add("1");
         dataRowCell.add("品牌:舍得,单位:个");
         dataRowCell.add("10");
@@ -852,7 +857,7 @@ public class GoodsService {
         dataRowCells.add(dataRowCell);
 
         //最后一个必填列列数
-        int lastRequiredCol = 9;
+        int lastRequiredCol = 10;
 
         //输出excel
         String fileName = "【商品导入模版】_" + System.currentTimeMillis() + ".xls";
@@ -870,9 +875,6 @@ public class GoodsService {
     public CommonResponse importGoods(MultipartFile multipartFile, Integer storeId) throws IOException {
         HSSFWorkbook workbook = new HSSFWorkbook(multipartFile.getInputStream());
         HSSFSheet sheet = workbook.getSheetAt(0);
-
-        //查询所有商品标签
-        List<GoodsLabel> goodsLabels = myGoodsMapper.findAllLabel(new GoodsLabelVo(storeId));
 
         //查询所有商品分类、商品属性名、商品属性值
         List<GoodsTypeVo> goodsTypeVos = myGoodsMapper.findAllProperties(new GoodsTypeVo(storeId));
@@ -911,12 +913,18 @@ public class GoodsService {
             }
             goodsVo.setPutaway(Byte.valueOf(putaway));
 
-            goodsVo.setOrigin(CommonUtil.getCellValue(row.getCell(10)));
+            String pushMoneyStatus = CommonUtil.getCellValue(row.getCell(4));
+            if ("".equals(pushMoneyStatus) || (pushMoneyStatus.equals("0") && pushMoneyStatus.equals("1"))) {
+                throw new CommonException(CommonResponse.IMPORT_ERROR, "是否提成错误");
+            }
+            goodsVo.setPushMoneyStatus(Byte.valueOf(pushMoneyStatus));
 
-            goodsVo.setRemark(CommonUtil.getCellValue(row.getCell(11)));
+            goodsVo.setOrigin(CommonUtil.getCellValue(row.getCell(11)));
+
+            goodsVo.setRemark(CommonUtil.getCellValue(row.getCell(12)));
 
             //判断商品标签是否存在
-            String label = CommonUtil.getCellValue(row.getCell(12));
+            String label = CommonUtil.getCellValue(row.getCell(13));
             List<GoodsLabel> goodsLabelList = new ArrayList<>();
             if (!label.equals("")) {
                 String[] labels = label.split(",");
@@ -932,7 +940,7 @@ public class GoodsService {
 
             //商品规格
             GoodsSkuVo goodsSkuVo = new GoodsSkuVo();
-            String sku = CommonUtil.getCellValue(row.getCell(4));
+            String sku = CommonUtil.getCellValue(row.getCell(5));
             if ("".equals(sku)) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "规格错误");
             }
@@ -952,31 +960,31 @@ public class GoodsService {
             }
             goodsSkuVo.setSku(JSON.toJSONString(skuList));
 
-            String purchasePrice = CommonUtil.getCellValue(row.getCell(5));
+            String purchasePrice = CommonUtil.getCellValue(row.getCell(6));
             if ("".equals(purchasePrice)) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "进价错误");
             }
             goodsSkuVo.setPurchasePrice(Double.valueOf(purchasePrice));
 
-            String retailPrice = CommonUtil.getCellValue(row.getCell(6));
+            String retailPrice = CommonUtil.getCellValue(row.getCell(7));
             if ("".equals(retailPrice)) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "零售价错误");
             }
             goodsSkuVo.setRetailPrice(Double.valueOf(retailPrice));
 
-            String vipPrice = CommonUtil.getCellValue(row.getCell(7));
+            String vipPrice = CommonUtil.getCellValue(row.getCell(8));
             if ("".equals(vipPrice)) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "vip售价错误");
             }
             goodsSkuVo.setVipPrice(Double.valueOf(vipPrice));
 
-            String bossPrice = CommonUtil.getCellValue(row.getCell(8));
+            String bossPrice = CommonUtil.getCellValue(row.getCell(9));
             if ("".equals(bossPrice)) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "店长售价错误");
             }
             goodsSkuVo.setBossPrice(Double.valueOf(bossPrice));
 
-            String integral = CommonUtil.getCellValue(row.getCell(9));
+            String integral = CommonUtil.getCellValue(row.getCell(10));
             if ("".equals(integral)) {
                 throw new CommonException(CommonResponse.IMPORT_ERROR, "积分错误");
             }

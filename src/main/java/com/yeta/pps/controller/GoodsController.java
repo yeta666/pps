@@ -390,7 +390,7 @@ public class GoodsController {
      * @return
      */
     @ApiOperation(value = "新增商品")
-    @ApiImplicitParam(name = "goodsVo", value = "storeId, name, barCode, typeId, putaway必填；商品规格skus, goodsSkuVos(sku, purchasePrice, retailPrice, vipPrice, integral), goodsLabels, origin, image, remark选填", required = true, paramType = "body", dataType = "GoodsVo")
+    @ApiImplicitParam(name = "goodsVo", value = "storeId, name, barCode, typeId, putaway, pushMoneyStatus必填；商品规格skus, goodsSkuVos(sku, purchasePrice, retailPrice, vipPrice, integral), goodsLabels, origin, image, remark选填", required = true, paramType = "body", dataType = "GoodsVo")
     @PostMapping(value = "/goods")
     public CommonResponse add(@RequestBody @Valid GoodsVo goodsVo) {
         return goodsService.add(goodsVo);
@@ -423,7 +423,7 @@ public class GoodsController {
      * @return
      */
     @ApiOperation(value = "修改商品", notes = "不能修改商品类型，特别强调goodsSkuVos，之前已经存在的规格必须传id，新增的规格不传id，不能删除已经存在的规格")
-    @ApiImplicitParam(name = "goodsVo", value = "storeId, id, name, barCode, putaway, goodsLabels, goodsSkuVos(id, goodsId, sku, purchasePrice, retailPrice, vipPrice, integral必填)必填；其他选填", required = true, paramType = "body", dataType = "GoodsVo")
+    @ApiImplicitParam(name = "goodsVo", value = "storeId, id, name, barCode, putaway, pushMoneyStatus, goodsLabels, goodsSkuVos(id, goodsId, sku, purchasePrice, retailPrice, vipPrice, integral必填)必填；其他选填", required = true, paramType = "body", dataType = "GoodsVo")
     @PutMapping(value = "/goods")
     public CommonResponse update(@RequestBody @Valid GoodsVo goodsVo) {
         return goodsService.update(goodsVo);

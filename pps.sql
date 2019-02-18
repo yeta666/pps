@@ -513,6 +513,7 @@ CREATE TABLE goods_1 (
   bar_code varchar(50) NOT NULL COMMENT '条码',
   type_id int(11) NOT NULL COMMENT '分类id',
   putaway tinyint(4) NOT NULL COMMENT '上架状态，0：未上架，1：已上架',
+  push_money_status tinyint(4) NOT NULL COMMENT '是否提成，0：否，1：是',
   skus mediumtext COMMENT '商品规格',
   origin varchar(200) DEFAULT NULL COMMENT '产地',
   image varchar(200) DEFAULT NULL COMMENT '图片',

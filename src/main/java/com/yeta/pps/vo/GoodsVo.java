@@ -47,6 +47,12 @@ public class GoodsVo {
     private Byte putaway;
 
     /**
+     * 是否提成
+     */
+    @NotNull(message = CommonResponse.PARAMETER_ERROR)
+    private Byte pushMoneyStatus;
+
+    /**
      * skus
      */
     private String skus;
@@ -77,6 +83,10 @@ public class GoodsVo {
     public GoodsVo() {
     }
 
+    public GoodsVo(Integer storeId) {
+        this.storeId = storeId;
+    }
+
     public GoodsVo(Integer storeId, Integer typeId) {
         this.storeId = storeId;
         this.typeId = typeId;
@@ -94,13 +104,6 @@ public class GoodsVo {
         this.barCode = barCode;
         this.typeId = typeId;
         this.putaway = putaway;
-    }
-
-    public GoodsVo(Integer storeId, String id, String barCode, Integer typeId) {
-        this.storeId = storeId;
-        this.id = id;
-        this.barCode = barCode;
-        this.typeId = typeId;
     }
 
     public Integer getStoreId() {
@@ -167,6 +170,14 @@ public class GoodsVo {
         this.putaway = putaway;
     }
 
+    public Byte getPushMoneyStatus() {
+        return pushMoneyStatus;
+    }
+
+    public void setPushMoneyStatus(Byte pushMoneyStatus) {
+        this.pushMoneyStatus = pushMoneyStatus;
+    }
+
     public String getSkus() {
         return skus;
     }
@@ -226,6 +237,7 @@ public class GoodsVo {
                 ", typeId=" + typeId +
                 ", typeName='" + typeName + '\'' +
                 ", putaway=" + putaway +
+                ", pushMoneyStatus=" + pushMoneyStatus +
                 ", skus='" + skus + '\'' +
                 ", goodsSkuVos=" + goodsSkuVos +
                 ", origin='" + origin + '\'' +

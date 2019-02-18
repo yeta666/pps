@@ -49,6 +49,12 @@ public class StoreClient {
         this.clientId = clientId;
     }
 
+    public StoreClient(Integer storeId, String clientId, double pushMoney) {
+        this.storeId = storeId;
+        this.clientId = clientId;
+        this.pushMoney = pushMoney;
+    }
+
     public String getId() {
         return id;
     }
